@@ -1,0 +1,531 @@
+# SNMR: Shared Neural Motion Retargeting for Unified Humanoid Motion-Tracking Training
+
+**A research design plan** — replacing per-frame IK/optimization retargeting (GMR / holosoma_retargeting)
+with a SAME-style skeleton-agnostic neural retargeter built around a **shared latent motion space**,
+feeding a **shared (multi-embodiment) whole-body tracking training** pipeline.
+
+Date: 2026-07-09 · Status: **Phase 0 complete, Phase 1 core implemented & validated** (see §0)
+
+---
+
+## 0. Status update (2026-07-09) & next-step plan
+
+### 0.1 What is built and validated (code: `snmr/`)
+
+The C1 retargeter core is implemented from scratch in `snmr/` (~1.3k LOC source, **28/28 tests
+passing**) and validated against the real assets in this repo:
+
+- **Differentiable FK** (`snmr/robot_model.py`): torch, batched; matches `mujoco.mj_forward` to
+  ~1e-8 m/rad across **six robots** (G1, H1, H1-2, N1, T1-29dof, Toddy) on random in-limit
+  configurations — the load-bearing correctness result for all FK-based losses.
+- **Rotation/convention layer** (`snmr/rotation.py`): wxyz quats, 6D rotation rep, scipy-verified.
+- **Shared skeleton graph** (`snmr/skeleton.py`, `snmr/data.py`): one structure for human + robot;
+  heading/translation-invariant per-node pose features (tested); SMPL-X body-22 topology built in.
+- **Model** (`snmr/model.py`): GAT encoder → per-frame shared latent (max-pool over nodes) →
+  temporal transformer → AdaLN embodiment-conditioned decoder emitting `qpos`; **joint limits by
+  construction** via tanh heads. 0.41M params.
+- **Losses** (`snmr/losses.py`): distill, task-space FK, limits, smoothness, foot-contact,
+  latent-consistency (L_z ready for Phase 2).
+- **End-to-end proof**: overfit-a-batch on a real 60-frame G1 clip from the holosoma WBT NPZ —
+  loss 1.56 → ~0.05, whole-body MPJPE → 5–10 cm, zero limit violations
+  (`snmr/tests/test_overfit.py`, `snmr/scripts/overfit_batch.py`).
+
+An adversarial multi-agent review (3 reviewers → refute-oriented verifiers that executed code)
+confirmed and led to fixes for: (a) **joint-limit/data contract mismatch** — GMR's
+`g1_mocap_29dof.xml` narrows hip-pitch to [-1.57, 1.57] while the training NPZ spans to −2.27 rad
+(~38% of frames unreachable by the limit head); we now use the holosoma G1 model and added a
+limits-cover-data contract test; (b) **silent slide/ball-joint drop** in MJCF parsing — now
+fail-loud + tested; (c) a CUDA device bug in `matrix_to_quat`. The predicted "convention bugs —
+certain to bite" risk row materialized exactly as forecast; the canonicalization module + tests
+caught the rest.
+
+### 0.2 New environment facts (verified, they reshape the near-term plan)
+
+- **GPU**: one NVIDIA A10G (23 GB) is present (shared; venv currently has CPU torch — installing
+  CUDA torch is step N0 below). 8 CPU cores, 30 GB RAM, ~925 GB free disk.
+- **Teacher works here**: GMR installed into the snmr venv and runs at **~150–170 FPS** on this
+  machine (measured on LAFAN1→G1) — faster than the README benchmark; full LAFAN1 × 1 robot ≈
+  50 min, × 5 robots ≈ 4–5 h CPU. **LAFAN1 is downloaded** (77 clips, ≈4.7 h of motion at 30 fps)
+  and a pair-generation script is written and smoke-tested
+  (`snmr/scripts/make_pairs_lafan1.py` → `data/pairs/<robot>/<clip>.npz` with human pos/quat +
+  teacher qpos).
+- **AMASS/SMPL-X is NOT available here** (body-model download requires registration). Phase 1
+  therefore trains on **LAFAN1** (BVH path, 24-body human skeleton); AMASS becomes a Phase-2+
+  data expansion when models are provisioned. This replaces the original "AMASS + LAFAN1" Phase-0
+  data assumption.
+- **Robots with LAFAN1 teacher configs**: `unitree_g1`, `booster_t1_29dof`, `fourier_n1`,
+  `engineai_pm01`, `stanford_toddy` (+ `pal_talos`) — 5–6 embodiments, enough for the Phase-2
+  multi-robot and leave-one-robot-out experiments without any new IK config work.
+- **IsaacSim/WBT training cannot run on this box** (no IsaacSim install; holosoma WBT is
+  IsaacSim-only). Phase 3 remains a handoff: SNMR output → `convert_data_format_mj.py` →
+  `g1-29dof-wbt` on an IsaacSim-capable machine. The contract is already satisfied
+  (`RobotMotion.qpos()` = `[root_pos, root_quat wxyz, dof]`).
+
+### 0.3 Next steps (ordered, with acceptance criteria)
+
+**N0 — CUDA training env — DONE (2026-07-09).** torch 2.5.1+cu124 installed; A10G visible; full
+fast suite green under the CUDA build. Measured on GPU (64-frame windows, 0.41M model):
+**~1130 frames/s training (fwd+bwd)**, **~1940 frames/s inference** vs the ~160 fps CPU teacher —
+the ≥1000 fps Gate-G1 throughput criterion is already met at small batch.
+
+**N1 — Full paired dataset — DONE (2026-07-09).** 77 clips × 5 robots generated in 4.3 h at
+159 fps: **2,483,360 teacher frames (~23 h of paired motion), 1.6 GB** in `data/pairs/<robot>/`.
+Integrity spot-checks per robot passed (frame alignment, unit quats, finite values, sane root
+heights: G1 0.67 m, T1 0.67 m, N1 0.68 m, PM01 0.78 m, Toddy 0.34 m — the size spread we want for
+the shared-latent experiments). Gate G0 satisfied.
+
+**N2 — Human-side encoder path — DONE (2026-07-09).** `snmr/human.py` implements the LAFAN1
+24-body `SkeletonGraph`, `human_pose_features` (mirrors the robot side: heading normalization, 6D
+rots, velocities), schema-matched static features, height+velocity contact flags, and the pair-NPZ
+loader; `SNMR.retarget_human_to_robot` is the production path. Validated by 8 new tests including
+**an end-to-end human→latent→robot training convergence test against real GMR teacher output**
+(loss drops >70% in 220 steps; root height within 15 cm of teacher). Suite now 36 tests, all green.
+
+**N3 — Phase-1 training run: LAFAN1 → G1 (IN PROGRESS).** Trainer written
+(`snmr/scripts/train_phase1.py`: 70 train / 7 held-out clips, 64-frame windows, AdamW + cosine,
+periodic held-out MPJPE eval, resumable checkpoints); full 60k-step GPU run launched.
+*Design lessons from the smoke runs (root-pose parametrisation matters a lot):*
+1. **World-frame root targets are unlearnable by construction** — the encoder features are
+   deliberately heading/translation invariant, so the network cannot know where in the world the
+   motion happens. Measured: ~3.3 m val MPJPE of pure root drift.
+2. **Anchoring at the raw human root is still ill-posed**, because GMR *scales* the human
+   trajectory before IK (`human_scale_table` × height ratio): robot_xy ≈ s·human_xy with
+   s ≈ 0.875 for LAFAN1→G1 (least-squares residual ≤ 1.5 cm). The residual (robot − human) offset
+   grows with distance from the world origin — an error decomposition showed 59 cm of a 61 cm val
+   MPJPE was root error, only 12 cm from dof error.
+3. **Fix:** predict the root in the **scaled-human-root heading frame**; the per-robot scale s is
+   fitted once on the training set, stored in the checkpoint, and treated as a retargeting
+   constant at inference (`fit_xy_scale` in `scripts/train_phase1.py`;
+   `world_root_to_local`/`local_root_to_world` in `snmr/data.py`, round-trip + invariance tested).
+   Val MPJPE at a 2k-step smoke: 3.3 m → 0.56 m → **0.28 m** across the three formulations.
+
+*First full 60k-step run (0.41M params, z=64) — COMPLETE (2026-07-09, ~1 h on the A10G):*
+held-out val MPJPE converged **33 cm → 5.2 cm** (dof err 0.10 rad); the final 16-window-per-clip
+eval reads **7.0 cm** (more windows per clip than the in-training eval — treat 5–7 cm as the honest
+band). Loss still trending down at 60k with capacity as the visible bottleneck (train loss 0.035
+vs early-clip overfit 0.046 at 0.41M params). **Gate G1 (<3 cm) not yet met — no red flag in
+sight:** the remaining error is dof detail, not root drift, and the model is 20–50× smaller than
+comparable retargeting nets (AdaMorph/NMR-scale). The 60k baseline checkpoint is kept at
+`snmr/runs/phase1_g1/ckpt_60k_final.pt`. `scripts/export_wbt_npz.py` (N5) is already
+schema-validated against the real holosoma sample NPZ using an intermediate checkpoint.
+
+*Scaling attempt #1 (negative result, kept for the record):* z=128/hidden=256 at **lr 8e-4
+destabilized** — train loss spiked 0.37→0.66 at ~12k steps and plateaued ~30k steps before
+partially recovering; final val MPJPE 18.9 cm ≫ the small model's 5.2 cm
+(`snmr/runs/phase1_g1_large_lr8e4_diverged/`). Lesson: the larger GAT+transformer needs a smaller
+LR (and/or warmup).
+
+*Scaling attempt #2 — **GATE G1 PASSED** (2026-07-09):* same z=128/hidden=256 architecture at
+**lr 3e-4**, 100k steps (~1.6 h on the A10G): held-out val MPJPE **2.18 cm** (in-training eval,
+4 windows/clip) / **3.12 cm** (final denser 16-windows/clip eval), dof err **0.046–0.061 rad** —
+at or under the <3 cm criterion, and already inside the original 1–2 cm AMASS-scale stretch band
+on the sparser eval. Checkpoint: `snmr/runs/phase1_g1_large/ckpt_100k_final.pt` (the export
+script now reads model dims from the checkpoint config). The capacity hypothesis from the 60k
+baseline was correct: 4× params took 5.2 cm → 2.2 cm at identical data. **N3 complete; proceed
+to N4 (multi-robot shared latent) using this architecture + lr.**
+*Accept (Gate G1, revised to be honest for a 4.7 h dataset):* held-out **MPJPE-to-teacher
+< 3 cm**, foot-skate no worse than teacher, jerk below teacher (temporal window should smooth),
+batched GPU throughput ≥ 1000 fps (already measured: ~1130 fps train / ~1940 fps inference).
+The original "1–2 cm" target stays as the stretch goal for the AMASS-scale dataset.
+
+**N4 — Phase-2 shared latent (IN FLIGHT, launched 2026-07-09).** Implemented
+`snmr/scripts/train_phase2.py`: per step the human window is encoded once → z_h, decoded to K=2
+sampled robots with per-robot distillation, plus **symmetric L_z** pulling each robot-teacher
+encoding z_r toward z_h — tying all embodiments' encodings of the same motion to one latent
+point. Per-robot xy trajectory scales are **config-derived** (human_scale_table × height ratio;
+verified vs least-squares data fits, diff ≤ 1.3e-3 across all 5 robots) so the LORO holdout needs
+no fitted constants. All 5 robot MJCFs FK-verified (~1e-8) with dof dims matching the pairs data.
+Latent-space analysis tool ready (`snmr/scripts/eval_latent_space.py`: same-motion
+cross-embodiment distance ratio + cross-embodiment retrieval top-1/MRR vs chance).
+Two 100k-step runs queued on the A10G (z=128/hidden=256, lr 3e-4 — the Phase-1 winning recipe):
+(1) **all-5 shared** in `snmr/runs/phase2_all5/` — first eval @4k: G1 19.0 / T1 14.1 / N1 13.6 /
+PM01 16.7 / Toddy 9.3 cm, L_z already 0.003 (latents aligning); (2) **LORO** (holdout
+engineai_pm01, zero-shot eval) auto-chained to start when (1) finishes.
+*Accept (Gate G2):* multi-robot ≥ per-robot models on each robot; zero-shot holdout within 2× of
+its in-training error; retrieval substantially above chance (chance top-1 ≈ 0.012 at 84 windows).
+
+**N4b — Benchmark & ablation infrastructure — BUILT (2026-07-09/10).**
+- `snmr/snmr/metrics.py`: literature-aligned metric suite computed by one code path for SNMR and
+  teacher alike — MPJPE (+per-body), foot-skate speed & slide fraction (contact detected on the
+  *teacher's* feet: holosoma thresholds — 3 cm height, 0.3 m/s, 1 cm/frame slide), **FS-MANN**
+  (the animation-standard formula v·(2−2^(h/H)), H=2.5 cm, from MANN/SIGGRAPH'18 — the metric SAME
+  reports as "FS"), ground penetration mean/max/fraction (1 cm tolerance = OmniRetarget/holosoma),
+  dof/body jerk, **joint-jump fraction** (NMR: |Δdof|>0.5 rad/step) and **limit-proximity
+  fraction** (NMR: within 0.05 rad of a limit), plus hard limit violations. 11 unit tests with
+  analytically-known values (all green; suite now 46 tests).
+- *Protocol research (verified from sources):* our metric set now covers every quantitative metric
+  used by GMR (E_mpbpe family via MPJPE/dof-err), OmniRetarget/ULTRA (penetration + skate
+  duration/magnitude), NMR (joint-jump/self-collision-adjacent/limit-proximity counts), and SAME
+  (FS/GP), so tables are directly comparable. Notable conventions adopted: stance from source/
+  teacher feet (OmniRetarget) rather than height-only (ULTRA); BeyondMimic-based downstream eval is
+  the field's standard (GMR/NMR/OmniRetarget all use it) — that's exactly our N5 handoff. Notable
+  gap in the literature we can exploit: none of the five papers ablate data scale, and AdaMorph
+  (the only other multi-robot retargeter) reports **no baselines and no ablations** — our ablation
+  grid alone exceeds its evaluation.
+- `snmr/scripts/benchmark.py`: checkpoint vs GMR teacher on held-out clips per robot →
+  JSON + markdown tables (throughput included).
+- `snmr/scripts/run_ablations.py`: sequential grid runner (waits for a free GPU, resume-safe):
+  base(z=128@50k) / no_temporal / z32 / small(0.41M) / +contact-loss / lr8e4-instability-row —
+  each trained then benchmarked identically; queued to start automatically when the LORO run
+  frees the GPU. Trainer gained `--no_temporal` and `--contact_weight` (world-frame skate penalty
+  with teacher-derived contact masks; local-frame skate would be wrong since a planted foot moves
+  in the anchor frame).
+
+*First benchmark (Phase-1 G1 ckpt, held-out, full metric set):* MPJPE 3.6 cm; penetration ≈
+teacher (0.0002 vs 0.0000 m mean); hard limit violations 0 vs 0; joint jumps *better* than
+teacher (0.005 vs 0.007); limit-proximity *better* (0.29 vs 0.57 — the tanh head keeps margins the
+IK solver doesn't); dof jerk ≈ teacher (568 vs 527 rad/s³); FS-MANN 0.215 vs 0.132 cm/frame — but
+**contact-gated foot skate 0.25 m/s vs teacher 0.05, slide fraction 32% vs 0%**, body jerk 2×.
+Decomposition (teacher-root vs teacher-dof substitution) shows the skate is **dof-caused**
+(0.42 m/s with teacher root; root-only 0.24): mm-level frame-to-frame leg-angle noise
+differentiates into foot velocity. This is the #1 quality gap to close; the `contact` ablation row
+targets it directly, and a stronger smoothness term or inference-time foot-locking are the
+fallbacks. (This also confirms why the GMR paper found foot artifacts dominate downstream RL
+quality.)
+
+**N5 — Phase-3 handoff package (parallel).** Export N3/N4 checkpoints' retargeted motions through
+`convert_data_format_mj.py`; produce the exact `g1-29dof-wbt` commands + a small (a) GMR-data vs
+(b) SNMR-data comparison protocol for an IsaacSim machine. *Accept:* converted NPZs load in
+holosoma's `MotionLoader` (schema-validated locally with a loader-shape check, no IsaacSim
+needed).
+
+**Deferred (unchanged from plan):** AMASS/SMPL-X ingestion once body models are provisioned;
+holosoma interaction-mesh teacher for object clips; T1 WBT port; Stage-C physics feedback loop.
+
+### 0.4 Design adjustments from implementation experience
+
+1. **LAFAN1-first, AMASS-later** (data availability; §0.2). The human skeleton abstraction already
+   handles both (24-body BVH vs body-22 SMPL-X) since the encoder is skeleton-agnostic.
+2. **Robot-model provenance is a first-class contract**: the limits the decoder enforces MUST come
+   from the same model family that produced/consumes the data (holosoma G1, not GMR's narrowed
+   mocap variant). Added to the risk table as resolved; guarded by a test.
+3. **Overfit gate before dataset training** (validated): the 0.41M model reproduces real motion to
+   5–10 cm MPJPE when overfit — capacity/gradients are not the bottleneck; data scale is.
+4. **Review workflow works**: the refute-oriented verify stage killed 1 of 3 findings and produced
+   executable evidence for the other 2 — keep it as the standard gate before each phase merge.
+
+---
+
+## 1. The existing workflow (what we have today)
+
+Two repos implement the current `motion → retarget → motion-tracking-training` workflow:
+
+### 1.1 GMR (`GMR/`) — real-time IK retargeting, 17+ robots
+
+```
+human motion (SMPL-X / BVH / FBX / Xsens / PICO)
+   → intermediate dict: {body_name: (world pos[3], quat wxyz[4])} per frame
+   → per-body scaling (human_scale_table × height ratio) + constant frame offsets
+   → two-stage mink differential-IK (QP, daqp solver, damping 5e-1, ≤10 iters/stage,
+     warm-started from previous frame)                    [motion_retarget.py]
+   → robot qpos = [root_pos(3), root_quat wxyz(4), dof_pos(29 for G1)]
+   → saved pkl {fps, root_pos, root_rot(xyzw), dof_pos, local_body_pos, link_body_list}
+```
+
+Key facts that shape the design:
+- **Per-robot hand-tuned JSON configs** (`ik_configs/*.json`): body-pair mapping, position/rotation
+  weights per body per stage, constant rotation offsets, per-body scale factors. 30 configs exist;
+  every new robot or new source format costs manual tuning ("Designing a single config for all
+  different humans is not trivial" — GMR README known issues).
+- **Sequential, CPU-bound**: 35–70 FPS on high-end desktop CPUs; no batching possible (stateful
+  mink `Configuration` warm start). Retargeting 40 h of AMASS × 17 robots is expensive.
+- **Purely kinematic, soft-cost only**: no hard contact/penetration constraints; foot skate and
+  self-penetration artifacts leak into the data (this is exactly what the GMR paper shows degrades
+  downstream RL tracking).
+- **A differentiable torch FK already exists in-repo**: `general_motion_retargeting/kinematics_model.py`
+  parses MJCF directly, batched, GPU, returns (body_pos, body_rot) — currently only used for post-hoc
+  `local_body_pos`. This is our free differentiable-loss backbone.
+
+### 1.2 holosoma (`holosoma/`) — offline optimization retargeting + WBT RL training
+
+```
+world joint positions (T, J, 3)  [lafan/smplh/mocap/smplx loaders]
+   → InteractionMeshRetargeter: SQP over full qpos; cost = Laplacian deformation of a
+     Delaunay interaction mesh (human keypoints + object/ground samples);
+     HARD constraints: non-penetration (mj_geomDistance), foot-sticking window, foot lock,
+     self-collision pairs, joint limits, trust region; solver CVXPY/Clarabel
+     [src/interaction_mesh_retargeter.py]
+   → npz {qpos (T, nq), human_joints, fps=30}
+   → convert_data_format_mj.py: 30→50 fps interp, MuJoCo FK replay → full-body kinematics
+   → training NPZ {fps, joint_pos(T,7+29), joint_vel(T,6+29), body_pos_w, body_quat_w(wxyz),
+     body_lin_vel_w, body_ang_vel_w, joint_names, body_names [, object_*]}
+   → WBT training (IsaacSim, 4096 envs, PPO or FastSAC, 50 Hz policy):
+     DeepMimic-style RSI + BeyondMimic-style adaptive timestep sampling,
+     yaw/xy-re-anchored reference tracking of 14 bodies, early termination on z/ori error,
+     DR + push randomization, ONNX export for sim2sim/real deployment
+     [managers/command/terms/wbt.py, config_values/wbt/g1/*]
+```
+
+Key facts:
+- The training consumer contract is exactly the converter NPZ schema — **any retargeter that emits
+  robot `qpos @ any fps` is a drop-in** via `convert_data_format_mj.py`.
+- `MultiMotionLoader` already supports dataset-of-motions training (directories of clips,
+  per-clip RSI, adaptive sampling over the concatenated timeline) — the infra for "train one policy
+  on a big retargeted dataset" already exists.
+- **WBT is currently G1-only** (T1 has locomotion configs but no WBT experiment) — multi-robot
+  tracking requires config work regardless of retargeting method.
+- `evaluation/eval_retargeting.py` already computes penetration fraction/depth + contact metrics —
+  reusable as our retargeting quality benchmark.
+
+### 1.3 The gap
+
+Both retargeters are **per-frame optimization with hand-tuned per-robot artifacts**
+(IK weight tables / constraint configs), non-differentiable, sequential, and embodiment-siloed:
+N robots × M source formats ⇒ N×M configs, N separate motion datasets, N separate tracking runs.
+There is no shared representation connecting "the same motion" across embodiments.
+
+---
+
+## 2. Literature: is neural retargeting viable, and what's the opening?
+
+(Full citations verified against arXiv/ACM; summary of a broader survey.)
+
+**Almost every major humanoid pipeline still uses non-learned retargeting.** H2O/OmniH2O/HOVER/ASAP
+(SMPL shape-fit + gradient descent), HumanPlus (joint-angle copy), ExBody (rotation remap),
+TWIST/KungfuBot (mink IK), VideoMimic (LM-solver IK with contact costs), OmniRetarget (interaction-mesh
+SQP — the same method as holosoma_retargeting), BeyondMimic (consumes Unitree's closed-source
+retargeted LAFAN1). Learning appears downstream (RL trackers, distillation) — not in the human→robot map.
+
+**Learned retargeting is an emerging fringe (2023–2026)** — validating both feasibility and timing:
+- *ImitationNet* (Humanoids'23, 2309.05310): unsupervised human→robot retargeting via shared latent space.
+- *GBC* (2508.09960): self-supervised differentiable-IK network trained with torch FK losses on AMASS.
+- *NMR / "Make Tracking Easy"* (2603.22201): shows per-frame optimization retargeting is ill-conditioned;
+  RL-expert-repaired data supervises a CNN-Transformer retargeter (G1).
+- *AdaMorph* (2601.07284): unified transformer retargeter with embodiment-aware AdaLN across
+  **12 humanoid robots**, zero-shot to unseen motions.
+- *ReActor* (SIGGRAPH'26, 2605.06593): bilevel retarget-and-track — RL tracking gradient refines retargeting.
+- *ULTRA* (2603.03279): physics-driven neural retargeting preserving contact-rich interaction, real G1.
+
+**SAME** (Lee et al., SIGGRAPH Asia 2023, DOI 10.1145/3610548.3618206) is the strongest template for the
+*shared-latent* part:
+- GAT (graph-attention) autoencoder; joints = nodes, bones = edges. Per-node features: skeleton
+  (offsets, 6d) + pose (6d rot, pos, root Δ, velocities, contact ≈ 26d).
+- Encoder → **global max-pool over joints → single 32-d per-frame latent z** (skeleton-agnostic).
+- Decoder conditions on **any target skeleton graph** (features re-injected at every layer) → outputs
+  per-node rotations + root motion + contact; positions via a depth-batched FK layer.
+- Trained on 160 augmented skeletons × 780 min of paired motion (pairs from MotionBuilder's retargeter);
+  losses: reconstruction + velocity/jerk + contact/foot-slide/penetration (soft) +
+  **embedding consistency L_z = ‖Enc(S_a,D_a) − Enc(S_b,D_b)‖²** for the same motion on different skeletons.
+- Retargeting = Dec(S_tgt, Enc(S_src, D_src)); handles unseen skeletons + missing joints (random limb masking).
+- **Limitations for robots** (why we can't use it off-the-shelf): purely kinematic, no joint limits,
+  no dynamics/self-collision, biped-character assumptions, paired-data requirement, ground contact as
+  heuristic soft labels. (Note: SAME has no arXiv version — cite the ACM DOI.)
+
+**SAME's graphics successors (2024–2026)** confirm the shared-latent direction is active but still
+animation-only: *WalkTheDog* (SIGGRAPH'24, 2407.18946) — shared phase manifold across morphologies,
+unsupervised; *AnyTop* (SIGGRAPH'25, 2502.17327) — any-topology motion diffusion with joint-name text
+embeddings for cross-skeleton correspondence; *PUMPS* (ICCV'25, 2507.20170) — skeleton-free point-cloud
+motion pre-training; *SATA* (ICML'26, 2605.27055) — the most direct SAME successor: semantic-aware,
+topology-agnostic latent trained on unaligned raw BVH, zero-shot cross-species retargeting. None touch
+robot constraints or RL tracking — reinforcing the gap this proposal targets. AnyTop's joint-name
+textual embeddings are worth borrowing for human↔robot joint correspondence (robot MJCF link names are
+semantically meaningful: `left_knee_link` ↔ `left_knee`).
+
+**The research opening**: nobody has combined (a) a SAME-style shared skeleton/embodiment-agnostic
+latent motion space, (b) robot-grade constraints (joint limits, self-collision, contact preservation)
+learned from optimization-teacher + physics signals, and (c) using that latent as the **command interface
+of a multi-embodiment tracking policy**. HOVER unified command *modes* for one robot; AdaMorph unified
+retargeting but not tracking; we unify motion representation across robots AND feed tracking with it.
+The two repos on disk provide the teachers, the differentiable FK, the metrics, and the RL harness.
+
+---
+
+## 3. Proposed system: SNMR
+
+Two coupled contributions:
+
+> **C1 — Neural retargeter with a shared motion latent.** One network replaces all
+> `ik_configs/*.json` + per-frame IK: any human skeleton in → any robot qpos out, batched on GPU,
+> with an embodiment-invariant latent z in the middle.
+>
+> **C2 — Shared neural motion-tracking training.** The latent z (not per-robot joint targets)
+> becomes the motion command; one tracking policy, conditioned on an embodiment embedding, trained
+> across robots on neurally-retargeted data — with the tracking results feeding back to improve
+> the retargeter (sim-to-data filtering → optional bilevel refinement).
+
+### 3.1 Architecture
+
+```
+                         HUMAN SIDE                                ROBOT SIDE
+ human skeleton graph ┐                                  ┌ robot embodiment graph (from MJCF/URDF:
+ (SMPL-X 24–55 j /    │                                  │  body tree, joint axes, ranges, link
+  BVH 22 j, offsets)  │                                  │  lengths, masses — parseable today by
+                      ▼                                  ▼  GMR KinematicsModel._parse_xml)
+ pose seq D_h ──► GAT/Transformer ENCODER ──► z_{1:T} ──► embodiment-conditioned DECODER ──► robot motion
+ (6d rot, pos,    (per-frame GAT over joints   shared      (GAT over robot graph + temporal      q_{1:T} =
+  root Δ, vels,    + small temporal attention   latent      attention; robot features re-injected  [root pos,
+  contact flags)   window ±k frames)            space       per layer, AdaLN on embodiment code)    root 6d rot,
+                                                                                                    joint angles]
+                                              z ∈ R^{d}                                            + contact ĉ
+                                              d ≈ 64–128
+                                              per frame
+```
+
+Design choices (deviations from SAME, motivated by robot constraints):
+
+1. **Decode joint *angles*, not per-node rotations.** Robots have 1-DoF hinge chains with hard limits;
+   output = qpos directly (root pos + 6d root rot + per-joint scalar angles via per-node heads),
+   squashed by `tanh` scaled to joint ranges ⇒ joint-limit satisfaction **by construction**.
+2. **Differentiable FK in the loss loop**, using GMR's `KinematicsModel` (torch, batched, MJCF-parsed):
+   position/orientation losses computed on FK'd bodies, so supervision can live in task space.
+3. **Temporal context**: SAME is frame-wise with temporal soft losses; we add a small ±k-frame attention
+   window (k≈8 @ 30 fps) — retargeting needs velocity-consistent, non-jittery output for RL consumption,
+   and NMR's analysis shows framewise optimization is ill-conditioned exactly here.
+4. **Contact-aware**: encoder input includes foot-contact flags (height+velocity heuristic, as in
+   holosoma's `extract_foot_sticking_sequence_velocity`); decoder predicts robot contact ĉ used by the
+   foot-skate loss and exported for downstream reward shaping.
+5. **Embodiment code**: a learned per-robot token from pooling the robot graph (so unseen robots get a
+   code zero-shot from their MJCF), used both in the decoder (AdaLN, following AdaMorph's verified
+   recipe) and later as the tracking policy's embodiment conditioning.
+
+### 3.2 Losses
+
+Let T_r = teacher retargeting (GMR for robot-only; holosoma InteractionMeshRetargeter where
+object/terrain interaction matters), FK = differentiable forward kinematics, H = human keypoints
+scaled by GMR's `human_scale_table` convention.
+
+| Loss | Form | Role |
+|---|---|---|
+| L_distill | ‖q̂ − q_teacher‖² (+ velocity) | dense supervision from the optimization teachers (paired data is *free*: run batch scripts once) |
+| L_task | Σ_b w_b‖FK_b(q̂) − target_b(H)‖² + rot geodesic | self-supervised keypoint matching, GBC-style; weights initialized from the ik_config tables, then *learned* |
+| L_limits | penalty outside soft range (mostly inactive due to tanh head) | safety margin |
+| L_smooth | ‖q̈̂‖² + jerk | RL-consumable smoothness |
+| L_contact | ĉ·‖ṗ_foot‖² + penetration min(z_foot,0)² + skate clamp | SAME-style, using robot FK feet |
+| L_coll | hinge on SDF proxy between capsule pairs (self-collision pairs from holosoma configs) | replaces the teacher's hard constraint, softly |
+| **L_z** | ‖Enc(S_h, D_h) − Enc*(R_i, q̂_i)‖² across robots i, + z-space alignment of the *same clip retargeted to different robots* | the **shared-space** loss — the SAME idea, extended: one motion ⇒ one z regardless of embodiment |
+| L_cycle (opt.) | decode to robot → re-encode → decode to human skeleton → match original | unpaired-data extension (ImitationNet/CycleGAN-style), Phase-4 option |
+
+L_z requires encoding *robot* motion too ⇒ the encoder is embodiment-agnostic by construction
+(it already takes arbitrary graphs), giving us robot→robot and robot→human transfer for free.
+
+### 3.3 Data engine (teachers we already own)
+
+- **Pairs**: `GMR/scripts/smplx_to_robot_dataset.py` + `bvh_to_robot_dataset.py` over AMASS + LAFAN1
+  for all 17 robots (multiprocessing; one-time CPU cost). Holosoma parallel retargeter for
+  interaction clips (OMOMO, climbing) on G1/T1.
+- **Embodiment augmentation** (SAME's key trick, robot version): randomize link lengths (±20%),
+  joint range shrinkage, dropped joints (fixed wrist/waist variants), base height — generate synthetic
+  MJCF variants and re-run the teacher on a subset ⇒ decoder generalization to unseen embodiments,
+  measured by leave-one-robot-out.
+- **Canonical intermediate**: keep GMR's dict format `{body: (pos, quat)}` as the human-side interface
+  so all six source formats keep working unchanged.
+
+### 3.4 Shared tracking training (C2)
+
+Staged to keep risk low:
+
+- **Stage A (per-robot policies, neural data)**: swap teacher data for SNMR output; holosoma pipeline
+  unchanged (`q̂ → convert_data_format_mj.py → WBT NPZ → g1-29dof-wbt`). This is the *GMR-paper
+  methodology in reverse*: fixed tracker, vary retargeting ⇒ clean measurement of whether neural
+  retargeting matches/exceeds optimization retargeting for downstream RL.
+- **Stage B (shared policy)**: extend holosoma WBT to T1 (+1–2 more robots via MJCF import); condition
+  actor/critic on the embodiment code; motion command becomes `[z_t..z_{t+H}, embodiment code]`
+  (replacing per-robot ref joint_pos ⊕ joint_vel in `motion_command`), while per-robot reference
+  bodies for *rewards* still come from the decoded q̂ (rewards need ground truth in robot space;
+  the *observation* interface is what becomes shared). Multi-embodiment batches: per-robot env groups
+  in the same run, alternating or weighted sampling.
+- **Stage C (feedback loop)**:
+  1. *Sim-to-data filtering* (H2O-recipe): clips the tracker fails → flagged, teacher-vs-student
+     diff analyzed, hard clips upweighted in retargeter fine-tuning.
+  2. *Physics refinement* (ReActor/NMR-inspired, stretch goal): fine-tune decoder heads with tracking
+     reward gradient approximation or with RL-repaired trajectories as new supervision — the retargeter
+     learns to emit *trackable* motion, which optimization teachers cannot do.
+
+---
+
+## 4. Build plan
+
+### Phase 0 — Foundations & data (weeks 1–3) — **DONE (2026-07-09), see §0.1**
+- [x] New package `snmr/` alongside GMR + holosoma (dependency-light: torch/numpy/scipy/mujoco;
+      dense masked graph attention instead of torch_geometric; FK re-implemented and validated
+      against MuJoCo rather than lifting GMR's XML parser — more robust to MJCF defaults/includes).
+- [x] Canonicalization (wxyz internally) + rotation layer, scipy-verified; the predicted
+      convention pitfalls materialized and were caught by tests + adversarial review.
+- [x] Pair-generation script for LAFAN1 (`snmr/scripts/make_pairs_lafan1.py`), smoke-tested;
+      full 77-clip × 5-robot generation is step N1 (§0.3). AMASS deferred — no SMPL-X models in
+      this environment (§0.2).
+- [~] **Gate G0**: teacher runs at ~150–170 FPS here; visual spot-check + stats note pending in N1.
+
+### Phase 1 — Single-robot neural retargeter (weeks 3–8) — **CORE DONE, training run = N3**
+- [x] Encoder/decoder implemented (4 GAT layers, z=64, temporal transformer; AdaLN embodiment
+      conditioning; tanh limit heads) — `snmr/model.py`.
+- [x] All losses implemented (`snmr/losses.py`); overfit-a-batch validation passed (real G1 clip:
+      loss 1.56→0.05, MPJPE 5–10 cm, zero limit violations).
+- [ ] Dataset training LAFAN1→G1 with held-out clips + benchmarks vs GMR (step N3, §0.3).
+- **Gate G1 (revised for the 4.7 h LAFAN1 dataset)**: held-out MPJPE-to-teacher < 3 cm, foot-skate
+  ≤ teacher, ≥1000 fps batched GPU. Original 1–2 cm remains the AMASS-scale stretch target.
+  If not met: increase temporal window, per-body decoder queries, or 2–3-iter test-time L_task
+  polish (amortized-IK + refine).
+
+### Phase 2 — Shared latent, multi-robot (weeks 6–12, overlaps P1)
+- [ ] Multi-robot training (7 robots) with L_z consistency + embodiment augmentation.
+- [ ] The two flagship experiments:
+      **(E1) leave-one-robot-out zero-shot**: hold out e.g. H1-2; retarget via MJCF-derived embodiment
+      code only; report degradation vs fine-tuned. **(E2) latent unification**: same clip → all robots,
+      measure z-space clustering (same-motion-across-robots vs different-motions); latent interpolation
+      / motion-matching demos in z-space (SAME's downstream tasks, robot edition).
+- **Gate G2**: multi-robot model ≥ per-robot models on each robot (positive transfer, not interference);
+  zero-shot robot within 2× of tuned error.
+
+### Phase 3 — Tracking validation, Stage A (weeks 8–14, needs GPU cluster w/ IsaacSim)
+- [ ] Pipe SNMR output through `convert_data_format_mj.py`; train `g1-29dof-wbt` (identical config)
+      on (a) GMR-retargeted vs (b) SNMR-retargeted single clips + a 20-clip `motion_dir` dataset.
+- [ ] Metrics: episode tracking rewards, termination/failure rates, adaptive-sampler failure heatmaps,
+      sim2sim MuJoCo eval via holosoma_inference.
+- **Gate G3**: SNMR-trained policies within noise of teacher-trained policies. (This alone is a
+  publishable ablation given the GMR paper's finding that retargeting quality dominates tracking.)
+
+### Phase 4 — Shared tracking + feedback loop, Stage B/C (weeks 12–20)
+- [ ] Port holosoma WBT config to T1 (robot cfg exists for locomotion; needs WBT command/reward/
+      termination presets + retarget models — teacher configs exist in holosoma_retargeting for T1).
+- [ ] Embodiment-conditioned policy: motion command = decoded per-robot reference (baseline) vs
+      z-latent command (ours); 2-robot joint training; measure cross-robot transfer (train G1+T1,
+      test few-shot adaptation to PM01).
+- [ ] Sim-to-data filtering loop; optional ReActor-style refinement if time allows.
+- **Gate G4**: one checkpoint tracks motions on ≥2 robots; z-command ≥ decoded-command baseline.
+
+### Phase 5 — Write-up & release (weeks 18–24)
+- Paper target: ICRA/CoRL/RSS. Framing: *"One latent to move them all: shared neural motion
+  retargeting and tracking across humanoid embodiments."* Release code + the multi-robot paired
+  dataset (check AMASS license terms for derived data; LAFAN1 is research-friendly).
+
+### Team/compute assumptions
+1–2 researchers + this codebase. Phase 0–2: single 8×GPU node (retargeter training is light —
+SAME trained in hours). Phase 3–4: IsaacSim-capable GPUs, 4096 envs per run; budget ~10–20 WBT runs.
+
+---
+
+## 5. Risks and mitigations
+
+| Risk | Likelihood | Mitigation |
+|---|---|---|
+| Student ceiling = teacher quality (distillation can't beat GMR artifacts) | High | L_task/L_contact/L_coll are *independent* of teacher; NMR/ReActor show physics feedback surpasses optimization teachers; measure student-vs-teacher on contact metrics explicitly |
+| Single z per frame too coarse for whole-body detail (SAME z=32 was for stylized characters) | Medium | scale d, add per-limb pooled latents (5-token z), ablate |
+| Multi-robot interference (negative transfer) | Medium | per-robot LoRA/AdaLN heads on shared trunk; gate G2 explicitly tests this |
+| Contact/interaction fidelity (mesh-teacher's hard constraints are soft in the student) | Medium | keep holosoma teacher for interaction clips; add SDF losses; optional 2–3-step constrained polish at inference (still ≫ faster than full SQP) |
+| Holosoma WBT is G1-only; T1 port unknown effort | Medium | Stage A results don't depend on it; T1 retargeting models/configs already exist in holosoma_retargeting; budgeted in Phase 4 |
+| Wheeled/odd embodiments (R1 Pro) break biped assumptions | Low (scope) | exclude wheeled robots; scope = bipedal humanoids |
+| z-command policy underperforms explicit reference (information bottleneck) | Medium | hybrid command (z ⊕ decoded root/EE targets); this ablation is itself a paper finding |
+| Quaternion/frame-convention bugs across repos (wxyz vs xyzw, y-up vs z-up, cm vs m) | **Materialized & resolved** | canonicalization module + round-trip tests built (`snmr/rotation.py`); adversarial review caught the residual cases (see §0.1) |
+| Robot-model provenance mismatch (limits/geometry differ across MJCF copies of the "same" robot) | **Materialized & resolved** | decoder limits must come from the model family that produced the data; contract test `test_joint_limits_cover_training_data` guards it |
+
+## 6. Evaluation summary (what "success" means)
+
+**Retargeting**: task-space MPJPE (vs scaled human keypoints & vs teacher), foot-skate score,
+ground-penetration depth/fraction, self-collision count, joint-limit violations, jerk, throughput,
+zero-shot-unseen-robot error. **Tracking**: WBT success/termination rate, per-body tracking errors,
+reward curves under identical config (GMR-paper methodology), sim2sim transfer, multi-robot single
+checkpoint coverage. **Shared space**: same-motion cross-embodiment z distance vs inter-motion
+distance (retrieval mAP), latent interpolation quality.
+
+## 7. Key references
+
+GMR (2510.02252, ICRA'26) · TWIST (2505.02833) / TWIST2 (2511.02832) · OmniRetarget (2509.26633) ·
+SAME (Lee et al., SIGGRAPH Asia'23, 10.1145/3610548.3618206) · Skeleton-Aware Networks (2005.05732) ·
+H2O (2403.04436) / OmniH2O (2406.08858) / HOVER (2410.21229) / ASAP (2502.01143) · PHC (2305.06456) /
+PULSE (2310.04582) · BeyondMimic (2508.08241) · GBC (2508.09960) · ImitationNet (2309.05310) ·
+NMR "Make Tracking Easy" (2603.22201) · AdaMorph (2601.07284) · ReActor (2605.06593, SIGGRAPH'26) ·
+ULTRA (2603.03279) · MaskedMimic (2409.14393) · KungfuBot (2506.12851) · VideoMimic (2505.03729) ·
+CrossLoco (2309.17046) · S3LE (2103.06447) · HumanMimic (2309.14225) ·
+WalkTheDog (2407.18946) · AnyTop (2502.17327) · PUMPS (2507.20170) · SATA (2605.27055) ·
+R2ET (2303.08658) · PAN (2306.08006) · NKN (1804.05653).
