@@ -8,3 +8,6 @@ __pycache__/
 *.egg-info/
 # scratch training logs at repo root (per-run logs live in runs/<name>/)
 runs_*.log
+
+# LAFAN1-derived fixture: kept local, NOT published (Ubisoft license unverified)
+tests/fixtures/pair_g1_*.npz
