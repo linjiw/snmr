@@ -146,6 +146,7 @@ class SNMRConfig:
     temporal_layers: int = 2
     temporal_heads: int = 4
     use_temporal: bool = True
+    predict_contact: bool = False    # N6: per-foot contact head on the decoder root pathway
 
 
 # --------------------------------------------------------------------------------------
@@ -232,6 +233,13 @@ class MotionDecoder(nn.Module):
                                         nn.Linear(cfg.dec_hidden // 2, 1))
         self.root_head = nn.Sequential(nn.Linear(cfg.dec_hidden, cfg.dec_hidden // 2), nn.ELU(),
                                        nn.Linear(cfg.dec_hidden // 2, 9))  # 3 pos + 6 rot6d
+        # N6: optional per-node contact logit (gathered at foot bodies by the caller). Kept off by
+        # default so existing checkpoints load unchanged.
+        self.contact_head = (
+            nn.Sequential(nn.Linear(cfg.dec_hidden, cfg.dec_hidden // 2), nn.ELU(),
+                          nn.Linear(cfg.dec_hidden // 2, 1))
+            if cfg.predict_contact else None
+        )
 
     def forward(
         self,
@@ -265,7 +273,10 @@ class MotionDecoder(nn.Module):
         root_out = self.root_head(h[:, 0, :])                    # (T, 9)
         root_pos = root_out[:, :3]
         root_quat = rot.rot6d_to_quat(root_out[:, 3:9])
-        return {"root_pos": root_pos, "root_quat": root_quat, "dof_pos": dof_pos}
+        out = {"root_pos": root_pos, "root_quat": root_quat, "dof_pos": dof_pos}
+        if self.contact_head is not None:
+            out["contact_logits"] = self.contact_head(h).squeeze(-1)  # (T, N) per-node
+        return out
 
 
 class SNMR(nn.Module):

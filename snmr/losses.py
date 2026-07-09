@@ -103,6 +103,44 @@ def foot_contact_loss(
     return loss
 
 
+def contact_prediction_loss(
+    contact_logits: torch.Tensor,     # (T, N) per-node logits from the decoder
+    foot_body_indices: list[int],
+    teacher_contact_mask: torch.Tensor,  # (T, F) in {0,1}
+) -> torch.Tensor:
+    """Supervise the decoder's per-foot contact head against the teacher contact labels (BCE).
+
+    Only the foot nodes are supervised; other nodes' logits are unconstrained (unused)."""
+    foot_logits = contact_logits[:, foot_body_indices]  # (T, F)
+    return torch.nn.functional.binary_cross_entropy_with_logits(
+        foot_logits, teacher_contact_mask.to(foot_logits.dtype)
+    )
+
+
+def contact_self_consistency_loss(
+    pred: dict[str, torch.Tensor],
+    target_kin: RobotKinematics,
+    foot_body_indices: list[int],
+    ground_z: float = 0.0,
+) -> torch.Tensor:
+    """EDGE-style self-consistency: ‖(FK(x_{t+1})−FK(x_t))·σ(b̂_t)‖² masked by the network's *own*
+    predicted contact probability. Encourages the model to both predict contact and keep the foot
+    stationary where it predicts contact — removing the mm-level dof jitter at planted frames.
+
+    Requires ``pred['contact_logits']`` (decoder built with ``predict_contact=True``)."""
+    assert "contact_logits" in pred, "model must be built with predict_contact=True"
+    body_pos, _ = target_kin.forward_kinematics(pred["root_pos"], pred["root_quat"], pred["dof_pos"])
+    feet = body_pos[:, foot_body_indices, :]  # (T, F, 3)
+    b = torch.sigmoid(pred["contact_logits"][:, foot_body_indices])  # (T, F) own prediction
+    T = feet.shape[0]
+    loss = feet.new_zeros(())
+    if T > 1:
+        vel = feet[1:, :, :] - feet[:-1, :, :]          # (T-1, F, 3) full 3D displacement
+        loss = loss + torch.mean(b[1:].unsqueeze(-1) * vel ** 2)
+    loss = loss + torch.mean(torch.relu(ground_z - feet[..., 2]) ** 2)  # penetration
+    return loss
+
+
 def latent_consistency_loss(z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
     """L_z: the same motion encoded from different embodiments must map to the same latent."""
     return torch.mean((z_a - z_b) ** 2)
