@@ -232,12 +232,32 @@ from primary sources:
 *Accept:* held-out G1 contact-gated skate ≤ 1.5× teacher (≤0.08 m/s) with MPJPE ≤ 4 cm; the
 `contact` ablation row quantifies step 1 alone, a new `+polish` benchmark column quantifies step 2.
 
-**N7 — Latent-space analysis suite ("analyze the neural").** Beyond the E2 retrieval pilot
-(66% top-1 vs 1.8% chance at mid-training — Gate-G2 retrieval already exceeded): motion-category
-linear probe (want high accuracy) vs **embodiment-identity probe (want near-chance = no
-embodiment leakage)**, t-SNE/UMAP colored by motion vs by embodiment, latent interpolation decoded
-per robot and scored with our metric suite, SAME-style latent arithmetic, CKA between
-per-embodiment encoder representations. Protocol details pending the second research agent.
+**N7 — Latent-space analysis suite ("analyze the neural").** Protocol finalized from a deep
+research pass (20 central claims adversarially verified, 0 refuted). Ranked experiments:
+1. **Embodiment-identity linear probe** (headline invariance test): logistic regression on frozen
+   latents → embodiment (6 classes); want **near-chance balanced accuracy** (~16.7%) + a
+   shuffled-label control probe (Hewitt & Liang selectivity).
+2. **Motion-category linear probe** (positive control): same probe → clip category on held-out
+   clips; want high accuracy. E1-near-chance + E2-high is the signature of a shared,
+   content-rich, embodiment-invariant space.
+3. **Post-hoc adversarial attacker** (Elazar & Goldberg safeguard): a *strong* MLP attacker
+   trained on frozen latents, evaluated held-out — an adversary-at-chance does NOT prove
+   invariance (their measured gap: 49.0% adversary vs 56.0% post-hoc attacker). Report
+   proxy-A-distance d_A = 2(1−2ε).
+4. **Cross-embodiment retrieval** (already piloted: 66.4% top-1 / 0.77 MRR vs 1.8% chance at
+   mid-training): upgrade to DTW-over-frame-latents (SAME's metric, quantified — SAME itself
+   only did this qualitatively) with R@1/5/10 + median rank.
+5. **CKA between per-embodiment latent sets** (15 pairs, 6×6 heatmap). Verified novelty note:
+   CKA/probing/adversarial-invariance analysis is *absent* from the cross-embodiment robotics
+   literature (HOVER, URMA, GET-Zero, Body Transformer, MetaMorph, AnyMorph checked) — this
+   analysis section is itself a contribution.
+6. **Dual-colored t-SNE/UMAP** (motion-colored should cluster; embodiment-colored should mix),
+   with the standard misread-t-SNE caveats.
+7. **Latent interpolation + arithmetic** (SAME's z_wave−z_stand+z_walk, MotionCLIP interpolation),
+   decoded per robot and **scored with our metric suite** (foot-skate/jerk of decoded
+   interpolations — no prior work quantifies interpolation quality; ours can).
+Corrections from sources: SAME's latent is z=32 (ours z=128 is our choice), SAME used PCA not
+t-SNE, and its 95% classifier was a Transformer, not a linear probe — cite accordingly.
 
 **N8 — Tracking-RL validation ("improve tracking performance").** Export matched clip sets
 (SNMR-retargeted vs GMR-retargeted, same held-out clips; post-N6 checkpoints preferred) via
