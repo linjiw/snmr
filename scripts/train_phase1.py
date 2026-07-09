@@ -45,15 +45,10 @@ from snmr.robot_model import RobotKinematics  # noqa: E402
 #      least squares (stored in the checkpoint; a known retargeting constant at inference, no leakage).
 # World pose is recovered at eval/inference by composing with the known (scaled) human trajectory.
 
-REPO = ROOT.parent
-ROBOT_MJCF = {
-    # data-consistent models: same family that generated/consumes the motion data where available
-    "unitree_g1": REPO / "holosoma/src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof.xml",
-    "booster_t1_29dof": REPO / "GMR/assets/booster_t1_29dof/t1_mocap.xml",
-    "fourier_n1": REPO / "GMR/assets/fourier_n1/n1_mocap.xml",
-    "engineai_pm01": REPO / "GMR/assets/engineai_pm01/pm_v2.xml",
-    "stanford_toddy": REPO / "GMR/assets/stanford_toddy/toddy_mocap.xml",
-}
+from snmr.paths import data_root, robot_mjcf  # noqa: E402
+
+# data-consistent models resolved centrally (snmr/paths.py); see THIRD_PARTY.md
+ROBOT_MJCF_KEYS = ["unitree_g1", "booster_t1_29dof", "fourier_n1", "engineai_pm01", "stanford_toddy"]
 
 # LAFAN1 clip prefixes; we hold out whole clips (all subjects of a held-out sequence stay together
 # would be even stricter, but per-clip split matches the design doc and keeps val diverse).
@@ -145,7 +140,7 @@ def evaluate(model, rk, skel, static, clips, window: int, xy_scale: float, max_w
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--robot", default="unitree_g1", choices=sorted(ROBOT_MJCF))
+    ap.add_argument("--robot", default="unitree_g1", choices=ROBOT_MJCF_KEYS)
     ap.add_argument("--pairs_dir", default=None)
     ap.add_argument("--out", default=str(ROOT / "runs" / "phase1_g1"))
     ap.add_argument("--steps", type=int, default=60000)
@@ -172,12 +167,12 @@ def main() -> None:
 
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    pairs_dir = pathlib.Path(args.pairs_dir or (REPO / "data" / "pairs" / args.robot))
+    pairs_dir = pathlib.Path(args.pairs_dir) if args.pairs_dir else data_root() / "pairs" / args.robot
 
     train_clips, val_clips = load_dataset(pairs_dir, args.device)
     print(f"train clips: {len(train_clips)}  val clips: {len(val_clips)}  device: {args.device}")
 
-    rk = RobotKinematics(str(ROBOT_MJCF[args.robot]), device=args.device)
+    rk = RobotKinematics(str(robot_mjcf(args.robot)), device=args.device)
     skel = lafan1_skeleton(device=args.device)
     # static features from a sample clip (bone lengths are constant across LAFAN1 subjects up to scale)
     static = human_static_features(skel, body_pos_sample=train_clips[0]["human_pos"])

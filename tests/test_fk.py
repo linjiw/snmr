@@ -83,7 +83,14 @@ def test_fk_matches_mujoco_multiple_robots():
 
     import mujoco
 
-    assets = pathlib.Path(__file__).resolve().parents[2] / "GMR" / "assets"
+    from snmr import paths
+
+    try:
+        assets = paths.gmr_root() / "assets"
+    except FileNotFoundError:
+        import pytest
+
+        pytest.skip("GMR clone not found (run scripts/fetch_externals.sh)")
     candidates = {
         "unitree_h1": assets / "unitree_h1" / "h1.xml",
         "unitree_h1_2": assets / "unitree_h1_2" / "h1_2_handless.xml",

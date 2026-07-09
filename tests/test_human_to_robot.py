@@ -16,16 +16,9 @@ from snmr.losses import total_loss
 from snmr.model import SNMR, SNMRConfig
 from snmr.robot_model import RobotKinematics
 
-PAIRS_DIR = pathlib.Path(__file__).resolve().parents[2] / "data" / "pairs" / "unitree_g1"
-
-
-def test_human_to_robot_training_converges(g1_mjcf):
-    files = sorted(PAIRS_DIR.glob("*.npz"))
-    if not files:
-        pytest.skip(f"no pair NPZs in {PAIRS_DIR} (run scripts/make_pairs_lafan1.py)")
-
+def test_human_to_robot_training_converges(g1_mjcf, g1_pair_npz):
     torch.manual_seed(0)
-    pair = load_pair_npz(str(files[0]))
+    pair = load_pair_npz(g1_pair_npz)
     n = 48
     human_pos = pair["human_pos"][:n]
     human_quat = pair["human_quat"][:n]

@@ -39,7 +39,7 @@ from snmr.model import SNMR, SNMRConfig, _adjacency  # noqa: E402
 
 from train_phase2 import ALL_ROBOTS, ROBOT_XY_SCALE_CONFIG, VAL_CLIPS, RobotContext  # noqa: E402
 
-REPO = ROOT.parent
+from snmr.paths import data_root  # noqa: E402
 
 
 def load_model(ckpt_path: str, device: str) -> tuple[SNMR, dict]:
@@ -143,7 +143,7 @@ def main() -> None:
     ap.add_argument("--ckpt", required=True)
     ap.add_argument("--robots", nargs="+", default=None,
                     help="default: all robots with pairs data")
-    ap.add_argument("--pairs_root", default=str(REPO / "data" / "pairs"))
+    ap.add_argument("--pairs_root", default=None, help="default: <data_root>/pairs")
     ap.add_argument("--window", type=int, default=192)
     ap.add_argument("--windows_per_clip", type=int, default=6)
     ap.add_argument("--out", default=None, help="output prefix (default: alongside ckpt)")
@@ -152,7 +152,7 @@ def main() -> None:
 
     model, state = load_model(args.ckpt, args.device)
     robots = args.robots or ALL_ROBOTS
-    pairs_root = pathlib.Path(args.pairs_root)
+    pairs_root = pathlib.Path(args.pairs_root) if args.pairs_root else data_root() / "pairs"
 
     skel = lafan1_skeleton(device=args.device)
     sample = load_pair_npz(str(pairs_root / robots[0] / f"{VAL_CLIPS[0]}.npz"))

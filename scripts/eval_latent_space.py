@@ -36,7 +36,7 @@ from snmr.model import SNMR, SNMRConfig, _adjacency  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 from train_phase2 import ALL_ROBOTS, VAL_CLIPS, RobotContext  # noqa: E402
 
-REPO = ROOT.parent
+from snmr.paths import data_root  # noqa: E402
 
 
 @torch.no_grad()
@@ -80,7 +80,7 @@ def retrieval_metrics(za: torch.Tensor, zb: torch.Tensor) -> tuple[float, float]
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt", required=True)
-    ap.add_argument("--pairs_root", default=str(REPO / "data" / "pairs"))
+    ap.add_argument("--pairs_root", default=None, help="default: <data_root>/pairs")
     ap.add_argument("--window", type=int, default=64)
     ap.add_argument("--per_clip", type=int, default=12)
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
@@ -97,14 +97,15 @@ def main() -> None:
     model.load_state_dict(state["model"])
     model.eval()
 
+    pairs_root = pathlib.Path(args.pairs_root) if args.pairs_root else data_root() / "pairs"
     ctxs = {r: RobotContext(r, args.device) for r in ALL_ROBOTS}
     skel = lafan1_skeleton(device=args.device)
-    sample = load_pair_npz(str(pathlib.Path(args.pairs_root) / ALL_ROBOTS[0] / f"{VAL_CLIPS[0]}.npz"))
+    sample = load_pair_npz(str(pairs_root / ALL_ROBOTS[0] / f"{VAL_CLIPS[0]}.npz"))
     h_static = human_static_features(skel, body_pos_sample=sample["human_pos"].to(args.device))
     h_adj = _adjacency(skel)
 
     encs = collect_encodings(model, ctxs, skel, h_static, h_adj,
-                             pathlib.Path(args.pairs_root), args.device, args.window, args.per_clip)
+                             pairs_root, args.device, args.window, args.per_clip)
     n = encs["human"].shape[0]
     print(f"{n} aligned windows from {len(VAL_CLIPS)} held-out clips\n")
 

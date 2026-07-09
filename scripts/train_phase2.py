@@ -49,17 +49,9 @@ from snmr.model import SNMR, SNMRConfig, _adjacency  # noqa: E402
 from snmr.robot_model import RobotKinematics  # noqa: E402
 from snmr.skeleton import SkeletonGraph  # noqa: E402
 
-REPO = ROOT.parent
+from snmr.paths import data_root, robot_mjcf  # noqa: E402
 
 ALL_ROBOTS = ["unitree_g1", "booster_t1_29dof", "fourier_n1", "engineai_pm01", "stanford_toddy"]
-
-ROBOT_MJCF = {
-    "unitree_g1": REPO / "holosoma/src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof.xml",
-    "booster_t1_29dof": REPO / "GMR/assets/booster_t1_29dof/t1_mocap.xml",
-    "fourier_n1": REPO / "GMR/assets/fourier_n1/n1_mocap.xml",
-    "engineai_pm01": REPO / "GMR/assets/engineai_pm01/pm_v2.xml",
-    "stanford_toddy": REPO / "GMR/assets/stanford_toddy/toddy_mocap.xml",
-}
 
 # xy trajectory scale from the GMR IK config: human_scale_table[human_root] * (1.75 / height_assumption)
 # (LAFAN1 loader hardcodes human height 1.75). Verified against least-squares data fits (diff <= 1.3e-3).
@@ -82,7 +74,7 @@ class RobotContext:
 
     def __init__(self, name: str, device: str):
         self.name = name
-        self.kin = RobotKinematics(str(ROBOT_MJCF[name]), device=device)
+        self.kin = RobotKinematics(str(robot_mjcf(name)), device=device)
         self.static = robot_node_static_features(self.kin.graph)
         self.adj = _adjacency(SkeletonGraph.from_robot_graph(self.kin.graph))
         self.xy_scale = ROBOT_XY_SCALE_CONFIG[name]
@@ -160,7 +152,7 @@ def main() -> None:
     ap.add_argument("--robots", nargs="+", default=ALL_ROBOTS)
     ap.add_argument("--holdout_robot", default=None,
                     help="robot excluded from ALL training; evaluated zero-shot")
-    ap.add_argument("--pairs_root", default=str(REPO / "data" / "pairs"))
+    ap.add_argument("--pairs_root", default=None, help="default: <data_root>/pairs")
     ap.add_argument("--out", default=str(ROOT / "runs" / "phase2"))
     ap.add_argument("--steps", type=int, default=100000)
     ap.add_argument("--window", type=int, default=64)
@@ -187,7 +179,8 @@ def main() -> None:
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
-    train_clips, val_clips = load_clips(pathlib.Path(args.pairs_root), eval_robots, args.device)
+    pairs_root = pathlib.Path(args.pairs_root) if args.pairs_root else data_root() / "pairs"
+    train_clips, val_clips = load_clips(pairs_root, eval_robots, args.device)
     print(f"train robots: {train_robots}  holdout: {args.holdout_robot}")
     print(f"train clips: {len(train_clips)}  val clips: {len(val_clips)}  device: {args.device}")
 

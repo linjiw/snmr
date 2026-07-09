@@ -25,17 +25,10 @@ from snmr.model import SNMR, SNMRConfig  # noqa: E402
 from snmr.robot_model import RobotKinematics  # noqa: E402
 from snmr.train import fit_motion  # noqa: E402
 
-REPO = ROOT.parent
-# holosoma_retargeting copy of the G1 model: carries the true hardware joint ranges that match the
-# training NPZ (GMR's g1_mocap_29dof.xml narrows hip-pitch and cannot represent ~38% of NPZ frames).
-DEFAULT_MJCF = (
-    REPO / "holosoma" / "src" / "holosoma_retargeting" / "holosoma_retargeting"
-    / "models" / "g1" / "g1_29dof.xml"
-)
-DEFAULT_NPZ = (
-    REPO / "holosoma" / "src" / "holosoma" / "holosoma" / "data" / "motions"
-    / "g1_29dof" / "whole_body_tracking" / "sub3_largebox_003_mj.npz"
-)
+from snmr.paths import g1_mjcf, holosoma_sample_npz  # noqa: E402
+
+DEFAULT_MJCF = g1_mjcf()
+DEFAULT_NPZ = holosoma_sample_npz()
 
 
 def main() -> None:

@@ -145,23 +145,17 @@ def test_contact_detection_heights():
 
 def test_all_foot_bodies_exist():
     """Every FOOT_BODIES entry must name real bodies in its robot's MJCF."""
-    import os
-    import pathlib
-
     import pytest
 
-    repo = pathlib.Path(__file__).resolve().parents[2]
-    paths = {
-        "unitree_g1": repo / "holosoma/src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof.xml",
-        "booster_t1_29dof": repo / "GMR/assets/booster_t1_29dof/t1_mocap.xml",
-        "fourier_n1": repo / "GMR/assets/fourier_n1/n1_mocap.xml",
-        "engineai_pm01": repo / "GMR/assets/engineai_pm01/pm_v2.xml",
-        "stanford_toddy": repo / "GMR/assets/stanford_toddy/toddy_mocap.xml",
-    }
+    from snmr import paths as snmr_paths
+
     checked = 0
     for robot, feet in FOOT_BODIES.items():
-        p = paths.get(robot)
-        if p is None or not p.exists():
+        try:
+            p = snmr_paths.robot_mjcf(robot)
+        except (KeyError, FileNotFoundError):
+            continue
+        if not p.exists():
             continue
         rk = RobotKinematics(str(p))
         for f in feet:

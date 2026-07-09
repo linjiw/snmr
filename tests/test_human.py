@@ -16,13 +16,20 @@ from snmr.human import (
     load_pair_npz,
 )
 
-PAIRS_DIR = pathlib.Path(__file__).resolve().parents[2] / "data" / "pairs" / "unitree_g1"
+FIXTURE = pathlib.Path(__file__).resolve().parent / "fixtures" / "pair_g1_aiming1_subject1.npz"
 
 
 def _real_pair():
-    files = sorted(PAIRS_DIR.glob("*.npz"))
+    if FIXTURE.exists():
+        return load_pair_npz(str(FIXTURE))
+    from snmr import paths
+
+    try:
+        files = sorted(paths.pairs_dir("unitree_g1").glob("*.npz"))
+    except FileNotFoundError as e:
+        pytest.skip(str(e))
     if not files:
-        pytest.skip(f"no pair NPZs found in {PAIRS_DIR} (run scripts/make_pairs_lafan1.py)")
+        pytest.skip("no pair NPZs found (run scripts/make_pairs_lafan1.py)")
     return load_pair_npz(str(files[0]))
 
 

@@ -33,8 +33,8 @@ from snmr.human import human_static_features, lafan1_skeleton, load_pair_npz  # 
 from snmr.model import SNMR, SNMRConfig  # noqa: E402
 from snmr.robot_model import RobotKinematics  # noqa: E402
 
-REPO = ROOT.parent
-G1_MJCF = REPO / "holosoma/src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof.xml"
+from snmr.paths import g1_mjcf as _g1_mjcf_path  # noqa: E402
+from snmr.paths import holosoma_sample_npz  # noqa: E402
 
 REQUIRED_KEYS = [
     "fps", "joint_pos", "joint_vel", "body_pos_w", "body_quat_w",
@@ -164,13 +164,8 @@ def main() -> None:
     ap.add_argument("--pair", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--output_fps", type=float, default=50.0)
-    ap.add_argument("--mjcf", default=str(G1_MJCF))
-    ap.add_argument(
-        "--reference",
-        default=str(
-            REPO / "holosoma/src/holosoma/holosoma/data/motions/g1_29dof/whole_body_tracking/sub3_largebox_003_mj.npz"
-        ),
-    )
+    ap.add_argument("--mjcf", default=str(_g1_mjcf_path()))
+    ap.add_argument("--reference", default=str(holosoma_sample_npz()))
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     args = ap.parse_args()
 

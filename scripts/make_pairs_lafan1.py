@@ -31,6 +31,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 # GMR is installed in the environment (pip install -e GMR --no-deps + its used deps).
+from snmr.paths import data_root  # noqa: E402
 from general_motion_retargeting import GeneralMotionRetargeting as GMR  # noqa: E402
 from general_motion_retargeting.utils.lafan1 import load_bvh_file  # noqa: E402
 
@@ -77,8 +78,8 @@ def process_clip(bvh_path: pathlib.Path, robot: str, out_dir: pathlib.Path) -> d
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--bvh_dir", default=str(ROOT.parent / "data" / "lafan1_bvh"))
-    ap.add_argument("--out_dir", default=str(ROOT.parent / "data" / "pairs"))
+    ap.add_argument("--bvh_dir", default=str(data_root() / "lafan1_bvh"))
+    ap.add_argument("--out_dir", default=str(data_root() / "pairs"))
     ap.add_argument("--robots", nargs="+", default=["unitree_g1"])
     ap.add_argument("--max_clips", type=int, default=0, help="0 = all clips")
     args = ap.parse_args()
