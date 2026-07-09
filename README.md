@@ -1,7 +1,7 @@
 # SNMR — Shared Neural Motion Retargeting
 
 Implementation of the neural retargeter (contribution **C1**) from
-[`../NEURAL_RETARGETING_DESIGN.md`](../NEURAL_RETARGETING_DESIGN.md): a SAME-style skeleton-agnostic
+[`NEURAL_RETARGETING_DESIGN.md`](NEURAL_RETARGETING_DESIGN.md): a SAME-style skeleton-agnostic
 graph autoencoder that maps a motion into a **shared latent space** and decodes it onto **any robot
 embodiment** as MuJoCo `qpos`, with joint-limit satisfaction by construction and differentiable
 forward kinematics in the loss loop.
