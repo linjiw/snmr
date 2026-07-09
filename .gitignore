@@ -1,0 +1,10 @@
+# experiment artifacts — large binaries stay out of git; logs/metrics stay in
+runs/**/ckpt*.pt
+runs/**/*.pt
+exports/*.npz
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+# scratch training logs at repo root (per-run logs live in runs/<name>/)
+runs_*.log

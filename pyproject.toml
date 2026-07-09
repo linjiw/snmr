@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "snmr"
+version = "0.0.1"
+description = "Shared Neural Motion Retargeting for unified humanoid motion-tracking training"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.1",
+    "numpy>=1.24",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+# mujoco is needed to load MJCF robot models and to validate FK; not required for pure model math.
+robot = ["mujoco>=3.0"]
+dev = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+include = ["snmr*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
