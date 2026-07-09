@@ -151,6 +151,14 @@ the shared model beats the single-robot run at every checkpoint from 8k on — e
 and total optimizer steps differ; the clean claim needs the final-checkpoint comparison (Gate G2),
 but the direction is consistently positive — no multi-robot interference.
 
+*Early shared-space signal (E2 pilot on the ~52k mid-training checkpoint, held-out clips):*
+cross-embodiment retrieval **mean top-1 66.4% / MRR 0.77 vs 1.8% chance (37×)** across all 30
+query→gallery pairs among {human, 5 robots}; same-motion cross-embodiment latent distances are
+0.2–0.5× the mean inter-motion distance. Human↔robot retrieval works both directions (e.g.
+human→G1 78.6%, G1→human 69.6%). Toddy (the 0.34 m-tall outlier embodiment) is the weakest
+retrieval partner (36–66%) — consistent with its extreme scale; worth a per-embodiment note in the
+final analysis. The Gate-G2 retrieval criterion is effectively already exceeded at mid-training.
+
 **N4b — Benchmark & ablation infrastructure — BUILT (2026-07-09/10).**
 - `snmr/snmr/metrics.py`: literature-aligned metric suite computed by one code path for SNMR and
   teacher alike — MPJPE (+per-body), foot-skate speed & slide fraction (contact detected on the
@@ -195,6 +203,48 @@ quality.)
 (b) SNMR-data comparison protocol for an IsaacSim machine. *Accept:* converted NPZs load in
 holosoma's `MotionLoader` (schema-validated locally with a loader-shape check, no IsaacSim
 needed).
+
+**N6 — Close the foot-skate gap (contact-consistent decoding).** Three independent deep-research
+passes (contact losses / inference-time cleanup / architecture) converged; all claims verified
+from primary sources:
+- *The precedent that maps 1:1 onto our failure is SAME's own ablation:* their pose metrics were
+  blind to skating exactly like our MPJPE — adding the contact loss (label-gated FK-velocity +
+  height-clamped velocity + penetration; labels thresholded at 5 cm/0.4 m/s) improved FS **14×**
+  (0.1056→0.0075) and GP 40×, while JP got slightly *worse* — i.e. expect a small MPJPE cost.
+- *Plan, in order of implementation:*
+  1. **Contact prediction head + EDGE-style self-consistency loss** ‖(FK(x̂_{t+1})−FK(x̂_t))·b̂_t‖²
+     masked by the network's *own* predicted contacts (EDGE ablation: removing it doubles PFC
+     1.54→3.08). Keep our teacher-mask loss (MotioNet-style: their contact-frame error 64→52)
+     as the supervised variant; SAME's height-clamped term is complementary.
+  2. **Inference-time latent polish** — the literature is unanimous that training losses alone
+     never fully close the gap; works reaching IK-teacher contact quality use predicted contacts
+     at inference: ~30-iter gradient descent on contact-masked foot velocity + height, in
+     **latent space** (Villegas ESO: contact accuracy 0.71→0.97; Holden null-space) rather than
+     output-space IK (smoother). UnderPressure's output-space variant halves contact velocity.
+  3. **Architecture support (cheap, already half-built):** our temporal transformer is the
+     NMR-style bidirectional-context noise suppressor (their non-AR argument); the `no_temporal`
+     ablation row will quantify it. If needed: delta/velocity output heads (HuMoR ablation:
+     removing Δ-prediction worsens accel 26%) — short-window regression avoids the drift caveat
+     (QuaterNet). Phase conditioning is explicitly NOT a standalone fix (PFNN/LMP still do
+     contact IK after phase conditioning; no published skate delta).
+- *Metrics:* add the GMD skate ratio (<5 cm height, >2.5 cm/frame) alongside our contact-gated
+  velocity and FS-MANN (both implemented).
+*Accept:* held-out G1 contact-gated skate ≤ 1.5× teacher (≤0.08 m/s) with MPJPE ≤ 4 cm; the
+`contact` ablation row quantifies step 1 alone, a new `+polish` benchmark column quantifies step 2.
+
+**N7 — Latent-space analysis suite ("analyze the neural").** Beyond the E2 retrieval pilot
+(66% top-1 vs 1.8% chance at mid-training — Gate-G2 retrieval already exceeded): motion-category
+linear probe (want high accuracy) vs **embodiment-identity probe (want near-chance = no
+embodiment leakage)**, t-SNE/UMAP colored by motion vs by embodiment, latent interpolation decoded
+per robot and scored with our metric suite, SAME-style latent arithmetic, CKA between
+per-embodiment encoder representations. Protocol details pending the second research agent.
+
+**N8 — Tracking-RL validation ("improve tracking performance").** Export matched clip sets
+(SNMR-retargeted vs GMR-retargeted, same held-out clips; post-N6 checkpoints preferred) via
+`export_wbt_npz.py`; write the exact `g1-29dof-wbt` commands + eval protocol (success rate,
+tracking rewards, sim2sim MuJoCo) for an IsaacSim machine; validate NPZs load in holosoma's
+`MotionLoader` locally. The GMR paper's central result (retargeting quality → tracking quality)
+makes this the decisive experiment for the "improve tracking" goal.
 
 **Deferred (unchanged from plan):** AMASS/SMPL-X ingestion once body models are provisioned;
 holosoma interaction-mesh teacher for object clips; T1 WBT port; Stage-C physics feedback loop.
