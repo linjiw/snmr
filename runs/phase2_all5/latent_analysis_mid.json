@@ -1,0 +1,118 @@
+{
+  "n_windows": 98,
+  "n_encoders": 6,
+  "encoders": [
+    "human",
+    "unitree_g1",
+    "booster_t1_29dof",
+    "fourier_n1",
+    "engineai_pm01",
+    "stanford_toddy"
+  ],
+  "E1_embodiment_probe": {
+    "balanced_acc": 0.2698412698412698,
+    "chance": 0.16666666666666666,
+    "shuffled_control": 0.15337491455912508,
+    "selectivity": 0.11646635528214475
+  },
+  "E2_motion_probe": {
+    "balanced_acc": 0.1726190476190476,
+    "chance": 0.14285714285714285,
+    "shuffled_control": 0.1178744586215817,
+    "selectivity": 0.054744588997465884,
+    "clips": [
+      "aiming1_subject1",
+      "aiming1_subject4",
+      "aiming2_subject2",
+      "aiming2_subject3",
+      "dance1_subject1",
+      "dance1_subject2",
+      "dance1_subject3",
+      "dance2_subject1",
+      "fallAndGetUp1_subject1",
+      "fallAndGetUp1_subject4",
+      "fallAndGetUp1_subject5",
+      "fallAndGetUp2_subject2",
+      "fight1_subject2",
+      "fight1_subject3",
+      "fight1_subject5",
+      "fightAndSports1_subject1",
+      "fightAndSports1_subject4",
+      "ground1_subject1",
+      "ground1_subject4",
+      "ground1_subject5",
+      "ground2_subject2",
+      "jumps1_subject1",
+      "jumps1_subject2",
+      "jumps1_subject5"
+    ],
+    "categories": [
+      "aiming",
+      "dance",
+      "fallAndGetUp",
+      "fight",
+      "fightAndSports",
+      "ground",
+      "jumps"
+    ]
+  },
+  "E3_adversarial_attacker": {
+    "acc": 0.8888888888888888,
+    "chance": 0.16666666666666666,
+    "proxy_A_distance": 1.5555555555555554
+  },
+  "E4_retrieval": {
+    "per_pair": {
+      "human->unitree_g1": {
+        "R@1": 0.826530612244898,
+        "R@5": 1.0,
+        "median_rank": 1.0,
+        "MRR": 0.8969387755102042
+      },
+      "human->booster_t1_29dof": {
+        "R@1": 0.7653061224489796,
+        "R@5": 0.9489795918367347,
+        "median_rank": 1.0,
+        "MRR": 0.844221736313573
+      },
+      "human->fourier_n1": {
+        "R@1": 0.7959183673469388,
+        "R@5": 0.9489795918367347,
+        "median_rank": 1.0,
+        "MRR": 0.8629008746355684
+      },
+      "human->engineai_pm01": {
+        "R@1": 0.8061224489795918,
+        "R@5": 0.9897959183673469,
+        "median_rank": 1.0,
+        "MRR": 0.8887026239067055
+      },
+      "human->stanford_toddy": {
+        "R@1": 0.5612244897959183,
+        "R@5": 0.8877551020408163,
+        "median_rank": 1.0,
+        "MRR": 0.6986418293883385
+      }
+    },
+    "mean_R@1": 0.7510204081632652,
+    "mean_MRR": 0.838281167950878,
+    "chance_R@1": 0.01020408163265306
+  },
+  "E5_cka": {
+    "human~unitree_g1": 0.9188739061355591,
+    "human~booster_t1_29dof": 0.8983168601989746,
+    "human~fourier_n1": 0.8928158283233643,
+    "human~engineai_pm01": 0.906704843044281,
+    "human~stanford_toddy": 0.8623883724212646,
+    "unitree_g1~booster_t1_29dof": 0.9122354984283447,
+    "unitree_g1~fourier_n1": 0.9157046675682068,
+    "unitree_g1~engineai_pm01": 0.924426257610321,
+    "unitree_g1~stanford_toddy": 0.8975980877876282,
+    "booster_t1_29dof~fourier_n1": 0.955010712146759,
+    "booster_t1_29dof~engineai_pm01": 0.9575167298316956,
+    "booster_t1_29dof~stanford_toddy": 0.8954086303710938,
+    "fourier_n1~engineai_pm01": 0.9747068881988525,
+    "fourier_n1~stanford_toddy": 0.8742071390151978,
+    "engineai_pm01~stanford_toddy": 0.8831368088722229
+  }
+}

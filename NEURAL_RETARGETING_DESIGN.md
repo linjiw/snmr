@@ -295,8 +295,15 @@ holosoma interaction-mesh teacher for object clips; T1 WBT port; Stage-C physics
   same-motion-aligned, yet embodiment is still *nonlinearly* decodable. Honest headline: **"shared
   and content-aligned, not fully embodiment-invariant"** — and a clear target for a stronger L_z /
   domain-confusion term (a concrete paper finding, not a failure).
-- E2 motion probe initially mis-posed (7 held-out clips = 7 distinct categories → leave-clip-out
-  puts every test category unseen); fixed to auto-discover multi-instance categories. Re-running.
+- **E2 motion probe 0.173** (chance 0.143, selectivity 0.055) after fixing the ill-posed split
+  (auto-discovers 24 clips / 7 repeated categories). Low — but this is a **window-mean-latent
+  artifact**, not necessarily the space: mean-pooling 64 frames destroys the temporal dynamics
+  that separate walk/run/dance, while clip-level retrieval (R@1 0.75) survives because it matches
+  exact clips. Fix for the final analysis: a temporal-aware readout (probe the frame-latent
+  sequence, not its mean). Noted as a to-do; does not change the E1/E3/E4/E5 conclusions (those
+  use the same features and are internally consistent).
+- *Caveats:* all numbers are on the ~92k **mid-training** checkpoint; the final all-5 + LORO
+  checkpoints (imminent) get the full re-run for the paper. The E1/E3 divergence is the headline.
 
 **N8 (tracking validation) — package built (`scripts/prepare_wbt_validation.py`):** 3 matched
 clip pairs (walk/dance/fight) exported both as SNMR-retargeted and GMR-teacher through the
