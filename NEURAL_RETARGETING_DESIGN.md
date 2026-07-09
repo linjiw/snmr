@@ -269,6 +269,42 @@ makes this the decisive experiment for the "improve tracking" goal.
 **Deferred (unchanged from plan):** AMASS/SMPL-X ingestion once body models are provisioned;
 holosoma interaction-mesh teacher for object clips; T1 WBT port; Stage-C physics feedback loop.
 
+### 0.4b N6/N7/N8 — implemented & first results (2026-07-10)
+
+**Repo is public: https://github.com/linjiw/snmr** (MIT; LAFAN1-derived data excluded, regenerable).
+
+**N6 (foot-skate) — code done, two levers measured:**
+- *Inference-time latent polish* (`snmr/polish.py`, Villegas ESO): on the Gate-G1 checkpoint it
+  cuts contact skate ~25% on skate-heavy windows (0.16→0.12 m/s) at a 1–2 cm MPJPE cost, and is
+  neutral-to-harmful on already-clean windows — a weak, window-dependent lever, exactly as the
+  literature predicts. **Not the primary fix.**
+- *Training-time contact head + losses* (decoder `predict_contact` head; EDGE-style self-consistency
+  on own-predicted mask + SAME-style teacher-mask supervision; `contact_self_consistency_loss`,
+  `contact_prediction_loss`). Wired into both trainers behind `--contact_weight` (default 0, so the
+  queued LORO/ablation runs are unaffected). This is the bigger lever (SAME's 14× FS ablation); the
+  quantified retrain is the next GPU job after the Phase-2 pipeline. 4 new tests green.
+
+**N7 (analyze the neural) — suite done, first real numbers on the ~92k mid-training Phase-2 ckpt
+(`scripts/analyze_latent.py`, held-out clips):**
+- **E5 CKA mean 0.91** (range 0.86–0.98) across all 15 embodiment pairs incl. human — the six
+  encoders converge to a strongly aligned representation.
+- **E4 retrieval** human→robot mean R@1 0.75 / MRR 0.84 vs 0.01 chance.
+- **E1 embodiment linear probe 0.27** (chance 0.167) — low *linear* leakage — **but E3, a strong
+  MLP attacker, recovers embodiment at 0.89** (proxy-A-distance 1.56). This is precisely the
+  Elazar–Goldberg gap the protocol was built to expose: the space is geometrically shared and
+  same-motion-aligned, yet embodiment is still *nonlinearly* decodable. Honest headline: **"shared
+  and content-aligned, not fully embodiment-invariant"** — and a clear target for a stronger L_z /
+  domain-confusion term (a concrete paper finding, not a failure).
+- E2 motion probe initially mis-posed (7 held-out clips = 7 distinct categories → leave-clip-out
+  puts every test category unseen); fixed to auto-discover multi-instance categories. Re-running.
+
+**N8 (tracking validation) — package built (`scripts/prepare_wbt_validation.py`):** 3 matched
+clip pairs (walk/dance/fight) exported both as SNMR-retargeted and GMR-teacher through the
+*identical* MuJoCo-replay converter, so the only variable the WBT policy sees is the retargeting
+source. All 6 NPZs schema-validated against the holosoma sample; `WBT_COMMANDS.md` has the exact
+`g1-29dof-wbt` train/eval commands + a no-IsaacSim `MotionLoader` load check. Ready to hand to an
+IsaacSim box.
+
 ### 0.4 Design adjustments from implementation experience
 
 1. **LAFAN1-first, AMASS-later** (data availability; §0.2). The human skeleton abstraction already

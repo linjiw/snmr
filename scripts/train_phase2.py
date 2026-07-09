@@ -44,7 +44,13 @@ from snmr.data import (  # noqa: E402
     world_root_to_local,
 )
 from snmr.human import human_pose_features, human_static_features, lafan1_skeleton, load_pair_npz  # noqa: E402
-from snmr.losses import latent_consistency_loss, total_loss  # noqa: E402
+from snmr.losses import (  # noqa: E402
+    contact_prediction_loss,
+    contact_self_consistency_loss,
+    latent_consistency_loss,
+    total_loss,
+)
+from snmr.metrics import FOOT_BODIES, detect_contact  # noqa: E402
 from snmr.model import SNMR, SNMRConfig, _adjacency  # noqa: E402
 from snmr.robot_model import RobotKinematics  # noqa: E402
 from snmr.skeleton import SkeletonGraph  # noqa: E402
@@ -78,6 +84,7 @@ class RobotContext:
         self.static = robot_node_static_features(self.kin.graph)
         self.adj = _adjacency(SkeletonGraph.from_robot_graph(self.kin.graph))
         self.xy_scale = ROBOT_XY_SCALE_CONFIG[name]
+        self.foot_idx = [self.kin.body_index(n) for n in FOOT_BODIES[name]]
 
 
 def load_clips(pairs_root: pathlib.Path, robots: list[str], device: str):
@@ -160,6 +167,9 @@ def main() -> None:
     ap.add_argument("--lr", type=float, default=3e-4)  # Phase-1 lesson: 8e-4 destabilizes this size
     ap.add_argument("--min_lr", type=float, default=1e-5)
     ap.add_argument("--latent_weight", type=float, default=1.0)
+    ap.add_argument("--contact_weight", type=float, default=0.0,
+                    help="N6: weight for contact self-consistency + contact-prediction losses "
+                         "(0 = off; >0 enables the decoder contact head)")
     ap.add_argument("--latent_dim", type=int, default=128)
     ap.add_argument("--enc_hidden", type=int, default=256)
     ap.add_argument("--dec_hidden", type=int, default=256)
@@ -191,7 +201,8 @@ def main() -> None:
     _HUMAN_ADJ = _adjacency(skel)
 
     model = SNMR(SNMRConfig(latent_dim=args.latent_dim, enc_hidden=args.enc_hidden,
-                            dec_hidden=args.dec_hidden)).to(args.device)
+                            dec_hidden=args.dec_hidden,
+                            predict_contact=args.contact_weight > 0)).to(args.device)
     n_params = sum(p.numel() for p in model.parameters())
     print(f"model params: {n_params/1e6:.2f}M")
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
@@ -232,6 +243,16 @@ def main() -> None:
             pred = model.decoder(z_h, ctx.static, ctx.adj,
                                  model.embodiment_encoder(ctx.static), ctx.kin.graph)
             l_robot, _ = total_loss(pred, ctx.kin, teacher=teacher)
+            # N6 (opt-in): contact-consistency in the local frame is valid here because within a
+            # window the anchor barely moves, and the decoder root+dof both feed FK.
+            if args.contact_weight > 0 and "contact_logits" in pred:
+                with torch.no_grad():
+                    tb, _ = ctx.kin.forward_kinematics(teacher["root_pos"], teacher["root_quat"],
+                                                       teacher["dof_pos"])
+                    cmask = detect_contact(tb[:, ctx.foot_idx, :], fps=30.0)
+                l_robot = l_robot \
+                    + args.contact_weight * contact_self_consistency_loss(pred, ctx.kin, ctx.foot_idx) \
+                    + args.contact_weight * contact_prediction_loss(pred["contact_logits"], ctx.foot_idx, cmask)
             z_r = encode_robot_teacher(model, ctx, q)
             l_z = latent_consistency_loss(z_h, z_r)  # symmetric: grads flow into both encodings
             loss = loss + l_robot + args.latent_weight * l_z
