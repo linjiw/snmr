@@ -144,6 +144,13 @@ engineai_pm01, zero-shot eval) auto-chained to start when (1) finishes.
 *Accept (Gate G2):* multi-robot ≥ per-robot models on each robot; zero-shot holdout within 2× of
 its in-training error; retrieval substantially above chance (chance top-1 ≈ 0.012 at 84 windows).
 
+*Early positive-transfer signal (mid-run analysis @52k):* comparing G1 val MPJPE at **matched
+effective per-robot gradient steps** (phase-2 samples K=2 of 5 robots/step ⇒ eff ≈ 0.4×steps),
+the shared model beats the single-robot run at every checkpoint from 8k on — e.g. 6.7 cm (shared,
+~21k eff G1 steps) vs 9.4 cm (single-robot, 20k steps). Caveats: L_z acts as an extra regularizer
+and total optimizer steps differ; the clean claim needs the final-checkpoint comparison (Gate G2),
+but the direction is consistently positive — no multi-robot interference.
+
 **N4b — Benchmark & ablation infrastructure — BUILT (2026-07-09/10).**
 - `snmr/snmr/metrics.py`: literature-aligned metric suite computed by one code path for SNMR and
   teacher alike — MPJPE (+per-body), foot-skate speed & slide fraction (contact detected on the
