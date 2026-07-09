@@ -11,3 +11,6 @@ runs_*.log
 
 # LAFAN1-derived fixture: kept local, NOT published (Ubisoft license unverified)
 tests/fixtures/pair_g1_*.npz
+
+# WBT validation NPZs (large, regenerable)
+runs/wbt_validation/**/*.npz

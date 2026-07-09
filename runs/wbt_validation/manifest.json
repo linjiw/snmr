@@ -1,0 +1,35 @@
+{
+  "ckpt": "runs/phase1_g1_large/ckpt_100k_final.pt",
+  "robot": "unitree_g1",
+  "xy_scale": 0.8749322653645195,
+  "output_fps": 50.0,
+  "clips": {
+    "walk1_subject5": {
+      "frames": 13066,
+      "snmr_schema_ok": true,
+      "gmr_schema_ok": true,
+      "problems": {
+        "snmr": [],
+        "gmr": []
+      }
+    },
+    "dance2_subject4": {
+      "frames": 11284,
+      "snmr_schema_ok": true,
+      "gmr_schema_ok": true,
+      "problems": {
+        "snmr": [],
+        "gmr": []
+      }
+    },
+    "fight1_subject3": {
+      "frames": 12244,
+      "snmr_schema_ok": true,
+      "gmr_schema_ok": true,
+      "problems": {
+        "snmr": [],
+        "gmr": []
+      }
+    }
+  }
+}
