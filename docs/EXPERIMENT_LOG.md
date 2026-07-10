@@ -67,6 +67,16 @@ position error vs GMR teacher on the 7 held-out clips; "4-window eval" = in-trai
 - note: benchmark loader fixed mid-grid to reconstruct optional modules from the state dict
   (no_temporal row was failing to load); backfilled.
 
+### E18 — trackability proxy (open-loop PD replay) — DONE (`runs/trackability/comparison.md`)
+- method: PD-torque replay in MuJoCo (holosoma gains/effort limits), survival before divergence +
+  dof error while alive, 3 deterministic windows/clip, matched SNMR-vs-GMR exports (N8 package).
+- validity: +0.3 rad reference noise cuts survival 0.98→0.67 s — the metric discriminates.
+- result: survival SNMR 0.87 s vs GMR 0.82 s (mixed sign per clip); dof err 0.212 vs 0.210 rad.
+  **Measured equivalence: SNMR data is not less trackable than teacher data under this proxy.**
+  Caveat: deltas within between-window spread; supports "not worse", not "better". IsaacSim WBT
+  stays the ground truth. Side-finding: holosoma G1 MJCF has permanent ~2 cm knee↔ankle
+  self-penetration (rest-pose contact forces move the root ~1 cm) — relevant to the WBT handoff.
+
 ## Queued / planned
 - E10 — contact-weight sweep {0.05, 0.2, 1.0} on the shared model (EDGE head + world-frame losses,
   post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current.
