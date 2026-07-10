@@ -86,3 +86,14 @@ position error vs GMR teacher on the 7 held-out clips; "4-window eval" = in-trai
 - E14 — WBT tracking comparison (N8 package, needs IsaacSim machine).
 - E15 — domain-confusion term on the encoder (motivated by E11's H-deep verdict): GRL or
   uniform-CE adversary on embodiment id; measure attacker drop vs MPJPE cost.
+
+### E16 — temporal-statistics motion probe — DONE, NULL RESULT (`runs/phase2_all5/e2_temporal_probe.json`)
+- hypothesis (from E04): E2's weak motion probe (0.151) is a window-MEAN artifact; richer readout
+  (mean ⊕ std ⊕ |Δz| mean, 3× features) should recover category structure.
+- result: **0.152 for both readouts** (chance 0.125, control 0.133). Hypothesis REJECTED.
+- reframed conclusion: the latent carries *instance-level* motion detail (exact-clip retrieval
+  R@1 0.75 at 1% chance) but motion-*category* structure is not linearly separable in it — the
+  space is organized around reproducing specific trajectories (what distillation trains for),
+  not semantic classes (which nothing trains for). Honest paper phrasing: "content-specific, not
+  semantically organized"; a nonlinear probe or contrastive category loss would be needed to say
+  more. Correct the earlier "window-mean caveat" wording in the draft.

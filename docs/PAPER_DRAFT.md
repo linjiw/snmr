@@ -92,7 +92,10 @@ Latent test-time polish: ~25 % reduction, window-dependent. Contact-loss retrain
 
 **Shared-latent analysis [DONE]:** CKA 0.910 (0.86–0.98 all 15 pairs incl. human); retrieval
 human→robot R@1 0.749 / MRR 0.838 (chance 0.010); E1 0.278 / E3 0.909 / proxy-A 1.78. E2 motion
-probe weak on window-mean latents (0.151) — temporal readout TODO.
+probe stays ~chance under both window-mean and temporal-statistics readouts (0.151/0.152) — the
+space is **content-specific, not semantically organized**: it carries instance-level trajectory
+detail (75 % exact-clip retrieval) but no linearly-separable category structure, consistent with
+what pure distillation trains for. (Earlier "window-mean artifact" hypothesis tested and rejected.)
 **Leak attribution [DONE]:** height-normalizing input features moves the MLP attacker only
 0.943→0.933 — **scale explains ~1 % of the embodiment leak; the signature is structural/stylistic
 (H-deep)**. This measurement (a) motivates a domain-confusion term as the principled fix and

@@ -1,0 +1,8 @@
+{
+  "window_mean": 0.15178571428571427,
+  "mean+std+absdelta": 0.15178571428571427,
+  "chance": 0.125,
+  "shuffled_control": 0.13257575757575757,
+  "n_windows": 192,
+  "n_categories": 8
+}
