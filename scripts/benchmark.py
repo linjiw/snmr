@@ -45,13 +45,20 @@ from snmr.paths import data_root  # noqa: E402
 def load_model(ckpt_path: str, device: str) -> tuple[SNMR, dict]:
     state = torch.load(ckpt_path, map_location=device, weights_only=False)
     tcfg = state.get("config", {})
+    sd = state["model"]
+    # Reconstruct the exact architecture. Dim sizes come from the stored trainer args; the
+    # OPTIONAL sub-modules (temporal transformer, contact head) are detected from the state dict
+    # itself — config flags are unreliable across trainers (e.g. train_phase1's contact ablation
+    # sets contact_weight>0 but builds no contact head).
     cfg = SNMRConfig(
         latent_dim=tcfg.get("latent_dim", 64),
         enc_hidden=tcfg.get("enc_hidden", 128),
         dec_hidden=tcfg.get("dec_hidden", 128),
+        use_temporal=any(k.startswith("encoder.temporal.") for k in sd),
+        predict_contact=any(k.startswith("decoder.contact_head.") for k in sd),
     )
     model = SNMR(cfg).to(device)
-    model.load_state_dict(state["model"])
+    model.load_state_dict(sd)
     model.eval()
     return model, state
 
