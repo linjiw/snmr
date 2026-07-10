@@ -111,14 +111,25 @@ position error vs GMR teacher on the 7 held-out clips; "4-window eval" = in-trai
   z_h and distill as usual (also strengthens L_z gradients). Scheduled as E21; enables the
   "retarget robot A's library to robot B without human data" capability the design promises.
 
+### E12-engine — embodiment-variant generator — BUILT & VALIDATED (subagent, reviewed)
+- `scripts/make_embodiment_variants.py` + 11 tests: 6 scaled G1 variants (legs/arms/uniform),
+  FK-verified ~1e-8, limb ratios exact to 1e-7, base untouched; `--retarget` patches GMR's
+  ROBOT_XML_DICT and emits standard pair NPZs (walk1 direction-check passed: legs_0.85 pelvis
+  0.751 < base 0.781 < legs_1.15 0.819). Variants live beside the source model (documented in
+  THIRD_PARTY.md). Ready for the E12 augmented retrain.
+
 ## Queued / planned
 - E10 — contact-weight sweep {0.05, 0.2, 1.0} on the shared model (EDGE head + world-frame losses,
-  post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current.
-- E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): with prob p≈0.3, decode
-  the robot-teacher encoding z_r instead of z_h and distill; re-measure robot→robot MPJPE.
+  post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current. AUTO-CHAINED
+  after the ablation grid.
+- E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`
+  wired into train_phase2 (smoke-tested); fold p≈0.3 into the next shared retrain (can combine
+  with E10's contact run or E12's augmented run to save GPU blocks).
+- E12 — augmented retrain: generate variant pairs for a clip subset (engine ready), add variants
+  as extra "robots" in train_phase2, re-run LORO → the zero-shot fix experiment.
 - E14 (UPGRADED by E20): SNMR-vs-GMR WBT tracking comparison **locally on MuJoCo/Warp backend** —
   no external IsaacSim needed; separate env (warp-lang 1.10 + mujoco_warp), CLI-override command
-  in the E20 scout report.
+  in the E20 scout report. Sequence after E10.
 ### E11 — scale-leak probe — DONE (`runs/phase2_all5/scale_leak_probe.json`)
 - setup: robot-only latents (5 classes, chance 0.2), E04 ckpt; features height-normalized by
   standing root height (positions+velocities /h; rot6d untouched) vs raw.
