@@ -367,6 +367,35 @@ keeps paying for itself. Suite: 60+ tests, all green.
 4. **Review workflow works**: the refute-oriented verify stage killed 1 of 3 findings and produced
    executable evidence for the other 2 — keep it as the standard gate before each phase merge.
 
+### 0.4d N9 — LORO + matched-baseline verdicts (2026-07-10, honest and mixed)
+
+**LORO run complete** (100k steps, holdout engineai_pm01, `runs/phase2_loro_pm01/`):
+- Trained robots are *unchanged* vs the all-5 run (G1 6.66 vs 6.67, T1 5.76 vs 5.80, N1 5.52 vs
+  5.54, Toddy 3.20 vs 3.16 cm) — dropping a robot neither helps nor hurts the others; the shared
+  trunk is robust to composition.
+- **Zero-shot PM01: 29.6 cm vs 5.72 cm in-training — 5.2×, FAILING the ≤2× Gate-G2 criterion.**
+  The MJCF-derived embodiment code alone does not transfer decoding to an unseen robot at this
+  data/robot scale (5 robots is far from AdaMorph's 12; SAME needed 160 augmented skeletons).
+  This is a *negative result to report honestly* and the strongest argument for the deferred
+  embodiment-augmentation step (synthetic MJCF variants) — generalization over embodiments needs
+  embodiment-level data diversity, exactly as SAME found for skeletons.
+
+**Matched-baseline transfer (ablation `base` row, 50k single-robot complete schedule): 3.75 cm vs
+shared-G1 5.12 cm at ~40k effective steps — the confound-free comparison REVERSES the preliminary
+claim: sharing 5 robots in one 1.6M-param trunk costs ~1.4 cm on G1 rather than helping.** Gate-G2
+part 1, strictly read (multi-robot ≥ per-robot at matched budget), FAILS at this model scale;
+the honest claim is "5 robots in one network at modest per-robot cost (5.4 cm mean vs ~3.8 cm
+specialist), with the *scale-outlier* robot (Toddy) benefiting most (3.16 cm)". Capacity is the
+obvious suspect (5 embodiments share the parameters one robot had); a width scale-up is the
+cheap test.
+
+**Skate vs training length (base 50k vs 100k benchmark):** skate 0.39→0.25 m/s and slide fraction
+0.46→0.32 improve with training alone — part of the gap is undertraining, but the curve is far
+from the 0.05 teacher level; the contact-loss retrain remains necessary.
+
+**Ablation grid running** (no_temporal → z32 → small → contact → lr8e4; ~5 h). The `contact` row
+directly measures lever 1a on the skate metric.
+
 ### 0.5 Project review & next-goal direction (2026-07-10)
 
 **Where the research actually stands (critical self-assessment, not the optimistic read):**
