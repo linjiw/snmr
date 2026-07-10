@@ -92,26 +92,32 @@ def mujoco_replay(model_path: str, qpos: np.ndarray, fps: float) -> dict:
         body_quat[t] = d.xquat  # wxyz
 
     dt = 1.0 / fps
-    lin_vel = np.gradient(body_pos, dt, axis=0)
-    # angular velocity via quaternion finite difference: w ≈ 2 * (dq/dt) ∘ q^-1 (vector part)
+    lin_vel = np.gradient(body_pos, dt, axis=0)  # centered stencil, aligned at frame t
+
+    def _world_omega(q_a, q_b, span_dt):
+        """World-frame angular velocity from the delta q_b * conj(q_a) over ``span_dt`` seconds.
+        Cross-arg order (xyz_a, xyz_b) gives q_b*conj(q_a) = WORLD delta (matches holosoma
+        convert_data_format_mj: quat_mul(q_next, conj(q_prev)))."""
+        wa, xa = q_a[..., :1], q_a[..., 1:]
+        wb, xb = q_b[..., :1], q_b[..., 1:]
+        rel_w = wb * wa + (xb * xa).sum(-1, keepdims=True)
+        rel_xyz = -wb * xa + wa * xb + np.cross(xa, xb)
+        flip = rel_w < 0
+        rel_w = np.where(flip, -rel_w, rel_w)
+        rel_xyz = np.where(flip, -rel_xyz, rel_xyz)
+        norm = np.linalg.norm(rel_xyz, axis=-1, keepdims=True).clip(min=1e-12)
+        angle = 2.0 * np.arctan2(norm, rel_w)
+        return (rel_xyz / norm) * angle / span_dt
+
+    # Angular velocity: CENTERED SO(3) stencil (over 2*dt), so it aligns at frame t like lin_vel.
+    # (A backward difference would sit at t-0.5, misaligning the two velocity fields by half a frame.)
     ang_vel = np.zeros((T, B, 3))
-    q0 = body_quat[:-1]
-    q1 = body_quat[1:]
-    # relative rotation q_rel = q1 * conj(q0) (WORLD-frame delta), take log map -> world angular vel.
-    # Hamilton product vector part of q1*conj(q0) is: w1*(-xyz0) + w0*xyz1 + cross(xyz1, -xyz0)
-    #   = -w1*xyz0 + w0*xyz1 + cross(xyz0, xyz1). Matches holosoma convert_data_format_mj
-    #   (quat_mul(q_next, quat_conjugate(q_prev))); the cross-arg order is load-bearing.
-    w0, xyz0 = q0[..., :1], q0[..., 1:]
-    w1, xyz1 = q1[..., :1], q1[..., 1:]
-    rel_w = w1 * w0 + (xyz1 * xyz0).sum(-1, keepdims=True)
-    rel_xyz = -w1 * xyz0 + w0 * xyz1 + np.cross(xyz0, xyz1)
-    flip = rel_w < 0
-    rel_w = np.where(flip, -rel_w, rel_w)
-    rel_xyz = np.where(flip, -rel_xyz, rel_xyz)
-    norm = np.linalg.norm(rel_xyz, axis=-1, keepdims=True).clip(min=1e-12)
-    angle = 2.0 * np.arctan2(norm, rel_w)
-    ang_vel[1:] = (rel_xyz / norm) * angle / dt
-    ang_vel[0] = ang_vel[1]
+    if T >= 3:
+        ang_vel[1:-1] = _world_omega(body_quat[:-2], body_quat[2:], 2.0 * dt)
+        ang_vel[0] = _world_omega(body_quat[0:1], body_quat[1:2], dt)     # forward diff at the ends
+        ang_vel[-1] = _world_omega(body_quat[-2:-1], body_quat[-1:], dt)
+    elif T == 2:
+        ang_vel[:] = _world_omega(body_quat[0:1], body_quat[1:2], dt)
 
     body_names = [mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_BODY, b) for b in range(B)]
     joint_names = [

@@ -328,6 +328,30 @@ source. All 6 NPZs schema-validated against the holosoma sample; `WBT_COMMANDS.m
 `g1-29dof-wbt` train/eval commands + a no-IsaacSim `MotionLoader` load check. Ready to hand to an
 IsaacSim box.
 
+### 0.4c Adversarial review of N6/N7/N8 code — 6 bugs found & fixed (2026-07-10)
+
+A 3-dimension review workflow (reviewers → refute-oriented verifiers that executed code) on the
+new N6/N7/N8 code confirmed **6 real bugs (4 refuted)**, all fixed with regression tests:
+1. N6 contact self-consistency loss ran FK in the LOCAL (heading) frame — a world-planted foot
+   moving with the anchor was penalized as sliding, which would *induce* skate (50× the dof-jitter
+   signal). Fixed: recompose to world via anchor before the velocity FK (mirrors polish.py).
+2. N6 contact MASK detected in the local frame → planted feet fail the 0.3 m/s speed test → mask
+   ~all-zero during locomotion → contact head trained to predict no-contact. Fixed: detect on
+   world qpos.
+3. N7 proxy-A-distance used the binary 2(1−2·err) formula on a 6-class attacker → negative,
+   meaningless values (−1.33 at chance). Fixed: normalize error against chance, clamp [0,2].
+4. N7 `_discover_motion_clips` leaked 3 held-out VAL_CLIPS into the E2 probe set (contradicting
+   its docstring). Fixed: filter VAL_CLIPS.
+5. N8 export angular velocity computed conj(q0)·q1 (BODY frame) not q1·conj(q0) (WORLD) — wrong
+   cross-arg order; contradicted the `_w` suffix and holosoma's converter. Fixed + regression test
+   (tilted base yawing 4 rad/s → [0,0,4]).
+6. N8 export ang_vel was a backward difference (aligned t−0.5) while lin_vel is centered (t) —
+   half-frame misalignment (0.27 rad/s RMS on reversing rotation). Fixed: centered SO(3) stencil
+   (0.02 rad/s RMS). N8 package regenerated.
+
+Two review rounds now (Phase-0 core: 2 bugs; N6/N7/N8: 6 bugs) — the executed-code verify stage
+keeps paying for itself. Suite: 60+ tests, all green.
+
 ### 0.4 Design adjustments from implementation experience
 
 1. **LAFAN1-first, AMASS-later** (data availability; §0.2). The human skeleton abstraction already
