@@ -87,6 +87,12 @@ position error vs GMR teacher on the 7 held-out clips; "4-window eval" = in-trai
 - E15 — domain-confusion term on the encoder (motivated by E11's H-deep verdict): GRL or
   uniform-CE adversary on embodiment id; measure attacker drop vs MPJPE cost.
 
+### E17 — Ablation `z32` — DONE (`runs/ablations/z32/`)
+- result: 4.4 cm val / 5.51 cm benchmark MPJPE (vs base 3.75/4.71); skate 0.435 (worse than base).
+- concluded: the per-frame latent bottleneck is load-bearing — SAME's z=32 (enough for stylized
+  characters) underfits whole-body robot retargeting; validates the §5 risk-table prediction
+  ("single z per frame too coarse → scale d"). Keep z=128.
+
 ### E16 — temporal-statistics motion probe — DONE, NULL RESULT (`runs/phase2_all5/e2_temporal_probe.json`)
 - hypothesis (from E04): E2's weak motion probe (0.151) is a window-MEAN artifact; richer readout
   (mean ⊕ std ⊕ |Δz| mean, 3× features) should recover category structure.
