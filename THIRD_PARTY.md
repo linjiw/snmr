@@ -27,3 +27,10 @@ LAFAN1 (Ubisoft La Forge Animation Dataset) is downloaded by the user from the o
 repository and is subject to its own (non-commercial research) license terms. The generated
 `data/pairs/` dataset is LAFAN1-derived and is **not** redistributed; regenerate it with
 `scripts/make_pairs_lafan1.py` (see `docs/DATA.md`).
+
+## Generated variant models (embodiment augmentation)
+
+`scripts/make_embodiment_variants.py` writes derived, kinematically-scaled MJCF variants
+(`*_var_*.xml` + manifest) NEXT TO the source model inside the external clone (required so the
+model's relative mesh/asset paths keep resolving). These files are untracked in that clone,
+regenerable, and carry the source model's license.
