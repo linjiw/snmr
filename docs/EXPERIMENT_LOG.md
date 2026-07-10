@@ -70,8 +70,19 @@ position error vs GMR teacher on the 7 held-out clips; "4-window eval" = in-trai
 ## Queued / planned
 - E10 — contact-weight sweep {0.05, 0.2, 1.0} on the shared model (EDGE head + world-frame losses,
   post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current.
-- E11 — scale-leak probe (running): MLP attacker on height-normalized features; attributes the
-  E3 leak to scale vs style. Output: `runs/phase2_all5/scale_leak_probe.json`.
+### E11 — scale-leak probe — DONE (`runs/phase2_all5/scale_leak_probe.json`)
+- setup: robot-only latents (5 classes, chance 0.2), E04 ckpt; features height-normalized by
+  standing root height (positions+velocities /h; rot6d untouched) vs raw.
+- result: MLP attacker **0.943 raw → 0.933 normalized — scale explains only ~1% of the leak.**
+  **H-deep confirmed:** the embodiment signature is structural/stylistic (limb proportions,
+  per-robot IK habits), not amplitude. Curious secondary: the *linear* probe **rose** 0.35→0.68
+  under normalization — height division seems to make proportional differences more linearly
+  separable (worth a sentence in the paper, not a headline).
+- consequence: a domain-confusion (GRL/uniform-CE) term on the encoder is now *motivated by
+  measurement*, not speculation → schedule as E15 after the contact sweep. Also: "leak ≠ scale"
+  strengthens the analysis-section contribution.
 - E12 — embodiment augmentation (synthetic MJCF variants) → LORO revisit.
 - E13 — capacity scale-up of the shared model (does the 1.4 cm sharing cost shrink?).
 - E14 — WBT tracking comparison (N8 package, needs IsaacSim machine).
+- E15 — domain-confusion term on the encoder (motivated by E11's H-deep verdict): GRL or
+  uniform-CE adversary on embodiment id; measure attacker drop vs MPJPE cost.

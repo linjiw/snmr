@@ -1,0 +1,19 @@
+{
+  "raw": {
+    "linear_probe": 0.3476190476190476,
+    "mlp_attacker": 0.9428571428571428,
+    "proxy_A": 1.8571428571428572,
+    "chance": 0.2
+  },
+  "scale_normalized": {
+    "linear_probe": 0.680952380952381,
+    "mlp_attacker": 0.9333333333333333,
+    "proxy_A": 1.8333333333333335,
+    "chance": 0.2
+  },
+  "verdict": {
+    "attacker_drop": 0.00952380952380949,
+    "fraction_of_leak_explained": 0.012820512820512775,
+    "conclusion": "H-deep: leak persists beyond scale (domain-confusion loss motivated)"
+  }
+}
