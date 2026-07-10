@@ -170,6 +170,9 @@ def main() -> None:
     ap.add_argument("--contact_weight", type=float, default=0.0,
                     help="N6: weight for contact self-consistency + contact-prediction losses "
                          "(0 = off; >0 enables the decoder contact head)")
+    ap.add_argument("--zr_decode_prob", type=float, default=0.0,
+                    help="E21: probability of decoding a robot-teacher encoding z_r instead of the "
+                         "human encoding z_h (0 = off; fixes robot->robot transfer OOD gap)")
     ap.add_argument("--latent_dim", type=int, default=128)
     ap.add_argument("--enc_hidden", type=int, default=256)
     ap.add_argument("--dec_hidden", type=int, default=256)
@@ -240,7 +243,22 @@ def main() -> None:
         for robot in robots_k:
             ctx = ctxs[robot]
             teacher, anchor, q = window_teacher(entry, robot, s, e, ctx.xy_scale)
-            pred = model.decoder(z_h, ctx.static, ctx.adj,
+            # E21 (opt-in): decode-from-z_r augmentation. The decoder otherwise only ever consumes
+            # HUMAN encodings; robot encodings z_r enter training solely through L_z, and the
+            # residual z_h-z_r gap is out-of-distribution at robot->robot transfer time (measured:
+            # 24-45cm vs 3-5cm on the human path, E19). With prob p we source the decoded latent
+            # from a randomly chosen robot's teacher encoding instead (WITH grad, so the encoder
+            # also learns to make robot encodings decodable), distilling to the same target.
+            z_src = z_h
+            if args.zr_decode_prob > 0 and random.random() < args.zr_decode_prob:
+                src_robot = random.choice(train_robots)
+                q_src = entry["qpos"][src_robot][s:e]
+                src_ctx = ctxs[src_robot]
+                motion_src = RobotMotion(q_src[:, 0:3], q_src[:, 3:7], q_src[:, 7:], fps=30.0)
+                with torch.no_grad():
+                    feats_src = robot_pose_features(src_ctx.kin, motion_src)
+                z_src = model.encode(feats_src, src_ctx.static, src_ctx.adj)
+            pred = model.decoder(z_src, ctx.static, ctx.adj,
                                  model.embodiment_encoder(ctx.static), ctx.kin.graph)
             l_robot, _ = total_loss(pred, ctx.kin, teacher=teacher)
             # N6 (opt-in): contact-consistency loss. Both the mask and the velocity penalty must be
