@@ -97,11 +97,14 @@ def mujoco_replay(model_path: str, qpos: np.ndarray, fps: float) -> dict:
     ang_vel = np.zeros((T, B, 3))
     q0 = body_quat[:-1]
     q1 = body_quat[1:]
-    # relative rotation q_rel = q1 * conj(q0), take log map
+    # relative rotation q_rel = q1 * conj(q0) (WORLD-frame delta), take log map -> world angular vel.
+    # Hamilton product vector part of q1*conj(q0) is: w1*(-xyz0) + w0*xyz1 + cross(xyz1, -xyz0)
+    #   = -w1*xyz0 + w0*xyz1 + cross(xyz0, xyz1). Matches holosoma convert_data_format_mj
+    #   (quat_mul(q_next, quat_conjugate(q_prev))); the cross-arg order is load-bearing.
     w0, xyz0 = q0[..., :1], q0[..., 1:]
     w1, xyz1 = q1[..., :1], q1[..., 1:]
     rel_w = w1 * w0 + (xyz1 * xyz0).sum(-1, keepdims=True)
-    rel_xyz = -w1 * xyz0 + w0 * xyz1 + np.cross(xyz1, xyz0)
+    rel_xyz = -w1 * xyz0 + w0 * xyz1 + np.cross(xyz0, xyz1)
     flip = rel_w < 0
     rel_w = np.where(flip, -rel_w, rel_w)
     rel_xyz = np.where(flip, -rel_xyz, rel_xyz)
