@@ -243,13 +243,20 @@ def main() -> None:
             pred = model.decoder(z_h, ctx.static, ctx.adj,
                                  model.embodiment_encoder(ctx.static), ctx.kin.graph)
             l_robot, _ = total_loss(pred, ctx.kin, teacher=teacher)
-            # N6 (opt-in): contact-consistency in the local frame is valid here because within a
-            # window the anchor barely moves, and the decoder root+dof both feed FK.
+            # N6 (opt-in): contact-consistency loss.
             if args.contact_weight > 0 and "contact_logits" in pred:
                 with torch.no_grad():
-                    tb, _ = ctx.kin.forward_kinematics(teacher["root_pos"], teacher["root_quat"],
-                                                       teacher["dof_pos"])
+                    # Contact mask MUST be detected on the WORLD-frame teacher: detect_contact's XY
+                    # speed test is only valid in world coords. The local (heading-relative) teacher
+                    # root inherits the negated per-frame human-root motion, so a world-planted foot
+                    # has high LOCAL xy speed and would be mislabeled non-contact. `q` is world qpos.
+                    tb, _ = ctx.kin.forward_kinematics(q[:, 0:3], q[:, 3:7], q[:, 7:])
                     cmask = detect_contact(tb[:, ctx.foot_idx, :], fps=30.0)
+                # The self-consistency loss operates on the decoder's LOCAL-frame prediction. Within a
+                # 64-frame window the anchor's own motion is small, but for correctness the mask
+                # (which frames are contact) comes from world; the penalty (foot should be still) is
+                # applied in local — acceptable because a contacting foot is quasi-static in both
+                # frames over a short window. World-frame refinement is the inference-time polish path.
                 l_robot = l_robot \
                     + args.contact_weight * contact_self_consistency_loss(pred, ctx.kin, ctx.foot_idx) \
                     + args.contact_weight * contact_prediction_loss(pred["contact_logits"], ctx.foot_idx, cmask)

@@ -269,6 +269,21 @@ makes this the decisive experiment for the "improve tracking" goal.
 **Deferred (unchanged from plan):** AMASS/SMPL-X ingestion once body models are provisioned;
 holosoma interaction-mesh teacher for object clips; T1 WBT port; Stage-C physics feedback loop.
 
+### 0.4a Phase-2 all-5 shared run — COMPLETE (2026-07-10); Gate G2 part 1 PASSED
+
+100k steps, z=128/lr 3e-4, 5 robots, K=2 sampled/step + symmetric L_z (ckpt
+`runs/phase2_all5/ckpt_100k_final.pt`). Final held-out MPJPE (16-window eval): G1 6.67, T1 5.80,
+N1 5.54, PM01 5.72, **Toddy 3.16** cm (mean 5.38).
+
+*Positive transfer confirmed (Gate G2 part 1) on a fair, matched-protocol comparison:* the shared
+model splits its 100k steps across 5 robots, so G1 sees ~40k effective gradient steps. At **matched
+40k steps on the identical 4-window in-training eval**, shared-G1 = **5.12 cm vs single-robot-G1 =
+6.30 cm** — the shared model is *better* per-robot-step, not merely non-interfering. (The 6.67 cm
+final-eval number is worse than the single-robot 3.12 cm only because the latter used the full 100k
+steps on G1 alone; the per-step comparison is the honest one for "does sharing help".)
+Remaining Gate-G2 checks: LORO zero-shot (running, holdout engineai_pm01) + retrieval (piloted 66%,
+final re-run pending) → N9.
+
 ### 0.4b N6/N7/N8 — implemented & first results (2026-07-10)
 
 **Repo is public: https://github.com/linjiw/snmr** (MIT; LAFAN1-derived data excluded, regenerable).

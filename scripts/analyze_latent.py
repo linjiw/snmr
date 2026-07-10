@@ -53,7 +53,11 @@ def _discover_motion_clips(pairs_root: pathlib.Path, robot: str, min_per_cat: in
     the *clip* split still forces generalization within a category."""
     from collections import defaultdict
 
-    all_clips = sorted(p.stem for p in (pairs_root / robot).glob("*.npz"))
+    # exclude the held-out VAL_CLIPS so the motion probe stays on the training distribution
+    # (the clip-level leave-clip-out split still forces within-category generalization)
+    all_clips = sorted(
+        p.stem for p in (pairs_root / robot).glob("*.npz") if p.stem not in set(VAL_CLIPS)
+    )
     by_cat: dict[str, list[str]] = defaultdict(list)
     for c in all_clips:
         by_cat[_motion_category(c)].append(c)
@@ -138,8 +142,13 @@ def mlp_attacker(feat, label, groups, seed=0):
     clf.fit(feat[tr], label[tr])
     acc = accuracy_score(label[te], clf.predict(feat[te]))
     err = 1.0 - acc
-    proxy_a = 2.0 * (1.0 - 2.0 * err)   # Ganin et al.; 0 = indistinguishable
-    return float(acc), float(proxy_a)
+    # Proxy-A-distance (Ben-David/Ganin) is defined for BINARY domain discrimination as 2(1-2·err).
+    # For our k-class embodiment problem we normalize the error against chance error so the metric
+    # keeps its meaning (2 = fully separable, 0 = at chance) regardless of class count.
+    n_classes = len(np.unique(label))
+    eps_chance = 1.0 - 1.0 / n_classes          # binary: 0.5 -> recovers 2(1-2·err)
+    proxy_a = float(np.clip(2.0 * (1.0 - err / eps_chance), 0.0, 2.0))
+    return float(acc), proxy_a
 
 
 def linear_cka(a, b):
