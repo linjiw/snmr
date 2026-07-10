@@ -77,9 +77,48 @@ position error vs GMR teacher on the 7 held-out clips; "4-window eval" = in-trai
   stays the ground truth. Side-finding: holosoma G1 MJCF has permanent ~2 cm knee↔ankle
   self-penetration (rest-pose contact forces move the root ~1 cm) — relevant to the WBT handoff.
 
+### E20 — WBT-on-MuJoCo feasibility scout — DONE, **GO-WITH-SHIM (major unblock)**
+- Verdict (verified with file:line evidence): robot-only `g1-29dof-wbt` can train on the holosoma
+  **MuJoCo/Warp backend TODAY** — the "IsaacSim-only" gates don't fire for our case:
+  `wbt_manager.py:16` blocks IsaacGym only; `command/terms/wbt.py:592` fires only for object
+  motions; `:1251` only for default-pose prepend/append (both off by default). The MuJoCo wrapper
+  was deliberately prepped for WBT (`mujoco.py:444` "_body_list ... for compatibility with
+  whole_body_tracking"); every API the WBT managers call is implemented (full table in the scout
+  report; `refresh_sim_tensors` populates per-body buffers; WarpBackend gives zero-copy GPU views).
+- Required: CLI overrides only — simulator target swap + `--randomization.ignore_unsupported=True`
+  (skips one IsaacSim-only material randomizer). Needs `warp-lang==1.10.0` + `mujoco_warp` in a
+  separate env (compatible with cu124).
+- Consequence: **E14 (the decisive SNMR-vs-GMR tracking comparison) no longer needs an external
+  IsaacSim machine** — schedule as the next GPU block after E10. Caveat: MuJoCo-vs-PhysX physics
+  differences are fine for a *comparative* experiment (same sim both arms).
+
+### E19 — latent exploitation suite — DONE, mixed + one actionable failure (`runs/phase2_all5/latent_exploitation.json`)
+- **Interpolation (latent vs qpos-blend baseline, a=0.5):** the qpos baseline scores BETTER on
+  plausibility (G1 skate 0.045 vs 0.087; body jerk 49 vs 136). Interpretation: frame-wise nlerp of
+  two smooth motions is smooth-but-semantically-meaningless "average pose" — plausibility metrics
+  alone cannot demonstrate latent-interpolation superiority. Don't claim it in the paper without a
+  semantic metric (e.g. retrieval of blends, or user study). Honest reframe: latent blends stay
+  *valid motions* (limit_viol 0, low penetration) but are not smoother than naive blending.
+- **Arithmetic:** z_fight − z_walk + z_run retrieves fight1 as nearest clip (composition dominated
+  by the added component — sane), decodes plausibly (skate 0.148, limit_viol 0). Works as a
+  qualitative demo, matches SAME's emergent-arithmetic claim.
+- **Robot→robot transfer (the unique capability): FAILS at usable fidelity** — G1→T1 44.7 cm,
+  T1→G1 38.2 cm, G1→Toddy 24.0 cm vs 2.9–4.7 cm for the human→robot path on the same window.
+  **Root cause (structural, not mysterious): the decoder was only ever trained on HUMAN encodings
+  z_h; robot encodings z_r enter training solely through L_z (aligned to ~0.001 MSE), and that
+  residual gap is out-of-distribution for the decoder.** Fix is cheap and concrete: **decode-from-
+  z_r augmentation** — with probability p, decode a sampled robot's teacher encoding instead of
+  z_h and distill as usual (also strengthens L_z gradients). Scheduled as E21; enables the
+  "retarget robot A's library to robot B without human data" capability the design promises.
+
 ## Queued / planned
 - E10 — contact-weight sweep {0.05, 0.2, 1.0} on the shared model (EDGE head + world-frame losses,
   post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current.
+- E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): with prob p≈0.3, decode
+  the robot-teacher encoding z_r instead of z_h and distill; re-measure robot→robot MPJPE.
+- E14 (UPGRADED by E20): SNMR-vs-GMR WBT tracking comparison **locally on MuJoCo/Warp backend** —
+  no external IsaacSim needed; separate env (warp-lang 1.10 + mujoco_warp), CLI-override command
+  in the E20 scout report.
 ### E11 — scale-leak probe — DONE (`runs/phase2_all5/scale_leak_probe.json`)
 - setup: robot-only latents (5 classes, chance 0.2), E04 ckpt; features height-normalized by
   standing root height (positions+velocities /h; rot6d untouched) vs raw.

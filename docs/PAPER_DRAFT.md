@@ -39,7 +39,8 @@ whole-body-tracking validation package are released.
 | C3 | Honest matched-baseline accounting of sharing costs | specialist 3.75 vs shared 5.12 cm at matched steps/schedule | [DONE] |
 | C4 | Zero-shot embodiment transfer quantified (negative) | LORO PM01: 29.6 vs 5.7 cm (5.2×) | [DONE] |
 | C5 | Contact-consistent decoding closes the foot-skate gap | contact-loss retrain sweep | [PEND — next GPU job] |
-| C6 | Matched-pipeline tracking validation (retargeting → RL) | N8 package ready; needs IsaacSim machine | [PEND — external] |
+| C6 | Matched-pipeline tracking validation (retargeting → RL) | N8 package ready; **WBT trains locally on holosoma's MuJoCo/Warp backend (E20 scout: CLI overrides only)** + trackability proxy already shows PD-replay equivalence (E18) | [PEND — local GPU block] |
+| C7 | Robot→robot motion transfer via the shared latent (no human data) | currently FAILS (24–45 cm; decoder never trained on robot encodings — E19); decode-from-z_r augmentation (E21) is the fix | [PEND] |
 
 ## 2. Method (framework)
 
