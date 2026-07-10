@@ -4,7 +4,7 @@
 with a SAME-style skeleton-agnostic neural retargeter built around a **shared latent motion space**,
 feeding a **shared (multi-embodiment) whole-body tracking training** pipeline.
 
-Date: 2026-07-09 · Status: **Phase 0 complete, Phase 1 core implemented & validated** (see §0)
+Date: 2026-07-10 · Status: **Phases 0–2 trained; N6–N8 built+reviewed; pipeline running (LORO→ablations); see §0.5 for direction**
 
 ---
 
@@ -269,20 +269,23 @@ makes this the decisive experiment for the "improve tracking" goal.
 **Deferred (unchanged from plan):** AMASS/SMPL-X ingestion once body models are provisioned;
 holosoma interaction-mesh teacher for object clips; T1 WBT port; Stage-C physics feedback loop.
 
-### 0.4a Phase-2 all-5 shared run — COMPLETE (2026-07-10); Gate G2 part 1 PASSED
+### 0.4a Phase-2 all-5 shared run — COMPLETE (2026-07-10); Gate G2 part 1 PRELIMINARY
 
 100k steps, z=128/lr 3e-4, 5 robots, K=2 sampled/step + symmetric L_z (ckpt
 `runs/phase2_all5/ckpt_100k_final.pt`). Final held-out MPJPE (16-window eval): G1 6.67, T1 5.80,
 N1 5.54, PM01 5.72, **Toddy 3.16** cm (mean 5.38).
 
-*Positive transfer confirmed (Gate G2 part 1) on a fair, matched-protocol comparison:* the shared
-model splits its 100k steps across 5 robots, so G1 sees ~40k effective gradient steps. At **matched
-40k steps on the identical 4-window in-training eval**, shared-G1 = **5.12 cm vs single-robot-G1 =
-6.30 cm** — the shared model is *better* per-robot-step, not merely non-interfering. (The 6.67 cm
-final-eval number is worse than the single-robot 3.12 cm only because the latter used the full 100k
-steps on G1 alone; the per-step comparison is the honest one for "does sharing help".)
-Remaining Gate-G2 checks: LORO zero-shot (running, holdout engineai_pm01) + retrieval (piloted 66%,
-final re-run pending) → N9.
+*Positive-transfer signal — **downgraded to preliminary on self-review (schedule confound).*** The
+earlier claim compared shared-G1 @100k (5.12 cm, cosine schedule COMPLETE, lr 1e-5) against
+single-robot @40k (6.30 cm, MID-schedule, lr 2e-4) at "matched effective steps" — but the
+single-robot curve shows schedule completion alone drives 6.30 → 2.18 cm, so that comparison
+conflates sharing with annealing. **The honest matched baseline is the ablation grid's `base` row**
+(single-robot G1, 50k steps, COMPLETE schedule ≈ the shared model's ~40k effective G1 steps with a
+complete schedule); the Gate-G2 part 1 verdict waits on it (N9). What survives the confound today:
+no catastrophic interference (all 5 robots converge in one model, 3.2–6.7 cm), and Toddy — the
+0.34 m scale outlier — is the *best* robot in the shared model at 3.16 cm.
+Remaining Gate-G2 checks: matched-baseline transfer (ablation `base` row), LORO zero-shot
+(running, holdout engineai_pm01), retrieval (final ckpt re-run done: R@1 0.75) → N9.
 
 ### 0.4b N6/N7/N8 — implemented & first results (2026-07-10)
 
@@ -363,6 +366,59 @@ keeps paying for itself. Suite: 60+ tests, all green.
    5–10 cm MPJPE when overfit — capacity/gradients are not the bottleneck; data scale is.
 4. **Review workflow works**: the refute-oriented verify stage killed 1 of 3 findings and produced
    executable evidence for the other 2 — keep it as the standard gate before each phase merge.
+
+### 0.5 Project review & next-goal direction (2026-07-10)
+
+**Where the research actually stands (critical self-assessment, not the optimistic read):**
+
+*Solid and defensible:*
+- Retargeter core: Gate G1 passed (2.18 cm held-out G1); 5-robot shared model trains without
+  interference (3.2–6.7 cm each); FK/rotation/data layers hardened by 2 review rounds (8 bugs
+  total found by executed-code verification, all fixed + regression-tested); public repo with
+  reproducible dataset provenance. Throughput ~2000 fps vs teacher's 160.
+- Analysis infra is paper-grade: literature-aligned metric suite, benchmark harness, probe/CKA/
+  retrieval/attacker suite — stronger evaluation than AdaMorph (no baselines/ablations) offers.
+
+*Open problems, ranked by threat to the thesis:*
+1. **Foot skate (0.25 vs teacher 0.05 m/s)** — threatens the "improve tracking" goal directly,
+   since the GMR paper shows foot artifacts dominate downstream RL. The two training-time levers
+   (teacher-mask loss; EDGE self-consistency head) are implemented but **unquantified** — and note
+   the ablation grid's `contact` row only tests the teacher-mask lever (train_phase1 has no
+   contact head); the EDGE-head lever needs a Phase-2 `--contact_weight` run.
+2. **Embodiment leakage (E3 attacker 0.91)** — the latent is shared-and-aligned but not invariant.
+   Two interpretations to disambiguate: (a) L_z is too weak / needs a domain-confusion term;
+   (b) *scale* is the leak (Toddy retrieval weakest; embodiment may be readable from motion
+   amplitude alone, which no invariance loss can or should remove). A scale-normalized probe
+   (probe latents of amplitude-normalized inputs) distinguishes these before adding losses.
+3. **Positive transfer is not yet cleanly shown** (schedule confound, §0.4a) — resolves free with
+   the ablation `base` row.
+4. **Tracking validation not yet run** — the N8 package is ready but IsaacSim access is the
+   blocker. Until one WBT comparison runs, the central claim ("neural retargeting is as trackable
+   as IK") rests on kinematic metrics only.
+
+**Next-goal sequence (recommended):**
+- **G-next-1 (now, GPU-gated):** finish the running pipeline (LORO → ablations), render N9
+  verdicts: Gate-G2 parts 1–3 with the confound-free baseline, ablation table (temporal/z-dim/
+  capacity/contact-mask-loss/lr rows).
+- **G-next-2 (the decisive kinematic experiment):** Phase-2 retrain with `--contact_weight`
+  sweep {0.05, 0.2, 1.0} on the shared model (the EDGE head + world-frame losses, now
+  review-verified). Accept: skate ≤ 1.5× teacher at MPJPE ≤ 1.5× current. This closes the last
+  kinematic-quality gap and produces the paper's "SNMR vs teacher" table in final form.
+- **G-next-3 (the decisive downstream experiment):** run the N8 package on an IsaacSim machine
+  (the one external dependency — needs provisioning). One G1 clip-set comparison (SNMR vs GMR
+  data → identical WBT config → success rate + tracking errors) converts the thesis from
+  kinematic to closed-loop. If contact-retrained checkpoints exist by then, export those.
+- **G-next-4 (paper depth, cheap):** temporal-aware motion probe (fixes the E2 window-mean
+  artifact), scale-normalized embodiment probe (leak diagnosis), t-SNE/interpolation figures —
+  all CPU, all scripted already or trivial extensions.
+- **Defer:** AMASS scale-up, T1 WBT port, ReActor-style bilevel refinement — valuable but none
+  blocks the paper story; revisit after G-next-3 lands.
+
+**Paper framing that today's evidence supports:** "A single skeleton-agnostic network retargets
+human motion to five heterogeneous humanoids at IK-teacher fidelity and 12× throughput, with a
+quantitatively analyzed shared latent (aligned but measurably not invariant — and we show which
+part of the gap is scale) and matched-pipeline tracking validation." Every claim in that sentence
+has an experiment either done or in the queue above.
 
 ---
 
