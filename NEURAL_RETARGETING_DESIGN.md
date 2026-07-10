@@ -266,6 +266,29 @@ tracking rewards, sim2sim MuJoCo) for an IsaacSim machine; validate NPZs load in
 `MotionLoader` locally. The GMR paper's central result (retargeting quality → tracking quality)
 makes this the decisive experiment for the "improve tracking" goal.
 
+**N10 — Latent-as-command design (C2), research-grounded (2026-07-10).** A verified literature
+pass found the direct precedent we lacked: **VMP** (Serifi et al., SCA 2024, Disney/ETH — no
+arXiv; RobotMDM reuses it on hardware) pretrains a frame-wise VAE latent (z=64) and conditions a
+PPO tracking policy on `[z_t ⊕ current raw frame]` — their LM configuration **halves** joint MAE
+vs raw-reference windows (dance 12.79°→5.80°) and latent-only beats every raw-window variant;
+retraining ONLY the encoder (RL data fixed) cuts unseen-motion error 15% — the benefit is
+attributable to the representation. Independent agreement: GMT's ablation shows dropping the raw
+immediate frame hurts badly → the winning interface is **latent window + minimal raw current
+frame**, not pure z. Design for our C2 experiment (holosoma WBT, `managers/command/terms/wbt.py:870`):
+- primary arm: actor observes `[z_t, z_{t+5}, z_{t+25}, z_{t+50}] ⊕ embodiment code ⊕ existing
+  anchor-error terms ⊕ current-frame raw joint_pos (29-D)`; rewards/terminations stay on decoded
+  q̂; critic keeps full raw reference (asymmetric).
+- ablation arms: raw-only (holosoma default), pure-z, random-projection control (never run by
+  anyone), generalist-vs-specialists at matched steps (headline), encoder-upgrade-at-frozen-policy
+  (VMP's high-signal bonus).
+- verified openings no one has shown: (i) sample-efficiency (steps-to-threshold) for ANY command
+  representation; (ii) latent-command in the mainstream humanoid-RL stack; (iii) multi-embodiment
+  sharing via latent+embodiment-code — raw joint-space commands structurally CANNOT be shared
+  across different-DoF robots, so our interface is the only entrant (the safe headline).
+- citation hygiene: BeyondMimic's distillation is latent-free state-action diffusion (not CVAE at
+  the RL interface); PULSE is latent-as-ACTION not command; UniTracker/MaskedMimic latents serve
+  distillation students. Cite VMP as the mechanism precedent.
+
 **Deferred (unchanged from plan):** AMASS/SMPL-X ingestion once body models are provisioned;
 holosoma interaction-mesh teacher for object clips; T1 WBT port; Stage-C physics feedback loop.
 
