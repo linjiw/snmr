@@ -60,6 +60,34 @@ def test_self_consistency_loss_gradient_flows(g1_mjcf):
     assert n_grad > 0
 
 
+def test_self_consistency_world_recomposition(g1_mjcf):
+    """With an anchor, the loss must be computed in the WORLD frame: a foot that is stationary in
+    world but whose local-frame prediction moves with the anchor should incur ~zero contact velocity
+    penalty when recomposed. We fabricate a local prediction + counter-moving anchor and check the
+    anchored loss is far smaller than the un-anchored (local) loss."""
+    rk = RobotKinematics(g1_mjcf)
+    T = 20
+    foot_idx = [rk.body_index(n) for n in FOOT_BODIES["unitree_g1"]]
+    # constant dof + local root that translates linearly in x; anchor translates the opposite way so
+    # the WORLD root is fixed -> feet are world-stationary.
+    lo, hi = rk.dof_limits()
+    dof = (0.5 * (lo + hi)).expand(T, rk.num_dof).clone()
+    local_pos = torch.zeros(T, 3)
+    local_pos[:, 0] = torch.arange(T) * 0.01
+    local_pos[:, 2] = 0.75
+    quat = torch.tensor([1.0, 0, 0, 0]).expand(T, 4).clone()
+    pred = {"root_pos": local_pos, "root_quat": quat, "dof_pos": dof,
+            "contact_logits": torch.full((T, rk.num_bodies), 5.0)}  # high contact prob everywhere
+    # anchor with zero heading and xy that exactly cancels the local translation -> world root fixed
+    anchor_pos = torch.zeros(T, 3)
+    anchor_pos[:, 0] = -torch.arange(T) * 0.01  # local_root_to_world adds heading-rotated local_pos + anchor_xy
+    anchor_quat = quat.clone()
+
+    l_local = losses.contact_self_consistency_loss(pred, rk, foot_idx)
+    l_world = losses.contact_self_consistency_loss(pred, rk, foot_idx, anchor=(anchor_pos, anchor_quat))
+    assert l_world < l_local, f"world recomposition should cancel the sliding: {l_world} vs {l_local}"
+
+
 def test_polish_reduces_contact_velocity_on_synthetic_slide(g1_mjcf):
     """On a decode that slides a planted foot, polish must reduce the contact-masked foot velocity
     (the objective it optimizes), staying finite. Uses a tiny model + identity-ish decode closure."""

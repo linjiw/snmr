@@ -317,6 +317,7 @@ final re-run pending) → N9.
   exact clips. Fix for the final analysis: a temporal-aware readout (probe the frame-latent
   sequence, not its mean). Noted as a to-do; does not change the E1/E3/E4/E5 conclusions (those
   use the same features and are internally consistent).
+- **Final all-5 checkpoint (100k) re-run confirms the mid-training picture** (corrected code): CKA 0.910, retrieval R@1 0.749, E1 linear probe 0.278 vs **E3 MLP attacker 0.909** (proxy-A-distance 1.78, now a valid k-class value), E2 motion probe 0.151 (window-mean caveat stands). The E1/E3 gap is stable across checkpoints — the headline finding.
 - *Caveats:* all numbers are on the ~92k **mid-training** checkpoint; the final all-5 + LORO
   checkpoints (imminent) get the full re-run for the paper. The E1/E3 divergence is the headline.
 

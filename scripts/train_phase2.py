@@ -239,27 +239,22 @@ def main() -> None:
         lz_total = z_h.new_zeros(())
         for robot in robots_k:
             ctx = ctxs[robot]
-            teacher, _, q = window_teacher(entry, robot, s, e, ctx.xy_scale)
+            teacher, anchor, q = window_teacher(entry, robot, s, e, ctx.xy_scale)
             pred = model.decoder(z_h, ctx.static, ctx.adj,
                                  model.embodiment_encoder(ctx.static), ctx.kin.graph)
             l_robot, _ = total_loss(pred, ctx.kin, teacher=teacher)
-            # N6 (opt-in): contact-consistency loss.
+            # N6 (opt-in): contact-consistency loss. Both the mask and the velocity penalty must be
+            # in the WORLD frame — detect_contact's XY-speed test is world-only, and a planted foot
+            # is stationary in world, not in the scaled-human-heading local frame the decoder emits.
             if args.contact_weight > 0 and "contact_logits" in pred:
                 with torch.no_grad():
-                    # Contact mask MUST be detected on the WORLD-frame teacher: detect_contact's XY
-                    # speed test is only valid in world coords. The local (heading-relative) teacher
-                    # root inherits the negated per-frame human-root motion, so a world-planted foot
-                    # has high LOCAL xy speed and would be mislabeled non-contact. `q` is world qpos.
-                    tb, _ = ctx.kin.forward_kinematics(q[:, 0:3], q[:, 3:7], q[:, 7:])
+                    tb, _ = ctx.kin.forward_kinematics(q[:, 0:3], q[:, 3:7], q[:, 7:])  # world teacher
                     cmask = detect_contact(tb[:, ctx.foot_idx, :], fps=30.0)
-                # The self-consistency loss operates on the decoder's LOCAL-frame prediction. Within a
-                # 64-frame window the anchor's own motion is small, but for correctness the mask
-                # (which frames are contact) comes from world; the penalty (foot should be still) is
-                # applied in local — acceptable because a contacting foot is quasi-static in both
-                # frames over a short window. World-frame refinement is the inference-time polish path.
                 l_robot = l_robot \
-                    + args.contact_weight * contact_self_consistency_loss(pred, ctx.kin, ctx.foot_idx) \
-                    + args.contact_weight * contact_prediction_loss(pred["contact_logits"], ctx.foot_idx, cmask)
+                    + args.contact_weight * contact_self_consistency_loss(
+                        pred, ctx.kin, ctx.foot_idx, anchor=anchor) \
+                    + args.contact_weight * contact_prediction_loss(
+                        pred["contact_logits"], ctx.foot_idx, cmask)
             z_r = encode_robot_teacher(model, ctx, q)
             l_z = latent_consistency_loss(z_h, z_r)  # symmetric: grads flow into both encodings
             loss = loss + l_robot + args.latent_weight * l_z

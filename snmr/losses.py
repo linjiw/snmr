@@ -122,14 +122,25 @@ def contact_self_consistency_loss(
     target_kin: RobotKinematics,
     foot_body_indices: list[int],
     ground_z: float = 0.0,
+    anchor: tuple[torch.Tensor, torch.Tensor] | None = None,
 ) -> torch.Tensor:
     """EDGE-style self-consistency: ‖(FK(x_{t+1})−FK(x_t))·σ(b̂_t)‖² masked by the network's *own*
     predicted contact probability. Encourages the model to both predict contact and keep the foot
     stationary where it predicts contact — removing the mm-level dof jitter at planted frames.
 
+    A planted foot is stationary in the WORLD frame, not in the scaled-human-heading LOCAL frame the
+    decoder predicts in (the local frame carries the negated per-frame anchor motion). Pass
+    ``anchor=(anchor_pos, anchor_quat)`` to recompose the prediction to world before the velocity FK;
+    without it the loss is computed in the local frame (only valid if the anchor is ~static).
+
     Requires ``pred['contact_logits']`` (decoder built with ``predict_contact=True``)."""
     assert "contact_logits" in pred, "model must be built with predict_contact=True"
-    body_pos, _ = target_kin.forward_kinematics(pred["root_pos"], pred["root_quat"], pred["dof_pos"])
+    root_pos, root_quat = pred["root_pos"], pred["root_quat"]
+    if anchor is not None:
+        from .data import local_root_to_world
+
+        root_pos, root_quat = local_root_to_world(anchor[0], anchor[1], root_pos, root_quat)
+    body_pos, _ = target_kin.forward_kinematics(root_pos, root_quat, pred["dof_pos"])
     feet = body_pos[:, foot_body_indices, :]  # (T, F, 3)
     b = torch.sigmoid(pred["contact_logits"][:, foot_body_indices])  # (T, F) own prediction
     T = feet.shape[0]
