@@ -204,9 +204,23 @@ quality.)
 holosoma's `MotionLoader` (schema-validated locally with a loader-shape check, no IsaacSim
 needed).
 
-**N6 — Close the foot-skate gap (contact-consistent decoding).** Three independent deep-research
-passes (contact losses / inference-time cleanup / architecture) converged; all claims verified
-from primary sources:
+**N6 — Close the foot-skate gap — UPDATED with empirical root cause (2026-07-11).** The literature
+priors below motivated the first attempts; our own experiments then *localized* the problem, which
+matters more than the priors. **Empirical findings (E10a/E22/E24):** (1) the contact-velocity loss
+does NOT reduce skate at any weight w∈{0.05..1.0} (skate 0.50–0.57 vs no-contact 0.26; it loses to
+distill and even hurts MPJPE at w=1); (2) a post-hoc low-pass filter barely helps (0.093→0.081) and
+(3) an inference position foot-lock barely helps (0.160→0.153). Root cause (E24): the decoded foot
+sits at the **correct height** but **oscillates in xy during stance** (contact-mask agreement only
+58%; decoded contact frac 0.33 vs teacher 0.74) — a *velocity* error of a correctly-placed foot,
+correlated across the leg chain, so neither position-locking nor per-joint low-pass can fix it, and
+a low-weight contact term is swamped by distill. **Current fix (E25, running):** a
+`foot_velocity_distill_loss` that matches the teacher's FK foot velocity in world frame — folding
+"low stance velocity" into the *winning* distill objective rather than a competing term. Sweep
+w∈{2,10} on G1 @100k. If it fails too, the honest fallback is to report the gap (~2-3× teacher) as
+a known limitation of pure kinematic distillation that the downstream RL tracker absorbs (the GMR
+paper's own framing). Original literature-prior plan retained below for the record:
+
+*Prior-driven plan (partially falsified by E10a/E24 above):*
 - *The precedent that maps 1:1 onto our failure is SAME's own ablation:* their pose metrics were
   blind to skating exactly like our MPJPE — adding the contact loss (label-gated FK-velocity +
   height-clamped velocity + penetration; labels thresholded at 5 cm/0.4 m/s) improved FS **14×**
