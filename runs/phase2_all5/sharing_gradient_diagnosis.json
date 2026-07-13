@@ -1,0 +1,92 @@
+{
+  "ckpt": "/home/ec2-user/work/retarget/snmr/runs/phase2_all5/ckpt_100k_final.pt",
+  "num_windows": 12,
+  "robots": [
+    "unitree_g1",
+    "booster_t1_29dof",
+    "fourier_n1",
+    "engineai_pm01",
+    "stanford_toddy"
+  ],
+  "mean_loss": {
+    "unitree_g1": 0.03785014020589491,
+    "booster_t1_29dof": 0.06888637350251277,
+    "fourier_n1": 0.09086544749637444,
+    "engineai_pm01": 0.06735068125029404,
+    "stanford_toddy": 0.038073104612218835
+  },
+  "groups": {
+    "encoder": {
+      "pairwise_cosine": {
+        "unitree_g1|booster_t1_29dof": 0.23344629902887326,
+        "unitree_g1|fourier_n1": 0.21412431663631923,
+        "unitree_g1|engineai_pm01": 0.19331708508034603,
+        "unitree_g1|stanford_toddy": 0.18209750485685652,
+        "booster_t1_29dof|fourier_n1": 0.5921626519459072,
+        "booster_t1_29dof|engineai_pm01": 0.3790429438398995,
+        "booster_t1_29dof|stanford_toddy": 0.2178186597173042,
+        "fourier_n1|engineai_pm01": 0.6335321940819247,
+        "fourier_n1|stanford_toddy": 0.16639412900989972,
+        "engineai_pm01|stanford_toddy": 0.11028162639062687
+      },
+      "mean_cosine": 0.2922217410587957,
+      "negative_pair_fraction": 0.0,
+      "mean_grad_norm": {
+        "unitree_g1": 0.29107292244831723,
+        "booster_t1_29dof": 0.6829699470351139,
+        "fourier_n1": 0.8486189612497886,
+        "engineai_pm01": 0.6040540281683207,
+        "stanford_toddy": 0.3712884696821372
+      },
+      "norm_imbalance_ratio": 2.915485762508428
+    },
+    "decoder_trunk": {
+      "pairwise_cosine": {
+        "unitree_g1|booster_t1_29dof": 0.13217105822106998,
+        "unitree_g1|fourier_n1": 0.16090902161008439,
+        "unitree_g1|engineai_pm01": 0.03794817776737027,
+        "unitree_g1|stanford_toddy": -0.0208599068513544,
+        "booster_t1_29dof|fourier_n1": 0.36729129640923724,
+        "booster_t1_29dof|engineai_pm01": 0.1763824558218683,
+        "booster_t1_29dof|stanford_toddy": 0.09806929014035436,
+        "fourier_n1|engineai_pm01": 0.3838148619636144,
+        "fourier_n1|stanford_toddy": 0.0305283546905674,
+        "engineai_pm01|stanford_toddy": 0.05504906652793401
+      },
+      "mean_cosine": 0.14213036763007458,
+      "negative_pair_fraction": 0.1,
+      "mean_grad_norm": {
+        "unitree_g1": 0.33204942258695763,
+        "booster_t1_29dof": 0.506650160998106,
+        "fourier_n1": 0.6196103282272816,
+        "engineai_pm01": 0.503734036659201,
+        "stanford_toddy": 0.3364636891831954
+      },
+      "norm_imbalance_ratio": 1.866018387865189
+    },
+    "embodiment_encoder": {
+      "pairwise_cosine": {
+        "unitree_g1|booster_t1_29dof": 0.0915561492501954,
+        "unitree_g1|fourier_n1": 0.04051415005469343,
+        "unitree_g1|engineai_pm01": 0.01652266959742332,
+        "unitree_g1|stanford_toddy": 0.055870666833477245,
+        "booster_t1_29dof|fourier_n1": 0.4254311056993532,
+        "booster_t1_29dof|engineai_pm01": 0.15961567903880378,
+        "booster_t1_29dof|stanford_toddy": 0.18250675422465354,
+        "fourier_n1|engineai_pm01": 0.22103622945343582,
+        "fourier_n1|stanford_toddy": 0.12362757434244664,
+        "engineai_pm01|stanford_toddy": -0.07875856690356071
+      },
+      "mean_cosine": 0.12379224115909218,
+      "negative_pair_fraction": 0.1,
+      "mean_grad_norm": {
+        "unitree_g1": 0.026914424262940884,
+        "booster_t1_29dof": 0.04328015291442474,
+        "fourier_n1": 0.0392494088349243,
+        "engineai_pm01": 0.035537507152184844,
+        "stanford_toddy": 0.023117678278746705
+      },
+      "norm_imbalance_ratio": 1.8721669361673943
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "ckpt": "/home/ec2-user/work/retarget/snmr/runs/phase1_g1_large/ckpt_100k_final.pt",
+  "clips": {
+    "walk1_subject5": {
+      "raw": {
+        "skate": 0.4226214289665222,
+        "mpjpe_cm": 3.485923260450363
+      },
+      "oracle_lock": {
+        "skate": 0.23402106761932373,
+        "mpjpe_cm": 3.4041475504636765
+      },
+      "human_lock": {
+        "skate": 0.14399784803390503,
+        "mpjpe_cm": 3.3017270267009735
+      },
+      "human_dilated_lock": {
+        "skate": 0.06514539569616318,
+        "mpjpe_cm": 3.280991315841675,
+        "jerk": 710.8906860351562,
+        "joint_jumps": 0.015706805512309074
+      },
+      "stance_dc_offset_cm": 3.7308771279640496,
+      "stance_fluct_rms_cm": 3.2284622080624104,
+      "fluct_autocorr_time_s": 0.09583333333333334,
+      "pred_contact_frac": 0.0416666679084301,
+      "teacher_contact_frac": 0.3489583432674408,
+      "pred_mask_agreement": 0.6875,
+      "human_mask_agreement": 0.8098958134651184
+    },
+    "run2_subject1": {
+      "raw": {
+        "skate": 0.47357621788978577,
+        "mpjpe_cm": 3.379349783062935
+      },
+      "oracle_lock": {
+        "skate": 0.2772369980812073,
+        "mpjpe_cm": 3.318207338452339
+      },
+      "human_lock": {
+        "skate": 0.2080399990081787,
+        "mpjpe_cm": 3.273221105337143
+      },
+      "human_dilated_lock": {
+        "skate": 0.08657968044281006,
+        "mpjpe_cm": 3.4581810235977173,
+        "jerk": 1154.6976318359375,
+        "joint_jumps": 0.020942408591508865
+      },
+      "stance_dc_offset_cm": 3.2989452903469405,
+      "stance_fluct_rms_cm": 2.9576493116716547,
+      "fluct_autocorr_time_s": 0.07777777777777778,
+      "pred_contact_frac": 0.02604166604578495,
+      "teacher_contact_frac": 0.3177083432674408,
+      "pred_mask_agreement": 0.7083333134651184,
+      "human_mask_agreement": 0.8463541865348816
+    },
+    "dance2_subject4": {
+      "raw": {
+        "skate": 0.5698016881942749,
+        "mpjpe_cm": 3.9462707936763763
+      },
+      "oracle_lock": {
+        "skate": 0.3063478171825409,
+        "mpjpe_cm": 3.920505940914154
+      },
+      "human_lock": {
+        "skate": 0.178333580493927,
+        "mpjpe_cm": 3.895626589655876
+      },
+      "human_dilated_lock": {
+        "skate": 0.04008384793996811,
+        "mpjpe_cm": 4.421113058924675,
+        "jerk": 1571.6204833984375,
+        "joint_jumps": 0.03664921596646309
+      },
+      "stance_dc_offset_cm": 6.841529905796051,
+      "stance_fluct_rms_cm": 2.639070712029934,
+      "fluct_autocorr_time_s": 0.13333333333333333,
+      "pred_contact_frac": 0.03125,
+      "teacher_contact_frac": 0.1927083283662796,
+      "pred_mask_agreement": 0.828125,
+      "human_mask_agreement": 0.7447916865348816
+    }
+  },
+  "mean": {
+    "raw_skate": 0.48866644501686096,
+    "oracle_skate": 0.2725352942943573,
+    "human_skate": 0.17679047584533691,
+    "raw_mpjpe": 3.6038479457298913,
+    "oracle_mpjpe": 3.5476202766100564,
+    "human_mpjpe": 3.4901915738979974,
+    "fluct_amp_cm": 2.941727410588,
+    "ac_time_s": 0.10231481481481482,
+    "dc_cm": 4.6237841080356805,
+    "pred_contact_frac": 0.032986111318071686,
+    "teacher_contact_frac": 0.2864583383003871,
+    "mask_agree": 0.7413194378217062,
+    "human_mask_agree": 0.8003472288449606
+  }
+}

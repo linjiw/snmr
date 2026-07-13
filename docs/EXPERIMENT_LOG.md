@@ -150,12 +150,17 @@ Diagnoses:
   0.96); the weakest pair is **human↔toddy 0.82** — the two morphological extremes (adult human
   vs 0.34 m toddler). Sensible, publishable structure.
 
-### E10a — Phase-2 contact sweep (teacher-mask + self-consistency, NO EDGE head) — DONE
+### E10a — Phase-2 contact sweep (bundled BCE + self-consistency + contact head) — DONE
 `runs/e10_contact_w{0.05,0.2,1.0}/` (5-robot, 60k, --contact_weight only). Final G1 MPJPE:
 w0.05 8.34 / **w0.2 7.93** / w1.0 9.07 cm (all-5 no-contact baseline E04 was 6.67) — contact loss
 at 60k costs a little MPJPE (undertrained vs 100k), Toddy still best (3.5–3.9). Skate benchmark
-pending to answer whether it reduced sliding (the actual point). NOTE: this ran without the EDGE
-self-consistency HEAD (predict_contact); E10b below adds it.
+pending to answer whether it reduced sliding (the actual point).
+⚠ PROVENANCE CORRECTION (2026-07-13 audit): the original entry said "NO EDGE head" — that was
+WRONG. train_phase2 builds the contact head whenever contact_weight>0 (predict_contact wiring
+predates this run, commit 95c7b2c), and the checkpoints contain `decoder.contact_head.*` weights
+(verified directly). E10a therefore tested the *bundled* objective (BCE + EDGE self-consistency +
+teacher-mask velocity at ONE shared weight), so its failure does not attribute blame to any single
+component. See docs/NEURAL_RETARGETING_RESEARCH_sol.md P0 for the factorized re-test plan.
 
 ### E10a-skate — CRITICAL: contact loss (current form) does NOT reduce skate
 Benchmarked phase2 contact ckpts: w0.2 → skate **0.497 m/s** (WORSE than no-contact ~0.39);
@@ -186,10 +191,89 @@ limitation of pure kinematic distillation that the downstream RL tracker is expe
 (GMR paper: the tracker cleans residual artifacts). Leaning (i) — cheap, fits the existing loss
 framework, doesn't conflict. E25 = add FK-foot-velocity distill term.
 
-### E10b — G1 contact sweep WITH EDGE head — RUNNING (faster FK)
-`runs/e10_edge_w{0.5,2.0}/` via train_phase1 --edge_contact, 100k, vectorized FK (2.4x). First
-attempt ran on the slow FK (~25min/5k steps, killed + restarted). This is the clean C5 test:
-predict_contact head + self-consistency + BCE at higher weight, full schedule.
+### E10b — G1 contact sweep WITH EDGE head — ABANDONED mid-run
+`runs/e10_edge_w{0.5,2.0}/` via train_phase1 --edge_contact, 100k. w0.5 has only a 5k-step log
+point (19.3 cm); w2.0 never started. Superseded: (a) the 2026-07-13 audit showed E10a already
+bundled the EDGE head, so E10b was not the clean test it was framed as; (b) E26 (below) closes the
+skate gap at inference, changing what a contact-loss retrain is for. If revisited, use the
+factorized C0–C6 matrix in docs/NEURAL_RETARGETING_RESEARCH_sol.md instead of a bundled weight.
+
+## 2026-07-13/14
+
+### E25 — foot-velocity distill sweep — w2.0 DONE (`runs/e25_footvel_w2.0/`), w10.0 running
+w=2.0, G1, 100k, z=128: val MPJPE 2.11 cm (4-win) / **2.99 cm final (16-win)**, benchmark 3.01 cm
+— BETTER than the E03 no-footvel baseline (3.12/3.62 cm): the term costs nothing and slightly
+helps fidelity. Skate: legacy metric **0.225 m/s vs E03 0.255** — improved, but the skate/MPJPE
+ratio (~7.5 s⁻¹) is UNCHANGED, i.e. the improvement is the fidelity improvement's shadow, not a
+stance-specific fix. Verdict: **keep the term as a free regularizer; it is NOT the C5 fix.**
+Consistent with E24's diagnosis: matching teacher foot velocity everywhere mostly reweights the
+same regression error; the stance oscillation survives because it is the *residual* of that
+regression, not a separately-supervised quantity. Literature context (verified 2026-07-13 review):
+Aberman'20 (2005.05732) uses EE-velocity matching at their LARGEST loss weight (anti-slide, with
+residual IK cleanup still needed); T2M-GPT shows weight sensitivity (α=0.5 helps, α=1 hurts) —
+w=10.0 (running) tests whether a much larger weight shifts the trade-off or destabilizes.
+
+### E26 — foot-lock driven by SOURCE contact mask — **C5 BREAKTHROUGH (pilot)**
+(`runs/skate_structure/diagnosis_v2.json`, `scripts/diagnose_skate_structure.py`, E03 ckpt, 3
+held-out clips.) E24's foot-lock failed because contact DETECTION fails on the decoded motion —
+the stance xy oscillation (~2.9 cm RMS, autocorr τ≈0.10 s) exceeds the 0.3 m/s speed gate, so
+detected contact frac is 0.03 vs teacher 0.29 and most stance frames were never locked. The
+literature-standard fix (Harvey'20/PFNN/Villegas'21/UnderPressure: labels must come from a CLEAN
+signal or a trained head, never from thresholding the noisy output) applies directly: the HUMAN
+source motion's contact flags are always available at inference and agree with teacher stance at
+0.80 (vs 0.74 decoded). Pipeline: human mask → dilate (merge gaps ≤6, extend 2) → per-interval
+pin (median xy, min z) with 2-frame blend ramp → 12-iter damped leg IK.
+Results (mean of walk1/run2/dance2, pilot with normalized-gradient solver): **skate 0.489 →
+0.064 m/s (7.6×, BELOW the ≤0.08 target) at ~+0.1 cm MPJPE**. Ablation chain: decoded-mask lock
+0.27 (detection is the bottleneck) → human-mask 0.18 (coverage) → +dilation 0.064. Jerk cost
+observed on dance (raw 1540 → locked 1572 dof jerk; the raw motion is already jerky there).
+NOTE on σ-smoothing: smoothing the IK *correction* trades the skate reduction back
+(σ=1: 0.19; σ=2: 0.28 vs σ=0: 0.05 on walk1) because the correction is NOT constant within
+stance — it tracks the oscillation it cancels; low-passing it re-admits the oscillation. Keep
+σ=0 as default; the jerk mitigation must come from interval-level blending, not correction
+smoothing. The production implementation (`snmr.footlock.foot_lock_masked`) was then upgraded to
+a true damped-least-squares solver (Jacobian via autograd, line search, limit clamping) replacing
+the pilot's normalized-gradient step; E26b re-runs the full 7-clip × windows × σ grid with the
+Gate-0 bootstrap protocol on the DLS solver — its numbers are the citable ones.
+Framing shift for the paper: C5 is closed by **prediction + source-mask-constrained correction**
+(the field's hybrid: OmniRetarget gets exactly-zero skate from hard stance constraints; Villegas
+ESO beats IK-only; SAME/EDGE training losses alone never reached teacher level) rather than by a
+training-time loss. Training losses remain worth one factorized pass (audit Gate 1) to reduce the
+raw gap, but they are no longer load-bearing for C5.
+
+### E27 — WBT-on-MuJoCo/Warp SMOKE — **PASSED (2026-07-13)**; paired pilot QUEUED
+Dedicated env `.venv-wbt` (py3.11, torch 2.6 cu124, holosoma editable, mujoco-warp 3.10.0.2,
+warp-lang 1.15 — holosoma's ==1.10.0 pin conflicts on paper but everything imports and runs).
+Smoke: `exp:g1-29dof-wbt simulator:mjwarp logger:disabled --training.num_envs=256
+--randomization.ignore_unsupported=True` with OUR exported GMR walk1 NPZ — 20 PPO iterations,
+~4k steps/s at 256 envs, reward terms populate, checkpoint saved. **E20's GO-WITH-SHIM verdict is
+now executed reality; C6 no longer has an infrastructure blocker.** Syntax gotchas: logger and
+simulator are tyro SUBCOMMANDS (`logger:disabled`), not flags.
+**Queued (auto-chained after E25 w10 frees the GPU):** paired pilot — 3 clips (walk/dance/fight)
+× {gmr, snmr} × seed 0, 1024 envs, 1000 iters each, identical config
+(`$CLAUDE_JOB_DIR/tmp/wbt_pilot.sh` → `runs/wbt_pilot/`). Per audit Gate 2: pilot detects
+catastrophic regressions only; the confirmatory claim needs more clips + seeds.
+
+### E28 — Gate-3 sharing-gradient diagnostic — DONE (`runs/phase2_all5/sharing_gradient_diagnosis.json`)
+Per-robot distill gradients on the shared parameters of the E04 checkpoint (12 windows × 5 robots,
+`scripts/diagnose_sharing_gradients.py`): mean pairwise cosine encoder **+0.29**, decoder trunk
+**+0.14**, embodiment encoder +0.12; negative pairs only 1/10 and mild (worst
+G1|Toddy −0.02, PM01|Toddy −0.08); grad-norm imbalance ≤2.9× (N1 largest, G1/Toddy smallest).
+**Verdict per the audit's decision rule: NO pervasive destructive interference (rules out
+PCGrad/S4) and NO severe imbalance (rules out GradNorm/S5).** The robots pull in *nearly
+orthogonal* directions — the shared trunk must encode ~5 quasi-independent mappings, which is
+precisely the capacity/conditioning story. Next arms: S2 (width scale-up) and S3 (per-robot
+AdaLN/LoRA adapters); prediction: S3 wins on parameter-efficiency because orthogonal demands
+are cheap to satisfy with per-robot output specialization.
+
+### GPU queue (2026-07-13 night)
+1. E25 w10.0 (running, ~15k/100k) — note new diagnostics.jsonl shows w10 foot-vel term reaches
+   grad-norm ~0.08 on output heads vs distill 0.22 with cosine −0.11 (mild conflict, not the
+   w≤0.2 swamping of E10a).
+2. WBT pilot (6 runs, auto-chained).
+3. Next block (needs decision): factorized contact matrix C0–C4 (Gate 1) vs zr_decode_prob sweep
+   (Gate 4 G-source) — audit says do NOT bundle them.
+CPU: E26b DLS foot-lock eval running (`runs/skate_structure/footlock_eval_dls.json`).
 
 ## Queued / planned (EDGE head + world-frame losses,
   post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current. AUTO-CHAINED

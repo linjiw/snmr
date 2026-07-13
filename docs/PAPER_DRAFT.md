@@ -38,7 +38,7 @@ whole-body-tracking validation package are released.
 | C2 | First quantitative shared-latent analysis in cross-embodiment robotics | CKA 0.91, retrieval R@1 0.75, E1 linear 0.28 vs E3 MLP 0.91 (Elazar-Goldberg protocol) | [DONE] |
 | C3 | Honest matched-baseline accounting of sharing costs | specialist 3.75 vs shared 5.12 cm at matched steps/schedule | [DONE] |
 | C4 | Zero-shot embodiment transfer quantified (negative) | LORO PM01: 29.6 vs 5.7 cm (5.2×) | [DONE] |
-| C5 | Contact-consistent decoding closes the foot-skate gap | contact-loss retrain sweep | [PEND — next GPU job] |
+| C5 | Foot-skate gap closed by prediction + source-mask-constrained correction | E26 pilot: skate 0.489→0.064 m/s (≤0.08 target) at +0.1 cm MPJPE; training-time losses alone verifiably insufficient (E10a bundled sweep, E25 velocity-distill) | [PILOT DONE — full-clip eval E26b running] |
 | C6 | Matched-pipeline tracking validation (retargeting → RL) | N8 package ready; **WBT trains locally on holosoma's MuJoCo/Warp backend (E20 scout: CLI overrides only)** + trackability proxy already shows PD-replay equivalence (E18) | [PEND — local GPU block] |
 | C7 | Robot→robot motion transfer via the shared latent (no human data) | currently FAILS (24–45 cm; decoder never trained on robot encodings — E19); decode-from-z_r augmentation (E21) is the fix | [PEND] |
 
@@ -87,9 +87,18 @@ E5 linear CKA · [scale-normalized probe to attribute the leak: scale vs style].
 G1 6.67, T1 5.80, N1 5.54, PM01 5.72, Toddy 3.16 cm. Teacher-matched on penetration, limits,
 joint-jumps; *better* than teacher on limit-proximity margins (0.29 vs 0.57).
 
-**Foot skate [OPEN]:** 0.25 m/s vs teacher 0.05 during contact (dof-jitter caused, verified by
-error decomposition). Improves with training length (0.39→0.25 from 50k→100k) but plateaus.
-Latent test-time polish: ~25 % reduction, window-dependent. Contact-loss retrain = C5 [PEND].
+**Foot skate [PILOT RESOLVED — E26]:** raw decoder output skates at 0.25–0.5 m/s vs teacher 0.05.
+Root cause (E24/E26): smooth xy oscillation (~2.9 cm RMS, τ≈0.1 s) of a correctly-placed stance
+foot — the velocity shadow of the regression error (skate/MPJPE ratio ~7–9 s⁻¹ constant across
+all checkpoints), NOT high-frequency jitter (low-pass ineffective) and NOT drift from a planted
+point. Training-time levers verifiably insufficient: bundled contact losses fail at every weight
+(E10a), foot-velocity distill helps MPJPE but leaves the ratio unchanged (E25). The fix is the
+field's standard hybrid (cf. OmniRetarget hard stance constraints → exactly-zero skate;
+Villegas'21 ESO beats IK-only post-processing; production practice per Harvey'20/PFNN): a
+**source-mask-driven foot-lock** — contact labels from the CLEAN human input (decoded-motion
+detection under-fires 0.03 vs 0.29 frac; the known chicken-and-egg), dilated for coverage, blended
+leg-IK per stance interval. E26 pilot: **0.489→0.064 m/s (below the 0.08 target) at +0.1 cm
+MPJPE**; jerk cost mitigated by smoothing the IK correction (σ grid in E26b).
 
 **Shared-latent analysis [DONE]:** CKA 0.910 (0.86–0.98 all 15 pairs incl. human); retrieval
 human→robot R@1 0.749 / MRR 0.838 (chance 0.010); E1 0.278 / E3 0.909 / proxy-A 1.78. E2 motion
@@ -129,9 +138,16 @@ Both reported with the confounds that earlier, wrong readings had (schedule alig
    (ablation): its cost may only be justified by jerk/smoothness, pending contact-retrain interplay.
 
 ## 5. TODO before submission
-- [ ] C5 contact sweep (w ∈ {0.05, 0.2, 1.0}) on shared model → final skate table
-- [ ] C6 one WBT comparison on IsaacSim (external machine)
-- [ ] Embodiment augmentation run (synthetic MJCF variants) → revisit LORO
-- [ ] Capacity scale-up row (does sharing cost shrink with width?)
-- [ ] Temporal-aware motion probe; scale-leak attribution [running]
+- [x] C5: E26 source-mask foot-lock pilot passes the ≤0.08 m/s target — full 7-clip eval (E26b)
+      + apply to WBT exports; contact sweep DONE (negative, reported as evidence)
+- [ ] C6 WBT comparison — now LOCAL (holosoma MuJoCo/Warp backend, venv ready); smoke → pilot
+      (3 clips × paired seeds) → confirmatory (per audit Gate 2)
+- [ ] Embodiment augmentation run (synthetic MJCF variants) → revisit LORO (audit Gate 4: keep
+      separate from zr_decode_prob arm)
+- [ ] Sharing-cost diagnosis: per-robot gradient cosine/norm BEFORE capacity scale-up (audit Gate 3)
+- [ ] Temporal: positional-encoding transformer arm before any temporal-modeling claim (audit Gate 6
+      — current module is content-only attention, snmr/model.py:164)
 - [ ] Figures: architecture, CKA heatmap, dual-colored t-SNE, per-robot qualitative strips
+- [ ] Wording sweep per audit claim ledger: "aligned, not invariant"; no "contact-consistent"/
+      "improves tracking"/"positive transfer"/"zero-shot new robots" until gates pass; throughput
+      re-measured with warm-up + median/p10/p90 (benchmark.py updated)

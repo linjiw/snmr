@@ -1,0 +1,1530 @@
+{
+  "ckpt": "/home/ec2-user/work/retarget/snmr/runs/phase1_g1_large/ckpt_100k_final.pt",
+  "protocol": {
+    "robot": "unitree_g1",
+    "clips": [
+      "walk1_subject5"
+    ],
+    "window": 192,
+    "windows_per_clip_max": 1,
+    "num_windows": 1,
+    "lock_mask": "full-clip source_contact; height<0.08m and speed<0.24m/s",
+    "primary_endpoint": "teacher_height_stance_speed_ms",
+    "bootstrap_samples": 100,
+    "bootstrap_seed": 0
+  },
+  "summary": {
+    "raw": {
+      "body_jerk": 203.6866912841797,
+      "dof_err_rad": 0.04373851791024208,
+      "dof_jerk": 305.1629638671875,
+      "foot_floating_fraction": 0.0,
+      "foot_floating_mean_m": 0.0032709958031773567,
+      "foot_height_mean_m": 0.07725409418344498,
+      "foot_height_min_m": 0.03693610057234764,
+      "foot_height_p95_m": 0.1356680542230606,
+      "foot_skate_mann_cm": 0.26197683811187744,
+      "foot_skate_speed_ms": 0.16047899425029755,
+      "foot_slide_fraction": 0.1654929518699646,
+      "joint_jump_fraction": 0.0,
+      "limit_proximity_fraction": 0.0,
+      "limit_violation_fraction": 0.0,
+      "mpjpe_m": 0.030982641503214836,
+      "penetration_fraction": 0.0,
+      "penetration_max_m": 0.0,
+      "penetration_mean_m": 0.0,
+      "source_contact_contact_prevalence": 0.7786458134651184,
+      "source_contact_contact_samples": 299.0,
+      "source_contact_floating_fraction": 0.0,
+      "source_contact_floating_mean_m": 0.0031122516375035048,
+      "source_contact_left_ankle_roll_link_contact_samples": 149.0,
+      "source_contact_left_ankle_roll_link_floating_fraction": 0.0,
+      "source_contact_left_ankle_roll_link_slide_fraction": 0.21476510167121887,
+      "source_contact_left_ankle_roll_link_stance_speed_ms": 0.18478120863437653,
+      "source_contact_right_ankle_roll_link_contact_samples": 150.0,
+      "source_contact_right_ankle_roll_link_floating_fraction": 0.0,
+      "source_contact_right_ankle_roll_link_slide_fraction": 0.18000000715255737,
+      "source_contact_right_ankle_roll_link_stance_speed_ms": 0.1788455694913864,
+      "source_contact_slide_fraction": 0.19732441008090973,
+      "source_contact_stance_speed_ms": 0.18180346488952637,
+      "source_height_contact_prevalence": 0.9635416865348816,
+      "source_height_contact_samples": 370.0,
+      "source_height_floating_fraction": 0.0,
+      "source_height_floating_mean_m": 0.002774295397102833,
+      "source_height_left_ankle_roll_link_contact_samples": 184.0,
+      "source_height_left_ankle_roll_link_floating_fraction": 0.0,
+      "source_height_left_ankle_roll_link_slide_fraction": 0.3586956560611725,
+      "source_height_left_ankle_roll_link_stance_speed_ms": 0.4633003771305084,
+      "source_height_right_ankle_roll_link_contact_samples": 186.0,
+      "source_height_right_ankle_roll_link_floating_fraction": 0.0,
+      "source_height_right_ankle_roll_link_slide_fraction": 0.33870968222618103,
+      "source_height_right_ankle_roll_link_stance_speed_ms": 0.48573023080825806,
+      "source_height_slide_fraction": 0.34864863753318787,
+      "source_height_stance_speed_ms": 0.47457587718963623,
+      "teacher_height_contact_prevalence": 0.3619791567325592,
+      "teacher_height_contact_samples": 139.0,
+      "teacher_height_floating_fraction": 0.0,
+      "teacher_height_floating_mean_m": 0.004361527506262064,
+      "teacher_height_left_ankle_roll_link_contact_samples": 139.0,
+      "teacher_height_left_ankle_roll_link_floating_fraction": 0.0,
+      "teacher_height_left_ankle_roll_link_slide_fraction": 0.18705035746097565,
+      "teacher_height_left_ankle_roll_link_stance_speed_ms": 0.16236019134521484,
+      "teacher_height_right_ankle_roll_link_contact_samples": 0.0,
+      "teacher_height_right_ankle_roll_link_floating_fraction": 0.0,
+      "teacher_height_right_ankle_roll_link_slide_fraction": 0.0,
+      "teacher_height_right_ankle_roll_link_stance_speed_ms": 0.0,
+      "teacher_height_slide_fraction": 0.18705035746097565,
+      "teacher_height_stance_speed_ms": 0.16236019134521484,
+      "teacher_legacy_contact_prevalence": 0.1666666716337204,
+      "teacher_legacy_contact_samples": 64.0,
+      "teacher_legacy_floating_fraction": 0.0,
+      "teacher_legacy_floating_mean_m": 0.005034393165260553,
+      "teacher_legacy_left_ankle_roll_link_contact_samples": 64.0,
+      "teacher_legacy_left_ankle_roll_link_floating_fraction": 0.0,
+      "teacher_legacy_left_ankle_roll_link_slide_fraction": 0.328125,
+      "teacher_legacy_left_ankle_roll_link_stance_speed_ms": 0.2700335681438446,
+      "teacher_legacy_right_ankle_roll_link_contact_samples": 0.0,
+      "teacher_legacy_right_ankle_roll_link_floating_fraction": 0.0,
+      "teacher_legacy_right_ankle_roll_link_slide_fraction": 0.0,
+      "teacher_legacy_right_ankle_roll_link_stance_speed_ms": 0.0,
+      "teacher_legacy_slide_fraction": 0.328125,
+      "teacher_legacy_stance_speed_ms": 0.2700335681438446
+    },
+    "lock_s1": {
+      "body_jerk": 186.0354461669922,
+      "dof_err_rad": 0.05514857545495033,
+      "dof_jerk": 357.1078186035156,
+      "foot_floating_fraction": 0.0,
+      "foot_floating_mean_m": 0.002007781295105815,
+      "foot_height_mean_m": 0.07454726845026016,
+      "foot_height_min_m": 0.04244283214211464,
+      "foot_height_p95_m": 0.13369719684123993,
+      "foot_skate_mann_cm": 0.16124475002288818,
+      "foot_skate_speed_ms": 0.021073712036013603,
+      "foot_slide_fraction": 0.0035211266949772835,
+      "joint_jump_fraction": 0.015706805512309074,
+      "limit_proximity_fraction": 0.0,
+      "limit_violation_fraction": 0.0,
+      "mpjpe_m": 0.02884330041706562,
+      "penetration_fraction": 0.0,
+      "penetration_max_m": 0.0,
+      "penetration_mean_m": 0.0,
+      "source_contact_contact_prevalence": 0.7786458134651184,
+      "source_contact_contact_samples": 299.0,
+      "source_contact_floating_fraction": 0.0,
+      "source_contact_floating_mean_m": 0.0019261190900579095,
+      "source_contact_left_ankle_roll_link_contact_samples": 149.0,
+      "source_contact_left_ankle_roll_link_floating_fraction": 0.0,
+      "source_contact_left_ankle_roll_link_slide_fraction": 0.033557046204805374,
+      "source_contact_left_ankle_roll_link_stance_speed_ms": 0.038657885044813156,
+      "source_contact_right_ankle_roll_link_contact_samples": 150.0,
+      "source_contact_right_ankle_roll_link_floating_fraction": 0.0,
+      "source_contact_right_ankle_roll_link_slide_fraction": 0.0,
+      "source_contact_right_ankle_roll_link_stance_speed_ms": 0.02506699413061142,
+      "source_contact_slide_fraction": 0.016722407191991806,
+      "source_contact_stance_speed_ms": 0.03183971345424652,
+      "source_height_contact_prevalence": 0.9635416865348816,
+      "source_height_contact_samples": 370.0,
+      "source_height_floating_fraction": 0.0,
+      "source_height_floating_mean_m": 0.0017602717271074653,
+      "source_height_left_ankle_roll_link_contact_samples": 184.0,
+      "source_height_left_ankle_roll_link_floating_fraction": 0.0,
+      "source_height_left_ankle_roll_link_slide_fraction": 0.20108695328235626,
+      "source_height_left_ankle_roll_link_stance_speed_ms": 0.34076839685440063,
+      "source_height_right_ankle_roll_link_contact_samples": 186.0,
+      "source_height_right_ankle_roll_link_floating_fraction": 0.0,
+      "source_height_right_ankle_roll_link_slide_fraction": 0.17741934955120087,
+      "source_height_right_ankle_roll_link_stance_speed_ms": 0.383434921503067,
+      "source_height_slide_fraction": 0.18918919563293457,
+      "source_height_stance_speed_ms": 0.362216979265213,
+      "teacher_height_contact_prevalence": 0.3619791567325592,
+      "teacher_height_contact_samples": 139.0,
+      "teacher_height_floating_fraction": 0.0,
+      "teacher_height_floating_mean_m": 0.003208940615877509,
+      "teacher_height_left_ankle_roll_link_contact_samples": 139.0,
+      "teacher_height_left_ankle_roll_link_floating_fraction": 0.0,
+      "teacher_height_left_ankle_roll_link_slide_fraction": 0.014388489536941051,
+      "teacher_height_left_ankle_roll_link_stance_speed_ms": 0.026477089151740074,
+      "teacher_height_right_ankle_roll_link_contact_samples": 0.0,
+      "teacher_height_right_ankle_roll_link_floating_fraction": 0.0,
+      "teacher_height_right_ankle_roll_link_slide_fraction": 0.0,
+      "teacher_height_right_ankle_roll_link_stance_speed_ms": 0.0,
+      "teacher_height_slide_fraction": 0.014388489536941051,
+      "teacher_height_stance_speed_ms": 0.026477089151740074,
+      "teacher_legacy_contact_prevalence": 0.1666666716337204,
+      "teacher_legacy_contact_samples": 64.0,
+      "teacher_legacy_floating_fraction": 0.0,
+      "teacher_legacy_floating_mean_m": 0.003242108505219221,
+      "teacher_legacy_left_ankle_roll_link_contact_samples": 64.0,
+      "teacher_legacy_left_ankle_roll_link_floating_fraction": 0.0,
+      "teacher_legacy_left_ankle_roll_link_slide_fraction": 0.015625,
+      "teacher_legacy_left_ankle_roll_link_stance_speed_ms": 0.02773207053542137,
+      "teacher_legacy_right_ankle_roll_link_contact_samples": 0.0,
+      "teacher_legacy_right_ankle_roll_link_floating_fraction": 0.0,
+      "teacher_legacy_right_ankle_roll_link_slide_fraction": 0.0,
+      "teacher_legacy_right_ankle_roll_link_stance_speed_ms": 0.0,
+      "teacher_legacy_slide_fraction": 0.015625,
+      "teacher_legacy_stance_speed_ms": 0.02773207053542137
+    }
+  },
+  "distributions": {
+    "raw": {
+      "body_jerk": {
+        "clip_mean": 203.6866912841797,
+        "clip_median": 203.6866912841797,
+        "clip_p95": 203.6866912841797,
+        "bootstrap_ci95_low": 203.6866912841797,
+        "bootstrap_ci95_high": 203.6866912841797,
+        "num_clips": 1
+      },
+      "dof_err_rad": {
+        "clip_mean": 0.04373851791024208,
+        "clip_median": 0.04373851791024208,
+        "clip_p95": 0.04373851791024208,
+        "bootstrap_ci95_low": 0.04373851791024208,
+        "bootstrap_ci95_high": 0.04373851791024208,
+        "num_clips": 1
+      },
+      "dof_jerk": {
+        "clip_mean": 305.1629638671875,
+        "clip_median": 305.1629638671875,
+        "clip_p95": 305.1629638671875,
+        "bootstrap_ci95_low": 305.1629638671875,
+        "bootstrap_ci95_high": 305.1629638671875,
+        "num_clips": 1
+      },
+      "foot_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "foot_floating_mean_m": {
+        "clip_mean": 0.0032709958031773567,
+        "clip_median": 0.0032709958031773567,
+        "clip_p95": 0.0032709958031773567,
+        "bootstrap_ci95_low": 0.0032709958031773567,
+        "bootstrap_ci95_high": 0.0032709958031773567,
+        "num_clips": 1
+      },
+      "foot_height_mean_m": {
+        "clip_mean": 0.07725409418344498,
+        "clip_median": 0.07725409418344498,
+        "clip_p95": 0.07725409418344498,
+        "bootstrap_ci95_low": 0.07725409418344498,
+        "bootstrap_ci95_high": 0.07725409418344498,
+        "num_clips": 1
+      },
+      "foot_height_min_m": {
+        "clip_mean": 0.03693610057234764,
+        "clip_median": 0.03693610057234764,
+        "clip_p95": 0.03693610057234764,
+        "bootstrap_ci95_low": 0.03693610057234764,
+        "bootstrap_ci95_high": 0.03693610057234764,
+        "num_clips": 1
+      },
+      "foot_height_p95_m": {
+        "clip_mean": 0.1356680542230606,
+        "clip_median": 0.1356680542230606,
+        "clip_p95": 0.1356680542230606,
+        "bootstrap_ci95_low": 0.1356680542230606,
+        "bootstrap_ci95_high": 0.1356680542230606,
+        "num_clips": 1
+      },
+      "foot_skate_mann_cm": {
+        "clip_mean": 0.26197683811187744,
+        "clip_median": 0.26197683811187744,
+        "clip_p95": 0.26197683811187744,
+        "bootstrap_ci95_low": 0.26197683811187744,
+        "bootstrap_ci95_high": 0.26197683811187744,
+        "num_clips": 1
+      },
+      "foot_skate_speed_ms": {
+        "clip_mean": 0.16047899425029755,
+        "clip_median": 0.16047899425029755,
+        "clip_p95": 0.16047899425029755,
+        "bootstrap_ci95_low": 0.16047899425029755,
+        "bootstrap_ci95_high": 0.16047899425029755,
+        "num_clips": 1
+      },
+      "foot_slide_fraction": {
+        "clip_mean": 0.1654929518699646,
+        "clip_median": 0.1654929518699646,
+        "clip_p95": 0.1654929518699646,
+        "bootstrap_ci95_low": 0.1654929518699646,
+        "bootstrap_ci95_high": 0.1654929518699646,
+        "num_clips": 1
+      },
+      "joint_jump_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "limit_proximity_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "limit_violation_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "mpjpe_m": {
+        "clip_mean": 0.030982641503214836,
+        "clip_median": 0.030982641503214836,
+        "clip_p95": 0.030982641503214836,
+        "bootstrap_ci95_low": 0.030982641503214836,
+        "bootstrap_ci95_high": 0.030982641503214836,
+        "num_clips": 1
+      },
+      "penetration_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "penetration_max_m": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "penetration_mean_m": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_contact_contact_prevalence": {
+        "clip_mean": 0.7786458134651184,
+        "clip_median": 0.7786458134651184,
+        "clip_p95": 0.7786458134651184,
+        "bootstrap_ci95_low": 0.7786458134651184,
+        "bootstrap_ci95_high": 0.7786458134651184,
+        "num_clips": 1
+      },
+      "source_contact_contact_samples": {
+        "clip_mean": 299.0,
+        "clip_median": 299.0,
+        "clip_p95": 299.0,
+        "bootstrap_ci95_low": 299.0,
+        "bootstrap_ci95_high": 299.0,
+        "num_clips": 1
+      },
+      "source_contact_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_contact_floating_mean_m": {
+        "clip_mean": 0.0031122516375035048,
+        "clip_median": 0.0031122516375035048,
+        "clip_p95": 0.0031122516375035048,
+        "bootstrap_ci95_low": 0.0031122516375035048,
+        "bootstrap_ci95_high": 0.0031122516375035048,
+        "num_clips": 1
+      },
+      "source_contact_left_ankle_roll_link_contact_samples": {
+        "clip_mean": 149.0,
+        "clip_median": 149.0,
+        "clip_p95": 149.0,
+        "bootstrap_ci95_low": 149.0,
+        "bootstrap_ci95_high": 149.0,
+        "num_clips": 1
+      },
+      "source_contact_left_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_contact_left_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.21476510167121887,
+        "clip_median": 0.21476510167121887,
+        "clip_p95": 0.21476510167121887,
+        "bootstrap_ci95_low": 0.21476510167121887,
+        "bootstrap_ci95_high": 0.21476510167121887,
+        "num_clips": 1
+      },
+      "source_contact_left_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.18478120863437653,
+        "clip_median": 0.18478120863437653,
+        "clip_p95": 0.18478120863437653,
+        "bootstrap_ci95_low": 0.18478120863437653,
+        "bootstrap_ci95_high": 0.18478120863437653,
+        "num_clips": 1
+      },
+      "source_contact_right_ankle_roll_link_contact_samples": {
+        "clip_mean": 150.0,
+        "clip_median": 150.0,
+        "clip_p95": 150.0,
+        "bootstrap_ci95_low": 150.0,
+        "bootstrap_ci95_high": 150.0,
+        "num_clips": 1
+      },
+      "source_contact_right_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_contact_right_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.18000000715255737,
+        "clip_median": 0.18000000715255737,
+        "clip_p95": 0.18000000715255737,
+        "bootstrap_ci95_low": 0.18000000715255737,
+        "bootstrap_ci95_high": 0.18000000715255737,
+        "num_clips": 1
+      },
+      "source_contact_right_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.1788455694913864,
+        "clip_median": 0.1788455694913864,
+        "clip_p95": 0.1788455694913864,
+        "bootstrap_ci95_low": 0.1788455694913864,
+        "bootstrap_ci95_high": 0.1788455694913864,
+        "num_clips": 1
+      },
+      "source_contact_slide_fraction": {
+        "clip_mean": 0.19732441008090973,
+        "clip_median": 0.19732441008090973,
+        "clip_p95": 0.19732441008090973,
+        "bootstrap_ci95_low": 0.19732441008090973,
+        "bootstrap_ci95_high": 0.19732441008090973,
+        "num_clips": 1
+      },
+      "source_contact_stance_speed_ms": {
+        "clip_mean": 0.18180346488952637,
+        "clip_median": 0.18180346488952637,
+        "clip_p95": 0.18180346488952637,
+        "bootstrap_ci95_low": 0.18180346488952637,
+        "bootstrap_ci95_high": 0.18180346488952637,
+        "num_clips": 1
+      },
+      "source_height_contact_prevalence": {
+        "clip_mean": 0.9635416865348816,
+        "clip_median": 0.9635416865348816,
+        "clip_p95": 0.9635416865348816,
+        "bootstrap_ci95_low": 0.9635416865348816,
+        "bootstrap_ci95_high": 0.9635416865348816,
+        "num_clips": 1
+      },
+      "source_height_contact_samples": {
+        "clip_mean": 370.0,
+        "clip_median": 370.0,
+        "clip_p95": 370.0,
+        "bootstrap_ci95_low": 370.0,
+        "bootstrap_ci95_high": 370.0,
+        "num_clips": 1
+      },
+      "source_height_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_height_floating_mean_m": {
+        "clip_mean": 0.002774295397102833,
+        "clip_median": 0.002774295397102833,
+        "clip_p95": 0.002774295397102833,
+        "bootstrap_ci95_low": 0.002774295397102833,
+        "bootstrap_ci95_high": 0.002774295397102833,
+        "num_clips": 1
+      },
+      "source_height_left_ankle_roll_link_contact_samples": {
+        "clip_mean": 184.0,
+        "clip_median": 184.0,
+        "clip_p95": 184.0,
+        "bootstrap_ci95_low": 184.0,
+        "bootstrap_ci95_high": 184.0,
+        "num_clips": 1
+      },
+      "source_height_left_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_height_left_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.3586956560611725,
+        "clip_median": 0.3586956560611725,
+        "clip_p95": 0.3586956560611725,
+        "bootstrap_ci95_low": 0.3586956560611725,
+        "bootstrap_ci95_high": 0.3586956560611725,
+        "num_clips": 1
+      },
+      "source_height_left_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.4633003771305084,
+        "clip_median": 0.4633003771305084,
+        "clip_p95": 0.4633003771305084,
+        "bootstrap_ci95_low": 0.4633003771305084,
+        "bootstrap_ci95_high": 0.4633003771305084,
+        "num_clips": 1
+      },
+      "source_height_right_ankle_roll_link_contact_samples": {
+        "clip_mean": 186.0,
+        "clip_median": 186.0,
+        "clip_p95": 186.0,
+        "bootstrap_ci95_low": 186.0,
+        "bootstrap_ci95_high": 186.0,
+        "num_clips": 1
+      },
+      "source_height_right_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_height_right_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.33870968222618103,
+        "clip_median": 0.33870968222618103,
+        "clip_p95": 0.33870968222618103,
+        "bootstrap_ci95_low": 0.33870968222618103,
+        "bootstrap_ci95_high": 0.33870968222618103,
+        "num_clips": 1
+      },
+      "source_height_right_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.48573023080825806,
+        "clip_median": 0.48573023080825806,
+        "clip_p95": 0.48573023080825806,
+        "bootstrap_ci95_low": 0.48573023080825806,
+        "bootstrap_ci95_high": 0.48573023080825806,
+        "num_clips": 1
+      },
+      "source_height_slide_fraction": {
+        "clip_mean": 0.34864863753318787,
+        "clip_median": 0.34864863753318787,
+        "clip_p95": 0.34864863753318787,
+        "bootstrap_ci95_low": 0.34864863753318787,
+        "bootstrap_ci95_high": 0.34864863753318787,
+        "num_clips": 1
+      },
+      "source_height_stance_speed_ms": {
+        "clip_mean": 0.47457587718963623,
+        "clip_median": 0.47457587718963623,
+        "clip_p95": 0.47457587718963623,
+        "bootstrap_ci95_low": 0.47457587718963623,
+        "bootstrap_ci95_high": 0.47457587718963623,
+        "num_clips": 1
+      },
+      "teacher_height_contact_prevalence": {
+        "clip_mean": 0.3619791567325592,
+        "clip_median": 0.3619791567325592,
+        "clip_p95": 0.3619791567325592,
+        "bootstrap_ci95_low": 0.3619791567325592,
+        "bootstrap_ci95_high": 0.3619791567325592,
+        "num_clips": 1
+      },
+      "teacher_height_contact_samples": {
+        "clip_mean": 139.0,
+        "clip_median": 139.0,
+        "clip_p95": 139.0,
+        "bootstrap_ci95_low": 139.0,
+        "bootstrap_ci95_high": 139.0,
+        "num_clips": 1
+      },
+      "teacher_height_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_floating_mean_m": {
+        "clip_mean": 0.004361527506262064,
+        "clip_median": 0.004361527506262064,
+        "clip_p95": 0.004361527506262064,
+        "bootstrap_ci95_low": 0.004361527506262064,
+        "bootstrap_ci95_high": 0.004361527506262064,
+        "num_clips": 1
+      },
+      "teacher_height_left_ankle_roll_link_contact_samples": {
+        "clip_mean": 139.0,
+        "clip_median": 139.0,
+        "clip_p95": 139.0,
+        "bootstrap_ci95_low": 139.0,
+        "bootstrap_ci95_high": 139.0,
+        "num_clips": 1
+      },
+      "teacher_height_left_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_left_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.18705035746097565,
+        "clip_median": 0.18705035746097565,
+        "clip_p95": 0.18705035746097565,
+        "bootstrap_ci95_low": 0.18705035746097565,
+        "bootstrap_ci95_high": 0.18705035746097565,
+        "num_clips": 1
+      },
+      "teacher_height_left_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.16236019134521484,
+        "clip_median": 0.16236019134521484,
+        "clip_p95": 0.16236019134521484,
+        "bootstrap_ci95_low": 0.16236019134521484,
+        "bootstrap_ci95_high": 0.16236019134521484,
+        "num_clips": 1
+      },
+      "teacher_height_right_ankle_roll_link_contact_samples": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_right_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_right_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_right_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_slide_fraction": {
+        "clip_mean": 0.18705035746097565,
+        "clip_median": 0.18705035746097565,
+        "clip_p95": 0.18705035746097565,
+        "bootstrap_ci95_low": 0.18705035746097565,
+        "bootstrap_ci95_high": 0.18705035746097565,
+        "num_clips": 1
+      },
+      "teacher_height_stance_speed_ms": {
+        "clip_mean": 0.16236019134521484,
+        "clip_median": 0.16236019134521484,
+        "clip_p95": 0.16236019134521484,
+        "bootstrap_ci95_low": 0.16236019134521484,
+        "bootstrap_ci95_high": 0.16236019134521484,
+        "num_clips": 1
+      },
+      "teacher_legacy_contact_prevalence": {
+        "clip_mean": 0.1666666716337204,
+        "clip_median": 0.1666666716337204,
+        "clip_p95": 0.1666666716337204,
+        "bootstrap_ci95_low": 0.1666666716337204,
+        "bootstrap_ci95_high": 0.1666666716337204,
+        "num_clips": 1
+      },
+      "teacher_legacy_contact_samples": {
+        "clip_mean": 64.0,
+        "clip_median": 64.0,
+        "clip_p95": 64.0,
+        "bootstrap_ci95_low": 64.0,
+        "bootstrap_ci95_high": 64.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_floating_mean_m": {
+        "clip_mean": 0.005034393165260553,
+        "clip_median": 0.005034393165260553,
+        "clip_p95": 0.005034393165260553,
+        "bootstrap_ci95_low": 0.005034393165260553,
+        "bootstrap_ci95_high": 0.005034393165260553,
+        "num_clips": 1
+      },
+      "teacher_legacy_left_ankle_roll_link_contact_samples": {
+        "clip_mean": 64.0,
+        "clip_median": 64.0,
+        "clip_p95": 64.0,
+        "bootstrap_ci95_low": 64.0,
+        "bootstrap_ci95_high": 64.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_left_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_left_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.328125,
+        "clip_median": 0.328125,
+        "clip_p95": 0.328125,
+        "bootstrap_ci95_low": 0.328125,
+        "bootstrap_ci95_high": 0.328125,
+        "num_clips": 1
+      },
+      "teacher_legacy_left_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.2700335681438446,
+        "clip_median": 0.2700335681438446,
+        "clip_p95": 0.2700335681438446,
+        "bootstrap_ci95_low": 0.2700335681438446,
+        "bootstrap_ci95_high": 0.2700335681438446,
+        "num_clips": 1
+      },
+      "teacher_legacy_right_ankle_roll_link_contact_samples": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_right_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_right_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_right_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_slide_fraction": {
+        "clip_mean": 0.328125,
+        "clip_median": 0.328125,
+        "clip_p95": 0.328125,
+        "bootstrap_ci95_low": 0.328125,
+        "bootstrap_ci95_high": 0.328125,
+        "num_clips": 1
+      },
+      "teacher_legacy_stance_speed_ms": {
+        "clip_mean": 0.2700335681438446,
+        "clip_median": 0.2700335681438446,
+        "clip_p95": 0.2700335681438446,
+        "bootstrap_ci95_low": 0.2700335681438446,
+        "bootstrap_ci95_high": 0.2700335681438446,
+        "num_clips": 1
+      }
+    },
+    "lock_s1": {
+      "body_jerk": {
+        "clip_mean": 186.0354461669922,
+        "clip_median": 186.0354461669922,
+        "clip_p95": 186.0354461669922,
+        "bootstrap_ci95_low": 186.0354461669922,
+        "bootstrap_ci95_high": 186.0354461669922,
+        "num_clips": 1
+      },
+      "dof_err_rad": {
+        "clip_mean": 0.05514857545495033,
+        "clip_median": 0.05514857545495033,
+        "clip_p95": 0.05514857545495033,
+        "bootstrap_ci95_low": 0.05514857545495033,
+        "bootstrap_ci95_high": 0.05514857545495033,
+        "num_clips": 1
+      },
+      "dof_jerk": {
+        "clip_mean": 357.1078186035156,
+        "clip_median": 357.1078186035156,
+        "clip_p95": 357.1078186035156,
+        "bootstrap_ci95_low": 357.1078186035156,
+        "bootstrap_ci95_high": 357.1078186035156,
+        "num_clips": 1
+      },
+      "foot_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "foot_floating_mean_m": {
+        "clip_mean": 0.002007781295105815,
+        "clip_median": 0.002007781295105815,
+        "clip_p95": 0.002007781295105815,
+        "bootstrap_ci95_low": 0.002007781295105815,
+        "bootstrap_ci95_high": 0.002007781295105815,
+        "num_clips": 1
+      },
+      "foot_height_mean_m": {
+        "clip_mean": 0.07454726845026016,
+        "clip_median": 0.07454726845026016,
+        "clip_p95": 0.07454726845026016,
+        "bootstrap_ci95_low": 0.07454726845026016,
+        "bootstrap_ci95_high": 0.07454726845026016,
+        "num_clips": 1
+      },
+      "foot_height_min_m": {
+        "clip_mean": 0.04244283214211464,
+        "clip_median": 0.04244283214211464,
+        "clip_p95": 0.04244283214211464,
+        "bootstrap_ci95_low": 0.04244283214211464,
+        "bootstrap_ci95_high": 0.04244283214211464,
+        "num_clips": 1
+      },
+      "foot_height_p95_m": {
+        "clip_mean": 0.13369719684123993,
+        "clip_median": 0.13369719684123993,
+        "clip_p95": 0.13369719684123993,
+        "bootstrap_ci95_low": 0.13369719684123993,
+        "bootstrap_ci95_high": 0.13369719684123993,
+        "num_clips": 1
+      },
+      "foot_skate_mann_cm": {
+        "clip_mean": 0.16124475002288818,
+        "clip_median": 0.16124475002288818,
+        "clip_p95": 0.16124475002288818,
+        "bootstrap_ci95_low": 0.16124475002288818,
+        "bootstrap_ci95_high": 0.16124475002288818,
+        "num_clips": 1
+      },
+      "foot_skate_speed_ms": {
+        "clip_mean": 0.021073712036013603,
+        "clip_median": 0.021073712036013603,
+        "clip_p95": 0.021073712036013603,
+        "bootstrap_ci95_low": 0.021073712036013603,
+        "bootstrap_ci95_high": 0.021073712036013603,
+        "num_clips": 1
+      },
+      "foot_slide_fraction": {
+        "clip_mean": 0.0035211266949772835,
+        "clip_median": 0.0035211266949772835,
+        "clip_p95": 0.0035211266949772835,
+        "bootstrap_ci95_low": 0.0035211266949772835,
+        "bootstrap_ci95_high": 0.0035211266949772835,
+        "num_clips": 1
+      },
+      "joint_jump_fraction": {
+        "clip_mean": 0.015706805512309074,
+        "clip_median": 0.015706805512309074,
+        "clip_p95": 0.015706805512309074,
+        "bootstrap_ci95_low": 0.015706805512309074,
+        "bootstrap_ci95_high": 0.015706805512309074,
+        "num_clips": 1
+      },
+      "limit_proximity_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "limit_violation_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "mpjpe_m": {
+        "clip_mean": 0.02884330041706562,
+        "clip_median": 0.02884330041706562,
+        "clip_p95": 0.02884330041706562,
+        "bootstrap_ci95_low": 0.02884330041706562,
+        "bootstrap_ci95_high": 0.02884330041706562,
+        "num_clips": 1
+      },
+      "penetration_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "penetration_max_m": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "penetration_mean_m": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_contact_contact_prevalence": {
+        "clip_mean": 0.7786458134651184,
+        "clip_median": 0.7786458134651184,
+        "clip_p95": 0.7786458134651184,
+        "bootstrap_ci95_low": 0.7786458134651184,
+        "bootstrap_ci95_high": 0.7786458134651184,
+        "num_clips": 1
+      },
+      "source_contact_contact_samples": {
+        "clip_mean": 299.0,
+        "clip_median": 299.0,
+        "clip_p95": 299.0,
+        "bootstrap_ci95_low": 299.0,
+        "bootstrap_ci95_high": 299.0,
+        "num_clips": 1
+      },
+      "source_contact_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_contact_floating_mean_m": {
+        "clip_mean": 0.0019261190900579095,
+        "clip_median": 0.0019261190900579095,
+        "clip_p95": 0.0019261190900579095,
+        "bootstrap_ci95_low": 0.0019261190900579095,
+        "bootstrap_ci95_high": 0.0019261190900579095,
+        "num_clips": 1
+      },
+      "source_contact_left_ankle_roll_link_contact_samples": {
+        "clip_mean": 149.0,
+        "clip_median": 149.0,
+        "clip_p95": 149.0,
+        "bootstrap_ci95_low": 149.0,
+        "bootstrap_ci95_high": 149.0,
+        "num_clips": 1
+      },
+      "source_contact_left_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_contact_left_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.033557046204805374,
+        "clip_median": 0.033557046204805374,
+        "clip_p95": 0.033557046204805374,
+        "bootstrap_ci95_low": 0.033557046204805374,
+        "bootstrap_ci95_high": 0.033557046204805374,
+        "num_clips": 1
+      },
+      "source_contact_left_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.038657885044813156,
+        "clip_median": 0.038657885044813156,
+        "clip_p95": 0.038657885044813156,
+        "bootstrap_ci95_low": 0.038657885044813156,
+        "bootstrap_ci95_high": 0.038657885044813156,
+        "num_clips": 1
+      },
+      "source_contact_right_ankle_roll_link_contact_samples": {
+        "clip_mean": 150.0,
+        "clip_median": 150.0,
+        "clip_p95": 150.0,
+        "bootstrap_ci95_low": 150.0,
+        "bootstrap_ci95_high": 150.0,
+        "num_clips": 1
+      },
+      "source_contact_right_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_contact_right_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_contact_right_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.02506699413061142,
+        "clip_median": 0.02506699413061142,
+        "clip_p95": 0.02506699413061142,
+        "bootstrap_ci95_low": 0.02506699413061142,
+        "bootstrap_ci95_high": 0.02506699413061142,
+        "num_clips": 1
+      },
+      "source_contact_slide_fraction": {
+        "clip_mean": 0.016722407191991806,
+        "clip_median": 0.016722407191991806,
+        "clip_p95": 0.016722407191991806,
+        "bootstrap_ci95_low": 0.016722407191991806,
+        "bootstrap_ci95_high": 0.016722407191991806,
+        "num_clips": 1
+      },
+      "source_contact_stance_speed_ms": {
+        "clip_mean": 0.03183971345424652,
+        "clip_median": 0.03183971345424652,
+        "clip_p95": 0.03183971345424652,
+        "bootstrap_ci95_low": 0.03183971345424652,
+        "bootstrap_ci95_high": 0.03183971345424652,
+        "num_clips": 1
+      },
+      "source_height_contact_prevalence": {
+        "clip_mean": 0.9635416865348816,
+        "clip_median": 0.9635416865348816,
+        "clip_p95": 0.9635416865348816,
+        "bootstrap_ci95_low": 0.9635416865348816,
+        "bootstrap_ci95_high": 0.9635416865348816,
+        "num_clips": 1
+      },
+      "source_height_contact_samples": {
+        "clip_mean": 370.0,
+        "clip_median": 370.0,
+        "clip_p95": 370.0,
+        "bootstrap_ci95_low": 370.0,
+        "bootstrap_ci95_high": 370.0,
+        "num_clips": 1
+      },
+      "source_height_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_height_floating_mean_m": {
+        "clip_mean": 0.0017602717271074653,
+        "clip_median": 0.0017602717271074653,
+        "clip_p95": 0.0017602717271074653,
+        "bootstrap_ci95_low": 0.0017602717271074653,
+        "bootstrap_ci95_high": 0.0017602717271074653,
+        "num_clips": 1
+      },
+      "source_height_left_ankle_roll_link_contact_samples": {
+        "clip_mean": 184.0,
+        "clip_median": 184.0,
+        "clip_p95": 184.0,
+        "bootstrap_ci95_low": 184.0,
+        "bootstrap_ci95_high": 184.0,
+        "num_clips": 1
+      },
+      "source_height_left_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_height_left_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.20108695328235626,
+        "clip_median": 0.20108695328235626,
+        "clip_p95": 0.20108695328235626,
+        "bootstrap_ci95_low": 0.20108695328235626,
+        "bootstrap_ci95_high": 0.20108695328235626,
+        "num_clips": 1
+      },
+      "source_height_left_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.34076839685440063,
+        "clip_median": 0.34076839685440063,
+        "clip_p95": 0.34076839685440063,
+        "bootstrap_ci95_low": 0.34076839685440063,
+        "bootstrap_ci95_high": 0.34076839685440063,
+        "num_clips": 1
+      },
+      "source_height_right_ankle_roll_link_contact_samples": {
+        "clip_mean": 186.0,
+        "clip_median": 186.0,
+        "clip_p95": 186.0,
+        "bootstrap_ci95_low": 186.0,
+        "bootstrap_ci95_high": 186.0,
+        "num_clips": 1
+      },
+      "source_height_right_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "source_height_right_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.17741934955120087,
+        "clip_median": 0.17741934955120087,
+        "clip_p95": 0.17741934955120087,
+        "bootstrap_ci95_low": 0.17741934955120087,
+        "bootstrap_ci95_high": 0.17741934955120087,
+        "num_clips": 1
+      },
+      "source_height_right_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.383434921503067,
+        "clip_median": 0.383434921503067,
+        "clip_p95": 0.383434921503067,
+        "bootstrap_ci95_low": 0.383434921503067,
+        "bootstrap_ci95_high": 0.383434921503067,
+        "num_clips": 1
+      },
+      "source_height_slide_fraction": {
+        "clip_mean": 0.18918919563293457,
+        "clip_median": 0.18918919563293457,
+        "clip_p95": 0.18918919563293457,
+        "bootstrap_ci95_low": 0.18918919563293457,
+        "bootstrap_ci95_high": 0.18918919563293457,
+        "num_clips": 1
+      },
+      "source_height_stance_speed_ms": {
+        "clip_mean": 0.362216979265213,
+        "clip_median": 0.362216979265213,
+        "clip_p95": 0.362216979265213,
+        "bootstrap_ci95_low": 0.362216979265213,
+        "bootstrap_ci95_high": 0.362216979265213,
+        "num_clips": 1
+      },
+      "teacher_height_contact_prevalence": {
+        "clip_mean": 0.3619791567325592,
+        "clip_median": 0.3619791567325592,
+        "clip_p95": 0.3619791567325592,
+        "bootstrap_ci95_low": 0.3619791567325592,
+        "bootstrap_ci95_high": 0.3619791567325592,
+        "num_clips": 1
+      },
+      "teacher_height_contact_samples": {
+        "clip_mean": 139.0,
+        "clip_median": 139.0,
+        "clip_p95": 139.0,
+        "bootstrap_ci95_low": 139.0,
+        "bootstrap_ci95_high": 139.0,
+        "num_clips": 1
+      },
+      "teacher_height_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_floating_mean_m": {
+        "clip_mean": 0.003208940615877509,
+        "clip_median": 0.003208940615877509,
+        "clip_p95": 0.003208940615877509,
+        "bootstrap_ci95_low": 0.003208940615877509,
+        "bootstrap_ci95_high": 0.003208940615877509,
+        "num_clips": 1
+      },
+      "teacher_height_left_ankle_roll_link_contact_samples": {
+        "clip_mean": 139.0,
+        "clip_median": 139.0,
+        "clip_p95": 139.0,
+        "bootstrap_ci95_low": 139.0,
+        "bootstrap_ci95_high": 139.0,
+        "num_clips": 1
+      },
+      "teacher_height_left_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_left_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.014388489536941051,
+        "clip_median": 0.014388489536941051,
+        "clip_p95": 0.014388489536941051,
+        "bootstrap_ci95_low": 0.014388489536941051,
+        "bootstrap_ci95_high": 0.014388489536941051,
+        "num_clips": 1
+      },
+      "teacher_height_left_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.026477089151740074,
+        "clip_median": 0.026477089151740074,
+        "clip_p95": 0.026477089151740074,
+        "bootstrap_ci95_low": 0.026477089151740074,
+        "bootstrap_ci95_high": 0.026477089151740074,
+        "num_clips": 1
+      },
+      "teacher_height_right_ankle_roll_link_contact_samples": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_right_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_right_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_right_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_height_slide_fraction": {
+        "clip_mean": 0.014388489536941051,
+        "clip_median": 0.014388489536941051,
+        "clip_p95": 0.014388489536941051,
+        "bootstrap_ci95_low": 0.014388489536941051,
+        "bootstrap_ci95_high": 0.014388489536941051,
+        "num_clips": 1
+      },
+      "teacher_height_stance_speed_ms": {
+        "clip_mean": 0.026477089151740074,
+        "clip_median": 0.026477089151740074,
+        "clip_p95": 0.026477089151740074,
+        "bootstrap_ci95_low": 0.026477089151740074,
+        "bootstrap_ci95_high": 0.026477089151740074,
+        "num_clips": 1
+      },
+      "teacher_legacy_contact_prevalence": {
+        "clip_mean": 0.1666666716337204,
+        "clip_median": 0.1666666716337204,
+        "clip_p95": 0.1666666716337204,
+        "bootstrap_ci95_low": 0.1666666716337204,
+        "bootstrap_ci95_high": 0.1666666716337204,
+        "num_clips": 1
+      },
+      "teacher_legacy_contact_samples": {
+        "clip_mean": 64.0,
+        "clip_median": 64.0,
+        "clip_p95": 64.0,
+        "bootstrap_ci95_low": 64.0,
+        "bootstrap_ci95_high": 64.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_floating_mean_m": {
+        "clip_mean": 0.003242108505219221,
+        "clip_median": 0.003242108505219221,
+        "clip_p95": 0.003242108505219221,
+        "bootstrap_ci95_low": 0.003242108505219221,
+        "bootstrap_ci95_high": 0.003242108505219221,
+        "num_clips": 1
+      },
+      "teacher_legacy_left_ankle_roll_link_contact_samples": {
+        "clip_mean": 64.0,
+        "clip_median": 64.0,
+        "clip_p95": 64.0,
+        "bootstrap_ci95_low": 64.0,
+        "bootstrap_ci95_high": 64.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_left_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_left_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.015625,
+        "clip_median": 0.015625,
+        "clip_p95": 0.015625,
+        "bootstrap_ci95_low": 0.015625,
+        "bootstrap_ci95_high": 0.015625,
+        "num_clips": 1
+      },
+      "teacher_legacy_left_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.02773207053542137,
+        "clip_median": 0.02773207053542137,
+        "clip_p95": 0.02773207053542137,
+        "bootstrap_ci95_low": 0.02773207053542137,
+        "bootstrap_ci95_high": 0.02773207053542137,
+        "num_clips": 1
+      },
+      "teacher_legacy_right_ankle_roll_link_contact_samples": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_right_ankle_roll_link_floating_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_right_ankle_roll_link_slide_fraction": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_right_ankle_roll_link_stance_speed_ms": {
+        "clip_mean": 0.0,
+        "clip_median": 0.0,
+        "clip_p95": 0.0,
+        "bootstrap_ci95_low": 0.0,
+        "bootstrap_ci95_high": 0.0,
+        "num_clips": 1
+      },
+      "teacher_legacy_slide_fraction": {
+        "clip_mean": 0.015625,
+        "clip_median": 0.015625,
+        "clip_p95": 0.015625,
+        "bootstrap_ci95_low": 0.015625,
+        "bootstrap_ci95_high": 0.015625,
+        "num_clips": 1
+      },
+      "teacher_legacy_stance_speed_ms": {
+        "clip_mean": 0.02773207053542137,
+        "clip_median": 0.02773207053542137,
+        "clip_p95": 0.02773207053542137,
+        "bootstrap_ci95_low": 0.02773207053542137,
+        "bootstrap_ci95_high": 0.02773207053542137,
+        "num_clips": 1
+      }
+    }
+  },
+  "per_clip": {
+    "raw": {
+      "walk1_subject5": {
+        "body_jerk": 203.6866912841797,
+        "dof_err_rad": 0.04373851791024208,
+        "dof_jerk": 305.1629638671875,
+        "foot_floating_fraction": 0.0,
+        "foot_floating_mean_m": 0.0032709958031773567,
+        "foot_height_mean_m": 0.07725409418344498,
+        "foot_height_min_m": 0.03693610057234764,
+        "foot_height_p95_m": 0.1356680542230606,
+        "foot_skate_mann_cm": 0.26197683811187744,
+        "foot_skate_speed_ms": 0.16047899425029755,
+        "foot_slide_fraction": 0.1654929518699646,
+        "joint_jump_fraction": 0.0,
+        "limit_proximity_fraction": 0.0,
+        "limit_violation_fraction": 0.0,
+        "mpjpe_m": 0.030982641503214836,
+        "penetration_fraction": 0.0,
+        "penetration_max_m": 0.0,
+        "penetration_mean_m": 0.0,
+        "source_contact_contact_prevalence": 0.7786458134651184,
+        "source_contact_contact_samples": 299.0,
+        "source_contact_floating_fraction": 0.0,
+        "source_contact_floating_mean_m": 0.0031122516375035048,
+        "source_contact_left_ankle_roll_link_contact_samples": 149.0,
+        "source_contact_left_ankle_roll_link_floating_fraction": 0.0,
+        "source_contact_left_ankle_roll_link_slide_fraction": 0.21476510167121887,
+        "source_contact_left_ankle_roll_link_stance_speed_ms": 0.18478120863437653,
+        "source_contact_right_ankle_roll_link_contact_samples": 150.0,
+        "source_contact_right_ankle_roll_link_floating_fraction": 0.0,
+        "source_contact_right_ankle_roll_link_slide_fraction": 0.18000000715255737,
+        "source_contact_right_ankle_roll_link_stance_speed_ms": 0.1788455694913864,
+        "source_contact_slide_fraction": 0.19732441008090973,
+        "source_contact_stance_speed_ms": 0.18180346488952637,
+        "source_height_contact_prevalence": 0.9635416865348816,
+        "source_height_contact_samples": 370.0,
+        "source_height_floating_fraction": 0.0,
+        "source_height_floating_mean_m": 0.002774295397102833,
+        "source_height_left_ankle_roll_link_contact_samples": 184.0,
+        "source_height_left_ankle_roll_link_floating_fraction": 0.0,
+        "source_height_left_ankle_roll_link_slide_fraction": 0.3586956560611725,
+        "source_height_left_ankle_roll_link_stance_speed_ms": 0.4633003771305084,
+        "source_height_right_ankle_roll_link_contact_samples": 186.0,
+        "source_height_right_ankle_roll_link_floating_fraction": 0.0,
+        "source_height_right_ankle_roll_link_slide_fraction": 0.33870968222618103,
+        "source_height_right_ankle_roll_link_stance_speed_ms": 0.48573023080825806,
+        "source_height_slide_fraction": 0.34864863753318787,
+        "source_height_stance_speed_ms": 0.47457587718963623,
+        "teacher_height_contact_prevalence": 0.3619791567325592,
+        "teacher_height_contact_samples": 139.0,
+        "teacher_height_floating_fraction": 0.0,
+        "teacher_height_floating_mean_m": 0.004361527506262064,
+        "teacher_height_left_ankle_roll_link_contact_samples": 139.0,
+        "teacher_height_left_ankle_roll_link_floating_fraction": 0.0,
+        "teacher_height_left_ankle_roll_link_slide_fraction": 0.18705035746097565,
+        "teacher_height_left_ankle_roll_link_stance_speed_ms": 0.16236019134521484,
+        "teacher_height_right_ankle_roll_link_contact_samples": 0.0,
+        "teacher_height_right_ankle_roll_link_floating_fraction": 0.0,
+        "teacher_height_right_ankle_roll_link_slide_fraction": 0.0,
+        "teacher_height_right_ankle_roll_link_stance_speed_ms": 0.0,
+        "teacher_height_slide_fraction": 0.18705035746097565,
+        "teacher_height_stance_speed_ms": 0.16236019134521484,
+        "teacher_legacy_contact_prevalence": 0.1666666716337204,
+        "teacher_legacy_contact_samples": 64.0,
+        "teacher_legacy_floating_fraction": 0.0,
+        "teacher_legacy_floating_mean_m": 0.005034393165260553,
+        "teacher_legacy_left_ankle_roll_link_contact_samples": 64.0,
+        "teacher_legacy_left_ankle_roll_link_floating_fraction": 0.0,
+        "teacher_legacy_left_ankle_roll_link_slide_fraction": 0.328125,
+        "teacher_legacy_left_ankle_roll_link_stance_speed_ms": 0.2700335681438446,
+        "teacher_legacy_right_ankle_roll_link_contact_samples": 0.0,
+        "teacher_legacy_right_ankle_roll_link_floating_fraction": 0.0,
+        "teacher_legacy_right_ankle_roll_link_slide_fraction": 0.0,
+        "teacher_legacy_right_ankle_roll_link_stance_speed_ms": 0.0,
+        "teacher_legacy_slide_fraction": 0.328125,
+        "teacher_legacy_stance_speed_ms": 0.2700335681438446
+      }
+    },
+    "lock_s1": {
+      "walk1_subject5": {
+        "body_jerk": 186.0354461669922,
+        "dof_err_rad": 0.05514857545495033,
+        "dof_jerk": 357.1078186035156,
+        "foot_floating_fraction": 0.0,
+        "foot_floating_mean_m": 0.002007781295105815,
+        "foot_height_mean_m": 0.07454726845026016,
+        "foot_height_min_m": 0.04244283214211464,
+        "foot_height_p95_m": 0.13369719684123993,
+        "foot_skate_mann_cm": 0.16124475002288818,
+        "foot_skate_speed_ms": 0.021073712036013603,
+        "foot_slide_fraction": 0.0035211266949772835,
+        "joint_jump_fraction": 0.015706805512309074,
+        "limit_proximity_fraction": 0.0,
+        "limit_violation_fraction": 0.0,
+        "mpjpe_m": 0.02884330041706562,
+        "penetration_fraction": 0.0,
+        "penetration_max_m": 0.0,
+        "penetration_mean_m": 0.0,
+        "source_contact_contact_prevalence": 0.7786458134651184,
+        "source_contact_contact_samples": 299.0,
+        "source_contact_floating_fraction": 0.0,
+        "source_contact_floating_mean_m": 0.0019261190900579095,
+        "source_contact_left_ankle_roll_link_contact_samples": 149.0,
+        "source_contact_left_ankle_roll_link_floating_fraction": 0.0,
+        "source_contact_left_ankle_roll_link_slide_fraction": 0.033557046204805374,
+        "source_contact_left_ankle_roll_link_stance_speed_ms": 0.038657885044813156,
+        "source_contact_right_ankle_roll_link_contact_samples": 150.0,
+        "source_contact_right_ankle_roll_link_floating_fraction": 0.0,
+        "source_contact_right_ankle_roll_link_slide_fraction": 0.0,
+        "source_contact_right_ankle_roll_link_stance_speed_ms": 0.02506699413061142,
+        "source_contact_slide_fraction": 0.016722407191991806,
+        "source_contact_stance_speed_ms": 0.03183971345424652,
+        "source_height_contact_prevalence": 0.9635416865348816,
+        "source_height_contact_samples": 370.0,
+        "source_height_floating_fraction": 0.0,
+        "source_height_floating_mean_m": 0.0017602717271074653,
+        "source_height_left_ankle_roll_link_contact_samples": 184.0,
+        "source_height_left_ankle_roll_link_floating_fraction": 0.0,
+        "source_height_left_ankle_roll_link_slide_fraction": 0.20108695328235626,
+        "source_height_left_ankle_roll_link_stance_speed_ms": 0.34076839685440063,
+        "source_height_right_ankle_roll_link_contact_samples": 186.0,
+        "source_height_right_ankle_roll_link_floating_fraction": 0.0,
+        "source_height_right_ankle_roll_link_slide_fraction": 0.17741934955120087,
+        "source_height_right_ankle_roll_link_stance_speed_ms": 0.383434921503067,
+        "source_height_slide_fraction": 0.18918919563293457,
+        "source_height_stance_speed_ms": 0.362216979265213,
+        "teacher_height_contact_prevalence": 0.3619791567325592,
+        "teacher_height_contact_samples": 139.0,
+        "teacher_height_floating_fraction": 0.0,
+        "teacher_height_floating_mean_m": 0.003208940615877509,
+        "teacher_height_left_ankle_roll_link_contact_samples": 139.0,
+        "teacher_height_left_ankle_roll_link_floating_fraction": 0.0,
+        "teacher_height_left_ankle_roll_link_slide_fraction": 0.014388489536941051,
+        "teacher_height_left_ankle_roll_link_stance_speed_ms": 0.026477089151740074,
+        "teacher_height_right_ankle_roll_link_contact_samples": 0.0,
+        "teacher_height_right_ankle_roll_link_floating_fraction": 0.0,
+        "teacher_height_right_ankle_roll_link_slide_fraction": 0.0,
+        "teacher_height_right_ankle_roll_link_stance_speed_ms": 0.0,
+        "teacher_height_slide_fraction": 0.014388489536941051,
+        "teacher_height_stance_speed_ms": 0.026477089151740074,
+        "teacher_legacy_contact_prevalence": 0.1666666716337204,
+        "teacher_legacy_contact_samples": 64.0,
+        "teacher_legacy_floating_fraction": 0.0,
+        "teacher_legacy_floating_mean_m": 0.003242108505219221,
+        "teacher_legacy_left_ankle_roll_link_contact_samples": 64.0,
+        "teacher_legacy_left_ankle_roll_link_floating_fraction": 0.0,
+        "teacher_legacy_left_ankle_roll_link_slide_fraction": 0.015625,
+        "teacher_legacy_left_ankle_roll_link_stance_speed_ms": 0.02773207053542137,
+        "teacher_legacy_right_ankle_roll_link_contact_samples": 0.0,
+        "teacher_legacy_right_ankle_roll_link_floating_fraction": 0.0,
+        "teacher_legacy_right_ankle_roll_link_slide_fraction": 0.0,
+        "teacher_legacy_right_ankle_roll_link_stance_speed_ms": 0.0,
+        "teacher_legacy_slide_fraction": 0.015625,
+        "teacher_legacy_stance_speed_ms": 0.02773207053542137
+      }
+    }
+  },
+  "decisions": {
+    "lock_s1": {
+      "teacher_height_speed_le_0.08": true,
+      "mpjpe_delta_le_0.005": true,
+      "absolute_mpjpe_le_0.04": true,
+      "dof_jerk_le_1.2x": true,
+      "zero_limit_violations": true,
+      "penetration_mean_guard": true,
+      "penetration_fraction_guard": true,
+      "all_relative_guards_pass": true
+    }
+  }
+}
