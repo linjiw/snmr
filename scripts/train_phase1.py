@@ -261,7 +261,7 @@ def main() -> None:
                 fh.write(json.dumps(rec) + "\n")
             print(f"step {step+1:6d}  loss {rec['train_loss']:.4f}  "
                   f"VAL mpjpe {mpjpe*100:.2f} cm  dof {dof_err:.4f} rad  "
-                  f"({rec['elapsed_s']:.0f}s)")
+                  f"({rec['elapsed_s']:.0f}s)", flush=True)
 
         if (step + 1) % args.ckpt_every == 0 or step + 1 == args.steps:
             torch.save(

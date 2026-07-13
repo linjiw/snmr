@@ -303,7 +303,7 @@ def main() -> None:
             with open(log_path, "a") as fh:
                 fh.write(json.dumps(rec) + "\n")
             print(f"step {rec['step']:6d} loss {rec['train_loss']:.4f} Lz {rec['train_lz']:.4f} | "
-                  + " ".join(msgs) + f" | {rec['elapsed_s']:.0f}s")
+                  + " ".join(msgs) + f" | {rec['elapsed_s']:.0f}s", flush=True)
 
         if (step + 1) % args.ckpt_every == 0 or step + 1 == args.steps:
             torch.save(
