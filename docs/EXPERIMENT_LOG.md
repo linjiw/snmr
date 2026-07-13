@@ -150,8 +150,29 @@ Diagnoses:
   0.96); the weakest pair is **human↔toddy 0.82** — the two morphological extremes (adult human
   vs 0.34 m toddler). Sensible, publishable structure.
 
-## Queued / planned
-- E10 — contact-weight sweep (EDGE head) on G1 — RUNNING (w={0.5,2.0}, 100k each). (EDGE head + world-frame losses,
+### E10a — Phase-2 contact sweep (teacher-mask + self-consistency, NO EDGE head) — DONE
+`runs/e10_contact_w{0.05,0.2,1.0}/` (5-robot, 60k, --contact_weight only). Final G1 MPJPE:
+w0.05 8.34 / **w0.2 7.93** / w1.0 9.07 cm (all-5 no-contact baseline E04 was 6.67) — contact loss
+at 60k costs a little MPJPE (undertrained vs 100k), Toddy still best (3.5–3.9). Skate benchmark
+pending to answer whether it reduced sliding (the actual point). NOTE: this ran without the EDGE
+self-consistency HEAD (predict_contact); E10b below adds it.
+
+### E10a-skate — CRITICAL: contact loss (current form) does NOT reduce skate
+Benchmarked phase2 contact ckpts: w0.2 → skate **0.497 m/s** (WORSE than no-contact ~0.39);
+ablation w0.1 was 0.402 (no gain). Mask is verified sane (E10a-diag: contact frac 0.58 walk /
+0.20 run; teacher feet near-stationary under their own mask, 0.034 m/s). So the loss TARGET is
+right but it isn't being learned — hypothesis: at w≤0.2 the contact term is dominated by distill;
+and the distill loss itself pulls toward teacher dof whose tiny errors already skate, so the two
+objectives conflict. w1.0/w0.05 skate benchmarks running to complete the weight curve → decides
+whether E10b (higher weight + EDGE head) can work or whether we need a different mechanism
+(inference foot-lock, or hard contact constraint) for C5.
+
+### E10b — G1 contact sweep WITH EDGE head — RUNNING (faster FK)
+`runs/e10_edge_w{0.5,2.0}/` via train_phase1 --edge_contact, 100k, vectorized FK (2.4x). First
+attempt ran on the slow FK (~25min/5k steps, killed + restarted). This is the clean C5 test:
+predict_contact head + self-consistency + BCE at higher weight, full schedule.
+
+## Queued / planned (EDGE head + world-frame losses,
   post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current. AUTO-CHAINED
   after the ablation grid.
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`
