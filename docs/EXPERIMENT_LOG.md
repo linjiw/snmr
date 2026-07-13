@@ -167,6 +167,25 @@ objectives conflict. w1.0/w0.05 skate benchmarks running to complete the weight 
 whether E10b (higher weight + EDGE head) can work or whether we need a different mechanism
 (inference foot-lock, or hard contact constraint) for C5.
 
+### E24 — ROOT CAUSE of foot skate found (reframes C5)
+Chased why both the contact loss (E10a) and an inference foot-lock (E24-footlock: skate
+0.160→0.153, negligible) fail. Decoded-vs-teacher foot diagnostic on walk1 (E03 ckpt):
+- decoded foot HEIGHTS match teacher (mean z 0.067 = 0.067) — feet reach the ground correctly;
+- but **contact-mask agreement is only 58%; decoded contact frac 0.33 vs teacher 0.74** — the
+  decoded foot is at the right height yet moving TOO FAST in xy during stance (fails the 0.3 m/s
+  speed test), so contact under-fires.
+**So the skate is xy oscillation of a correctly-placed foot, not drift-from-a-planted-point.**
+That explains everything: (a) foot-lock (pins position) can't fix a velocity problem; (b) low-pass
+(E22) can't fix it because the oscillation is correlated across the leg chain (small dof errors ×
+long lever arm), not per-joint iid jitter; (c) the contact-velocity loss SHOULD address it but
+loses to distill at usable weights (E10a). **Correct C5 fix candidates, reframed:** (i) match
+teacher FK foot VELOCITY directly as a distill term (not just dof/pos), so the objective that wins
+also enforces low stance velocity; (ii) contact loss with a schedule that ramps weight as distill
+converges; (iii) accept the gap and report it honestly (skate ~2-3× teacher) — it is a known
+limitation of pure kinematic distillation that the downstream RL tracker is expected to absorb
+(GMR paper: the tracker cleans residual artifacts). Leaning (i) — cheap, fits the existing loss
+framework, doesn't conflict. E25 = add FK-foot-velocity distill term.
+
 ### E10b — G1 contact sweep WITH EDGE head — RUNNING (faster FK)
 `runs/e10_edge_w{0.5,2.0}/` via train_phase1 --edge_contact, 100k, vectorized FK (2.4x). First
 attempt ran on the slow FK (~25min/5k steps, killed + restarted). This is the clean C5 test:
