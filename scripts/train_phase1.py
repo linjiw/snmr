@@ -157,6 +157,9 @@ def main() -> None:
     ap.add_argument("--edge_contact", action="store_true",
                     help="add the EDGE self-consistency contact head (predict_contact) + BCE "
                          "supervision on top of the teacher-mask velocity loss")
+    ap.add_argument("--foot_vel_weight", type=float, default=0.0,
+                    help="E25: weight for matching teacher FK foot velocity (world frame); folds "
+                         "low stance velocity into the distill objective (fixes skate; see E24)")
     ap.add_argument("--no_temporal", action="store_true",
                     help="ablation: disable the temporal transformer over frame latents")
     ap.add_argument("--seed", type=int, default=0)
@@ -241,6 +244,16 @@ def main() -> None:
                     + contact_prediction_loss(pred["contact_logits"], foot_idx, cmask)
             loss = loss + args.contact_weight * l_contact
             parts["contact"] = float(l_contact.detach())
+        if args.foot_vel_weight > 0 and foot_idx is not None:
+            # E25: match teacher FK foot VELOCITY in world frame (folds low stance velocity into the
+            # winning distill objective; see E24 root-cause). Recompose BOTH to world via the anchor.
+            from snmr.losses import foot_velocity_distill_loss
+
+            wp, wq = local_root_to_world(anchor_pos, anchor_quat, pred["root_pos"], pred["root_quat"])
+            world_pred = {"root_pos": wp, "root_quat": wq, "dof_pos": pred["dof_pos"]}
+            l_fv = foot_velocity_distill_loss(world_pred, rk, q[:, 0:3], q[:, 3:7], q[:, 7:], foot_idx)
+            loss = loss + args.foot_vel_weight * l_fv
+            parts["foot_vel"] = float(l_fv.detach())
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()

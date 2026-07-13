@@ -103,6 +103,33 @@ def foot_contact_loss(
     return loss
 
 
+def foot_velocity_distill_loss(
+    pred: dict[str, torch.Tensor],
+    target_kin: RobotKinematics,
+    teacher_root_pos: torch.Tensor,
+    teacher_root_quat: torch.Tensor,
+    teacher_dof: torch.Tensor,
+    foot_body_indices: list[int],
+) -> torch.Tensor:
+    """Match the teacher's per-frame FK foot VELOCITY (world-frame displacement).
+
+    E24 root-caused the foot skate: the decoded foot is at the right *height* but oscillates in xy
+    during stance — a velocity error of a correctly-placed foot that neither a position foot-lock nor
+    a low-pass fixes, and that the contact-velocity loss loses to distill on. Supervising the foot
+    velocity directly folds "low stance velocity" into the *winning* distill objective: wherever the
+    teacher foot is slow (stance), the prediction is pushed to be slow too — without a separate,
+    conflicting term. Both trajectories must be in the SAME frame (pass world-frame preds/teacher)."""
+    pred_pos, _ = target_kin.forward_kinematics(pred["root_pos"], pred["root_quat"], pred["dof_pos"])
+    tea_pos, _ = target_kin.forward_kinematics(teacher_root_pos, teacher_root_quat, teacher_dof)
+    pf = pred_pos[:, foot_body_indices, :]
+    tf = tea_pos[:, foot_body_indices, :]
+    if pf.shape[0] < 2:
+        return pf.new_zeros(())
+    pred_v = pf[1:] - pf[:-1]
+    tea_v = tf[1:] - tf[:-1]
+    return torch.mean((pred_v - tea_v) ** 2)
+
+
 def contact_prediction_loss(
     contact_logits: torch.Tensor,     # (T, N) per-node logits from the decoder
     foot_body_indices: list[int],
