@@ -10,6 +10,8 @@ same code path. Definitions follow the conventions used in the literature we ben
     ``extract_foot_sticking_sequence_velocity`` thresholds: low = within 3 cm of that foot's clip
     minimum height; slow = XY speed < 0.3 m/s). Reported with the fraction of contact frames that
     slide (> 1 cm/s, holosoma's ``sliding_threshold`` scaled by fps).
+    New evaluations should also call :func:`contact_motion_metrics` with source-derived and
+    height-only/hysteretic masks; the legacy speed-gated mask is retained for comparability.
   * **Ground penetration** — mean and max depth (m) any foot body dips below z=0, plus fraction of
     frames with penetration > 1 cm (OmniRetarget/holosoma tolerance).
   * **Jerk** — mean magnitude of the third finite difference of dof positions (rad/s^3) and of body
@@ -34,6 +36,11 @@ class MotionMetrics:
     foot_skate_speed_ms: float = 0.0             # mean XY speed of feet during reference contact
     foot_slide_fraction: float = 0.0             # fraction of contact frames sliding > threshold
     foot_skate_mann_cm: float = 0.0              # MANN formula: v·(2−2^(h/H)), H=2.5 cm [cm/frame]
+    foot_height_mean_m: float = 0.0               # absolute body-origin height above z=0
+    foot_height_min_m: float = 0.0
+    foot_height_p95_m: float = 0.0
+    foot_floating_mean_m: float = 0.0              # stance height excess vs reference/baseline
+    foot_floating_fraction: float = 0.0            # stance samples floating by more than 3 cm
     penetration_mean_m: float = 0.0
     penetration_max_m: float = 0.0
     penetration_fraction: float = 0.0            # frames with any foot below -1 cm
@@ -86,6 +93,117 @@ def detect_contact(
     return low & (speed < speed_threshold)
 
 
+def detect_contact_height_hysteresis(
+    foot_pos: torch.Tensor,
+    enter_height: float = 0.03,
+    exit_height: float = 0.05,
+    *,
+    ground_z: float | None = None,
+) -> torch.Tensor:
+    """Height-only contact mask with separate onset and release thresholds.
+
+    If ``ground_z`` is omitted, heights are relative to each foot's clip minimum. Supplying an
+    absolute ground height avoids that normalization when body origins are calibrated to the sole.
+    """
+    if exit_height < enter_height:
+        raise ValueError("exit_height must be greater than or equal to enter_height")
+    if foot_pos.ndim != 3 or foot_pos.shape[-1] != 3:
+        raise ValueError(f"expected foot_pos shaped (T,F,3), got {tuple(foot_pos.shape)}")
+    height = foot_pos[..., 2]
+    if ground_z is None:
+        height = height - height.min(dim=0, keepdim=True).values
+    else:
+        height = height - ground_z
+
+    contact = torch.zeros_like(height, dtype=torch.bool)
+    if height.shape[0] == 0:
+        return contact
+    state = height[0] <= enter_height
+    contact[0] = state
+    for frame in range(1, height.shape[0]):
+        state = torch.where(state, height[frame] < exit_height, height[frame] <= enter_height)
+        contact[frame] = state
+    return contact
+
+
+def contact_motion_metrics(
+    foot_pos: torch.Tensor,
+    fps: float,
+    contact_mask: torch.Tensor,
+    *,
+    slide_speed_threshold: float = 0.3,
+    reference_foot_pos: torch.Tensor | None = None,
+    floating_height_threshold: float = 0.03,
+) -> dict:
+    """Score XY foot motion under an explicit contact mask.
+
+    The returned aggregate and per-foot speeds are normalized by active stance samples. This
+    function never infers contact from the velocity it scores.
+    """
+    if fps <= 0:
+        raise ValueError("fps must be positive")
+    expected_shape = foot_pos.shape[:2]
+    if contact_mask.shape != expected_shape:
+        raise ValueError(
+            f"contact mask shape {tuple(contact_mask.shape)} != foot shape {tuple(expected_shape)}"
+        )
+    if reference_foot_pos is not None and reference_foot_pos.shape != foot_pos.shape:
+        raise ValueError(
+            f"reference foot shape {tuple(reference_foot_pos.shape)} "
+            f"!= candidate shape {tuple(foot_pos.shape)}"
+        )
+    frames, feet = expected_shape
+    speed = foot_pos.new_zeros((frames, feet))
+    if frames > 1:
+        speed[1:] = (
+            foot_pos[1:, :, :2] - foot_pos[:-1, :, :2]
+        ).norm(dim=-1) * fps
+        speed[0] = speed[1]
+    active = contact_mask.to(dtype=torch.bool, device=foot_pos.device)
+    active_float = active.to(foot_pos.dtype)
+    denominator = active_float.sum().clamp_min(1.0)
+    mean_speed = (speed * active_float).sum() / denominator
+    slide_fraction = ((speed > slide_speed_threshold) & active).sum() / denominator
+    if reference_foot_pos is None:
+        baseline_height = foot_pos[..., 2].min(dim=0, keepdim=True).values
+    else:
+        baseline_height = reference_foot_pos[..., 2]
+    height_excess = foot_pos[..., 2] - baseline_height
+    floating_mean = (height_excess.clamp_min(0.0) * active_float).sum() / denominator
+    floating_fraction = ((height_excess > floating_height_threshold) & active).sum() / denominator
+
+    per_foot_speed = []
+    per_foot_slide = []
+    per_foot_floating = []
+    per_foot_samples = []
+    for foot in range(feet):
+        foot_active = active[:, foot]
+        foot_denominator = foot_active.sum().clamp_min(1)
+        per_foot_speed.append(float(speed[:, foot][foot_active].sum() / foot_denominator))
+        per_foot_slide.append(
+            float(((speed[:, foot] > slide_speed_threshold) & foot_active).sum() / foot_denominator)
+        )
+        per_foot_floating.append(
+            float(
+                ((height_excess[:, foot] > floating_height_threshold) & foot_active).sum()
+                / foot_denominator
+            )
+        )
+        per_foot_samples.append(int(foot_active.sum()))
+    return {
+        "stance_speed_ms": float(mean_speed),
+        "slide_fraction": float(slide_fraction),
+        "floating_mean_m": float(floating_mean),
+        "floating_fraction": float(floating_fraction),
+        "contact_prevalence": float(active_float.mean()) if active.numel() else 0.0,
+        "contact_samples": int(active.sum()),
+        "per_foot_stance_speed_ms": per_foot_speed,
+        "per_foot_slide_fraction": per_foot_slide,
+        "per_foot_floating_fraction": per_foot_floating,
+        "per_foot_contact_samples": per_foot_samples,
+    }
+
+
 def compute_metrics(
     kin: RobotKinematics,
     root_pos: torch.Tensor,
@@ -95,12 +213,12 @@ def compute_metrics(
     foot_body_names: list[str],
     reference: tuple[torch.Tensor, torch.Tensor, torch.Tensor] | None = None,
     slide_speed_threshold: float = 0.01 * 30,  # holosoma: 0.01 m/frame at 30 fps -> 0.3 m/s
+    contact_mask: torch.Tensor | None = None,
 ) -> MotionMetrics:
     """Score one trajectory; if ``reference`` (root_pos, root_quat, dof_pos) is given, also MPJPE.
 
-    Contact for the foot-skate metric is detected on the reference when provided (so the candidate
-    is penalised for sliding when the *teacher* says the foot should be planted), else on the
-    candidate itself.
+    By default contact is detected on the reference when provided, else on the candidate. Pass an
+    explicit ``contact_mask`` to score a non-circular source, height-only, or simulator mask.
     """
     m = MotionMetrics()
     T = root_pos.shape[0]
@@ -111,15 +229,22 @@ def compute_metrics(
     # --- reference-dependent metrics -------------------------------------------------------
     if reference is not None:
         ref_body_pos, _ = kin.forward_kinematics(*reference)
+        reference_feet = ref_body_pos[:, foot_idx, :]
         err = (body_pos - ref_body_pos).norm(dim=-1)  # (T, B)
         m.mpjpe_m = float(err.mean())
         m.per_body_mpjpe = {
             name: float(err[:, i].mean()) for i, name in enumerate(kin.body_names)
         }
         m.dof_err_rad = float((dof_pos - reference[2]).abs().mean())
-        contact = detect_contact(ref_body_pos[:, foot_idx, :], fps)
+        inferred_contact = detect_contact(ref_body_pos[:, foot_idx, :], fps)
     else:
-        contact = detect_contact(feet, fps)
+        reference_feet = None
+        inferred_contact = detect_contact(feet, fps)
+    contact = inferred_contact if contact_mask is None else contact_mask.to(feet.device)
+    if contact.shape != feet.shape[:2]:
+        raise ValueError(
+            f"contact mask shape {tuple(contact.shape)} != foot shape {tuple(feet.shape[:2])}"
+        )
 
     # --- foot skating ----------------------------------------------------------------------
     if T > 1:
@@ -131,6 +256,24 @@ def compute_metrics(
         m.foot_skate_speed_ms = float((xy_speed * c).sum() / denom)
         m.foot_slide_fraction = float(((xy_speed > slide_speed_threshold) & contact).sum() / denom)
         m.foot_skate_mann_cm = mann_foot_skate(feet, fps)
+
+    # --- absolute foot height / floating ---------------------------------------------------
+    foot_height = feet[..., 2]
+    m.foot_height_mean_m = float(foot_height.mean())
+    m.foot_height_min_m = float(foot_height.min())
+    m.foot_height_p95_m = float(torch.quantile(foot_height.flatten(), 0.95))
+    if reference_feet is not None:
+        height_excess = foot_height - reference_feet[..., 2]
+    else:
+        height_excess = foot_height - foot_height.min(dim=0, keepdim=True).values
+    contact_float = contact.to(feet.dtype)
+    contact_denominator = contact_float.sum().clamp_min(1.0)
+    m.foot_floating_mean_m = float(
+        (height_excess.clamp_min(0.0) * contact_float).sum() / contact_denominator
+    )
+    m.foot_floating_fraction = float(
+        ((height_excess > 0.03) & contact).sum() / contact_denominator
+    )
 
     # --- ground penetration ----------------------------------------------------------------
     depth = (-feet[..., 2]).clamp_min(0.0)

@@ -2,7 +2,14 @@
 
 import torch
 
-from snmr.metrics import FOOT_BODIES, MotionMetrics, compute_metrics, detect_contact
+from snmr.metrics import (
+    FOOT_BODIES,
+    MotionMetrics,
+    compute_metrics,
+    contact_motion_metrics,
+    detect_contact,
+    detect_contact_height_hysteresis,
+)
 from snmr.robot_model import RobotKinematics
 
 
@@ -141,6 +148,75 @@ def test_contact_detection_heights():
     c = detect_contact(foot, fps=50.0)
     assert c[:10, 0].all()
     assert not c[10:, 0].any()
+
+
+def test_height_contact_hysteresis_requires_reentry_threshold():
+    foot = torch.zeros(6, 1, 3)
+    foot[:, 0, 2] = torch.tensor([0.00, 0.02, 0.04, 0.06, 0.04, 0.02])
+    contact = detect_contact_height_hysteresis(
+        foot, enter_height=0.03, exit_height=0.05, ground_z=0.0
+    )
+    assert contact[:, 0].tolist() == [True, True, True, False, False, True]
+
+
+def test_explicit_contact_mask_removes_speed_gate_circularity(g1_mjcf):
+    rk = RobotKinematics(g1_mjcf)
+    frames, fps = 20, 50.0
+    moving = _standing(rk, frames)
+    moving[0][:, 0] = torch.arange(frames) * 0.5 / fps
+    explicit = torch.ones(frames, 2, dtype=torch.bool)
+    metrics = compute_metrics(
+        rk,
+        *moving,
+        fps=fps,
+        foot_body_names=FOOT_BODIES["unitree_g1"],
+        contact_mask=explicit,
+    )
+    assert 0.4 < metrics.foot_skate_speed_ms < 0.6
+    assert metrics.foot_slide_fraction > 0.9
+
+
+def test_floating_is_reference_relative_during_stance(g1_mjcf):
+    rk = RobotKinematics(g1_mjcf)
+    reference = _standing(rk, 20)
+    raised_root = reference[0].clone()
+    raised_root[:, 2] += 0.05
+    mask = torch.ones(20, 2, dtype=torch.bool)
+    metrics = compute_metrics(
+        rk,
+        raised_root,
+        reference[1],
+        reference[2],
+        fps=50.0,
+        foot_body_names=FOOT_BODIES["unitree_g1"],
+        reference=reference,
+        contact_mask=mask,
+    )
+    assert abs(metrics.foot_floating_mean_m - 0.05) < 1e-6
+    assert metrics.foot_floating_fraction == 1.0
+
+
+def test_contact_motion_metrics_reports_per_foot_values():
+    frames, fps = 10, 50.0
+    feet = torch.zeros(frames, 2, 3)
+    feet[:, 0, 0] = torch.arange(frames) * 0.2 / fps
+    feet[:, 1, 0] = torch.arange(frames) * 0.4 / fps
+    mask = torch.ones(frames, 2, dtype=torch.bool)
+    metrics = contact_motion_metrics(feet, fps, mask, slide_speed_threshold=0.3)
+    assert abs(metrics["stance_speed_ms"] - 0.3) < 1e-6
+    assert abs(metrics["per_foot_stance_speed_ms"][0] - 0.2) < 1e-6
+    assert abs(metrics["per_foot_stance_speed_ms"][1] - 0.4) < 1e-6
+    assert abs(metrics["slide_fraction"] - 0.5) < 1e-6
+
+    reference = feet.clone()
+    raised = feet.clone()
+    raised[:, 0, 2] += 0.05
+    floating = contact_motion_metrics(
+        raised, fps, mask, reference_foot_pos=reference
+    )
+    assert abs(floating["floating_mean_m"] - 0.025) < 1e-6
+    assert abs(floating["floating_fraction"] - 0.5) < 1e-6
+    assert floating["per_foot_floating_fraction"] == [1.0, 0.0]
 
 
 def test_all_foot_bodies_exist():

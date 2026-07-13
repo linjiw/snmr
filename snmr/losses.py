@@ -13,6 +13,16 @@ from . import rotation as rot
 from .robot_model import RobotKinematics
 
 
+DEFAULT_LOSS_WEIGHTS = {
+    "distill": 1.0,
+    "task": 1.0,
+    "limits": 0.1,
+    "smooth": 0.01,
+    "contact": 0.1,
+    "latent": 1.0,
+}
+
+
 def distill_loss(
     pred: dict[str, torch.Tensor],
     teacher_root_pos: torch.Tensor,
@@ -83,8 +93,11 @@ def foot_contact_loss(
     contact_mask: torch.Tensor,
     ground_z: float = 0.0,
 ) -> torch.Tensor:
-    """SAME-style contact loss on robot feet: penalise foot XY velocity during contact + ground
-    penetration.
+    """Legacy SAME-style contact loss.
+
+    This historical objective uses squared displacement per frame, averages masked zeros, and
+    bundles contact velocity with penetration. Keep it for checkpoint/experiment reproduction; use
+    :func:`teacher_stance_velocity_loss` and :func:`foot_penetration_loss` for new experiments.
 
     Args:
         foot_body_indices: robot body indices to treat as feet.
@@ -111,7 +124,7 @@ def foot_velocity_distill_loss(
     teacher_dof: torch.Tensor,
     foot_body_indices: list[int],
 ) -> torch.Tensor:
-    """Match the teacher's per-frame FK foot VELOCITY (world-frame displacement).
+    """Legacy E25 teacher-foot displacement matching.
 
     E24 root-caused the foot skate: the decoded foot is at the right *height* but oscillates in xy
     during stance — a velocity error of a correctly-placed foot that neither a position foot-lock nor
@@ -128,6 +141,130 @@ def foot_velocity_distill_loss(
     pred_v = pf[1:] - pf[:-1]
     tea_v = tf[1:] - tf[:-1]
     return torch.mean((pred_v - tea_v) ** 2)
+
+
+def _masked_coordinate_mean(values: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    """Mean over active samples and coordinates, preserving a differentiable zero for empty masks."""
+    weights = mask.to(dtype=values.dtype, device=values.device).unsqueeze(-1).expand_as(values)
+    numerator = (values * weights).sum()
+    denominator = weights.sum()
+    return numerator / denominator.clamp_min(1.0)
+
+
+def teacher_stance_velocity_loss(
+    pred: dict[str, torch.Tensor],
+    target_kin: RobotKinematics,
+    foot_body_indices: list[int],
+    contact_mask: torch.Tensor,
+    fps: float,
+) -> torch.Tensor:
+    """Mean squared world-frame foot XY velocity, with velocity computed in m/s.
+
+    Unlike :func:`foot_contact_loss`, this objective does not include penetration and divides by the
+    active foot-coordinate count rather than averaging masked zeros.
+    """
+    if fps <= 0:
+        raise ValueError("fps must be positive")
+    body_pos, _ = target_kin.forward_kinematics(
+        pred["root_pos"], pred["root_quat"], pred["dof_pos"]
+    )
+    feet = body_pos[:, foot_body_indices, :]
+    if feet.shape[0] < 2:
+        return feet.sum() * 0.0
+    velocity_xy = (feet[1:, :, :2] - feet[:-1, :, :2]) * fps
+    return _masked_coordinate_mean(velocity_xy.square(), contact_mask[1:])
+
+
+def foot_penetration_loss(
+    pred: dict[str, torch.Tensor],
+    target_kin: RobotKinematics,
+    foot_body_indices: list[int],
+    ground_z: float = 0.0,
+) -> torch.Tensor:
+    """Mean squared penetration depth, separate from any contact-velocity objective."""
+    body_pos, _ = target_kin.forward_kinematics(
+        pred["root_pos"], pred["root_quat"], pred["dof_pos"]
+    )
+    feet = body_pos[:, foot_body_indices, :]
+    return torch.relu(ground_z - feet[..., 2]).square().mean()
+
+
+def contact_self_consistency_velocity_loss(
+    pred: dict[str, torch.Tensor],
+    target_kin: RobotKinematics,
+    foot_body_indices: list[int],
+    fps: float,
+    anchor: tuple[torch.Tensor, torch.Tensor] | None = None,
+) -> torch.Tensor:
+    """EDGE-style consistency on squared XY velocity computed in m/s.
+
+    Contact probabilities are soft sample weights, and the loss is normalized by their active
+    coordinate mass. Penetration is deliberately excluded so it can have an independent weight.
+    """
+    if fps <= 0:
+        raise ValueError("fps must be positive")
+    if "contact_logits" not in pred:
+        raise ValueError("model must be built with predict_contact=True")
+    root_pos, root_quat = pred["root_pos"], pred["root_quat"]
+    if anchor is not None:
+        from .data import local_root_to_world
+
+        root_pos, root_quat = local_root_to_world(anchor[0], anchor[1], root_pos, root_quat)
+    body_pos, _ = target_kin.forward_kinematics(root_pos, root_quat, pred["dof_pos"])
+    feet = body_pos[:, foot_body_indices, :]
+    if feet.shape[0] < 2:
+        return feet.sum() * 0.0
+    velocity_xy = (feet[1:, :, :2] - feet[:-1, :, :2]) * fps
+    probability = torch.sigmoid(pred["contact_logits"][1:, foot_body_indices])
+    return _masked_coordinate_mean(velocity_xy.square(), probability)
+
+
+def teacher_foot_velocity_loss(
+    pred: dict[str, torch.Tensor],
+    target_kin: RobotKinematics,
+    teacher_root_pos: torch.Tensor,
+    teacher_root_quat: torch.Tensor,
+    teacher_dof: torch.Tensor,
+    foot_body_indices: list[int],
+    fps: float,
+    *,
+    contact_mask: torch.Tensor | None = None,
+    phase_balanced: bool = False,
+) -> torch.Tensor:
+    """Match teacher FK foot velocity, computed in m/s, optionally balancing stance and swing.
+
+    ``phase_balanced=True`` gives stance and swing equal weight regardless of their prevalence. An
+    absent phase contributes no term, so all-stance/all-swing windows remain finite.
+    """
+    if fps <= 0:
+        raise ValueError("fps must be positive")
+    pred_pos, _ = target_kin.forward_kinematics(
+        pred["root_pos"], pred["root_quat"], pred["dof_pos"]
+    )
+    teacher_pos, _ = target_kin.forward_kinematics(
+        teacher_root_pos, teacher_root_quat, teacher_dof
+    )
+    pred_feet = pred_pos[:, foot_body_indices, :]
+    teacher_feet = teacher_pos[:, foot_body_indices, :]
+    if pred_feet.shape[0] < 2:
+        return pred_feet.sum() * 0.0
+    error_sq = (
+        (pred_feet[1:] - pred_feet[:-1]) * fps
+        - (teacher_feet[1:] - teacher_feet[:-1]) * fps
+    ).square()
+    if not phase_balanced:
+        return error_sq.mean()
+    if contact_mask is None:
+        raise ValueError("contact_mask is required when phase_balanced=True")
+
+    stance = contact_mask[1:].to(error_sq.dtype)
+    swing = 1.0 - stance
+    phase_losses = []
+    if bool(stance.sum() > 0):
+        phase_losses.append(_masked_coordinate_mean(error_sq, stance))
+    if bool(swing.sum() > 0):
+        phase_losses.append(_masked_coordinate_mean(error_sq, swing))
+    return torch.stack(phase_losses).mean() if phase_losses else error_sq.sum() * 0.0
 
 
 def contact_prediction_loss(
@@ -151,9 +288,10 @@ def contact_self_consistency_loss(
     ground_z: float = 0.0,
     anchor: tuple[torch.Tensor, torch.Tensor] | None = None,
 ) -> torch.Tensor:
-    """EDGE-style self-consistency: ‖(FK(x_{t+1})−FK(x_t))·σ(b̂_t)‖² masked by the network's *own*
-    predicted contact probability. Encourages the model to both predict contact and keep the foot
-    stationary where it predicts contact — removing the mm-level dof jitter at planted frames.
+    """Legacy EDGE-style self-consistency using frame displacement and bundled penetration.
+
+    Keep this objective for historical runs. New experiments should use
+    :func:`contact_self_consistency_velocity_loss` plus :func:`foot_penetration_loss`.
 
     A planted foot is stationary in the WORLD frame, not in the scaled-human-heading LOCAL frame the
     decoder predicts in (the local frame carries the negated per-frame anchor motion). Pass
@@ -184,30 +322,18 @@ def latent_consistency_loss(z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tenso
     return torch.mean((z_a - z_b) ** 2)
 
 
-def total_loss(
+def collect_loss_terms(
     pred: dict[str, torch.Tensor],
     target_kin: RobotKinematics,
     *,
     teacher: dict[str, torch.Tensor] | None = None,
-    weights: dict[str, float] | None = None,
     body_targets: dict[int, torch.Tensor] | None = None,
     body_weights: dict[int, float] | None = None,
     foot_body_indices: list[int] | None = None,
     contact_mask: torch.Tensor | None = None,
     z_pair: tuple[torch.Tensor, torch.Tensor] | None = None,
-) -> tuple[torch.Tensor, dict[str, float]]:
-    """Weighted sum of active loss terms. Returns (scalar loss, per-term dict for logging)."""
-    w = {
-        "distill": 1.0,
-        "task": 1.0,
-        "limits": 0.1,
-        "smooth": 0.01,
-        "contact": 0.1,
-        "latent": 1.0,
-    }
-    if weights:
-        w.update(weights)
-
+) -> dict[str, torch.Tensor]:
+    """Build active legacy loss terms without detaching them."""
     terms: dict[str, torch.Tensor] = {}
     if teacher is not None:
         terms["distill"] = distill_loss(
@@ -221,8 +347,47 @@ def total_loss(
         terms["contact"] = foot_contact_loss(pred, target_kin, foot_body_indices, contact_mask)
     if z_pair is not None:
         terms["latent"] = latent_consistency_loss(z_pair[0], z_pair[1])
+    return terms
 
-    total = pred["root_pos"].new_zeros(())
+
+def weighted_loss(
+    terms: dict[str, torch.Tensor],
+    weights: dict[str, float] | None = None,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    """Sum named tensor terms and return detached raw values for logging."""
+    if not terms:
+        raise ValueError("at least one loss term is required")
+    active_weights = dict(DEFAULT_LOSS_WEIGHTS)
+    if weights:
+        active_weights.update(weights)
+
+    total = next(iter(terms.values())).new_zeros(())
     for k, v in terms.items():
-        total = total + w[k] * v
+        total = total + active_weights.get(k, 1.0) * v
     return total, {k: float(v.detach()) for k, v in terms.items()}
+
+
+def total_loss(
+    pred: dict[str, torch.Tensor],
+    target_kin: RobotKinematics,
+    *,
+    teacher: dict[str, torch.Tensor] | None = None,
+    weights: dict[str, float] | None = None,
+    body_targets: dict[int, torch.Tensor] | None = None,
+    body_weights: dict[int, float] | None = None,
+    foot_body_indices: list[int] | None = None,
+    contact_mask: torch.Tensor | None = None,
+    z_pair: tuple[torch.Tensor, torch.Tensor] | None = None,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    """Weighted sum of active legacy loss terms. Returns scalar loss and raw term values."""
+    terms = collect_loss_terms(
+        pred,
+        target_kin,
+        teacher=teacher,
+        body_targets=body_targets,
+        body_weights=body_weights,
+        foot_body_indices=foot_body_indices,
+        contact_mask=contact_mask,
+        z_pair=z_pair,
+    )
+    return weighted_loss(terms, weights)
