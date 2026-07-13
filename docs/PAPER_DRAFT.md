@@ -102,6 +102,10 @@ what pure distillation trains for. (Earlier "window-mean artifact" hypothesis te
 (H-deep)**. This measurement (a) motivates a domain-confusion term as the principled fix and
 (b) upgrades the analysis contribution: we don't just report the shared-vs-invariant gap, we
 attribute it.
+**Figures [DONE]** (`runs/figures/`): dual-colored t-SNE+UMAP — embodiment-colored intermixed,
+motion-colored cleanly clustered — the visual proof of the shared space, and it shows motion is
+*nonlinearly* organized (reconciling the weak linear motion probe). CKA heatmap tracks morphology
+(adult humanoids 0.96–0.98; human↔toddy weakest at 0.82).
 
 **Ablations [PARTIAL — grid running]:**
 | variant | MPJPE (cm) | skate (m/s) | dof jerk | note |

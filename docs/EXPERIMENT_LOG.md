@@ -136,8 +136,22 @@ Diagnoses:
 3. no_temporal beating base persists at 50k (confirmed E08) — temporal transformer trades per-frame
    fidelity for jerk; keep it only if the contact/tracking interplay later justifies it.
 
+### E23 — latent figures (t-SNE/UMAP dual-color + CKA heatmap) — DONE (`runs/figures/`)
+- `scripts/make_latent_figures.py`; 672 window-mean latents (112/encoder × 6), held-out clips.
+- **Dual embedding: embodiment-colored plots are thoroughly intermixed (6 embodiments overlap
+  everywhere); motion-colored plots show clean category clusters (aiming/walk/run/sprint/jumps
+  each a distinct region) in BOTH t-SNE and UMAP.** The visual headline of the shared space.
+- **Reconciles the E16 "null" result:** motion category IS strongly organized in the latent —
+  the linear probe (E16, 0.15) just couldn't read it because the structure is NONLINEAR
+  (manifold-organized), which t-SNE/UMAP surface. Correct paper phrasing: "motion is nonlinearly
+  organized (visible under t-SNE/UMAP; a linear probe underreads it)", NOT "not semantically
+  organized". Supersedes E16's conclusion.
+- **CKA heatmap** matches morphology: adult humanoids cluster tight (n1↔pm01 0.98, t1↔{n1,pm01}
+  0.96); the weakest pair is **human↔toddy 0.82** — the two morphological extremes (adult human
+  vs 0.34 m toddler). Sensible, publishable structure.
+
 ## Queued / planned
-- E10 — contact-weight sweep on the shared model (EDGE head + world-frame losses,
+- E10 — contact-weight sweep (EDGE head) on G1 — RUNNING (w={0.5,2.0}, 100k each). (EDGE head + world-frame losses,
   post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current. AUTO-CHAINED
   after the ablation grid.
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`
