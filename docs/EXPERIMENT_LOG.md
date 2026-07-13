@@ -118,8 +118,26 @@ position error vs GMR teacher on the 7 held-out clips; "4-window eval" = in-trai
   0.751 < base 0.781 < legs_1.15 0.819). Variants live beside the source model (documented in
   THIRD_PARTY.md). Ready for the E12 augmented retrain.
 
+### E09/N9 — Ablation grid COMPLETE (`runs/ablations/SUMMARY.md`); + skate diagnosis
+Full 50k G1 table (MPJPE / skate m/s vs teacher 0.052):
+  base 4.71/0.386 · **no_temporal 3.95/0.358 (best fidelity)** · z32 5.51/0.435 (bottleneck hurts)
+  · small 4.78/0.412 (0.41M ≈ base) · **contact(w=0.1) 4.87/0.402 (skate barely moved)** ·
+  lr8e4 32.0/0.829 (diverged — negative control).
+Diagnoses:
+1. **Skate tracks MPJPE** (ratio ~7–9 across all G1 ckpts: E03 3.62cm/0.255, base 4.71/0.386,
+   no_temporal 3.95/0.358) — foot sliding is the *same* dof error, not a separate failure mode.
+2. **E22 filter test (post-hoc Gaussian low-pass on decoded dof, E03 ckpt, 4-clip subset):**
+   σ=0 → 0.093 m/s, σ=1 → 0.081, σ=2 → 0.086 at ~unchanged MPJPE. **Low-pass barely helps → the
+   residual foot motion is SMOOTH systematic error, not high-frequency jitter.** Corrects the
+   earlier "dof-jitter" wording. Implication: filtering/architecture won't fix it; the
+   contact-velocity loss (or inference foot-lock) is the right tool, and w=0.1 (teacher-mask only,
+   no EDGE head — train_phase1 lacks predict_contact) was too weak → E10 must test the EDGE head
+   at higher weight.
+3. no_temporal beating base persists at 50k (confirmed E08) — temporal transformer trades per-frame
+   fidelity for jerk; keep it only if the contact/tracking interplay later justifies it.
+
 ## Queued / planned
-- E10 — contact-weight sweep {0.05, 0.2, 1.0} on the shared model (EDGE head + world-frame losses,
+- E10 — contact-weight sweep on the shared model (EDGE head + world-frame losses,
   post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current. AUTO-CHAINED
   after the ablation grid.
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`

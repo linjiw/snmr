@@ -154,6 +154,9 @@ def main() -> None:
     ap.add_argument("--dec_hidden", type=int, default=128)
     ap.add_argument("--contact_weight", type=float, default=0.0,
                     help="weight of the foot-contact loss (0 = off; contact mask from teacher feet)")
+    ap.add_argument("--edge_contact", action="store_true",
+                    help="add the EDGE self-consistency contact head (predict_contact) + BCE "
+                         "supervision on top of the teacher-mask velocity loss")
     ap.add_argument("--no_temporal", action="store_true",
                     help="ablation: disable the temporal transformer over frame latents")
     ap.add_argument("--seed", type=int, default=0)
@@ -182,7 +185,8 @@ def main() -> None:
 
     model = SNMR(
         SNMRConfig(latent_dim=args.latent_dim, enc_hidden=args.enc_hidden,
-                   dec_hidden=args.dec_hidden, use_temporal=not args.no_temporal)
+                   dec_hidden=args.dec_hidden, use_temporal=not args.no_temporal,
+                   predict_contact=args.edge_contact and args.contact_weight > 0)
     ).to(args.device)
 
     # foot-contact loss support: teacher contact masks + foot body indices (G1 by default)
@@ -213,9 +217,13 @@ def main() -> None:
         loss, parts = total_loss(pred, rk, teacher=teacher)
         if args.contact_weight > 0 and foot_idx is not None:
             # Contact/skate must be judged in the WORLD frame (a planted foot is stationary in world
-            # coordinates, not in the moving anchor frame). Contact mask comes from the teacher's
-            # world-frame feet; the prediction is recomposed to world before the penalty.
-            from snmr.losses import foot_contact_loss
+            # coordinates, not in the moving anchor frame). Contact mask = teacher's world-frame
+            # feet; prediction recomposed to world before the penalty.
+            from snmr.losses import (
+                contact_prediction_loss,
+                contact_self_consistency_loss,
+                foot_contact_loss,
+            )
 
             with torch.no_grad():
                 t_body_w, _ = rk.forward_kinematics(q[:, 0:3], q[:, 3:7], q[:, 7:])
@@ -223,6 +231,14 @@ def main() -> None:
             wp, wq = local_root_to_world(anchor_pos, anchor_quat, pred["root_pos"], pred["root_quat"])
             world_pred = {"root_pos": wp, "root_quat": wq, "dof_pos": pred["dof_pos"]}
             l_contact = foot_contact_loss(world_pred, rk, foot_idx, cmask)
+            if args.edge_contact and "contact_logits" in pred:
+                # EDGE self-consistency on the model's OWN predicted contacts + BCE supervision of
+                # the contact head vs the teacher mask. Pass the LOCAL pred + anchor; the loss
+                # recomposes to world internally (matches train_phase2 usage — do NOT pre-recompose).
+                l_contact = l_contact \
+                    + contact_self_consistency_loss(pred, rk, foot_idx,
+                                                    anchor=(anchor_pos, anchor_quat)) \
+                    + contact_prediction_loss(pred["contact_logits"], foot_idx, cmask)
             loss = loss + args.contact_weight * l_contact
             parts["contact"] = float(l_contact.detach())
         loss.backward()
