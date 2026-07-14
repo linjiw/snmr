@@ -50,6 +50,7 @@ def test_validate_row_rejects_inconsistent_rollout(tmp_path):
         "completed": True,
         "failed": False,
         "survival_steps": 10,
+        "survival_s": 0.2,
         "metrics": {metric: 1.0 for metric in wbt.METRICS},
     }
     report = {
@@ -62,6 +63,7 @@ def test_validate_row_rejects_inconsistent_rollout(tmp_path):
         "horizon_s": 10.0,
         "policy_dt": 0.02,
         "motion_file": "/motions/gmr/walk1_subject5_mj.npz",
+        "motion_steps": 600,
         "completion_rate": 1.0,
         "mean_survival_s": 0.2,
         "rollouts": [
@@ -71,4 +73,13 @@ def test_validate_row_rejects_inconsistent_rollout(tmp_path):
 
     errors = wbt._validate_row(row, report)
 
-    assert any("inconsistent with survival_steps" in error for error in errors)
+    assert any("completed rollout is inconsistent" in error for error in errors)
+
+    starts = np.linspace(0, 99, 100).round().astype(int).tolist()
+    for index, valid_rollout in enumerate(report["rollouts"]):
+        valid_rollout["start_step"] = starts[index]
+        valid_rollout["survival_steps"] = 500
+        valid_rollout["survival_s"] = 10.0
+    report["mean_survival_s"] = 10.0
+
+    assert wbt._validate_row(row, report) == []

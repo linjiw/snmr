@@ -99,6 +99,14 @@ def _expected_name(
     return f"pilot_{source}_{clip}_seed{training_seed}_eval{evaluation_seed}"
 
 
+def _finite_number(value: Any) -> bool:
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and bool(np.isfinite(value))
+    )
+
+
 def _validate_row(row: EvaluationRow, report: dict[str, Any]) -> list[str]:
     errors = []
     expected_name = _expected_name(
@@ -123,6 +131,7 @@ def _validate_row(row: EvaluationRow, report: dict[str, Any]) -> list[str]:
         "report.num_rollouts": (report.get("num_rollouts"), ROLLOUTS_PER_EVALUATION),
         "report.horizon_steps": (report.get("horizon_steps"), HORIZON_STEPS),
         "report.horizon_s": (report.get("horizon_s"), HORIZON_S),
+        "report.policy_dt": (report.get("policy_dt"), HORIZON_S / HORIZON_STEPS),
     }
     for field, (actual, expected) in checks.items():
         if actual != expected:
@@ -166,6 +175,7 @@ def _validate_row(row: EvaluationRow, report: dict[str, Any]) -> list[str]:
         completed = rollout.get("completed")
         failed = rollout.get("failed")
         survival_steps = rollout.get("survival_steps")
+        survival_s = rollout.get("survival_s")
         env_ids.append(env_id)
         start_steps.append(start_step)
         if (
@@ -181,38 +191,65 @@ def _validate_row(row: EvaluationRow, report: dict[str, Any]) -> list[str]:
             or not 1 <= survival_steps <= HORIZON_STEPS
         ):
             errors.append(f"rollout {index}: invalid survival_steps={survival_steps!r}")
-        elif completed != (survival_steps == HORIZON_STEPS):
+        elif completed and survival_steps != HORIZON_STEPS:
             errors.append(
-                f"rollout {index}: completed={completed!r} is inconsistent with "
+                f"rollout {index}: completed rollout is inconsistent with "
                 f"survival_steps={survival_steps}"
             )
+        elif not _finite_number(survival_s) or not np.isclose(
+            survival_s, survival_steps * HORIZON_S / HORIZON_STEPS, atol=1e-12
+        ):
+            errors.append(f"rollout {index}: survival_s does not match survival_steps")
         metrics = rollout.get("metrics")
         if not isinstance(metrics, dict) or set(metrics) != set(METRICS):
             errors.append(f"rollout {index}: metric set mismatch")
         else:
-            values = np.asarray([metrics[name] for name in METRICS], dtype=np.float64)
-            if not np.isfinite(values).all() or np.any(values < 0.0):
+            metric_values = [metrics[name] for name in METRICS]
+            if not all(
+                _finite_number(value) and value >= 0.0 for value in metric_values
+            ):
                 errors.append(
                     f"rollout {index}: metrics must be finite and nonnegative"
                 )
         if isinstance(completed, bool):
             completion_values.append(float(completed))
         if isinstance(survival_steps, int):
-            survival_values.append(
-                survival_steps * float(report.get("policy_dt", np.nan))
-            )
+            survival_values.append(survival_steps * HORIZON_S / HORIZON_STEPS)
 
     if env_ids != list(range(ROLLOUTS_PER_EVALUATION)):
         errors.append("env_ids must be exactly 0..99 in order")
-    if len(set(start_steps)) != ROLLOUTS_PER_EVALUATION:
+    valid_start_steps = all(isinstance(value, int) for value in start_steps)
+    if not valid_start_steps or len(set(start_steps)) != ROLLOUTS_PER_EVALUATION:
         errors.append("start_steps must contain 100 distinct phase-stratified frames")
+    motion_steps = report.get("motion_steps")
+    if isinstance(motion_steps, int) and motion_steps > HORIZON_STEPS:
+        expected_starts = (
+            np.linspace(
+                0,
+                motion_steps - HORIZON_STEPS - 1,
+                ROLLOUTS_PER_EVALUATION,
+            )
+            .round()
+            .astype(int)
+            .tolist()
+        )
+        if start_steps != expected_starts:
+            errors.append("start_steps do not match the frozen phase-stratified grid")
+    else:
+        errors.append(f"invalid motion_steps={motion_steps!r}")
     if completion_values:
         observed = float(np.mean(completion_values))
-        if not np.isclose(observed, report.get("completion_rate", np.nan), atol=1e-12):
+        completion_rate = report.get("completion_rate")
+        if not _finite_number(completion_rate) or not np.isclose(
+            observed, completion_rate, atol=1e-12
+        ):
             errors.append("completion_rate does not match rollout rows")
     if survival_values:
         observed = float(np.mean(survival_values))
-        if not np.isclose(observed, report.get("mean_survival_s", np.nan), atol=1e-9):
+        mean_survival_s = report.get("mean_survival_s")
+        if not _finite_number(mean_survival_s) or not np.isclose(
+            observed, mean_survival_s, atol=1e-9
+        ):
             errors.append("mean_survival_s does not match rollout rows")
     return errors
 
