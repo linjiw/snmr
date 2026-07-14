@@ -116,6 +116,7 @@ def main() -> None:
             "source_height",
             "teacher_height",
             "predicted_contact",
+            "decoded_height",
         ],
         default="source_contact",
     )
@@ -124,6 +125,14 @@ def main() -> None:
         type=float,
         default=0.5,
         help="fixed decoder contact probability threshold for --lock_mask predicted_contact",
+    )
+    ap.add_argument(
+        "--mask_ckpt",
+        default=None,
+        help=(
+            "optional separate checkpoint whose contact head generates the predicted_contact "
+            "mask (Gate 1b M2: the C1 BCE head applied to the frozen base decoder's output)"
+        ),
     )
     ap.add_argument("--bootstrap_samples", type=int, default=2000)
     ap.add_argument("--bootstrap_seed", type=int, default=0)
@@ -167,6 +176,14 @@ def main() -> None:
                 "path": str(pathlib.Path(args.ckpt).resolve()),
                 "sha256": sha256_file(args.ckpt),
             },
+            "mask_checkpoint": (
+                {
+                    "path": str(pathlib.Path(args.mask_ckpt).resolve()),
+                    "sha256": sha256_file(args.mask_ckpt),
+                }
+                if args.mask_ckpt is not None
+                else None
+            ),
             "evaluator": {
                 "path": str(pathlib.Path(__file__).resolve()),
                 "sha256": sha256_file(__file__),
@@ -190,7 +207,14 @@ def main() -> None:
 
     dev = args.device
     model, state = load_model(args.ckpt, dev)
-    if args.lock_mask == "predicted_contact" and model.decoder.contact_head is None:
+    mask_model = None
+    if args.mask_ckpt is not None:
+        if args.lock_mask != "predicted_contact":
+            raise ValueError("--mask_ckpt is only meaningful with --lock_mask predicted_contact")
+        mask_model, _ = load_model(args.mask_ckpt, dev)
+        if mask_model.decoder.contact_head is None:
+            raise ValueError("--mask_ckpt must contain a trained contact head")
+    elif args.lock_mask == "predicted_contact" and model.decoder.contact_head is None:
         raise ValueError(
             "--lock_mask predicted_contact requires a checkpoint with a contact head"
         )
@@ -272,7 +296,27 @@ def main() -> None:
             window_masks = {
                 name: mask[start:end] for name, mask in full_masks.items()
             }
-            if "contact_logits" in pred:
+            with torch.no_grad():
+                decoded_body, _ = ctx.kin.forward_kinematics(wp, wq, pred["dof_pos"])
+            window_masks["decoded_height"] = detect_contact_height_hysteresis(
+                decoded_body[:, foot_idx, :], enter_height=0.03, exit_height=0.05
+            )
+            if mask_model is not None:
+                with torch.no_grad():
+                    z_m = mask_model.encode(feats, h_static, h_adj)
+                    pred_m = mask_model.decoder(
+                        z_m,
+                        ctx.static,
+                        ctx.adj,
+                        mask_model.embodiment_encoder(ctx.static),
+                        ctx.kin.graph,
+                    )
+                window_masks["predicted_contact"] = predicted_contact_mask(
+                    pred_m["contact_logits"],
+                    foot_idx,
+                    probability_threshold=args.contact_probability_threshold,
+                )
+            elif "contact_logits" in pred:
                 window_masks["predicted_contact"] = predicted_contact_mask(
                     pred["contact_logits"],
                     foot_idx,
@@ -412,6 +456,11 @@ def main() -> None:
                 "predicted_contact": (
                     "decoder sigmoid probability"
                     f">={args.contact_probability_threshold:g}"
+                    + (f" from mask_ckpt {args.mask_ckpt}" if args.mask_ckpt else "")
+                ),
+                "decoded_height": (
+                    "height hysteresis enter=0.03m, exit=0.05m on the decoded feet "
+                    "(window-local ground)"
                 ),
             },
             "contact_probability_threshold": args.contact_probability_threshold,
