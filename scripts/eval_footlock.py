@@ -11,6 +11,7 @@ The result diagnoses the DLS foot-lock heuristic; it is not the full windowed C6
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import pathlib
 import sys
@@ -41,6 +42,10 @@ from snmr.metrics import (  # noqa: E402
 )
 from snmr.model import _adjacency  # noqa: E402
 from snmr.paths import data_root  # noqa: E402
+from snmr.projection import (  # noqa: E402
+    WindowedProjectionConfig,
+    windowed_contact_projection,
+)
 
 from benchmark import (  # noqa: E402
     _aggregate_rows,
@@ -57,6 +62,12 @@ def main() -> None:
     ap.add_argument("--clips", nargs="+", default=VAL_CLIPS)
     ap.add_argument("--window", type=int, default=192)
     ap.add_argument("--windows_per_clip", type=int, default=6)
+    ap.add_argument(
+        "--method",
+        choices=["framewise", "windowed"],
+        default="framewise",
+        help="framewise E26 DLS or joint temporal C6 projection",
+    )
     ap.add_argument("--sigmas", nargs="+", type=float, default=[0.0, 1.0, 2.0])
     ap.add_argument("--lock_iters", type=int, default=12)
     ap.add_argument("--lock_step_scale", type=float, default=0.5)
@@ -64,6 +75,21 @@ def main() -> None:
     ap.add_argument("--lock_blend", type=int, default=2)
     ap.add_argument("--lock_merge_gap", type=int, default=6)
     ap.add_argument("--lock_extend", type=int, default=2)
+    ap.add_argument("--projection_iters", type=int, default=30)
+    ap.add_argument("--projection_history_size", type=int, default=10)
+    ap.add_argument("--projection_lr", type=float, default=1.0)
+    ap.add_argument("--projection_stance_weight", type=float, default=1000.0)
+    ap.add_argument("--projection_deviation_weight", type=float, default=0.1)
+    ap.add_argument("--projection_velocity_weight", type=float, default=0.5)
+    ap.add_argument("--projection_acceleration_weight", type=float, default=1.0)
+    ap.add_argument("--projection_root_translation_bound", type=float, default=0.04)
+    ap.add_argument("--projection_root_yaw_bound", type=float, default=0.12)
+    ap.add_argument("--projection_joint_delta_bound", type=float, default=0.35)
+    ap.add_argument("--projection_merge_gap", type=int, default=0)
+    ap.add_argument("--projection_extend", type=int, default=0)
+    ap.add_argument("--projection_min_stance_frames", type=int, default=2)
+    ap.add_argument("--projection_tolerance_grad", type=float, default=1e-7)
+    ap.add_argument("--projection_tolerance_change", type=float, default=1e-9)
     ap.add_argument(
         "--lock_mask",
         choices=["source_contact", "source_height", "teacher_height"],
@@ -78,6 +104,23 @@ def main() -> None:
     )
     ap.add_argument("--overwrite", action="store_true")
     args = ap.parse_args()
+    projection_config = WindowedProjectionConfig(
+        max_iterations=args.projection_iters,
+        history_size=args.projection_history_size,
+        learning_rate=args.projection_lr,
+        stance_weight=args.projection_stance_weight,
+        deviation_weight=args.projection_deviation_weight,
+        velocity_weight=args.projection_velocity_weight,
+        acceleration_weight=args.projection_acceleration_weight,
+        root_translation_bound_m=args.projection_root_translation_bound,
+        root_yaw_bound_rad=args.projection_root_yaw_bound,
+        joint_delta_bound_rad=args.projection_joint_delta_bound,
+        merge_gap=args.projection_merge_gap,
+        extend=args.projection_extend,
+        min_stance_frames=args.projection_min_stance_frames,
+        tolerance_grad=args.projection_tolerance_grad,
+        tolerance_change=args.projection_tolerance_change,
+    )
 
     outp = pathlib.Path(args.out)
     if outp.exists() and not args.overwrite:
@@ -98,8 +141,18 @@ def main() -> None:
                 "sha256": sha256_file(__file__),
             },
             "solver": {
-                "path": str((ROOT / "snmr" / "footlock.py").resolve()),
-                "sha256": sha256_file(ROOT / "snmr" / "footlock.py"),
+                "path": str(
+                    (
+                        ROOT
+                        / "snmr"
+                        / ("footlock.py" if args.method == "framewise" else "projection.py")
+                    ).resolve()
+                ),
+                "sha256": sha256_file(
+                    ROOT
+                    / "snmr"
+                    / ("footlock.py" if args.method == "framewise" else "projection.py")
+                ),
             },
         },
     }
@@ -117,8 +170,13 @@ def main() -> None:
     feet = FOOT_BODIES[args.robot]
     foot_idx = [ctx.kin.body_index(name) for name in feet]
 
-    variants = ["raw"] + [f"lock_s{sig:g}" for sig in args.sigmas]
+    variants = (
+        ["raw"] + [f"lock_s{sig:g}" for sig in args.sigmas]
+        if args.method == "framewise"
+        else ["raw", "windowed"]
+    )
     rows: dict[str, list[tuple[str, dict]]] = {v: [] for v in variants}
+    projection_diagnostics = []
 
     for clip in args.clips:
         pair = load_pair_npz(str(pairs_root / args.robot / f"{clip}.npz"))
@@ -181,18 +239,26 @@ def main() -> None:
             }
             teacher_feet = teacher_feet_all[start:end]
 
-            def score(dof: torch.Tensor) -> dict:
+            def score(
+                candidate_root_pos: torch.Tensor,
+                candidate_root_quat: torch.Tensor,
+                dof: torch.Tensor,
+            ) -> dict:
                 metrics = compute_metrics(
                     ctx.kin,
-                    wp,
-                    wq,
+                    candidate_root_pos,
+                    candidate_root_quat,
                     dof,
                     fps,
                     feet,
                     reference=reference,
                 ).as_dict()
                 with torch.no_grad():
-                    body, _ = ctx.kin.forward_kinematics(wp, wq, dof)
+                    body, _ = ctx.kin.forward_kinematics(
+                        candidate_root_pos,
+                        candidate_root_quat,
+                        dof,
+                    )
                 candidate_feet = body[:, foot_idx, :]
                 for mask_name, mask in window_masks.items():
                     contact = contact_motion_metrics(
@@ -204,24 +270,49 @@ def main() -> None:
                     metrics.update(_flatten_contact_metrics(mask_name, contact, feet))
                 return metrics
 
-            rows["raw"].append((clip, score(pred["dof_pos"])))
-            for sig in args.sigmas:
-                locked = foot_lock_masked(
+            rows["raw"].append((clip, score(wp, wq, pred["dof_pos"])))
+            if args.method == "framewise":
+                for sig in args.sigmas:
+                    locked = foot_lock_masked(
+                        ctx.kin,
+                        wp,
+                        wq,
+                        pred["dof_pos"],
+                        feet,
+                        window_masks[args.lock_mask],
+                        iters=args.lock_iters,
+                        lr=args.lock_step_scale,
+                        damping=args.lock_damping,
+                        blend=args.lock_blend,
+                        smooth_sigma=sig,
+                        merge_gap=args.lock_merge_gap,
+                        extend=args.lock_extend,
+                    )
+                    rows[f"lock_s{sig:g}"].append((clip, score(wp, wq, locked)))
+            else:
+                projected = windowed_contact_projection(
                     ctx.kin,
                     wp,
                     wq,
                     pred["dof_pos"],
                     feet,
                     window_masks[args.lock_mask],
-                    iters=args.lock_iters,
-                    lr=args.lock_step_scale,
-                    damping=args.lock_damping,
-                    blend=args.lock_blend,
-                    smooth_sigma=sig,
-                    merge_gap=args.lock_merge_gap,
-                    extend=args.lock_extend,
+                    config=projection_config,
                 )
-                rows[f"lock_s{sig:g}"].append((clip, score(locked)))
+                rows["windowed"].append((
+                    clip,
+                    score(
+                        projected.root_pos,
+                        projected.root_quat,
+                        projected.dof_pos,
+                    ),
+                ))
+                projection_diagnostics.append({
+                    "clip": clip,
+                    "start": start,
+                    "end": end,
+                    **projected.diagnostics,
+                })
             print(f"{clip} window {start}:{end} complete", flush=True)
 
     aggregates = {}
@@ -271,6 +362,7 @@ def main() -> None:
             "window": args.window,
             "windows_per_clip_max": args.windows_per_clip,
             "num_windows": len(rows["raw"]),
+            "method": args.method,
             "lock_mask": args.lock_mask,
             "lock_mask_definitions": {
                 "source_contact": "source height<0.08m and speed<0.24m/s",
@@ -285,7 +377,12 @@ def main() -> None:
                 "merge_gap": args.lock_merge_gap,
                 "extend": args.lock_extend,
                 "smooth_sigmas": args.sigmas,
-            },
+            } if args.method == "framewise" else None,
+            "projection_parameters": (
+                dataclasses.asdict(projection_config)
+                if args.method == "windowed"
+                else None
+            ),
             "primary_endpoint": "teacher_height_stance_speed_ms",
             "bootstrap_samples": args.bootstrap_samples,
             "bootstrap_seed": args.bootstrap_seed,
@@ -294,6 +391,7 @@ def main() -> None:
         "distributions": distributions,
         "per_clip": per_clip,
         "decisions": decisions,
+        "projection_diagnostics": projection_diagnostics,
     }
     outp.parent.mkdir(parents=True, exist_ok=True)
     tmp = outp.with_suffix(outp.suffix + ".tmp")
