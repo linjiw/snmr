@@ -500,11 +500,11 @@ and swing contributions. C5 is run only if component results justify it.
 
 ### Gate 1 execution plan
 
-**Status:** next active experiment. The sequence is diagnostic calibration, a seed-0 screen, exact
-benchmarking, then replication. A 50k run must not start before its diagnostic arm passes.
+**Status:** diagnostic calibration is complete; the accepted seed-0 screen is next, followed by
+exact benchmarking and replication. A 50k run must not start before its diagnostic arm passes.
 
-**Execution update (2026-07-14):** the factorized C0-C4 calibration remains next and has not been
-replaced by a post-process result. A source-contact-mask, root-fixed DLS heuristic was evaluated on
+**Execution update (2026-07-14):** the factorized C0-C4 calibration was not replaced by a
+post-process result. Before calibration, a source-contact-mask, root-fixed DLS heuristic was evaluated on
 the frozen 42-window protocol (`runs/skate_structure/footlock_dls_grid_full.json`). Its best
 unsmoothed arm reduced teacher-height stance speed from `0.502` to `0.119 m/s` and source-contact
 speed from `0.341` to `0.077 m/s`, with MPJPE `3.66` to `3.86 cm`; all physical guards passed
@@ -537,8 +537,14 @@ teacher-height oracle, the same committed solver reaches `0.0056 m/s`, MPJPE `3.
 `697 rad/s^3`, with every physical guard passing. Source-mask windows already saturate the bounded
 root correction and all reach the iteration cap, so loosening constraints would worsen an MPJPE
 guard that already fails. The dominant deployable C6 blocker is now contact-mask precision and
-coverage; C0-C4 remain necessary, and a learned mask or physics-repaired supervision is preferable
-to another post-process bound sweep.
+coverage; this made the factorized calibration necessary, and a learned mask or physics-repaired
+supervision is preferable to another post-process bound sweep.
+
+The frozen C0-C4 diagnostic calibration then completed at revision `4929924`. C0 passed. C1's
+provisional BCE weight `1.0` failed and its one deterministic retry at `0.25` passed. C3 and C4
+passed unchanged. C2 exhausted its one retry: EDGE passed after adjustment, but BCE remained above
+band, so the entire bundled C2 arm is dropped rather than tuned again. The accepted 50k screen is
+therefore C0, C1, C3, and C4.
 
 #### Frozen comparison protocol
 
@@ -676,10 +682,27 @@ start a fresh `*-r1` directory, and rerun the same 5k diagnostic. This is scale 
 quality-based weight search. Drop an arm that still fails. Before full training, add the accepted
 weights and diagnostic statistics to this document so the full commands are preregistered.
 
+**Calibration decision (2026-07-14).** All values use the final five events:
+
+| Arm/term | Weight | Median ratio | p90 ratio | Median cosine | Decision |
+|---|---:|---:|---:|---:|---|
+| C0 | none | — | — | — | Pass |
+| C1 BCE, initial | `1.0` | 1.704 | 5.628 | -0.003 | Recalibrate |
+| C1 BCE, r1 | `0.25` | 0.368 | 0.606 | 0.007 | **Accept** |
+| C2 BCE, initial | `1.0` | 3.212 | 18.015 | -0.023 | Recalibrate |
+| C2 EDGE, initial | `0.03` | 0.423 | 2.114 | -0.062 | Recalibrate |
+| C2 BCE, r1 | `0.25` | 0.729 | 2.008 | -0.042 | Fail |
+| C2 EDGE, r1 | `0.021268901529295597` | 0.222 | 0.588 | 0.057 | Pass |
+| C3 stance velocity | `0.03` | 0.399 | 0.757 | 0.091 | **Accept** |
+| C4 phase-balanced velocity | `0.05` | 0.414 | 0.568 | 0.028 | **Accept** |
+
+C2 is dropped because every active term in an arm must pass and its BCE term failed after the
+single permitted retry. Do not run the analyzer's second suggested BCE value `0.0625`; that would
+be a quality-independent but still unregistered second recalibration.
+
 #### Stage 2: seed-0 full screen
 
-If all provisional weights pass, run these commands unchanged. If Stage 1 changes a weight, replace
-only that accepted value below and commit the decision before launching.
+The commands below contain the accepted Stage 1 weights. C2 is intentionally absent.
 
 ```bash
 set -euo pipefail
@@ -715,13 +738,8 @@ test ! -e runs/gate1_g1/screen
   --out runs/gate1_g1/screen/c0_seed0
 
 "$PY" scripts/train_phase1.py "${COMMON[@]}" "${FULL[@]}" \
-  --contact_bce_weight 1.0 \
+  --contact_bce_weight 0.25 \
   --out runs/gate1_g1/screen/c1_bce_seed0
-
-"$PY" scripts/train_phase1.py "${COMMON[@]}" "${FULL[@]}" \
-  --contact_bce_weight 1.0 \
-  --edge_velocity_weight 0.03 \
-  --out runs/gate1_g1/screen/c2_edge_seed0
 
 "$PY" scripts/train_phase1.py "${COMMON[@]}" "${FULL[@]}" \
   --stance_velocity_weight 0.03 \
@@ -749,7 +767,6 @@ PY=/home/ec2-user/work/retarget/.venv-snmr/bin/python
 for ARM in \
   c0_seed0 \
   c1_bce_seed0 \
-  c2_edge_seed0 \
   c3_stance_seed0 \
   c4_teacher_velocity_seed0
 do

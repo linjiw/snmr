@@ -71,6 +71,8 @@ def test_gate1_diagnostic_contract_passes_control_and_factorized_terms(tmp_path)
     report = gate1.analyze_root(tmp_path)
 
     assert report["passed"]
+    assert report["calibration_complete"]
+    assert report["status"] == "pass"
     assert report["revision"] == "abc123"
     edge = next(arm for arm in report["arms"] if arm["arm"] == "c2_edge_seed0")[
         "terms"
@@ -113,6 +115,7 @@ def test_gate1_diagnostic_contract_accepts_deterministic_recalibration(tmp_path)
     report = gate1.analyze_root(tmp_path)
 
     assert report["passed"]
+    assert report["calibration_complete"]
     assert report["effective_arms"]["c3_stance_seed0"] == "c3_stance_seed0-r1"
 
 
@@ -135,6 +138,33 @@ def test_gate1_diagnostic_contract_ignores_python_cache_directory(tmp_path):
 
     assert report["passed"]
     assert "__pycache__" not in {arm["arm"] for arm in report["arms"]}
+
+
+def test_gate1_diagnostic_contract_completes_with_failed_retry_dropped(tmp_path):
+    _write_run(tmp_path, "c0_seed0", {})
+    _write_run(tmp_path, "c1_bce_seed0", {"contact_bce": (1.0, 0.1)})
+    _write_run(tmp_path, "c2_edge_seed0", {
+        "contact_bce": (1.0, 2.0),
+        "edge_velocity": (0.03, 0.3),
+    })
+    _write_run(tmp_path, "c2_edge_seed0-r1", {
+        "contact_bce": (0.25, 0.7),
+        "edge_velocity": (0.03, 0.3),
+    })
+    _write_run(tmp_path, "c3_stance_seed0", {
+        "teacher_stance_velocity": (0.03, 0.3),
+    })
+    _write_run(tmp_path, "c4_teacher_velocity_seed0", {
+        "teacher_velocity": (0.05, 0.3),
+    })
+
+    report = gate1.analyze_root(tmp_path)
+
+    assert not report["passed"]
+    assert report["calibration_complete"]
+    assert report["status"] == "complete_with_dropped_arms"
+    assert report["dropped_arms"] == ["c2_edge_seed0"]
+    assert report["recalibration_required_arms"] == []
 
 
 def test_gate1_diagnostic_contract_rejects_nondeterministic_recalibration(tmp_path):

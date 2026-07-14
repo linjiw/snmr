@@ -14,6 +14,8 @@ Date: 2026-07-10 · Status: **Historical design and implementation record.**
 > source mask but fails speed and MPJPE, while the same solver reaches `0.0056 m/s` with all guards
 > under a teacher-mask oracle. A matched three-clip, seed-0 WBT pilot shows no catastrophic SNMR
 > regression but is too small for non-inferiority or benefit; two more training seeds remain.
+> Gate 1 calibration accepts C1 BCE `0.25`, C3 stance `0.03`, and C4 phase-balanced velocity
+> `0.05`; C2 is dropped after its only retry still leaves BCE above the gradient band.
 > The shared-model, unseen-target, representation, temporal, and throughput claims remain bounded
 > by that audit.
 

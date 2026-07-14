@@ -352,10 +352,21 @@ post-process parameter sweep.
 ### GPU queue (2026-07-14)
 1. E25 w10.0 complete; matched result and verdict recorded above.
 2. WBT seed-0 pilot complete; protocol passed and the descriptive verdict is recorded above.
-3. Factorized contact calibration C0–C4 (Gate 1) is the next active block from one fixed clean
-   revision.
+3. Gate 1 calibration complete: C0/C1/C3/C4 accepted, C2 dropped after its only retry. The
+   preregistered 50k seed-0 screen is next.
    `zr_decode_prob` remains a later, separate Gate 4 experiment.
 CPU: E26b DLS grid complete; see above.
+
+### E30 — Gate 1 factorized calibration — **COMPLETE WITH C2 DROPPED**
+Frozen revision `4929924`, G1, seed 0, 5k steps, ten diagnostics per arm; decision uses the final
+five shared-trunk gradient ratios. C0 passed. C1 BCE `1.0` failed (`median=1.704`, `p90=5.628`);
+its deterministic retry at `0.25` passed (`0.368`, `0.606`). C3 stance velocity `0.03` passed
+(`0.399`, `0.757`). C4 phase-balanced teacher velocity `0.05` passed (`0.414`, `0.568`).
+
+C2's initial BCE/EDGE ratios were `3.212/18.015` and `0.423/2.114`. Its only retry used BCE
+`0.25` and EDGE `0.021268901529295597`; EDGE passed (`0.222/0.588`) but BCE still failed
+(`0.729/2.008`). Per protocol, **drop C2 and do not try the newly suggested BCE `0.0625`**.
+The accepted seed-0 screen is C0, C1 BCE `0.25`, C3 `0.03`, and C4 `0.05`.
 
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`

@@ -1,0 +1,358 @@
+{
+  "root": "runs/gate1_g1/diagnostics",
+  "passed": false,
+  "calibration_complete": true,
+  "status": "complete_with_dropped_arms",
+  "cross_arm_errors": [],
+  "revision": "4929924d6147b131f601ab5f6ac238a0fa45bae9",
+  "effective_arms": {
+    "c0_seed0": "c0_seed0",
+    "c1_bce_seed0": "c1_bce_seed0-r1",
+    "c2_edge_seed0": "c2_edge_seed0-r1",
+    "c3_stance_seed0": "c3_stance_seed0",
+    "c4_teacher_velocity_seed0": "c4_teacher_velocity_seed0"
+  },
+  "accepted_arms": [
+    "c0_seed0",
+    "c1_bce_seed0",
+    "c3_stance_seed0",
+    "c4_teacher_velocity_seed0"
+  ],
+  "dropped_arms": [
+    "c2_edge_seed0"
+  ],
+  "recalibration_required_arms": [],
+  "arms": [
+    {
+      "arm": "c0_seed0",
+      "passed": true,
+      "errors": [],
+      "event_count": 10,
+      "final_steps": [
+        3000,
+        3500,
+        4000,
+        4500,
+        5000
+      ],
+      "contact_support_events": 5,
+      "revision": "4929924d6147b131f601ab5f6ac238a0fa45bae9",
+      "terms": {}
+    },
+    {
+      "arm": "c1_bce_seed0",
+      "passed": false,
+      "errors": [
+        "contact_bce: median ratio 1.70423 outside [0.03, 0.5]",
+        "contact_bce: p90 ratio 5.62819 exceeds 1.0"
+      ],
+      "event_count": 10,
+      "final_steps": [
+        3000,
+        3500,
+        4000,
+        4500,
+        5000
+      ],
+      "contact_support_events": 5,
+      "revision": "4929924d6147b131f601ab5f6ac238a0fa45bae9",
+      "terms": {
+        "contact_bce": {
+          "kind": "bce",
+          "weight": 1.0,
+          "ratios": [
+            1.704232679022163,
+            5.800101250488784,
+            0.944088487283891,
+            1.1532641819667608,
+            5.370325957371225
+          ],
+          "median_ratio": 1.704232679022163,
+          "p90_ratio": 5.628191133241761,
+          "distill_cosines": [
+            0.041148225717231715,
+            -0.04872584331399006,
+            0.07150753128657243,
+            -0.0033763066463590734,
+            -0.044718893058286364
+          ],
+          "median_distill_cosine": -0.0033763066463590734,
+          "passed": false,
+          "errors": [
+            "median ratio 1.70423 outside [0.03, 0.5]",
+            "p90 ratio 5.62819 exceeds 1.0"
+          ],
+          "suggested_recalibrated_weight": 0.25
+        }
+      }
+    },
+    {
+      "arm": "c1_bce_seed0-r1",
+      "passed": true,
+      "errors": [],
+      "event_count": 10,
+      "final_steps": [
+        3000,
+        3500,
+        4000,
+        4500,
+        5000
+      ],
+      "contact_support_events": 5,
+      "revision": "4929924d6147b131f601ab5f6ac238a0fa45bae9",
+      "terms": {
+        "contact_bce": {
+          "kind": "bce",
+          "weight": 0.25,
+          "ratios": [
+            0.7454616586455726,
+            0.26245471582841334,
+            0.19973618289026118,
+            0.39602677567768785,
+            0.36772564759605014
+          ],
+          "median_ratio": 0.36772564759605014,
+          "p90_ratio": 0.6056877054584187,
+          "distill_cosines": [
+            -0.31187079964063397,
+            0.09182053380568157,
+            0.08604027205015004,
+            0.007132013875105207,
+            -0.030557793734159847
+          ],
+          "median_distill_cosine": 0.007132013875105207,
+          "passed": true,
+          "errors": [],
+          "suggested_recalibrated_weight": null
+        }
+      }
+    },
+    {
+      "arm": "c2_edge_seed0",
+      "passed": false,
+      "errors": [
+        "contact_bce: median ratio 3.2118 outside [0.03, 0.5]",
+        "contact_bce: p90 ratio 18.0147 exceeds 1.0",
+        "edge_velocity: p90 ratio 2.11355 exceeds 2.0"
+      ],
+      "event_count": 10,
+      "final_steps": [
+        3000,
+        3500,
+        4000,
+        4500,
+        5000
+      ],
+      "contact_support_events": 5,
+      "revision": "4929924d6147b131f601ab5f6ac238a0fa45bae9",
+      "terms": {
+        "contact_bce": {
+          "kind": "bce",
+          "weight": 1.0,
+          "ratios": [
+            1.6892140056369576,
+            5.9335753893120255,
+            1.7294684875369024,
+            3.2117968379371478,
+            26.068779625499374
+          ],
+          "median_ratio": 3.2117968379371478,
+          "p90_ratio": 18.014697931024436,
+          "distill_cosines": [
+            -0.022773463502202985,
+            0.07752265796371867,
+            0.12739747168207471,
+            -0.026498969651462083,
+            -0.0225037268465847
+          ],
+          "median_distill_cosine": -0.0225037268465847,
+          "passed": false,
+          "errors": [
+            "median ratio 3.2118 outside [0.03, 0.5]",
+            "p90 ratio 18.0147 exceeds 1.0"
+          ],
+          "suggested_recalibrated_weight": 0.25
+        },
+        "edge_velocity": {
+          "kind": "movement",
+          "weight": 0.03,
+          "ratios": [
+            0.4231530240338684,
+            0.19388680786339302,
+            0.33373279285858487,
+            2.482703439234098,
+            1.5598143490817113
+          ],
+          "median_ratio": 0.4231530240338684,
+          "p90_ratio": 2.113547803173143,
+          "distill_cosines": [
+            -0.20976440511017325,
+            -0.06222908500306392,
+            0.13915177662468647,
+            -0.19176514670794956,
+            0.057879294445548235
+          ],
+          "median_distill_cosine": -0.06222908500306392,
+          "passed": false,
+          "errors": [
+            "p90 ratio 2.11355 exceeds 2.0"
+          ],
+          "suggested_recalibrated_weight": 0.021268901529295597
+        }
+      }
+    },
+    {
+      "arm": "c2_edge_seed0-r1",
+      "passed": false,
+      "errors": [
+        "contact_bce: median ratio 0.728697 outside [0.03, 0.5]",
+        "contact_bce: p90 ratio 2.00769 exceeds 1.0"
+      ],
+      "event_count": 10,
+      "final_steps": [
+        3000,
+        3500,
+        4000,
+        4500,
+        5000
+      ],
+      "contact_support_events": 5,
+      "revision": "4929924d6147b131f601ab5f6ac238a0fa45bae9",
+      "terms": {
+        "contact_bce": {
+          "kind": "bce",
+          "weight": 0.25,
+          "ratios": [
+            0.7286972944072541,
+            2.5170374327506027,
+            0.433128085201131,
+            0.6086562718872955,
+            1.2436609167156096
+          ],
+          "median_ratio": 0.7286972944072541,
+          "p90_ratio": 2.0076868263366054,
+          "distill_cosines": [
+            -0.05963284391226942,
+            -0.06517537513611563,
+            0.02030112602475431,
+            -0.04232948148494665,
+            -0.0020685151523449786
+          ],
+          "median_distill_cosine": -0.04232948148494665,
+          "passed": false,
+          "errors": [
+            "median ratio 0.728697 outside [0.03, 0.5]",
+            "p90 ratio 2.00769 exceeds 1.0"
+          ],
+          "suggested_recalibrated_weight": 0.0625
+        },
+        "edge_velocity": {
+          "kind": "movement",
+          "weight": 0.021268901529295597,
+          "ratios": [
+            0.4749427467748785,
+            0.049751358850993514,
+            0.14868657142799696,
+            0.22181100434038983,
+            0.6627437115690725
+          ],
+          "median_ratio": 0.22181100434038983,
+          "p90_ratio": 0.587623325651395,
+          "distill_cosines": [
+            0.1183228653017064,
+            0.23628622124004395,
+            -0.1414216300213917,
+            0.05732446216321244,
+            -0.31531025092099274
+          ],
+          "median_distill_cosine": 0.05732446216321244,
+          "passed": true,
+          "errors": [],
+          "suggested_recalibrated_weight": null
+        }
+      }
+    },
+    {
+      "arm": "c3_stance_seed0",
+      "passed": true,
+      "errors": [],
+      "event_count": 10,
+      "final_steps": [
+        3000,
+        3500,
+        4000,
+        4500,
+        5000
+      ],
+      "contact_support_events": 5,
+      "revision": "4929924d6147b131f601ab5f6ac238a0fa45bae9",
+      "terms": {
+        "teacher_stance_velocity": {
+          "kind": "movement",
+          "weight": 0.03,
+          "ratios": [
+            0.8940764148001638,
+            0.027079588658448655,
+            0.1762637003285067,
+            0.5525621667244686,
+            0.39933329038125187
+          ],
+          "median_ratio": 0.39933329038125187,
+          "p90_ratio": 0.7574707155698857,
+          "distill_cosines": [
+            -0.08889385686358023,
+            0.14966642818095421,
+            -0.3107280975191491,
+            0.1366183886853374,
+            0.09085150898107232
+          ],
+          "median_distill_cosine": 0.09085150898107232,
+          "passed": true,
+          "errors": [],
+          "suggested_recalibrated_weight": null
+        }
+      }
+    },
+    {
+      "arm": "c4_teacher_velocity_seed0",
+      "passed": true,
+      "errors": [],
+      "event_count": 10,
+      "final_steps": [
+        3000,
+        3500,
+        4000,
+        4500,
+        5000
+      ],
+      "contact_support_events": 5,
+      "revision": "4929924d6147b131f601ab5f6ac238a0fa45bae9",
+      "terms": {
+        "teacher_velocity": {
+          "kind": "movement",
+          "weight": 0.05,
+          "ratios": [
+            0.5954060637703457,
+            0.07050952045762199,
+            0.09026946942440037,
+            0.4135988937943187,
+            0.526179362658511
+          ],
+          "median_ratio": 0.4135988937943187,
+          "p90_ratio": 0.5677153833256118,
+          "distill_cosines": [
+            0.27354094917723165,
+            0.020573981962439113,
+            0.028271568386210016,
+            0.2789191250313114,
+            -0.1823624777900447
+          ],
+          "median_distill_cosine": 0.028271568386210016,
+          "passed": true,
+          "errors": [],
+          "suggested_recalibrated_weight": null
+        }
+      }
+    }
+  ]
+}

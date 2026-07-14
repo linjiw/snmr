@@ -1,0 +1,18 @@
+arm	term	weight	median_ratio	p90_ratio	result	recalibrated_weight
+c0_seed0	-	-	-	-	PASS	-
+c1_bce_seed0	contact_bce	1.0	1.704232679022163	5.628191133241761	FAIL	0.25
+c1_bce_seed0-r1	contact_bce	0.25	0.36772564759605014	0.6056877054584187	PASS	-
+c2_edge_seed0	contact_bce	1.0	3.2117968379371478	18.014697931024436	FAIL	0.25
+c2_edge_seed0	edge_velocity	0.03	0.4231530240338684	2.113547803173143	FAIL	0.021268901529295597
+c2_edge_seed0-r1	contact_bce	0.25	0.7286972944072541	2.0076868263366054	FAIL	0.0625
+c2_edge_seed0-r1	edge_velocity	0.021268901529295597	0.22181100434038983	0.587623325651395	FAIL	-
+c3_stance_seed0	teacher_stance_velocity	0.03	0.39933329038125187	0.7574707155698857	PASS	-
+c4_teacher_velocity_seed0	teacher_velocity	0.05	0.4135988937943187	0.5677153833256118	PASS	-
+ERROR: c1_bce_seed0: contact_bce: median ratio 1.70423 outside [0.03, 0.5]
+ERROR: c1_bce_seed0: contact_bce: p90 ratio 5.62819 exceeds 1.0
+ERROR: c2_edge_seed0: contact_bce: median ratio 3.2118 outside [0.03, 0.5]
+ERROR: c2_edge_seed0: contact_bce: p90 ratio 18.0147 exceeds 1.0
+ERROR: c2_edge_seed0: edge_velocity: p90 ratio 2.11355 exceeds 2.0
+ERROR: c2_edge_seed0-r1: contact_bce: median ratio 0.728697 outside [0.03, 0.5]
+ERROR: c2_edge_seed0-r1: contact_bce: p90 ratio 2.00769 exceeds 1.0
+overall: COMPLETE_WITH_DROPPED_ARMS
