@@ -988,6 +988,16 @@ only by run name, motion file, and training seed. It reports all nine paired cli
 their descriptive means/sign counts. Training curves are not deployment evaluation: even after
 this replication, non-inferiority requires fixed-seed policy rollouts and the Stage C endpoints.
 
+**Replication execution result (2026-07-14):** all 18 runs pass the frozen config, event-count,
+checkpoint, and finite-metric contract. Across the nine clip/training-seed pairs, pooled final-100
+means are reward `0.655 -> 0.658` (SNMR favorable in 6/9), episode length
+`39.37 -> 39.63` steps (6/9), joint-position error `1.680 -> 1.615 rad` (8/9),
+reference-position error `0.267 -> 0.272 m` (1/9), and body-position error
+`6.942 -> 6.945 m` (2/9). The training curves therefore show a repeatable joint-space advantage
+and small reference-space disadvantage, with no large aggregate reward/survival shift. They remain
+descriptive: do not label this result non-inferior or beneficial before the independent rollout
+protocol below.
+
 **Independent pilot evaluation frozen before reading the replication result (2026-07-14):**
 evaluate every final `model_00999.pt` with Holosoma revision
 `eebdcf428d6ff6b17113c221fcc42a9e51168dc2`. For each of the 18 policies, use evaluation seeds

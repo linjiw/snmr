@@ -433,6 +433,24 @@ study cannot return a non-inferiority verdict. This 5,400-rollout experiment can
 conclusion only for the three pilot clips; Stage C still requires 15-21 clips. Protocol:
 `runs/wbt_independent_eval_protocol.sh`.
 
+### E33 - WBT three-seed training replication - **COMPLETE, DESCRIPTIVE ONLY**
+All 18 matched GMR/SNMR runs pass the frozen artifact contract: 1000 finite scalar events,
+`model_00999.pt`, and resolved configs differing only in run name, motion source, and training
+seed. Across nine clip/seed pairs, pooled final-100 means are:
+
+| Metric | GMR | SNMR | Favorable pairs |
+|---|---:|---:|---:|
+| Reward | `0.655` | `0.658` | `6/9` |
+| Episode length | `39.37` | `39.63` steps | `6/9` |
+| Joint-position error | `1.680` | `1.615 rad` | `8/9` |
+| Reference-position error | `0.267` | `0.272 m` | `1/9` |
+| Body-position error | `6.942` | `6.945 m` | `2/9` |
+
+SNMR has a consistent joint-space advantage and small reference-space disadvantage, without a
+large aggregate reward or episode-length shift. These are training curves, so E33 completes the
+training-seed pilot but makes no non-inferiority or benefit claim. Run the frozen independent
+policy evaluation next.
+
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`
   wired into train_phase2 (smoke-tested); fold p≈0.3 into the next shared retrain (can combine

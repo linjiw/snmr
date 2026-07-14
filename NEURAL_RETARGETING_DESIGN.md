@@ -12,8 +12,12 @@ Date: 2026-07-10 · Status: **Historical design and implementation record.**
 > factorized Gate 1 contact study and matched Gate 2 WBT validation. Framewise DLS exposes a
 > speed-versus-jerk Pareto. A full temporal C6 projection reaches `0.099 m/s` with the deployable
 > source mask but fails speed and MPJPE, while the same solver reaches `0.0056 m/s` with all guards
-> under a teacher-mask oracle. A matched three-clip, seed-0 WBT pilot shows no catastrophic SNMR
-> regression but is too small for non-inferiority or benefit; two more training seeds remain.
+> under a teacher-mask oracle. The matched three-clip, three-seed WBT training pilot passes its
+> 18-run artifact contract. Final-window effects are mixed but modest: pooled SNMR reward is
+> `0.655 -> 0.658`, episode length `39.37 -> 39.63` steps, joint-position error
+> `1.680 -> 1.615 rad`, and reference-position error `0.267 -> 0.272 m`. These are training
+> curves, not policy evaluation; the preregistered 5,400-rollout fixed-policy study remains
+> required before any pilot non-inferiority claim.
 > Gate 1 calibration accepts C1 BCE `0.25`, C3 stance `0.03`, and C4 phase-balanced velocity
 > `0.05`; C2 is dropped after its only retry still leaves BCE above the gradient band. Three-seed
 > replication confirms robust favorable tradeoffs for C4 (mean speed `0.701 -> 0.264 m/s`,
