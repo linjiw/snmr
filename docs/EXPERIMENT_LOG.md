@@ -388,7 +388,8 @@ record that correction.
 
 This is a promising causal screen, not Gate 1 completion: neither seed-0 candidate reaches the
 `<=0.08 m/s` endpoint. Retrain C0, C3, and C4 from scratch at seeds 1 and 2 before making a contact
-claim.
+claim. The replication analyzer is frozen before launch: aggregate physical guards and MPJPE use
+arithmetic means over seeds 0-2, while endpoint and direction requirements count matched seeds.
 
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`

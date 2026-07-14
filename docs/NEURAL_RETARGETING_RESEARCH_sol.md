@@ -844,6 +844,13 @@ The contact mechanism passes Gate 1 only if the promoted arm:
 - retains the seed-0 physical guards above on the three-seed aggregate; and
 - improves teacher-height stance speed in the same direction for at least two of three seeds.
 
+Before replication, "three-seed aggregate" is frozen as the arithmetic mean over seeds 0-2:
+candidate mean source-contact speed must be at most `1.1x` matched C0, mean DOF jerk at most
+`1.2x`, mean penetration no more than C0 plus `0.002 m`, and mean penetration fraction no more
+than C0 plus `0.02`. Limit violations must be exactly zero in every seed. Endpoint and directional
+checks use individual matched seeds, not the mean. The absolute `4.0 cm` mean MPJPE product target
+is reported but does not replace the relative causal guard.
+
 The design's `<= 4.0 cm` MPJPE remains an absolute product target, but it is reported separately
 from the causal contact decision. Conflating it with contact would make Gate 1 impossible to
 interpret when a freshly trained C0 itself exceeds 4.0 cm.
