@@ -329,6 +329,17 @@ teacher-height labels, read out at inference) is the highest-leverage next step 
 Gate-1 C1/C2 arms AND replaces the human-flag mask in both the framewise lock and the E29
 projection.
 
+### E26d — foot-lock from the E10a PREDICTED contact head — negative, but not the final word
+(`runs/skate_structure/footlock_predicted_mask_e10a.json`; lock_mask=predicted_contact,
+threshold 0.5, E10a w0.2 ckpt — the only existing checkpoint with a trained contact head.)
+Teacher-height speed 0.874→0.314 m/s: better than nothing, far worse than the human-source mask.
+Two confounds keep this from killing the trained-head hypothesis: (a) the E10a base model is much
+weaker (raw MPJPE 7.25 cm vs E03 3.66 — its raw stance speed is 0.874 vs 0.502), so the head was
+trained on/reads a noisier decoder; (b) the head was supervised with the LEGACY speed-gated mask
+(the circular one) at bundled weight w=0.2, exactly the objective E10a showed was mis-scaled.
+A head BCE-trained with the corrected mask/normalization (Gate-1 C1-style, weight 0.25 per E30
+calibration) on the E03-class specialist is the right test before abandoning the lever.
+
 ### E29 — full temporal C6 projection — **source mask fails; teacher-mask oracle passes**
 Implementation commits `7903994` and `f6ed96a`; clean 42-window artifacts:
 `windowed_c6_{source,teacher_oracle}_velocity_full.json`. This is materially different from E26:
