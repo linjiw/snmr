@@ -300,6 +300,15 @@ hypothesis; test S2 width and S3 lightweight adapters first, then use matched tr
 whether S4 is warranted. The earlier diagnostic used training mode and only pair means; this
 revision removes dropout contamination and preserves per-window distributions.
 
+### E26c-3 — blend 3 midpoint (`footlock_dls_i12_e3_b3_source.json`)
+0.082 m/s @ jerk 857 (1.24×), MPJPE 4.04 — the Pareto is smooth in the blend knob (blend 2:
+0.068/1.35×; blend 3: 0.082/1.24×; blend 5: 0.132/1.13×); no free lunch inside the framewise
+family. Converges with E29 below on the same conclusion: **mask precision is the bottleneck for
+every correction method** → a trained contact head (decoder predict_contact supervised on
+teacher-height labels, read out at inference) is the highest-leverage next step — it serves the
+Gate-1 C1/C2 arms AND replaces the human-flag mask in both the framewise lock and the E29
+projection.
+
 ### E29 — full temporal C6 projection — **source mask fails; teacher-mask oracle passes**
 Implementation commits `7903994` and `f6ed96a`; clean 42-window artifacts:
 `windowed_c6_{source,teacher_oracle}_velocity_full.json`. This is materially different from E26:
