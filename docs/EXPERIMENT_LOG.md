@@ -428,8 +428,10 @@ seed, identical starts and keyed randomization for each GMR/SNMR pair, and termi
 captured before reset. Coprimary endpoints are completion (SNMR-minus-GMR margin `-0.05`) and
 joint-position RMSE (relative margin `+0.10`). A 10,000-replicate paired hierarchical bootstrap
 over clips, training seeds, evaluation seeds, and rollout ids must pass both confidence bounds.
-This 5,400-rollout experiment can support a conclusion only for the three pilot clips; Stage C
-still requires 15-21 clips. Protocol: `runs/wbt_independent_eval_protocol.sh`.
+Pooled GMR completion must also be at least `50%`; otherwise the control is undertrained and the
+study cannot return a non-inferiority verdict. This 5,400-rollout experiment can support a
+conclusion only for the three pilot clips; Stage C still requires 15-21 clips. Protocol:
+`runs/wbt_independent_eval_protocol.sh`.
 
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`

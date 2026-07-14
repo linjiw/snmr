@@ -21,6 +21,7 @@ HORIZON_STEPS = 500
 HORIZON_S = 10.0
 COMPLETION_MARGIN = -0.05
 JOINT_ERROR_MARGIN = 0.10
+GMR_COMPLETION_FLOOR = 0.50
 BOOTSTRAP_SEED = 20260714
 BOOTSTRAP_REPLICATES = 10_000
 PRIMARY_JOINT_METRIC = "joint_position_rmse_rad"
@@ -425,10 +426,14 @@ def analyze(rows: list[EvaluationRow]) -> dict[str, Any]:
     )
     completion_noninferior = completion_ci[0] >= COMPLETION_MARGIN
     joint_noninferior = joint_ci[1] <= JOINT_ERROR_MARGIN
-    noninferior = completion_noninferior and joint_noninferior
+    gmr_completion_mean = float(np.mean(arrays["gmr"]["completion"]))
+    assay_valid = gmr_completion_mean >= GMR_COMPLETION_FLOOR
+    noninferior = assay_valid and completion_noninferior and joint_noninferior
     completion_inferior = completion_ci[1] < COMPLETION_MARGIN
     joint_inferior = joint_ci[0] > JOINT_ERROR_MARGIN
-    if noninferior:
+    if not assay_valid:
+        verdict = "undertrained_gmr_control_on_three_clip_pilot"
+    elif noninferior:
         verdict = "noninferior_on_three_clip_pilot"
     elif completion_inferior or joint_inferior:
         verdict = "inferior_on_three_clip_pilot"
@@ -487,6 +492,12 @@ def analyze(rows: list[EvaluationRow]) -> dict[str, Any]:
             "bootstrap_seed": BOOTSTRAP_SEED,
             "completion_noninferiority_margin": COMPLETION_MARGIN,
             "joint_error_relative_noninferiority_margin": JOINT_ERROR_MARGIN,
+            "gmr_completion_assay_floor": GMR_COMPLETION_FLOOR,
+        },
+        "assay_validity": {
+            "gmr_completion_mean": gmr_completion_mean,
+            "minimum_required": GMR_COMPLETION_FLOOR,
+            "passed": assay_valid,
         },
         "primary": {
             "completion": {

@@ -1000,10 +1000,13 @@ mechanical power; values from a failure-triggering step are snapshotted before e
 The two coprimary non-inferiority margins remain the preregistered `-5` percentage points for
 SNMR-minus-GMR completion and `+10%` for SNMR-over-GMR joint-position RMSE. A fixed-seed 10,000
 replicate hierarchical bootstrap resamples clips, training seeds, evaluation seeds, and paired
-rollouts. Both confidence bounds must pass their margin. This can establish non-inferiority only
-on the three-clip pilot; it does not replace the 15-21-clip Stage C study. The executable protocol
-is `runs/wbt_independent_eval_protocol.sh`, and its analyzer rejects missing checkpoints, unmatched
-starts, malformed outcomes, incomplete metrics, and nonfinite values.
+rollouts. Both confidence bounds must pass their margin. Assay sensitivity also requires pooled
+GMR completion of at least `50%`; below that floor the control is undertrained and no
+non-inferiority verdict is allowed, regardless of relative bounds. This can establish
+non-inferiority only on the three-clip pilot; it does not replace the 15-21-clip Stage C study.
+The executable protocol is `runs/wbt_independent_eval_protocol.sh`, and its analyzer rejects
+missing checkpoints, unmatched starts, malformed outcomes, incomplete metrics, and nonfinite
+values.
 
 ### Stage B: pilot
 
