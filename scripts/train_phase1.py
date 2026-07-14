@@ -312,6 +312,9 @@ def main() -> None:
                     help="loss/gradient diagnostic interval; 0 disables")
     ap.add_argument("--no_temporal", action="store_true",
                     help="ablation: disable the temporal transformer over frame latents")
+    ap.add_argument("--temporal_positional", action="store_true",
+                    help="Gate 6: add sinusoidal positional encoding to the temporal transformer "
+                         "(the default module is content-only attention with no order signal)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
@@ -339,6 +342,7 @@ def main() -> None:
     model = SNMR(
         SNMRConfig(latent_dim=args.latent_dim, enc_hidden=args.enc_hidden,
                    dec_hidden=args.dec_hidden, use_temporal=not args.no_temporal,
+                   temporal_positional=args.temporal_positional,
                    predict_contact=(
                        (args.edge_contact and args.contact_weight > 0)
                        or args.contact_bce_weight > 0

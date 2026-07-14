@@ -146,6 +146,9 @@ class SNMRConfig:
     temporal_layers: int = 2
     temporal_heads: int = 4
     use_temporal: bool = True
+    temporal_positional: bool = False  # Gate 6: sinusoidal positions for the temporal transformer.
+    # The original module has NO order signal (pure content attention over frames) — E08's
+    # "no_temporal wins" verdict only refutes that variant, not order-aware temporal modeling.
     predict_contact: bool = False    # N6: per-foot contact head on the decoder root pathway
 
 
@@ -172,6 +175,7 @@ class MotionEncoder(nn.Module):
             self.temporal = nn.TransformerEncoder(layer, num_layers=cfg.temporal_layers)
         else:
             self.temporal = None
+        self.temporal_positional = bool(getattr(cfg, "temporal_positional", False))
 
     def forward(
         self,
@@ -187,8 +191,21 @@ class MotionEncoder(nn.Module):
         h = h.max(dim=-2).values                 # global max-pool over nodes -> (T, enc_hidden)
         z = self.to_latent(h)                    # (T, latent_dim)
         if self.temporal is not None:
+            if self.temporal_positional:
+                z = z + _sinusoidal_positions(T, z.shape[-1], z.device, z.dtype)
             z = self.temporal(z.unsqueeze(0)).squeeze(0)  # temporal mixing over frames
         return z
+
+
+def _sinusoidal_positions(T: int, dim: int, device, dtype) -> torch.Tensor:
+    """Standard fixed sinusoidal positional encoding (T, dim)."""
+    pos = torch.arange(T, device=device, dtype=dtype).unsqueeze(1)
+    half = torch.arange(0, dim, 2, device=device, dtype=dtype)
+    freq = torch.exp(-half * (torch.log(torch.tensor(10000.0, dtype=dtype)) / dim))
+    pe = torch.zeros(T, dim, device=device, dtype=dtype)
+    pe[:, 0::2] = torch.sin(pos * freq)
+    pe[:, 1::2] = torch.cos(pos * freq[: dim // 2])
+    return pe
 
 
 class EmbodimentEncoder(nn.Module):

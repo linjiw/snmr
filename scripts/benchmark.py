@@ -70,6 +70,8 @@ def load_model(ckpt_path: str, device: str) -> tuple[SNMR, dict]:
         enc_hidden=tcfg.get("enc_hidden", 128),
         dec_hidden=tcfg.get("dec_hidden", 128),
         use_temporal=any(k.startswith("encoder.temporal.") for k in sd),
+        # parameter-free option: not detectable from the state dict, must come from the config
+        temporal_positional=tcfg.get("temporal_positional", False),
         predict_contact=any(k.startswith("decoder.contact_head.") for k in sd),
     )
     model = SNMR(cfg).to(device)

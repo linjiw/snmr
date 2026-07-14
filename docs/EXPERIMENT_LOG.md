@@ -254,6 +254,24 @@ mask over-locks badly (8.47 cm MPJPE), while a sparse teacher-height oracle reac
 smoothing. This heuristic also holds root pose fixed and solves frames independently, so it is
 not the full windowed C6 projection specified by the audit.
 
+### E26c — converged DLS arms (12 iters, extend 3) — **primary endpoint reached; jerk guard open**
+(`runs/skate_structure/footlock_dls_i12_e3_{source,teacher}.json`, same 42-window protocol.)
+E26b's residual was under-convergence (4 iters) + stance under-coverage (extend 2):
+- **source_contact mask (deployable): teacher-height stance speed 0.502 → 0.068 m/s — PASSES the
+  ≤0.08 preregistered endpoint** (legacy skate 0.289→0.030); cost MPJPE 3.66→4.08 cm (relative
+  guard +0.5 cm passes; absolute ≤4.0 cm misses by 0.08) and dof jerk 693→939 (+35%, fails the
+  1.2× guard) with joint jumps 0.016→0.066 — the aggressive full-strength pinning trades contact
+  for smoothness.
+- **teacher_height mask (oracle upper bound): 0.502 → 0.047 m/s with MPJPE 3.70, jerk 727 —
+  ALL GUARDS PASS.** The oracle-vs-source gap (0.047 vs 0.068 + the jerk difference) is mask
+  precision: the dilated source mask over-covers swing frames, whose blended pinning adds edits
+  the oracle never makes.
+- Running (E26c-2): blend 5 (Kovar-style longer ease-in/out) on the source mask to buy the jerk
+  guard back without giving up the endpoint. If the trade persists, the honest report is a
+  skate-vs-jerk Pareto (σ/blend/iters knobs) + the oracle row showing the mask, not the solver,
+  is the remaining gap — and a trained contact head (UnderPressure F1 0.95 vs 0.91 heuristic)
+  as the identified next lever.
+
 ### E27 — WBT-on-MuJoCo/Warp SMOKE — **PASSED (2026-07-13)**; paired pilot QUEUED
 Dedicated env `.venv-wbt` (py3.11, torch 2.6 cu124, holosoma editable, mujoco-warp 3.10.0.2,
 warp-lang 1.15 — holosoma's ==1.10.0 pin conflicts on paper but everything imports and runs).
