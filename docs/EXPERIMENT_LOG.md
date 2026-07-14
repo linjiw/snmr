@@ -352,8 +352,7 @@ post-process parameter sweep.
 ### GPU queue (2026-07-14)
 1. E25 w10.0 complete; matched result and verdict recorded above.
 2. WBT seed-0 pilot complete; protocol passed and the descriptive verdict is recorded above.
-3. Gate 1 calibration complete: C0/C1/C3/C4 accepted, C2 dropped after its only retry. The
-   preregistered 50k seed-0 screen is next.
+3. Gate 1 seed-0 screen complete: C4 and C3 promote; matched C0/C3/C4 seeds 1-2 are next.
    `zr_decode_prob` remains a later, separate Gate 4 experiment.
 CPU: E26b DLS grid complete; see above.
 
@@ -367,6 +366,29 @@ C2's initial BCE/EDGE ratios were `3.212/18.015` and `0.423/2.114`. Its only ret
 `0.25` and EDGE `0.021268901529295597`; EDGE passed (`0.222/0.588`) but BCE still failed
 (`0.729/2.008`). Per protocol, **drop C2 and do not try the newly suggested BCE `0.0625`**.
 The accepted seed-0 screen is C0, C1 BCE `0.25`, C3 `0.03`, and C4 `0.05`.
+
+### E31 - Gate 1 seed-0 screen - **C4 AND C3 PROMOTE**
+Frozen trainer revision `4929924`, evaluator hash `76f73644...28cdd`, G1, seed 0, 50k steps and
+the fixed 42-window benchmark. All manifests and benchmarks pass the screen artifact contract.
+
+| Arm | Teacher-height speed | MPJPE | Source-contact speed | DOF jerk | Verdict |
+|---|---:|---:|---:|---:|---|
+| C0 | `0.709 m/s` | `4.71 cm` | `0.442 m/s` | `614` | control |
+| C1 BCE | `0.754 m/s` | `5.75 cm` | `0.487 m/s` | `641` | negative control |
+| C3 stance | `0.489 m/s` | `5.00 cm` | `0.299 m/s` | `588` | **promote** |
+| C4 phase-balanced | `0.270 m/s` | `3.02 cm` | `0.200 m/s` | `562` | **promote** |
+
+C3 reduces the primary endpoint by `31.0%` and C4 by `62.0%`; both improve every one of the six
+measurable clips, remain within the MPJPE guard, improve source-contact speed and jerk, preserve
+zero limit violations, and pass both penetration guards. `fight1_subject3` has zero teacher-height
+support in all arms, so its undefined speed counts conservatively as no improvement while the
+absolute five-clip rule remains unchanged. The analyzer's original all-finite assumption rejected
+this valid evaluator output; the preserved pre-fix report and regression-tested zero-support fix
+record that correction.
+
+This is a promising causal screen, not Gate 1 completion: neither seed-0 candidate reaches the
+`<=0.08 m/s` endpoint. Retrain C0, C3, and C4 from scratch at seeds 1 and 2 before making a contact
+claim.
 
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`

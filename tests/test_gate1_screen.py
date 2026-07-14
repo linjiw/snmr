@@ -49,7 +49,14 @@ def _write_arm(root, arm, summary, *, evaluator_hash="eval-sha"):
         if key != "per_clip_teacher_height_stance_speed_ms"
     }
     per_clip = {
-        clip: {"teacher_height_stance_speed_ms": value}
+        clip: (
+            {"teacher_height_contact_samples": 0.0}
+            if value is None
+            else {
+                "teacher_height_stance_speed_ms": value,
+                "teacher_height_contact_samples": 1.0,
+            }
+        )
         for clip, value in summary["per_clip_teacher_height_stance_speed_ms"].items()
     }
     benchmark = {
@@ -111,3 +118,40 @@ def test_gate1_screen_rejects_protocol_mismatch(tmp_path):
 
     assert not report["passed"]
     assert "evaluator hashes" in report["protocol_errors"][0]
+
+
+def test_gate1_screen_treats_zero_support_clip_as_no_improvement(tmp_path):
+    control = _summary(0.4)
+    c1 = _summary(0.4)
+    c3 = _summary(0.25, mpjpe=0.034, source_speed=0.31, jerk=700.0)
+    c4 = _summary(0.4)
+    unavailable_clip = screen.CLIPS[2]
+    for summary in (control, c1, c3, c4):
+        summary["per_clip_teacher_height_stance_speed_ms"][unavailable_clip] = None
+    for arm, summary in zip(screen.ARMS, (control, c1, c3, c4), strict=True):
+        _write_arm(tmp_path, arm, summary)
+
+    report = screen.analyze_screen(tmp_path)
+
+    assert report["passed"]
+    decision = report["candidate_decisions"]["c3_stance_seed0"]
+    assert decision["passed"]
+    assert decision["clip_improvements"] == 6
+    assert decision["comparable_clips"] == [
+        clip for clip in screen.CLIPS if clip != unavailable_clip
+    ]
+    assert decision["unavailable_clips"] == [unavailable_clip]
+
+
+def test_gate1_screen_rejects_malformed_per_clip_value(tmp_path):
+    for arm in screen.ARMS:
+        summary = _summary(0.4)
+        if arm == "c3_stance_seed0":
+            summary["per_clip_teacher_height_stance_speed_ms"][screen.CLIPS[0]] = "bad"
+        _write_arm(tmp_path, arm, summary)
+
+    report = screen.analyze_screen(tmp_path)
+
+    assert not report["passed"]
+    errors = report["arms"]["c3_stance_seed0"]["errors"]
+    assert any("malformed or nonfinite" in error for error in errors)

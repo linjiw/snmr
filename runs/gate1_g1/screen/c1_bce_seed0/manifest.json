@@ -1,0 +1,725 @@
+{
+  "checkpoints": [
+    {
+      "complete": true,
+      "path": "/home/ec2-user/work/retarget/snmr/runs/gate1_g1/screen/c1_bce_seed0/ckpt.pt",
+      "retained_utc": "2026-07-14T04:58:10.105645+00:00",
+      "sha256": "ac0bd64a76933184f56c0ece0b191a8ff4806408718bac8b1bb3655cea4160c6",
+      "size_bytes": 19003108,
+      "step": 50000
+    }
+  ],
+  "config": {
+    "ckpt_every": 5000,
+    "contact_bce_weight": 0.25,
+    "contact_mask": "teacher_height",
+    "contact_weight": 0.0,
+    "dec_hidden": 256,
+    "device": "cuda",
+    "diag_every": 5000,
+    "edge_contact": false,
+    "edge_velocity_weight": 0.0,
+    "enc_hidden": 256,
+    "eval_every": 5000,
+    "foot_vel_weight": 0.0,
+    "latent_dim": 128,
+    "lr": 0.0003,
+    "min_lr": 1e-05,
+    "no_temporal": false,
+    "out": "/home/ec2-user/work/retarget/snmr/runs/gate1_g1/screen/c1_bce_seed0",
+    "pairs_dir": "/home/ec2-user/work/retarget/data/pairs/unitree_g1",
+    "penetration_weight": 0.0,
+    "phase_balanced_velocity": false,
+    "resume": false,
+    "robot": "unitree_g1",
+    "seed": 0,
+    "stance_velocity_weight": 0.0,
+    "steps": 50000,
+    "teacher_velocity_weight": 0.0,
+    "window": 64
+  },
+  "created_utc": "2026-07-14T04:18:15.916687+00:00",
+  "dataset": {
+    "algorithm": "sha256",
+    "root": "/home/ec2-user/work/retarget/data/pairs/unitree_g1",
+    "sha256": "54706863a34ba97975c0fa5c4a9def552a5c8df94b97eb782e92655e45f40e53",
+    "splits": {
+      "robot_assets": {
+        "file_count": 1,
+        "files": [
+          {
+            "path": "/home/ec2-user/work/retarget/holosoma/src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof.xml",
+            "sha256": "8c586e4747da85804180fe44d8692e0fd8231356728b6327e256dca498087a78",
+            "size_bytes": 32958
+          }
+        ],
+        "sha256": "2037d20a7dd64778b878921e842ab72718bf190198f93f11de4b06562344afe9",
+        "size_bytes": 32958
+      },
+      "train": {
+        "file_count": 70,
+        "files": [
+          {
+            "path": "aiming1_subject1.npz",
+            "sha256": "f582a05c06de307dc9824157ee305b0768156877bb0477639c55dcf839160286",
+            "size_bytes": 5066341
+          },
+          {
+            "path": "aiming1_subject4.npz",
+            "sha256": "6515ee8234d7d358c46d511136e5150fa6c0f45ef8e420af39a0ee6dba430163",
+            "size_bytes": 5055831
+          },
+          {
+            "path": "aiming2_subject2.npz",
+            "sha256": "c74744a567a558ec19e6518eddd4d7f5e0a935fe23461ee6d9ce8bbcbcfc4cc0",
+            "size_bytes": 6480220
+          },
+          {
+            "path": "aiming2_subject5.npz",
+            "sha256": "f0ad6b89db6c2acfeb626212964b8ea8992b477aaee1f7f66d18b56958102db4",
+            "size_bytes": 6467342
+          },
+          {
+            "path": "dance1_subject1.npz",
+            "sha256": "436029c1d904af7832a350dd92ca1f03d3527c934e4448709e11679c72f57e87",
+            "size_bytes": 2782460
+          },
+          {
+            "path": "dance1_subject2.npz",
+            "sha256": "1afd8f9211373f5d0560d9c26c37a7291c00dd1e22262b908008598613a0c6f5",
+            "size_bytes": 2778134
+          },
+          {
+            "path": "dance1_subject3.npz",
+            "sha256": "1c16382ab67ca53a69721cbf9c2adac6c8c80b5f6b03cb3f3a3c3c7972ce7384",
+            "size_bytes": 2779546
+          },
+          {
+            "path": "dance2_subject1.npz",
+            "sha256": "9f9e40aa1b81854823efde9b76aa0d8874b361162b7e286c982c580ee2937113",
+            "size_bytes": 4771647
+          },
+          {
+            "path": "dance2_subject2.npz",
+            "sha256": "b2db9c6e96e0c5519df4eca96e4bab6c1f1d809219df038dae4221756abc9714",
+            "size_bytes": 4778219
+          },
+          {
+            "path": "dance2_subject3.npz",
+            "sha256": "e1fa7200859bbf0015e02bc5b115d72200197f963e122ba6cee6c5f13f3fd96c",
+            "size_bytes": 4772088
+          },
+          {
+            "path": "dance2_subject5.npz",
+            "sha256": "7220320b485298c2af68f54c457d3a49e668f9c50412a157152468113c8cebf5",
+            "size_bytes": 4786306
+          },
+          {
+            "path": "fallAndGetUp1_subject1.npz",
+            "sha256": "863b4ea24b41bd48c9487f43d2fb66c9524e5c8acbde6084e7fcd7d28bc13bfd",
+            "size_bytes": 3567094
+          },
+          {
+            "path": "fallAndGetUp1_subject4.npz",
+            "sha256": "62934377456c58907e03752bb39a45bd2e197d5630addc85d0f5d42e2609aeb2",
+            "size_bytes": 3530985
+          },
+          {
+            "path": "fallAndGetUp1_subject5.npz",
+            "sha256": "4a8ea467d1e3f135d44f665014384eb98d4856970deab8c1e5854ec3afa99ce3",
+            "size_bytes": 3555086
+          },
+          {
+            "path": "fallAndGetUp2_subject2.npz",
+            "sha256": "89ad3381afe64a231668cd68d941e383a0f21cf296990e4811efc0ee335649d0",
+            "size_bytes": 3464029
+          },
+          {
+            "path": "fallAndGetUp2_subject3.npz",
+            "sha256": "9a9de80196fdc073359c2e8809340c0f9b4527ee5b12cceec7addac4aea4c021",
+            "size_bytes": 3463997
+          },
+          {
+            "path": "fallAndGetUp3_subject1.npz",
+            "sha256": "67641be926cc657d5f993c24b3304625f48106943c2ecbd783e07b968e6db4a7",
+            "size_bytes": 2164181
+          },
+          {
+            "path": "fight1_subject2.npz",
+            "sha256": "44d86463196a9424389afa930fe85db184e51237cfe2239ca4ec7f44b7d8c15b",
+            "size_bytes": 5190623
+          },
+          {
+            "path": "fight1_subject5.npz",
+            "sha256": "03ce3f99435d7ba5bcdf77830bff2525049bc0418dd58672472daf7bd4c3d1a7",
+            "size_bytes": 5186487
+          },
+          {
+            "path": "fightAndSports1_subject1.npz",
+            "sha256": "233f258156a3401523922e029f98f309cc071e9d9bb9d47cfe16f66b1777c8db",
+            "size_bytes": 5180850
+          },
+          {
+            "path": "fightAndSports1_subject4.npz",
+            "sha256": "9efe30e1111d172bc6ead5df1ed7dcb9a9159a0c2236eb15fd6a11ad40ae8b2a",
+            "size_bytes": 5184614
+          },
+          {
+            "path": "ground1_subject1.npz",
+            "sha256": "84e76a8ca171fc362426bf9e6921aa0a2a54f9484c2c1518b2f5dffe2def9f7a",
+            "size_bytes": 3360573
+          },
+          {
+            "path": "ground1_subject4.npz",
+            "sha256": "32ddb1be7a36841df5d3a98e293a5a1aed231659d34e7facfb928d03d3980dc6",
+            "size_bytes": 3340693
+          },
+          {
+            "path": "ground1_subject5.npz",
+            "sha256": "9b8fea41b6a2b4e45f98c70df6156ddd788a1057397dc94cfdc7fa0a16eb4ab2",
+            "size_bytes": 3339241
+          },
+          {
+            "path": "ground2_subject2.npz",
+            "sha256": "9dd16a792613f739b9d3508fd7a6c4da63162880860ddfa44f0a4b9002a6f671",
+            "size_bytes": 3880083
+          },
+          {
+            "path": "ground2_subject3.npz",
+            "sha256": "aa6cdb292c842430c960490183dd8befbb2ee5042d6890deef2c9f86a94f56ff",
+            "size_bytes": 3901205
+          },
+          {
+            "path": "jumps1_subject1.npz",
+            "sha256": "2fd977586fb3e5824016a9aacd251f04b21b8338e1c4d8e7f7dab9212ae9727c",
+            "size_bytes": 5171031
+          },
+          {
+            "path": "jumps1_subject5.npz",
+            "sha256": "06ab3bfce83e2a9e72013589051937ccf797457f894a82a34e83fa91997dfc52",
+            "size_bytes": 5168044
+          },
+          {
+            "path": "multipleActions1_subject1.npz",
+            "sha256": "e388c0e3a5be0ebe362db368da075a22c8b35ee14809abe9bcfdaf1c4bf19bde",
+            "size_bytes": 3240183
+          },
+          {
+            "path": "multipleActions1_subject2.npz",
+            "sha256": "155dc63014bf40caa515b725dec6094d52b1901f034420dcca100c2888bfa769",
+            "size_bytes": 3243810
+          },
+          {
+            "path": "multipleActions1_subject3.npz",
+            "sha256": "c2506367e960a278feddde8dc4ff5b24ab1d7ca38b4ab820daa51c0e0eda6d5d",
+            "size_bytes": 3238180
+          },
+          {
+            "path": "multipleActions1_subject4.npz",
+            "sha256": "8366283da7f8d8902a59d1a20f849ed0cc121dd45159b0cd5137cf223225cf8f",
+            "size_bytes": 3221434
+          },
+          {
+            "path": "obstacles1_subject1.npz",
+            "sha256": "7e5685138b553022f682cc95ac5b6070917ab0b3ab484b91166995c568a75c50",
+            "size_bytes": 3797480
+          },
+          {
+            "path": "obstacles1_subject2.npz",
+            "sha256": "46deee7d7c7d3905d89ed19ca3c6cde0a4b6ae087fc80776a07e3150ef5cb1a0",
+            "size_bytes": 3807749
+          },
+          {
+            "path": "obstacles1_subject5.npz",
+            "sha256": "7f0424c5572f54f7194ddd6d974412c0f555e8bcba407e3cafd2ab0f5c59a4cb",
+            "size_bytes": 3799855
+          },
+          {
+            "path": "obstacles2_subject1.npz",
+            "sha256": "6e8015444573840ca809625acbb0295f1d569647a5857a9b226ef1c20508c3c6",
+            "size_bytes": 5154851
+          },
+          {
+            "path": "obstacles2_subject2.npz",
+            "sha256": "01a3070d583f26b286cb3915b90c4f10eae739970c92215847f91b02327116ae",
+            "size_bytes": 5160802
+          },
+          {
+            "path": "obstacles2_subject5.npz",
+            "sha256": "2d9ebb4127e39ee78d44dd8d0ac49a46dad8c43d17e06b0154a433632359f319",
+            "size_bytes": 5157476
+          },
+          {
+            "path": "obstacles3_subject3.npz",
+            "sha256": "e80929fe4b960547f5d711dabc826d6f8b3a229fd94a537385473a07b28298c4",
+            "size_bytes": 2759282
+          },
+          {
+            "path": "obstacles3_subject4.npz",
+            "sha256": "1783f4ab8d478496ee02bc2175d7431649f1878578624be2eb248227f67a0fbb",
+            "size_bytes": 2772577
+          },
+          {
+            "path": "obstacles4_subject2.npz",
+            "sha256": "3692445030fa95b7c5c914458ce347253c8f622ee2a034d626fd5308eff6a32a",
+            "size_bytes": 5216699
+          },
+          {
+            "path": "obstacles4_subject3.npz",
+            "sha256": "713d24a661c845d87cefc6da3c7d5ad3bf5808b771aa9f3f05d2c99e950d74c2",
+            "size_bytes": 5194599
+          },
+          {
+            "path": "obstacles4_subject4.npz",
+            "sha256": "e848e249a21ebf0d26f7b0fad88dc0de7b445ebbcee907fe91ec0cc16a73b453",
+            "size_bytes": 5199894
+          },
+          {
+            "path": "obstacles5_subject2.npz",
+            "sha256": "36cc42fd9fedc3624e55d0c60bc7eca58f4272eeacdd1d5e7cbf0d9d3f584d80",
+            "size_bytes": 5193129
+          },
+          {
+            "path": "obstacles5_subject3.npz",
+            "sha256": "47e8e8129ff3db35b01d0db435ff19a543d79a7091b3bbeaaec358229b30b979",
+            "size_bytes": 5189816
+          },
+          {
+            "path": "obstacles5_subject4.npz",
+            "sha256": "e72e3abb33f549ca749f3e0ed2c3f91e358b095c7d3abd57e8d4d5b25da4029e",
+            "size_bytes": 5162928
+          },
+          {
+            "path": "obstacles6_subject1.npz",
+            "sha256": "532570a97ff696dd07cfd959bba4aa400ce6857a6302277648e35dac340849f6",
+            "size_bytes": 5275609
+          },
+          {
+            "path": "obstacles6_subject4.npz",
+            "sha256": "e9d9b4a932feb006a8a8b629ba154f8b5a417ace6887833bad16600a6277e4b3",
+            "size_bytes": 5270764
+          },
+          {
+            "path": "obstacles6_subject5.npz",
+            "sha256": "12f1a63aaaef58ea6616e4ff2cccec7dce0da6ba7d0dc16d38f3eb3a333f604f",
+            "size_bytes": 5274997
+          },
+          {
+            "path": "push1_subject2.npz",
+            "sha256": "08435302ef5550f8309c1f5c7666b0d6cd324954eb68548d9437b8d767a9ffad",
+            "size_bytes": 2166315
+          },
+          {
+            "path": "pushAndFall1_subject1.npz",
+            "sha256": "770fb56b37ef99158479cbba2fd4335d6b2d6a3863a8df9e4a7f807e9a768150",
+            "size_bytes": 3508123
+          },
+          {
+            "path": "pushAndFall1_subject4.npz",
+            "sha256": "e5bdff92c084fa018400f82b59742ffb20d02320c1ca8a95266c21ac01b52736",
+            "size_bytes": 3507491
+          },
+          {
+            "path": "pushAndStumble1_subject2.npz",
+            "sha256": "21074b1c54777a88b11c28a9e996788c72a23b40612533080649a5a2fd7ed83d",
+            "size_bytes": 4811869
+          },
+          {
+            "path": "pushAndStumble1_subject3.npz",
+            "sha256": "11e0ad5ecc5ff3e274f32b53839c7ab0fdb90ad136d57c54311f01d5560d9f06",
+            "size_bytes": 4803252
+          },
+          {
+            "path": "pushAndStumble1_subject5.npz",
+            "sha256": "d8ad19b4f4a85491a00d98fd9ffda06933a0a54336da68e2acc5ab43898d9cd1",
+            "size_bytes": 4800148
+          },
+          {
+            "path": "run1_subject2.npz",
+            "sha256": "ff5adee5cd41ee1db2e181e59e7f91684c575ae27112b16d22646b1d8009d00b",
+            "size_bytes": 5042398
+          },
+          {
+            "path": "run1_subject5.npz",
+            "sha256": "b7aca94dfb7465177bff486afb42c60f632540435bf4225adbf4bb03846fb409",
+            "size_bytes": 5051526
+          },
+          {
+            "path": "run2_subject4.npz",
+            "sha256": "5c83bc077a883f0ab68c60dc9082f1780a2b3aea8992c99940f81975e5643ddb",
+            "size_bytes": 5185728
+          },
+          {
+            "path": "sprint1_subject2.npz",
+            "sha256": "fdbf05516fd295c7f0f071d3ed671a6fab1e3f5e75f547877f67a292bc8c39ca",
+            "size_bytes": 5763429
+          },
+          {
+            "path": "walk1_subject1.npz",
+            "sha256": "79565402a381d54122c28b9f1f88bc43a46dfdca9f5aeee0ff0afbaee6c8c845",
+            "size_bytes": 5533322
+          },
+          {
+            "path": "walk1_subject2.npz",
+            "sha256": "ec81d9a3c5a216aa8905a7bcde0fa1f21eb4fd21071f95efddb32ecddca9184c",
+            "size_bytes": 5531610
+          },
+          {
+            "path": "walk2_subject1.npz",
+            "sha256": "45537c609cb4d90cba10f27edd457faf325e005ea6f64e5f930aace8d519318c",
+            "size_bytes": 5028494
+          },
+          {
+            "path": "walk2_subject3.npz",
+            "sha256": "a5b454552cb4950cd9ae4bc47d57a37964da52caac1b739fbc682fd3ff7eb8eb",
+            "size_bytes": 5034183
+          },
+          {
+            "path": "walk2_subject4.npz",
+            "sha256": "0f44fb790ef3af88b0f24b47638670d6c31bfbc01e46715fe0b7e3eaaff85c01",
+            "size_bytes": 5033372
+          },
+          {
+            "path": "walk3_subject1.npz",
+            "sha256": "8eecd3335f401f66308a5e12cf4845101197b44fa635c13e02cb77bb56dbfabd",
+            "size_bytes": 5202060
+          },
+          {
+            "path": "walk3_subject2.npz",
+            "sha256": "ce73732dd876d0911a74e50749fb3e133e909da1f3a42d3207f696a491b3ecfa",
+            "size_bytes": 5219332
+          },
+          {
+            "path": "walk3_subject3.npz",
+            "sha256": "b10f82cb5f8b22f8cdb24808d25814bdb0d7938020861d435937406c3c401520",
+            "size_bytes": 5207736
+          },
+          {
+            "path": "walk3_subject4.npz",
+            "sha256": "b363ab4150ae0d6fa9a6a34ceafe94707f92291d054b820fc8cf5d534b499639",
+            "size_bytes": 5201063
+          },
+          {
+            "path": "walk3_subject5.npz",
+            "sha256": "27021dc0ea81f6d456299a6d3a98b01f41d1748854dd78152c0ef47c99d1583a",
+            "size_bytes": 5200774
+          },
+          {
+            "path": "walk4_subject1.npz",
+            "sha256": "81e8da8e20318f72d7be151016f285f1fc48d8791f1ccf0a72db9b4f4b52bca7",
+            "size_bytes": 3452882
+          }
+        ],
+        "sha256": "70ffd1b4aab94f1d7ae39d4d1f5332c1b60b6d15ec205626c14924897baeeea6",
+        "size_bytes": 311784171
+      },
+      "validation": {
+        "file_count": 7,
+        "files": [
+          {
+            "path": "aiming2_subject3.npz",
+            "sha256": "c66f6e4926c4a629bc1ef76e0a66dd624b4414151d141e4e9a8691571cf00711",
+            "size_bytes": 6442353
+          },
+          {
+            "path": "dance2_subject4.npz",
+            "sha256": "7ecc8183626ead6aa5923d43290ebe5a2e466f4ad86570c7a30d169342fbb7e1",
+            "size_bytes": 4735828
+          },
+          {
+            "path": "fight1_subject3.npz",
+            "sha256": "0898213dfa77d67d5255fe25bb470f4de337510f7c8148efc2e696739b499b2b",
+            "size_bytes": 5176546
+          },
+          {
+            "path": "jumps1_subject2.npz",
+            "sha256": "079c4c2ab781575b7e02b1a1a60a6ba3761b3253badd0a259bcc1c11b59ee590",
+            "size_bytes": 5180281
+          },
+          {
+            "path": "run2_subject1.npz",
+            "sha256": "acfd85e3c7010886093258558f0ac901b5e4dc09a539d2deecfdcaa12d288b48",
+            "size_bytes": 5193310
+          },
+          {
+            "path": "sprint1_subject4.npz",
+            "sha256": "cc153fa35e577198bfcc4830fcf5fcc67cb2001a5eea6223489f467f435e366a",
+            "size_bytes": 5724886
+          },
+          {
+            "path": "walk1_subject5.npz",
+            "sha256": "e8e10aebc35774ebc1a56498be4b2fd7b10922c9c147fece2a59d7f2784d86ae",
+            "size_bytes": 5554122
+          }
+        ],
+        "sha256": "c7a00005934ab3893c862e41b6cd56767ba77fb79518c3cd6f9aed985c4d582c",
+        "size_bytes": 38007326
+      }
+    }
+  },
+  "git": {
+    "available": true,
+    "dirty": false,
+    "sha": "4929924d6147b131f601ab5f6ac238a0fa45bae9",
+    "tracked_diff_sha256": null,
+    "tracked_dirty": false,
+    "untracked_paths": 0
+  },
+  "invocations": [
+    {
+      "argv": [
+        "/home/ec2-user/work/retarget/.venv-snmr/bin/python",
+        "scripts/train_phase1.py",
+        "--robot",
+        "unitree_g1",
+        "--pairs_dir",
+        "/home/ec2-user/work/retarget/data/pairs/unitree_g1",
+        "--window",
+        "64",
+        "--lr",
+        "0.0003",
+        "--min_lr",
+        "0.00001",
+        "--latent_dim",
+        "128",
+        "--enc_hidden",
+        "256",
+        "--dec_hidden",
+        "256",
+        "--contact_mask",
+        "teacher_height",
+        "--contact_weight",
+        "0",
+        "--foot_vel_weight",
+        "0",
+        "--device",
+        "cuda",
+        "--steps",
+        "50000",
+        "--eval_every",
+        "5000",
+        "--ckpt_every",
+        "5000",
+        "--diag_every",
+        "5000",
+        "--seed",
+        "0",
+        "--contact_bce_weight",
+        "0.25",
+        "--out",
+        "/home/ec2-user/work/retarget/snmr/runs/gate1_g1/screen/c1_bce_seed0"
+      ],
+      "command": "/home/ec2-user/work/retarget/.venv-snmr/bin/python scripts/train_phase1.py --robot unitree_g1 --pairs_dir /home/ec2-user/work/retarget/data/pairs/unitree_g1 --window 64 --lr 0.0003 --min_lr 0.00001 --latent_dim 128 --enc_hidden 256 --dec_hidden 256 --contact_mask teacher_height --contact_weight 0 --foot_vel_weight 0 --device cuda --steps 50000 --eval_every 5000 --ckpt_every 5000 --diag_every 5000 --seed 0 --contact_bce_weight 0.25 --out /home/ec2-user/work/retarget/snmr/runs/gate1_g1/screen/c1_bce_seed0",
+      "cwd": "/home/ec2-user/work/retarget/snmr-gate1",
+      "resume": false,
+      "started_utc": "2026-07-14T04:18:15.916642+00:00"
+    }
+  ],
+  "objectives": {
+    "contact_bce": {
+      "active": true,
+      "mask": "teacher_height",
+      "weight": 0.25
+    },
+    "distill": {
+      "semantics": "configuration-space root position, root rotation, and DOF MSE",
+      "weight": 1.0
+    },
+    "edge_velocity": {
+      "active": false,
+      "semantics": "mean squared XY velocity computed in m/s, normalized by contact mass",
+      "weight": 0.0
+    },
+    "legacy_contact_bce": {
+      "active": false,
+      "semantics": "BCE against legacy height-and-speed teacher mask",
+      "weight": 0.0
+    },
+    "legacy_edge_self_consistency": {
+      "active": false,
+      "semantics": "legacy predicted-contact displacement plus penetration",
+      "weight": 0.0
+    },
+    "legacy_teacher_foot_displacement": {
+      "active": false,
+      "semantics": "E25 all-phase 3D teacher foot displacement matching",
+      "weight": 0.0
+    },
+    "legacy_teacher_mask_contact": {
+      "active": false,
+      "semantics": "legacy frame-displacement teacher-mask velocity plus penetration",
+      "weight": 0.0
+    },
+    "limits": {
+      "semantics": "squared joint-limit excess",
+      "weight": 0.1
+    },
+    "penetration": {
+      "active": false,
+      "semantics": "mean squared absolute ground penetration",
+      "weight": 0.0
+    },
+    "smooth": {
+      "semantics": "frame-difference acceleration and jerk",
+      "weight": 0.01
+    },
+    "teacher_stance_velocity": {
+      "active": false,
+      "mask": "teacher_height",
+      "semantics": "mean squared XY velocity computed in m/s over explicit stance samples",
+      "weight": 0.0
+    },
+    "teacher_velocity": {
+      "active": false,
+      "phase_balanced": false,
+      "semantics": "mean squared 3D teacher foot-velocity error computed in m/s",
+      "weight": 0.0
+    }
+  },
+  "progress": {
+    "completion_state": "completed",
+    "robot_exposures": {
+      "unitree_g1": 50000
+    },
+    "step": 50000
+  },
+  "runtime": {
+    "cuda_available": true,
+    "cuda_device": "NVIDIA A10G",
+    "device": "cuda",
+    "python": "3.10.20",
+    "torch": "2.5.1+cu124"
+  },
+  "schema_version": 1,
+  "source": {
+    "algorithm": "sha256",
+    "root": "/home/ec2-user/work/retarget/snmr-gate1",
+    "sha256": "e01e6696818b9e47a1024f4f87ecc6c392ac6337b3e7130679701516559865ae",
+    "splits": {
+      "source": {
+        "file_count": 19,
+        "files": [
+          {
+            "path": "pyproject.toml",
+            "sha256": "36bfed8295fcc3094da16d53ba1614bf19323385fbcdce91047c0dd8b3ab01df",
+            "size_bytes": 603
+          },
+          {
+            "path": "scripts/train_phase1.py",
+            "sha256": "21fa36d40bb4dd2bbb43282168ee086e20250faf43066d10ea23c12e7f156338",
+            "size_bytes": 26209
+          },
+          {
+            "path": "snmr/__init__.py",
+            "sha256": "78b134f61295c7f0cb6b3433b54ae9a5b9041503b93be506ca747bf4f695785b",
+            "size_bytes": 210
+          },
+          {
+            "path": "snmr/data.py",
+            "sha256": "d92e4939b6e9b7caee465e48c6819d60974315fede54af3c8c104a558fed4eb4",
+            "size_bytes": 7795
+          },
+          {
+            "path": "snmr/diagnostics.py",
+            "sha256": "402b4f58484f5f2321636db142bd6e987b3764a5518c11d0fb5224b18be27647",
+            "size_bytes": 5550
+          },
+          {
+            "path": "snmr/experiment.py",
+            "sha256": "250fe3bebd74b37d1db97b51d5070ea1ee413a038a5cf11f33554362c8b0ecc2",
+            "size_bytes": 10585
+          },
+          {
+            "path": "snmr/footlock.py",
+            "sha256": "46188cec689e93f618fa3a1c73e63812bd38682d9a30df86eca2fc3fcc93e830",
+            "size_bytes": 14663
+          },
+          {
+            "path": "snmr/human.py",
+            "sha256": "e8ba7224277f9f330c8f84850c5d4e44d615983c6bf4204a5a46ca4aec04c303",
+            "size_bytes": 7586
+          },
+          {
+            "path": "snmr/integration/__init__.py",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size_bytes": 0
+          },
+          {
+            "path": "snmr/integration/wbt_latent.py",
+            "sha256": "bb40e7e674cfe85ad19f536c8a1452366a34c124dc73d62ee34d0568aecc8388",
+            "size_bytes": 3773
+          },
+          {
+            "path": "snmr/losses.py",
+            "sha256": "6f29b50fcd04d627dd13f223700e049070c0f237e261b3adf732a5ecc2c47251",
+            "size_bytes": 16062
+          },
+          {
+            "path": "snmr/metrics.py",
+            "sha256": "1cef3ee43570cd81b36eb459df6c91e8e996af14f0b9e6d518990f3baefac935",
+            "size_bytes": 15194
+          },
+          {
+            "path": "snmr/model.py",
+            "sha256": "b7d6146e33639b12ece7e9e143a502a5af855a9623cbcf2bcd0cef2c3cd49690",
+            "size_bytes": 15702
+          },
+          {
+            "path": "snmr/paths.py",
+            "sha256": "d612df76e3a2a3f11332f4cd70b590cfbe1098eea9122f99f58c2e272b9deead",
+            "size_bytes": 3198
+          },
+          {
+            "path": "snmr/polish.py",
+            "sha256": "859fa5845c0950037fc2215943207c04fcf91f9e65b00c8eecf41f8c8462659d",
+            "size_bytes": 5637
+          },
+          {
+            "path": "snmr/robot_model.py",
+            "sha256": "6bc12dcb8aa2b2b1de38a8c56d607cd684f56d24f977652e5ed33960b0d3f7b3",
+            "size_bytes": 14562
+          },
+          {
+            "path": "snmr/rotation.py",
+            "sha256": "6c812f738cb57067a5b057aad089823e8993ac44d9627b7e9be5be0bb46c11cc",
+            "size_bytes": 7939
+          },
+          {
+            "path": "snmr/skeleton.py",
+            "sha256": "5e9e12add4eec8d179acad61c998505cc9dca597cf195049e19d69ab2c7baa34",
+            "size_bytes": 5478
+          },
+          {
+            "path": "snmr/train.py",
+            "sha256": "47e246c03a92ae62c7c01a5a206802b83a2ac6c7eabd41ff2a52d4cc30e4bb87",
+            "size_bytes": 2511
+          }
+        ],
+        "sha256": "2e5e10fe5944fccf95504e549bdc1d10055144f614e98ab3272d2cccd881755d",
+        "size_bytes": 163257
+      }
+    }
+  },
+  "status": "completed",
+  "trainer": "scripts/train_phase1.py",
+  "training": {
+    "historical_exposures_reconstructable": true,
+    "lr_schedule": {
+      "eta_min": 1e-05,
+      "name": "CosineAnnealingLR",
+      "t_max_steps": 50000
+    },
+    "optimizer": {
+      "lr": 0.0003,
+      "name": "AdamW",
+      "weight_decay": 0.0001
+    },
+    "planned_effective_robot_exposures": {
+      "unitree_g1": 50000
+    },
+    "planned_optimizer_steps": 50000,
+    "seed": 0,
+    "starting_step": 0
+  },
+  "updated_utc": "2026-07-14T04:58:10.091689+00:00"
+}

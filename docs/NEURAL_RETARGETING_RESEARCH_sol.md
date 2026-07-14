@@ -500,8 +500,9 @@ and swing contributions. C5 is run only if component results justify it.
 
 ### Gate 1 execution plan
 
-**Status:** diagnostic calibration is complete; the accepted seed-0 screen is next, followed by
-exact benchmarking and replication. A 50k run must not start before its diagnostic arm passes.
+**Status:** diagnostic calibration and the seed-0 screen are complete. C4 and C3 pass every
+promotion guard and advance to matched seeds 1-2 with C0. This is promotion to replication, not a
+Gate 1 pass; the three-seed endpoint and aggregate contracts remain binding.
 
 **Execution update (2026-07-14):** the factorized C0-C4 calibration was not replaced by a
 post-process result. Before calibration, a source-contact-mask, root-fixed DLS heuristic was evaluated on
@@ -545,6 +546,16 @@ provisional BCE weight `1.0` failed and its one deterministic retry at `0.25` pa
 passed unchanged. C2 exhausted its one retry: EDGE passed after adjustment, but BCE remained above
 band, so the entire bundled C2 arm is dropped rather than tuned again. The accepted 50k screen is
 therefore C0, C1, C3, and C4.
+
+The frozen seed-0 screen then completed under the same trainer revision and evaluator hash
+`76f73644...28cdd`. Relative to C0's teacher-height speed `0.709 m/s`, C3 reaches `0.489 m/s`
+(`31.0%` lower) with MPJPE `5.00 cm`, while C4 reaches `0.270 m/s` (`62.0%` lower) with MPJPE
+`3.02 cm`; C0 MPJPE is `4.71 cm`. Both improve all six clips with measurable teacher-height
+support, improve source-contact speed and jerk, and pass the limit and penetration guards.
+`fight1_subject3` has zero teacher-height contact samples in every arm; it is conservatively
+counted as no improvement, leaving both candidates above the absolute five-clip threshold. C1
+behaves as the intended negative control (`0.754 m/s`, MPJPE `5.75 cm`). Promote C4 then C3 to
+seeds 1-2, and do not interpret this screen as the `<=0.08 m/s` three-seed Gate 1 result.
 
 #### Frozen comparison protocol
 
@@ -803,6 +814,20 @@ soft kinematic arm is promoted to replication only when all of these seed-0 rule
 
 Rank passing arms by teacher-height stance speed, then MPJPE, then source-contact stance speed.
 Promote at most two. Do not fill the quota with a failing arm.
+
+**Seed-0 decision (2026-07-14):**
+
+| Arm | Teacher-height speed | Reduction vs C0 | MPJPE | Source-contact speed | Jerk | Improved clips | Decision |
+|---|---:|---:|---:|---:|---:|---:|---|
+| C0 | `0.709 m/s` | - | `4.71 cm` | `0.442 m/s` | `614` | - | Control |
+| C1 BCE | `0.754 m/s` | `-6.4%` | `5.75 cm` | `0.487 m/s` | `641` | - | Negative control |
+| C3 stance | `0.489 m/s` | `31.0%` | `5.00 cm` | `0.299 m/s` | `588` | `6/7` | **Promote** |
+| C4 phase-balanced | `0.270 m/s` | `62.0%` | `3.02 cm` | `0.200 m/s` | `562` | `6/7` | **Promote** |
+
+All C3/C4 promotion checks pass. The apparent seventh comparison is unavailable rather than tied:
+`fight1_subject3` has zero teacher-height support in C0 and every candidate. The analyzer accepts
+an omitted endpoint only when the benchmark records exactly zero support, counts it as no
+improvement, and retains the preregistered requirement of at least five improved clips.
 
 #### Stage 4: seed replication and decision
 

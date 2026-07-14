@@ -1,0 +1,120 @@
+{
+  "root": "runs/gate1_g1/screen",
+  "passed": false,
+  "interpretation": "seed-0 causal screen; promotion requires replication with seeds 1 and 2",
+  "protocol_errors": [],
+  "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+  "retained_negative_control": "c1_bce_seed0",
+  "candidate_decisions": {},
+  "promoted_arms": [],
+  "arms": {
+    "c0_seed0": {
+      "passed": false,
+      "errors": [
+        "fight1_subject3: teacher-height stance speed is missing or nonfinite"
+      ],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.7085920372291615,
+        "source_contact_stance_speed_ms": 0.4421164603194311,
+        "mpjpe_m": 0.047071296632999464,
+        "dof_jerk": 613.6915406045459,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0009231364601332427,
+        "penetration_fraction": 0.04104662775283768,
+        "contact_head_vs_teacher_height_f1": null,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.5000803172588348,
+          "dance2_subject4": 0.3372955322265625,
+          "fight1_subject3": null,
+          "run2_subject1": 0.9045970916748047,
+          "jumps1_subject2": 0.333022803068161,
+          "sprint1_subject4": 1.1456076949834824,
+          "aiming2_subject3": 0.34351611509919167
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "ebfad4d8e0c095f83e70d0b00c057b45fcf6263360fad1650e1ff3ef2e33f731"
+      }
+    },
+    "c1_bce_seed0": {
+      "passed": false,
+      "errors": [
+        "fight1_subject3: teacher-height stance speed is missing or nonfinite"
+      ],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.7540095895528793,
+        "source_contact_stance_speed_ms": 0.4873560092833248,
+        "mpjpe_m": 0.05748847042698236,
+        "dof_jerk": 641.4159393197015,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0007086031956922463,
+        "penetration_fraction": 0.03447420716596147,
+        "contact_head_vs_teacher_height_f1": 0.17651325007335075,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.5245912050207456,
+          "dance2_subject4": 0.5256059765815735,
+          "fight1_subject3": null,
+          "run2_subject1": 0.9653470277786255,
+          "jumps1_subject2": 0.3168538212776184,
+          "sprint1_subject4": 1.2100280746817589,
+          "aiming2_subject3": 0.33466386795043945
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "ac0bd64a76933184f56c0ece0b191a8ff4806408718bac8b1bb3655cea4160c6"
+      }
+    },
+    "c3_stance_seed0": {
+      "passed": false,
+      "errors": [
+        "fight1_subject3: teacher-height stance speed is missing or nonfinite"
+      ],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.4888808609623658,
+        "source_contact_stance_speed_ms": 0.29853306716818007,
+        "mpjpe_m": 0.05003904473657409,
+        "dof_jerk": 588.4730641614823,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0006181964202239344,
+        "penetration_fraction": 0.029761905593442776,
+        "contact_head_vs_teacher_height_f1": null,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.31344517692923546,
+          "dance2_subject4": 0.17220714688301086,
+          "fight1_subject3": null,
+          "run2_subject1": 0.5802253484725952,
+          "jumps1_subject2": 0.23611930012702942,
+          "sprint1_subject4": 0.887839000672102,
+          "aiming2_subject3": 0.2736280523240566
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "dea28987e1d077d160908669353da848b05238bd92db5f20ea03f650e24030cd"
+      }
+    },
+    "c4_teacher_velocity_seed0": {
+      "passed": false,
+      "errors": [
+        "fight1_subject3: teacher-height stance speed is missing or nonfinite"
+      ],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.26957172429875326,
+        "source_contact_stance_speed_ms": 0.20012321557650076,
+        "mpjpe_m": 0.030198111731026853,
+        "dof_jerk": 562.2786069370452,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 8.131429913624917e-05,
+        "penetration_fraction": 0.005084325515088581,
+        "contact_head_vs_teacher_height_f1": null,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.18973177298903465,
+          "dance2_subject4": 0.1927683800458908,
+          "fight1_subject3": null,
+          "run2_subject1": 0.292404568195343,
+          "jumps1_subject2": 0.1891966611146927,
+          "sprint1_subject4": 0.4688759371638298,
+          "aiming2_subject3": 0.1319902464747429
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "e791cc98bf33a7e25331cfb96317b511097d626f1b17c8857e2b67b8cfb84cfa"
+      }
+    }
+  }
+}
