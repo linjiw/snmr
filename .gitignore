@@ -14,3 +14,11 @@ tests/fixtures/pair_g1_*.npz
 
 # WBT validation NPZs (large, regenerable)
 runs/wbt_validation/**/*.npz
+
+# WBT latent exports and raw policy logs (large, regenerable)
+runs/wbt_latent/*.npz
+runs/wbt_pilot/pilot_*.log
+runs/wbt_pilot_replication/pilot_*.log
+runs/wbt_independent_eval/pilot_*.log
+runs/wbt_horizon_calibration/*.train.log
+runs/wbt_horizon_calibration/*.eval.log
