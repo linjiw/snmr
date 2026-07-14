@@ -977,8 +977,16 @@ Final-100 SNMR-minus-GMR effects are mixed and small. Reward differs by −2.9%,
 for walk, dance, and fight; episode length by −1.2%, +2.7%, and +0.02%; joint-position error is
 3.9% worse, 5.2% better, and 6.0% better. Reference-position error is 0.5–1.8% worse on all three.
 This rules out a catastrophic seed-0 regression and supports replication. It is not Stage B
-completion or a non-inferiority result: seeds 1–2 and independent evaluation rollouts remain
+completion or a non-inferiority result: seeds 1-2 and independent evaluation rollouts remain
 required.
+
+**Replication protocol frozen after Gate 1 (2026-07-14):** add seeds 1 and 2 for the same three
+clips and both sources, retaining 1024 environments, 1000 PPO iterations, simulator, rewards,
+randomization, network, motion files, and source order. The combined analyzer requires all 18 runs
+to contain exactly 1000 finite scalar events and `model_00999.pt`, with resolved configs differing
+only by run name, motion file, and training seed. It reports all nine paired clip/seed effects and
+their descriptive means/sign counts. Training curves are not deployment evaluation: even after
+this replication, non-inferiority requires fixed-seed policy rollouts and the Stage C endpoints.
 
 ### Stage B: pilot
 

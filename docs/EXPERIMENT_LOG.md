@@ -414,6 +414,13 @@ preregistered physics-aware method, but do not call it contact-consistent and do
 weight again. The deployable C6 projection and the factorized soft arms have now both failed; move
 to physics-repaired targets or joint retargeting/control after completing WBT replication.
 
+### WBT replication protocol - FROZEN
+Extend E27 with seeds 1 and 2 only: the same three clips, GMR/SNMR sources, MuJoCo/Warp backend,
+1024 environments, and 1000 PPO iterations. The combined artifact analyzer requires 18 complete
+runs and reports paired final-100 and curve-AUC effects across nine clip/seed pairs. This completes
+the Stage B training-seed pilot, not non-inferiority; independent fixed-seed policy rollouts remain
+mandatory.
+
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`
   wired into train_phase2 (smoke-tested); fold p≈0.3 into the next shared retrain (can combine
