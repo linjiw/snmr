@@ -398,6 +398,23 @@ def _confidence_interval(samples: np.ndarray) -> list[float]:
     return [float(value) for value in np.quantile(samples, [0.025, 0.975])]
 
 
+def _classify_verdict(
+    *,
+    assay_valid: bool,
+    completion_noninferior: bool,
+    joint_noninferior: bool,
+    completion_inferior: bool,
+    joint_inferior: bool,
+) -> str:
+    if completion_inferior or joint_inferior:
+        return "inferior_on_three_clip_pilot"
+    if not assay_valid:
+        return "undertrained_gmr_control_on_three_clip_pilot"
+    if completion_noninferior and joint_noninferior:
+        return "noninferior_on_three_clip_pilot"
+    return "inconclusive_on_three_clip_pilot"
+
+
 def analyze(rows: list[EvaluationRow]) -> dict[str, Any]:
     reports, errors = _load_and_validate(rows)
     if errors:
@@ -428,17 +445,15 @@ def analyze(rows: list[EvaluationRow]) -> dict[str, Any]:
     joint_noninferior = joint_ci[1] <= JOINT_ERROR_MARGIN
     gmr_completion_mean = float(np.mean(arrays["gmr"]["completion"]))
     assay_valid = gmr_completion_mean >= GMR_COMPLETION_FLOOR
-    noninferior = assay_valid and completion_noninferior and joint_noninferior
     completion_inferior = completion_ci[1] < COMPLETION_MARGIN
     joint_inferior = joint_ci[0] > JOINT_ERROR_MARGIN
-    if not assay_valid:
-        verdict = "undertrained_gmr_control_on_three_clip_pilot"
-    elif noninferior:
-        verdict = "noninferior_on_three_clip_pilot"
-    elif completion_inferior or joint_inferior:
-        verdict = "inferior_on_three_clip_pilot"
-    else:
-        verdict = "inconclusive_on_three_clip_pilot"
+    verdict = _classify_verdict(
+        assay_valid=assay_valid,
+        completion_noninferior=completion_noninferior,
+        joint_noninferior=joint_noninferior,
+        completion_inferior=completion_inferior,
+        joint_inferior=joint_inferior,
+    )
 
     metric_effects = {}
     for metric in ("completion", "survival_s", *METRICS):

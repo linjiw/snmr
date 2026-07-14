@@ -83,3 +83,30 @@ def test_validate_row_rejects_inconsistent_rollout(tmp_path):
     report["mean_survival_s"] = 10.0
 
     assert wbt._validate_row(row, report) == []
+
+
+def test_verdict_requires_viable_control_but_preserves_inferiority():
+    shared = {
+        "completion_noninferior": True,
+        "joint_noninferior": True,
+        "completion_inferior": False,
+        "joint_inferior": False,
+    }
+    assert (
+        wbt._classify_verdict(assay_valid=False, **shared)
+        == "undertrained_gmr_control_on_three_clip_pilot"
+    )
+    assert (
+        wbt._classify_verdict(assay_valid=True, **shared)
+        == "noninferior_on_three_clip_pilot"
+    )
+    assert (
+        wbt._classify_verdict(
+            assay_valid=False,
+            completion_noninferior=False,
+            joint_noninferior=False,
+            completion_inferior=True,
+            joint_inferior=False,
+        )
+        == "inferior_on_three_clip_pilot"
+    )
