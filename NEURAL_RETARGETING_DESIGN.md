@@ -15,9 +15,11 @@ Date: 2026-07-10 · Status: **Historical design and implementation record.**
 > under a teacher-mask oracle. A matched three-clip, seed-0 WBT pilot shows no catastrophic SNMR
 > regression but is too small for non-inferiority or benefit; two more training seeds remain.
 > Gate 1 calibration accepts C1 BCE `0.25`, C3 stance `0.03`, and C4 phase-balanced velocity
-> `0.05`; C2 is dropped after its only retry still leaves BCE above the gradient band. The
-> seed-0 screen promotes C4 (`0.709 -> 0.270 m/s`, MPJPE `4.71 -> 3.02 cm`) and C3
-> (`0.709 -> 0.489 m/s`, MPJPE `4.71 -> 5.00 cm`) to seeds 1-2; this is not yet a Gate 1 pass.
+> `0.05`; C2 is dropped after its only retry still leaves BCE above the gradient band. Three-seed
+> replication confirms robust favorable tradeoffs for C4 (mean speed `0.701 -> 0.264 m/s`,
+> MPJPE `4.70 -> 3.09 cm`) and C3 (`0.701 -> 0.469 m/s`, MPJPE `4.70 -> 4.99 cm`), but neither
+> reaches `0.08 m/s` in any seed. Gate 1 therefore fails its endpoint; stop soft penalty sweeps
+> and move to physics-repaired supervision or retargeting/tracking co-optimization.
 > The shared-model, unseen-target, representation, temporal, and throughput claims remain bounded
 > by that audit.
 

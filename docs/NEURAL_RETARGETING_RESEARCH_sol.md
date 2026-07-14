@@ -500,9 +500,11 @@ and swing contributions. C5 is run only if component results justify it.
 
 ### Gate 1 execution plan
 
-**Status:** diagnostic calibration and the seed-0 screen are complete. C4 and C3 pass every
-promotion guard and advance to matched seeds 1-2 with C0. This is promotion to replication, not a
-Gate 1 pass; the three-seed endpoint and aggregate contracts remain binding.
+**Status:** diagnostic calibration, seed-0 screening, and matched seeds 1-2 are complete. C4 and C3
+pass every relative, directional, and physical guard across three seeds, but neither reaches the
+absolute `<=0.08 m/s` endpoint in any seed. Gate 1 therefore fails. Do not run another soft
+penalty sweep; the next contact intervention must use physics-repaired supervision or couple
+retargeting with tracking.
 
 **Execution update (2026-07-14):** the factorized C0-C4 calibration was not replaced by a
 post-process result. Before calibration, a source-contact-mask, root-fixed DLS heuristic was evaluated on
@@ -556,6 +558,14 @@ support, improve source-contact speed and jerk, and pass the limit and penetrati
 counted as no improvement, leaving both candidates above the absolute five-clip threshold. C1
 behaves as the intended negative control (`0.754 m/s`, MPJPE `5.75 cm`). Promote C4 then C3 to
 seeds 1-2, and do not interpret this screen as the `<=0.08 m/s` three-seed Gate 1 result.
+
+Matched replication at seeds 1-2 then completed without an early-stop event. C3 improves
+teacher-height speed in all three seeds and lowers the three-seed mean from C0's `0.701` to
+`0.469 m/s` (`33.1%`), with mean MPJPE `4.99 cm` versus `4.70 cm`. C4 also improves every seed,
+reaches a stable `0.244-0.278 m/s`, and lowers the mean to `0.264 m/s` (`62.4%`) while improving
+MPJPE to `3.09 cm`. Both pass every mean physical guard and have zero limit violations. Neither
+has even one seed at `<=0.08 m/s`, so both fail the required two-of-three endpoint and Gate 1 is
+closed as a negative result for these soft objectives.
 
 #### Frozen comparison protocol
 
@@ -850,6 +860,20 @@ candidate mean source-contact speed must be at most `1.1x` matched C0, mean DOF 
 than C0 plus `0.02`. Limit violations must be exactly zero in every seed. Endpoint and directional
 checks use individual matched seeds, not the mean. The absolute `4.0 cm` mean MPJPE product target
 is reported but does not replace the relative causal guard.
+
+**Three-seed decision (2026-07-14):**
+
+| Family | Speed by seed 0/1/2 | Mean speed | Mean MPJPE | Mean source speed | Mean jerk | Endpoint seeds | Decision |
+|---|---|---:|---:|---:|---:|---|---|
+| C0 | `0.709 / 0.733 / 0.662` | `0.701 m/s` | `4.70 cm` | `0.453 m/s` | `609` | - | Control |
+| C3 stance | `0.489 / 0.418 / 0.502` | `0.469 m/s` | `4.99 cm` | `0.298 m/s` | `567` | `0/3` | **Fail endpoint** |
+| C4 phase-balanced | `0.270 / 0.244 / 0.278` | `0.264 m/s` | `3.09 cm` | `0.198 m/s` | `566` | `0/3` | **Fail endpoint** |
+
+C3 and C4 improve in `3/3` matched seeds and pass the MPJPE, source-contact, jerk, limit, and
+penetration checks. C4 also passes the separate absolute `4.0 cm` mean MPJPE target. These results
+make phase-balanced velocity matching a useful regularizer, but not a contact solution: its best
+seed is still `0.244 m/s`, about `3.0x` the endpoint. Combined with the deployable source-mask C6
+failure, this triggers the preregistered stop on penalty and projection-bound tuning.
 
 The design's `<= 4.0 cm` MPJPE remains an absolute product target, but it is reported separately
 from the causal contact decision. Conflating it with contact would make Gate 1 impossible to

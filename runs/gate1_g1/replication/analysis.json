@@ -1,0 +1,429 @@
+{
+  "replication_root": "runs/gate1_g1/replication",
+  "screen_root": "runs/gate1_g1/screen",
+  "passed": true,
+  "gate1_passed": false,
+  "interpretation": "protocol validity is separate from the preregistered three-seed Gate 1 decision",
+  "protocol_errors": [],
+  "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+  "candidate_decisions": {
+    "c3_stance": {
+      "passed": false,
+      "checks": {
+        "endpoint_le_0.08_in_at_least_2_seeds": false,
+        "mean_mpjpe_delta_le_0.005": true,
+        "mean_source_contact_not_over_1.1x": true,
+        "mean_dof_jerk_le_1.2x": true,
+        "zero_limit_violations_all_seeds": true,
+        "mean_penetration_guard": true,
+        "mean_penetration_fraction_guard": true,
+        "improves_in_at_least_2_seeds": true
+      },
+      "endpoint_pass_seeds": [],
+      "improvement_seeds": [
+        0,
+        1,
+        2
+      ],
+      "control_mean": {
+        "teacher_height_stance_speed_ms": 0.7011945535216415,
+        "source_contact_stance_speed_ms": 0.45253211283124983,
+        "mpjpe_m": 0.047004748801035535,
+        "dof_jerk": 609.102683464686,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0006490705954587294,
+        "penetration_fraction": 0.030836641030859147
+      },
+      "candidate_mean": {
+        "teacher_height_stance_speed_ms": 0.46943834201808565,
+        "source_contact_stance_speed_ms": 0.29780349949382184,
+        "mpjpe_m": 0.0498598922591006,
+        "dof_jerk": 566.6962591390761,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0007196361099596786,
+        "penetration_fraction": 0.031746032507350995
+      },
+      "mean_mpjpe_delta_m": 0.0028551434580650625,
+      "mean_teacher_height_relative_reduction": 0.33051627446276644,
+      "absolute_product_mpjpe_mean_le_0.04": false
+    },
+    "c4_teacher_velocity": {
+      "passed": false,
+      "checks": {
+        "endpoint_le_0.08_in_at_least_2_seeds": false,
+        "mean_mpjpe_delta_le_0.005": true,
+        "mean_source_contact_not_over_1.1x": true,
+        "mean_dof_jerk_le_1.2x": true,
+        "zero_limit_violations_all_seeds": true,
+        "mean_penetration_guard": true,
+        "mean_penetration_fraction_guard": true,
+        "improves_in_at_least_2_seeds": true
+      },
+      "endpoint_pass_seeds": [],
+      "improvement_seeds": [
+        0,
+        1,
+        2
+      ],
+      "control_mean": {
+        "teacher_height_stance_speed_ms": 0.7011945535216415,
+        "source_contact_stance_speed_ms": 0.45253211283124983,
+        "mpjpe_m": 0.047004748801035535,
+        "dof_jerk": 609.102683464686,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0006490705954587294,
+        "penetration_fraction": 0.030836641030859147
+      },
+      "candidate_mean": {
+        "teacher_height_stance_speed_ms": 0.2638177312910557,
+        "source_contact_stance_speed_ms": 0.19848774964662474,
+        "mpjpe_m": 0.030916000110289405,
+        "dof_jerk": 566.283824405973,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.00014509723741541945,
+        "penetration_fraction": 0.00958994733140109
+      },
+      "mean_mpjpe_delta_m": -0.01608874869074613,
+      "mean_teacher_height_relative_reduction": 0.6237595828916928,
+      "absolute_product_mpjpe_mean_le_0.04": true
+    }
+  },
+  "gate1_passing_families": [],
+  "seed_summaries": {
+    "c0": {
+      "0": {
+        "teacher_height_stance_speed_ms": 0.7085920372291615,
+        "source_contact_stance_speed_ms": 0.4421164603194311,
+        "mpjpe_m": 0.047071296632999464,
+        "dof_jerk": 613.6915406045459,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0009231364601332427,
+        "penetration_fraction": 0.04104662775283768,
+        "contact_head_vs_teacher_height_f1": null,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.5000803172588348,
+          "dance2_subject4": 0.3372955322265625,
+          "fight1_subject3": null,
+          "run2_subject1": 0.9045970916748047,
+          "jumps1_subject2": 0.333022803068161,
+          "sprint1_subject4": 1.1456076949834824,
+          "aiming2_subject3": 0.34351611509919167
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "ebfad4d8e0c095f83e70d0b00c057b45fcf6263360fad1650e1ff3ef2e33f731"
+      },
+      "1": {
+        "teacher_height_stance_speed_ms": 0.732654725250445,
+        "source_contact_stance_speed_ms": 0.46687405795923304,
+        "mpjpe_m": 0.04775302271757807,
+        "dof_jerk": 620.6048723856608,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0005849499476111998,
+        "penetration_fraction": 0.029141866180690982,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.5048790549238523,
+          "dance2_subject4": 0.4989386200904846,
+          "fight1_subject3": null,
+          "run2_subject1": 0.8759335398674011,
+          "jumps1_subject2": 0.292793869972229,
+          "sprint1_subject4": 1.271388255059719,
+          "aiming2_subject3": 0.31710612028837204
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "69e18bb39a8abd5cdc32f4c6b8a68cddf182da038df5d9c1f653d3647be50413"
+      },
+      "2": {
+        "teacher_height_stance_speed_ms": 0.6623368980853181,
+        "source_contact_stance_speed_ms": 0.44860582021508544,
+        "mpjpe_m": 0.046189927052529084,
+        "dof_jerk": 593.0116374038514,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.00043912537863174554,
+        "penetration_fraction": 0.022321429159048767,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.49476894239584607,
+          "dance2_subject4": 0.38436976075172424,
+          "fight1_subject3": null,
+          "run2_subject1": 0.8968457341194153,
+          "jumps1_subject2": 0.3635612726211548,
+          "sprint1_subject4": 0.9647668525576591,
+          "aiming2_subject3": 0.2622801475226879
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "4c4f5c213717c2c46150fe3341406e8ac6d9bb6d603ff710f8d1934684035fa5"
+      }
+    },
+    "c3_stance": {
+      "0": {
+        "teacher_height_stance_speed_ms": 0.4888808609623658,
+        "source_contact_stance_speed_ms": 0.29853306716818007,
+        "mpjpe_m": 0.05003904473657409,
+        "dof_jerk": 588.4730641614823,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0006181964202239344,
+        "penetration_fraction": 0.029761905593442776,
+        "contact_head_vs_teacher_height_f1": null,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.31344517692923546,
+          "dance2_subject4": 0.17220714688301086,
+          "fight1_subject3": null,
+          "run2_subject1": 0.5802253484725952,
+          "jumps1_subject2": 0.23611930012702942,
+          "sprint1_subject4": 0.887839000672102,
+          "aiming2_subject3": 0.2736280523240566
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "dea28987e1d077d160908669353da848b05238bd92db5f20ea03f650e24030cd"
+      },
+      "1": {
+        "teacher_height_stance_speed_ms": 0.41757145955374364,
+        "source_contact_stance_speed_ms": 0.28759219074466574,
+        "mpjpe_m": 0.0478047855819265,
+        "dof_jerk": 587.2356968607221,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.000792942105352354,
+        "penetration_fraction": 0.03311011969067511,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.2980171690384547,
+          "dance2_subject4": 0.15993079543113708,
+          "fight1_subject3": null,
+          "run2_subject1": 0.41657686829566953,
+          "jumps1_subject2": 0.18611057102680206,
+          "sprint1_subject4": 0.8093823380768299,
+          "aiming2_subject3": 0.23964982852339745
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "edd1c4dcfdc0daf78bf5e049bdf045d4e38cc3bf5ec04e87b2a08ce5fc6815be"
+      },
+      "2": {
+        "teacher_height_stance_speed_ms": 0.5018627055381474,
+        "source_contact_stance_speed_ms": 0.3072852405686198,
+        "mpjpe_m": 0.0517358464588012,
+        "dof_jerk": 524.3800163950239,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0007477698043027474,
+        "penetration_fraction": 0.0323660722379351,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.3244836976130803,
+          "dance2_subject4": 0.20733213424682617,
+          "fight1_subject3": null,
+          "run2_subject1": 0.5779801845550537,
+          "jumps1_subject2": 0.15345658361911774,
+          "sprint1_subject4": 0.929109051823616,
+          "aiming2_subject3": 0.31068168580532074
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "93d6e72eab188648e86fc98f70e22093f57b8140783576d373a0a2beb64aaea3"
+      }
+    },
+    "c4_teacher_velocity": {
+      "0": {
+        "teacher_height_stance_speed_ms": 0.26957172429875326,
+        "source_contact_stance_speed_ms": 0.20012321557650076,
+        "mpjpe_m": 0.030198111731026853,
+        "dof_jerk": 562.2786069370452,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 8.131429913624917e-05,
+        "penetration_fraction": 0.005084325515088581,
+        "contact_head_vs_teacher_height_f1": null,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.18973177298903465,
+          "dance2_subject4": 0.1927683800458908,
+          "fight1_subject3": null,
+          "run2_subject1": 0.292404568195343,
+          "jumps1_subject2": 0.1891966611146927,
+          "sprint1_subject4": 0.4688759371638298,
+          "aiming2_subject3": 0.1319902464747429
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "e791cc98bf33a7e25331cfb96317b511097d626f1b17c8857e2b67b8cfb84cfa"
+      },
+      "1": {
+        "teacher_height_stance_speed_ms": 0.24392410661829145,
+        "source_contact_stance_speed_ms": 0.19308037045300894,
+        "mpjpe_m": 0.030823987908661366,
+        "dof_jerk": 583.0851204962958,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.00020090127385347366,
+        "penetration_fraction": 0.012276786069075266,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.18780608723560968,
+          "dance2_subject4": 0.14755460619926453,
+          "fight1_subject3": null,
+          "run2_subject1": 0.26156188249588014,
+          "jumps1_subject2": 0.14805392920970917,
+          "sprint1_subject4": 0.4190729446709156,
+          "aiming2_subject3": 0.11400588788092136
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "0a5c014ea7046f3ffe646ed6b680c1aede80c27376dee9fa483a110b3f9a83dc"
+      },
+      "2": {
+        "teacher_height_stance_speed_ms": 0.27795736295612233,
+        "source_contact_stance_speed_ms": 0.20225966291036457,
+        "mpjpe_m": 0.03172590069118,
+        "dof_jerk": 553.4877457845779,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.00015307613925653554,
+        "penetration_fraction": 0.011408730410039425,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.20426251366734505,
+          "dance2_subject4": 0.22027289867401123,
+          "fight1_subject3": null,
+          "run2_subject1": 0.26380895972251894,
+          "jumps1_subject2": 0.15516050159931183,
+          "sprint1_subject4": 0.5180047806352377,
+          "aiming2_subject3": 0.14455874636769295
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "da830167a7d5c4ad5f489855e4347ad90738eda87055b497467ea2bd3016234d"
+      }
+    }
+  },
+  "replication_arms": {
+    "c0_seed1": {
+      "passed": true,
+      "errors": [],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.732654725250445,
+        "source_contact_stance_speed_ms": 0.46687405795923304,
+        "mpjpe_m": 0.04775302271757807,
+        "dof_jerk": 620.6048723856608,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0005849499476111998,
+        "penetration_fraction": 0.029141866180690982,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.5048790549238523,
+          "dance2_subject4": 0.4989386200904846,
+          "fight1_subject3": null,
+          "run2_subject1": 0.8759335398674011,
+          "jumps1_subject2": 0.292793869972229,
+          "sprint1_subject4": 1.271388255059719,
+          "aiming2_subject3": 0.31710612028837204
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "69e18bb39a8abd5cdc32f4c6b8a68cddf182da038df5d9c1f653d3647be50413"
+      }
+    },
+    "c0_seed2": {
+      "passed": true,
+      "errors": [],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.6623368980853181,
+        "source_contact_stance_speed_ms": 0.44860582021508544,
+        "mpjpe_m": 0.046189927052529084,
+        "dof_jerk": 593.0116374038514,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.00043912537863174554,
+        "penetration_fraction": 0.022321429159048767,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.49476894239584607,
+          "dance2_subject4": 0.38436976075172424,
+          "fight1_subject3": null,
+          "run2_subject1": 0.8968457341194153,
+          "jumps1_subject2": 0.3635612726211548,
+          "sprint1_subject4": 0.9647668525576591,
+          "aiming2_subject3": 0.2622801475226879
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "4c4f5c213717c2c46150fe3341406e8ac6d9bb6d603ff710f8d1934684035fa5"
+      }
+    },
+    "c3_stance_seed1": {
+      "passed": true,
+      "errors": [],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.41757145955374364,
+        "source_contact_stance_speed_ms": 0.28759219074466574,
+        "mpjpe_m": 0.0478047855819265,
+        "dof_jerk": 587.2356968607221,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.000792942105352354,
+        "penetration_fraction": 0.03311011969067511,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.2980171690384547,
+          "dance2_subject4": 0.15993079543113708,
+          "fight1_subject3": null,
+          "run2_subject1": 0.41657686829566953,
+          "jumps1_subject2": 0.18611057102680206,
+          "sprint1_subject4": 0.8093823380768299,
+          "aiming2_subject3": 0.23964982852339745
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "edd1c4dcfdc0daf78bf5e049bdf045d4e38cc3bf5ec04e87b2a08ce5fc6815be"
+      }
+    },
+    "c3_stance_seed2": {
+      "passed": true,
+      "errors": [],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.5018627055381474,
+        "source_contact_stance_speed_ms": 0.3072852405686198,
+        "mpjpe_m": 0.0517358464588012,
+        "dof_jerk": 524.3800163950239,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.0007477698043027474,
+        "penetration_fraction": 0.0323660722379351,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.3244836976130803,
+          "dance2_subject4": 0.20733213424682617,
+          "fight1_subject3": null,
+          "run2_subject1": 0.5779801845550537,
+          "jumps1_subject2": 0.15345658361911774,
+          "sprint1_subject4": 0.929109051823616,
+          "aiming2_subject3": 0.31068168580532074
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "93d6e72eab188648e86fc98f70e22093f57b8140783576d373a0a2beb64aaea3"
+      }
+    },
+    "c4_teacher_velocity_seed1": {
+      "passed": true,
+      "errors": [],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.24392410661829145,
+        "source_contact_stance_speed_ms": 0.19308037045300894,
+        "mpjpe_m": 0.030823987908661366,
+        "dof_jerk": 583.0851204962958,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.00020090127385347366,
+        "penetration_fraction": 0.012276786069075266,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.18780608723560968,
+          "dance2_subject4": 0.14755460619926453,
+          "fight1_subject3": null,
+          "run2_subject1": 0.26156188249588014,
+          "jumps1_subject2": 0.14805392920970917,
+          "sprint1_subject4": 0.4190729446709156,
+          "aiming2_subject3": 0.11400588788092136
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "0a5c014ea7046f3ffe646ed6b680c1aede80c27376dee9fa483a110b3f9a83dc"
+      }
+    },
+    "c4_teacher_velocity_seed2": {
+      "passed": true,
+      "errors": [],
+      "summary": {
+        "teacher_height_stance_speed_ms": 0.27795736295612233,
+        "source_contact_stance_speed_ms": 0.20225966291036457,
+        "mpjpe_m": 0.03172590069118,
+        "dof_jerk": 553.4877457845779,
+        "limit_violation_fraction": 0.0,
+        "penetration_mean_m": 0.00015307613925653554,
+        "penetration_fraction": 0.011408730410039425,
+        "per_clip_teacher_height_stance_speed_ms": {
+          "walk1_subject5": 0.20426251366734505,
+          "dance2_subject4": 0.22027289867401123,
+          "fight1_subject3": null,
+          "run2_subject1": 0.26380895972251894,
+          "jumps1_subject2": 0.15516050159931183,
+          "sprint1_subject4": 0.5180047806352377,
+          "aiming2_subject3": 0.14455874636769295
+        },
+        "evaluator_sha256": "76f736449b67bc8df4150bb8cfb2da44191a673abbd0d93c3af886cd46128cdd",
+        "checkpoint_sha256": "da830167a7d5c4ad5f489855e4347ad90738eda87055b497467ea2bd3016234d"
+      }
+    }
+  }
+}

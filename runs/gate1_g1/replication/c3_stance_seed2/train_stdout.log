@@ -1,0 +1,15 @@
+train clips: 70  val clips: 7  device: cuda
+fitted robot/human xy trajectory scale: 0.8749
+hashing dataset for run manifest ...
+step   5000  loss 0.2759  VAL mpjpe 24.73 cm  dof 0.3640 rad  (351s)
+step  10000  loss 0.2469  VAL mpjpe 23.85 cm  dof 0.3550 rad  (703s)
+step  15000  loss 0.1185  VAL mpjpe 13.22 cm  dof 0.1959 rad  (1056s)
+step  20000  loss 0.0887  VAL mpjpe 8.12 cm  dof 0.1611 rad  (1408s)
+step  25000  loss 0.0753  VAL mpjpe 6.56 cm  dof 0.1342 rad  (1762s)
+step  30000  loss 0.0501  VAL mpjpe 5.92 cm  dof 0.1089 rad  (2114s)
+step  35000  loss 0.0449  VAL mpjpe 5.55 cm  dof 0.1042 rad  (2467s)
+step  40000  loss 0.0365  VAL mpjpe 4.67 cm  dof 0.0966 rad  (2819s)
+step  45000  loss 0.0339  VAL mpjpe 4.25 cm  dof 0.0898 rad  (3171s)
+step  50000  loss 0.0323  VAL mpjpe 4.12 cm  dof 0.0872 rad  (3526s)
+
+FINAL held-out: MPJPE 5.52 cm | dof err 0.1105 rad | Gate G1 target < 3 cm

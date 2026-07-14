@@ -352,7 +352,8 @@ post-process parameter sweep.
 ### GPU queue (2026-07-14)
 1. E25 w10.0 complete; matched result and verdict recorded above.
 2. WBT seed-0 pilot complete; protocol passed and the descriptive verdict is recorded above.
-3. Gate 1 seed-0 screen complete: C4 and C3 promote; matched C0/C3/C4 seeds 1-2 are next.
+3. Gate 1 three-seed replication complete: C4/C3 pass relative guards but fail the endpoint.
+4. WBT pilot seeds 1-2 and independent evaluation rollouts are the next decisive GPU work.
    `zr_decode_prob` remains a later, separate Gate 4 experiment.
 CPU: E26b DLS grid complete; see above.
 
@@ -390,6 +391,28 @@ This is a promising causal screen, not Gate 1 completion: neither seed-0 candida
 `<=0.08 m/s` endpoint. Retrain C0, C3, and C4 from scratch at seeds 1 and 2 before making a contact
 claim. The replication analyzer is frozen before launch: aggregate physical guards and MPJPE use
 arithmetic means over seeds 0-2, while endpoint and direction requirements count matched seeds.
+
+### E32 - Gate 1 three-seed replication - **FAILS ENDPOINT**
+Frozen trainer revision `4929924`, evaluator hash `76f73644...28cdd`, G1, seeds 0-2, and the same
+42-window benchmark. All six new manifests and benchmarks pass the frozen artifact contract; no
+arm hit the gradient early-stop rule.
+
+| Family | Teacher-height speed seed 0/1/2 | Mean | Mean MPJPE | Mean source speed | Mean jerk |
+|---|---|---:|---:|---:|---:|
+| C0 | `0.709 / 0.733 / 0.662` | `0.701 m/s` | `4.70 cm` | `0.453 m/s` | `609` |
+| C3 stance | `0.489 / 0.418 / 0.502` | `0.469 m/s` | `4.99 cm` | `0.298 m/s` | `567` |
+| C4 phase-balanced | `0.270 / 0.244 / 0.278` | `0.264 m/s` | `3.09 cm` | `0.198 m/s` | `566` |
+
+C3 and C4 improve speed in all three matched seeds and pass every relative MPJPE, source-contact,
+jerk, limit, and penetration guard. C4 is a robust favorable regularizer: it cuts stance speed by
+`62.4%`, improves MPJPE by `1.61 cm`, and passes the absolute `4.0 cm` product target. However,
+neither candidate reaches `<=0.08 m/s` in any seed, versus the required two of three. **Gate 1
+fails its primary endpoint.**
+
+Decision: retain C4 as evidence and as a possible initialization component for a separately
+preregistered physics-aware method, but do not call it contact-consistent and do not tune its
+weight again. The deployable C6 projection and the factorized soft arms have now both failed; move
+to physics-repaired targets or joint retargeting/control after completing WBT replication.
 
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`
