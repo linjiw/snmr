@@ -1,0 +1,34 @@
+{
+  "unitree_g1": {
+    "snmr": {
+      "mpjpe_m": 0.07245785228553273,
+      "foot_skate_speed_ms": 0.4973961730221553,
+      "foot_slide_fraction": 0.5284919113009459,
+      "foot_skate_mann_cm": 0.20376865193247795,
+      "penetration_mean_m": 0.0007623537562288956,
+      "penetration_max_m": 0.02246196452705633,
+      "penetration_fraction": 0.044890872679562085,
+      "dof_jerk": 562.8155668292727,
+      "body_jerk": 478.3631607918512,
+      "joint_jump_fraction": 0.011343804454164845,
+      "limit_violation_fraction": 0.0,
+      "limit_proximity_fraction": 0.0802331339967038,
+      "dof_err_rad": 0.15009911588969685
+    },
+    "teacher": {
+      "foot_skate_speed_ms": 0.05166905876138203,
+      "foot_slide_fraction": 0.0,
+      "foot_skate_mann_cm": 0.14183371066160144,
+      "penetration_mean_m": 1.4814909913444094e-05,
+      "penetration_max_m": 0.0004449861478947458,
+      "penetration_fraction": 0.001736111051979519,
+      "dof_jerk": 620.8609657287598,
+      "body_jerk": 199.17209277834212,
+      "joint_jump_fraction": 0.01819995001313232,
+      "limit_violation_fraction": 0.0,
+      "limit_proximity_fraction": 0.6051587309311366
+    },
+    "throughput_fps": 747.4625875199623,
+    "num_windows": 42
+  }
+}
