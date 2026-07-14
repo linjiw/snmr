@@ -116,6 +116,27 @@ def test_gate1_diagnostic_contract_accepts_deterministic_recalibration(tmp_path)
     assert report["effective_arms"]["c3_stance_seed0"] == "c3_stance_seed0-r1"
 
 
+def test_gate1_diagnostic_contract_ignores_python_cache_directory(tmp_path):
+    _write_run(tmp_path, "c0_seed0", {})
+    _write_run(tmp_path, "c1_bce_seed0", {"contact_bce": (1.0, 0.1)})
+    _write_run(tmp_path, "c2_edge_seed0", {
+        "contact_bce": (1.0, 0.1),
+        "edge_velocity": (0.03, 0.3),
+    })
+    _write_run(tmp_path, "c3_stance_seed0", {
+        "teacher_stance_velocity": (0.03, 0.3),
+    })
+    _write_run(tmp_path, "c4_teacher_velocity_seed0", {
+        "teacher_velocity": (0.05, 0.3),
+    })
+    (tmp_path / "__pycache__").mkdir()
+
+    report = gate1.analyze_root(tmp_path)
+
+    assert report["passed"]
+    assert "__pycache__" not in {arm["arm"] for arm in report["arms"]}
+
+
 def test_gate1_diagnostic_contract_rejects_nondeterministic_recalibration(tmp_path):
     _write_run(tmp_path, "c0_seed0", {})
     _write_run(tmp_path, "c1_bce_seed0", {"contact_bce": (1.0, 0.1)})

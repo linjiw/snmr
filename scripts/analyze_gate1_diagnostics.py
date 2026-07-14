@@ -49,6 +49,7 @@ EXPECTED_ARM_TERMS = {
     "c3_stance_seed0": {"teacher_stance_velocity"},
     "c4_teacher_velocity_seed0": {"teacher_velocity"},
 }
+IGNORED_RUN_DIRECTORIES = {"__pycache__"}
 
 
 def _finite_number(value: Any) -> bool:
@@ -253,7 +254,11 @@ def analyze_root(
     expected_events: int = 10,
     final_events: int = 5,
 ) -> dict[str, Any]:
-    run_dirs = sorted(path for path in root.iterdir() if path.is_dir())
+    run_dirs = sorted(
+        path
+        for path in root.iterdir()
+        if path.is_dir() and path.name not in IGNORED_RUN_DIRECTORIES
+    )
     arms = [
         analyze_run(path, expected_events=expected_events, final_events=final_events)
         for path in run_dirs
