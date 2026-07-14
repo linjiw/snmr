@@ -56,10 +56,12 @@ def test_validate_row_rejects_inconsistent_rollout(tmp_path):
         "schema_version": 1,
         "passed": True,
         "seed": 101,
+        "training_name": "pilot_gmr_walk1_seed0",
         "num_rollouts": 100,
         "horizon_steps": 500,
         "horizon_s": 10.0,
         "policy_dt": 0.02,
+        "motion_file": "/motions/gmr/walk1_subject5_mj.npz",
         "completion_rate": 1.0,
         "mean_survival_s": 0.2,
         "rollouts": [

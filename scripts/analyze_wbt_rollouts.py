@@ -119,6 +119,7 @@ def _validate_row(row: EvaluationRow, report: dict[str, Any]) -> list[str]:
         "report.schema_version": (report.get("schema_version"), 1),
         "report.passed": (report.get("passed"), True),
         "report.seed": (report.get("seed"), row.evaluation_seed),
+        "report.training_name": (report.get("training_name"), row.train_name),
         "report.num_rollouts": (report.get("num_rollouts"), ROLLOUTS_PER_EVALUATION),
         "report.horizon_steps": (report.get("horizon_steps"), HORIZON_STEPS),
         "report.horizon_s": (report.get("horizon_s"), HORIZON_S),
@@ -126,6 +127,15 @@ def _validate_row(row: EvaluationRow, report: dict[str, Any]) -> list[str]:
     for field, (actual, expected) in checks.items():
         if actual != expected:
             errors.append(f"{field}={actual!r}, expected {expected!r}")
+
+    motion_file = report.get("motion_file")
+    motion_path = pathlib.Path(motion_file) if isinstance(motion_file, str) else None
+    if (
+        motion_path is None
+        or motion_path.parent.name != row.source
+        or not motion_path.name.startswith(row.clip + "_")
+    ):
+        errors.append(f"unexpected motion_file={motion_file!r}")
 
     if (
         row.checkpoint_path.name != "model_00999.pt"
