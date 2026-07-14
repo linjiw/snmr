@@ -14,6 +14,7 @@ tests/fixtures/pair_g1_*.npz
 
 # WBT validation NPZs (large, regenerable)
 runs/wbt_validation/**/*.npz
+runs/wbt_validation/gate2a_smoke/*.log
 
 # WBT latent exports and raw policy logs (large, regenerable)
 runs/wbt_latent/*.npz
