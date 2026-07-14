@@ -38,7 +38,7 @@ whole-body-tracking validation package are released.
 | C2 | First quantitative shared-latent analysis in cross-embodiment robotics | CKA 0.91, retrieval R@1 0.75, E1 linear 0.28 vs E3 MLP 0.91 (Elazar-Goldberg protocol) | [DONE] |
 | C3 | Honest matched-baseline accounting of sharing costs | specialist 3.75 vs shared 5.12 cm at matched steps/schedule | [DONE] |
 | C4 | Zero-shot embodiment transfer quantified (negative) | LORO PM01: 29.6 vs 5.7 cm (5.2×) | [DONE] |
-| C5 | Source-mask DLS strongly reduces foot skate but does not yet close the preregistered endpoint | E26b: teacher-height speed 0.502→0.119 m/s; source-mask speed 0.341→0.077; MPJPE 3.66→3.86 cm; all guards except primary endpoint pass | [PARTIAL] |
+| C5 | Source-mask foot-lock closes the preregistered skate endpoint; jerk/skate trade-off reported as a Pareto | E26c (12 DLS iters, extend 3): teacher-height speed 0.502→**0.068** m/s (≤0.08 endpoint PASSES) at MPJPE 4.08 cm but jerk +35%; blend=5 arm 0.132 m/s at jerk +13% (all guards pass except endpoint); oracle teacher-mask arm passes ALL guards (0.047 m/s, jerk +5%) — residual gap is mask precision, not the solver | [ENDPOINT MET — trade-off tuning open] |
 | C6 | Matched-pipeline tracking validation (retargeting → RL) | N8 package ready; paired MuJoCo/Warp smoke passed; trackability proxy shows no detectable PD-replay difference | [PILOT QUEUED] |
 | C7 | Robot→robot motion transfer via the shared latent (no human data) | currently FAILS (24–45 cm; decoder never trained on robot encodings — E19); decode-from-z_r augmentation (E21) is the fix | [PEND] |
 
