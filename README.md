@@ -2,9 +2,13 @@
 
 Implementation of the neural retargeter (contribution **C1**) from
 [`NEURAL_RETARGETING_DESIGN.md`](NEURAL_RETARGETING_DESIGN.md): a SAME-style skeleton-agnostic
-graph autoencoder that maps a motion into a **shared latent space** and decodes it onto **any robot
+graph autoencoder that maps a motion into a **shared latent space** and decodes it onto a **target robot
 embodiment** as MuJoCo `qpos`, with joint-limit satisfaction by construction and differentiable
 forward kinematics in the loss loop.
+
+For a diagram-first explanation of the implemented GMR -> SNMR -> Holosoma WBT workflow, its
+current experiment status, and the proposed latent-command/shared-policy extensions, see
+[`docs/CURRENT_ARCHITECTURE.md`](docs/CURRENT_ARCHITECTURE.md).
 
 This is a from-scratch, dependency-light (torch + numpy + scipy; mujoco to load robots) research
 codebase, built and validated against the real Unitree G1 model and a real holosoma whole-body-tracking
@@ -67,26 +71,27 @@ implementation; the other — silently dropping slide/ball joints instead of rai
   latents gives velocity-consistent output.
 - **Embodiment conditioning** (`EmbodimentEncoder` + `AdaLN` in `MotionDecoder`): a target robot's
   static graph features (rest offsets, joint axes, dof/EE flags) are pooled into an embodiment code
-  that conditions every decoder layer — enabling zero-shot decode onto a new robot from its MJCF alone.
+  that conditions every decoder layer. The interface accepts a new MJCF, but current zero-shot
+  decoding fails at the available five-robot training scale.
 - **Joint limits by construction**: per-node angle heads emit `tanh`-scaled values mapped into each
   hinge's `[lo, hi]`; the `limits` loss is a redundant safety term (observed ≈0).
 - **Differentiable FK** (`RobotKinematics.forward_kinematics`): task-space and contact losses are
   computed on FK'd bodies, so supervision can live in Cartesian space (GBC-style), not just qpos.
 
-## What is intentionally *not* built here (needs data/GPU absent in this environment)
-
-Faithful to the design's phasing, the following are scoped as documented extensions rather than
-stubbed code:
+## Current scope boundaries and deferred work
 
 - **AMASS/SMPL-X ingestion.** SMPL-X body models require registration and are not present; the
   human→robot path is fully implemented and tested on **LAFAN1** (`snmr/human.py`,
   `SNMR.retarget_human_to_robot`), and the SMPL-X body-22 topology is already in
   `smplx_body_skeleton` for when AMASS is provisioned. The skeleton-agnostic encoder needs no
   changes to accept it.
-- **Multi-robot L_z consistency training (Phase 2)** and **holosoma WBT integration (Phase 3–4)**:
-  `losses.latent_consistency_loss` and the `convert_data_format_mj.py` contract (`RobotMotion.qpos()`
-  emits exactly `[root_pos, root_quat wxyz, dof]`) are in place; the multi-embodiment training loop and
-  IsaacSim runs are the next milestones.
+- **Multi-robot SNMR is implemented and trained.** Phase 2 covers five trained robots with `L_z`
+  consistency. Zero-shot decoding to a held-out robot currently fails, so embodiment augmentation
+  and robot-source decode training remain deferred experiments.
+- **Holosoma WBT Stage A is implemented and has run locally on MuJoCo/Warp.** The matched GMR/SNMR
+  pilot is complete, but the formal comparison remains unresolved because the 1,000-iteration GMR
+  control was undertrained. Latent-command WBT, a shared multi-robot policy, and RL-to-retargeter
+  feedback remain proposed extensions.
 
 ## Conventions (fixed package-wide)
 
