@@ -1,0 +1,72 @@
+walk1_subject5 window 0:192 complete
+walk1_subject5 window 1529:1721 complete
+walk1_subject5 window 3059:3251 complete
+walk1_subject5 window 4588:4780 complete
+walk1_subject5 window 6118:6310 complete
+walk1_subject5 window 7648:7840 complete
+dance2_subject4 window 0:192 complete
+dance2_subject4 window 1315:1507 complete
+dance2_subject4 window 2631:2823 complete
+dance2_subject4 window 3947:4139 complete
+dance2_subject4 window 5263:5455 complete
+dance2_subject4 window 6579:6771 complete
+fight1_subject3 window 0:192 complete
+fight1_subject3 window 1431:1623 complete
+fight1_subject3 window 2862:3054 complete
+fight1_subject3 window 4293:4485 complete
+fight1_subject3 window 5724:5916 complete
+fight1_subject3 window 7155:7347 complete
+run2_subject1 window 0:192 complete
+run2_subject1 window 1430:1622 complete
+run2_subject1 window 2861:3053 complete
+run2_subject1 window 4291:4483 complete
+run2_subject1 window 5722:5914 complete
+run2_subject1 window 7153:7345 complete
+jumps1_subject2 window 0:192 complete
+jumps1_subject2 window 1428:1620 complete
+jumps1_subject2 window 2856:3048 complete
+jumps1_subject2 window 4285:4477 complete
+jumps1_subject2 window 5713:5905 complete
+jumps1_subject2 window 7142:7334 complete
+sprint1_subject4 window 0:192 complete
+sprint1_subject4 window 1600:1792 complete
+sprint1_subject4 window 3200:3392 complete
+sprint1_subject4 window 4801:4993 complete
+sprint1_subject4 window 6401:6593 complete
+sprint1_subject4 window 8002:8194 complete
+aiming2_subject3 window 0:192 complete
+aiming2_subject3 window 1796:1988 complete
+aiming2_subject3 window 3592:3784 complete
+aiming2_subject3 window 5388:5580 complete
+aiming2_subject3 window 7184:7376 complete
+aiming2_subject3 window 8980:9172 complete
+
+SUMMARY: {
+ "raw": {
+  "mpjpe_cm": 3.658373174922807,
+  "teacher_height_stance_speed_ms": 0.5024670484034639,
+  "source_contact_stance_speed_ms": 0.3414165879865842,
+  "dof_jerk": 692.8837534359524,
+  "limit_violation_fraction": 0.0
+ },
+ "windowed": {
+  "mpjpe_cm": 4.606014419169653,
+  "teacher_height_stance_speed_ms": 0.024405654838406725,
+  "source_contact_stance_speed_ms": 0.12656813349782342,
+  "dof_jerk": 756.1651226452419,
+  "limit_violation_fraction": 0.0
+ }
+}
+DECISIONS: {
+ "windowed": {
+  "teacher_height_speed_le_0.08": true,
+  "mpjpe_delta_le_0.005": false,
+  "absolute_mpjpe_le_0.04": false,
+  "dof_jerk_le_1.2x": true,
+  "zero_limit_violations": true,
+  "penetration_mean_guard": true,
+  "penetration_fraction_guard": false,
+  "all_relative_guards_pass": false
+ }
+}
+wrote runs/gate1b/windowed_c6_m2_c1head_full.json
