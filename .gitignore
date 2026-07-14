@@ -18,6 +18,7 @@ runs/wbt_validation/gate2a_smoke/*.log
 
 # WBT latent exports and raw policy logs (large, regenerable)
 runs/wbt_latent/*.npz
+runs/wbt_latent_gmr/*.npz
 runs/wbt_pilot/pilot_*.log
 runs/wbt_pilot_replication/pilot_*.log
 runs/wbt_independent_eval/pilot_*.log
