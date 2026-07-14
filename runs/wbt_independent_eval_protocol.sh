@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MAIN_REV=2287ca672a7bbcdf50a60d4d83ffa790bde13d1a
+MAIN_REV=fe72c9a4f954e86777e94db5c16425c2f8d3a22a
 HOLOSOMA_REV=eebdcf428d6ff6b17113c221fcc42a9e51168dc2
 MAIN=/home/ec2-user/work/retarget/snmr
 HOLOSOMA=/home/ec2-user/work/retarget/holosoma
@@ -32,7 +32,7 @@ test ! -e "$OUT"
 mkdir -p "$OUT/reports"
 cp "$0" "$OUT/protocol.sh"
 cp "$ANALYZER" "$OUT/analyze_wbt_rollouts.py"
-printf 'evaluation_seeds=101,202,303\nrollouts_per_seed=%s\nhorizon_steps=%s\nhorizon_s=%s\n' \
+printf 'evaluation_seeds=101,202,303\nrollouts_per_seed=%s\nhorizon_steps=%s\nhorizon_s=%s\ngmr_completion_floor=0.50\n' \
   "$NUM_ROLLOUTS" "$HORIZON_STEPS" "$HORIZON_S" > "$OUT/protocol.txt"
 printf '%s\n' "$HOLOSOMA_REV" > "$OUT/holosoma_revision.txt"
 git -C "$HOLOSOMA" status --porcelain > "$OUT/holosoma_status.txt"
