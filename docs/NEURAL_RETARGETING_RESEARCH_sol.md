@@ -1042,6 +1042,19 @@ training budget/config. If a horizon passes, freeze it, extend every matched GMR
 seed to that same total iteration count, and rerun evaluation seeds `101/202/303` without changing
 margins or endpoints.
 
+**Calibration execution contract (frozen 2026-07-14):** use Holosoma `9fb2b57` and
+`runs/wbt_horizon_calibration_protocol.sh`. Holosoma commits `1fb2840` and `9fb2b57` correct two
+zero-based PPO bookkeeping defects so resumed learning begins at iteration 1000 and save interval
+2000 emits checkpoints 1999/3999/5999/7999. Each clip is therefore continued once for 7,000
+updates, avoiding extra simulator resets between candidate horizons; only exact total-update
+checkpoints 1999, 3999, and 7999 are evaluated.
+
+The analyzer rejects changed training configuration beyond name/checkpoint/schedule/motion,
+missing or nonfinite scalar events, absent optimizer/normalizer state, incorrect checkpoint
+iteration or hash, malformed rollout outcomes, non-stratified starts, and incomplete endpoint
+sets. Development seed `404` is not reused in the confirmatory comparison. The calibration is a
+schedule-selection assay only, not evidence about GMR versus SNMR.
+
 ### Stage B: pilot
 
 - Use the three existing clips across walk, fight, and dance.

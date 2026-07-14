@@ -20,7 +20,9 @@ Date: 2026-07-10 · Status: **Historical design and implementation record.**
 > completions for both sources and mean survival of only `0.934 / 0.956 s` (GMR/SNMR).
 > Although SNMR joint RMSE is descriptively `3.3%` lower (95% CI `[-5.43%, +0.26%]`), GMR fails
 > the `50%` assay floor, so no non-inferiority claim is allowed. Calibrate a longer policy-training
-> horizon on GMR controls before repeating the matched comparison.
+> horizon on GMR controls before repeating the matched comparison. The frozen calibration
+> continues each seed-0 GMR control once from 1k to 8k and evaluates exact 2k/4k/8k checkpoints
+> with development seed `404`; it cannot itself support a source-comparison claim.
 > Gate 1 calibration accepts C1 BCE `0.25`, C3 stance `0.03`, and C4 phase-balanced velocity
 > `0.05`; C2 is dropped after its only retry still leaves BCE above the gradient band. Three-seed
 > replication confirms robust favorable tradeoffs for C4 (mean speed `0.701 -> 0.264 m/s`,

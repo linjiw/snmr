@@ -475,6 +475,24 @@ rollout seed `404`. Promote the earliest horizon with pooled completion `>=50%` 
 `>=25%`; if none passes at 8k, stop before spending the full 18-policy matrix and reassess the
 default 30k schedule/config.
 
+### E35 - WBT GMR horizon calibration - **FROZEN / READY**
+Use Holosoma `9fb2b57` and `runs/wbt_horizon_calibration_protocol.sh`. Two prerequisite PPO
+bookkeeping defects were fixed in Holosoma: resume now starts after the saved iteration
+(`1fb2840`), and periodic checkpoints are emitted after a completed update interval (`9fb2b57`).
+Without those fixes, continuation would duplicate iteration 999 and mislabel the requested
+milestones.
+
+For each clip, continue the existing GMR seed-0 `model_00999.pt` once for 7,000 additional PPO
+updates with optimizer and normalization state restored. Retain `model_01999.pt`,
+`model_03999.pt`, and `model_07999.pt`; evaluate each with seed `404`, 100 phase-stratified
+10-second windows, and the E34 terminal-aware endpoint set. The independent analyzer requires
+three finite 7,000-event training runs, exact checkpoint iteration/config/hash contracts, all
+nine rollout reports, and the frozen promotion thresholds. Seed `404` is development-only.
+
+Promote the earliest total horizon with pooled completion `>=50%` and every clip `>=25%`. If the
+8k checkpoint fails, stop before extending the matched 18-policy matrix. This calibration selects
+a training budget only and cannot establish non-inferiority or tracking benefit.
+
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`
   wired into train_phase2 (smoke-tested); fold p≈0.3 into the next shared retrain (can combine
