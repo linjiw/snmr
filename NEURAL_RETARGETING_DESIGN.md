@@ -223,10 +223,13 @@ sits at the **correct height** but **oscillates in xy during stance** (contact-m
 58%; decoded contact frac 0.33 vs teacher 0.74) — a *velocity* error of a correctly-placed foot,
 correlated across the leg chain, so neither position-locking nor per-joint low-pass can fix it, and
 a low-weight contact term is swamped by distill. **Execution update:** E25 `w=2` improved fidelity
-but left the skate/MPJPE ratio unchanged; `w=10` is still running. Converged source-mask framewise
-DLS can pass the speed endpoint only by failing the jerk guard, while longer blending passes jerk
-but misses speed; the teacher-mask oracle passes both. The factorized soft-objective study and a
-true windowed constrained projection therefore remain the decision path. Original
+but left the skate/MPJPE ratio unchanged. On a matched corrected evaluator, `w=10` improves MPJPE
+`3.01 -> 2.68 cm`, teacher-height stance speed `0.417 -> 0.304 m/s`, and source-contact speed
+`0.289 -> 0.221 m/s` relative to `w=2`; it still misses the primary speed endpoint by 3.8x and
+does not isolate stance. Converged source-mask framewise DLS can pass the speed endpoint only by
+failing the jerk guard, while longer blending passes jerk but misses speed; the teacher-mask
+oracle passes both. The factorized soft-objective study remains the decision path, and the
+implemented temporal projection should next be driven by a validated learned mask. Original
 literature-prior plan retained below for the record:
 
 *Prior-driven plan (partially falsified by E10a/E24 above):*

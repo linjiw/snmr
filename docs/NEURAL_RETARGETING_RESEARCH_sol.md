@@ -86,6 +86,14 @@ There are four experiment-validity problems:
 checkpoint, but no final evaluation; `w=10.0` is absent. These are incomplete experiments, not
 running or negative results.
 
+**Execution update (2026-07-14).** E25 subsequently completed. Under one matched current
+42-window evaluator, increasing the legacy all-phase displacement weight from 2 to 10 improves
+MPJPE `3.01 -> 2.68 cm`, teacher-height stance speed `0.417 -> 0.304 m/s`, source-contact speed
+`0.289 -> 0.221 m/s`, and DOF jerk `682 -> 648 rad/s^3`. The earlier w=2 teacher-height number
+used an older evaluator and is not comparable. E25 therefore shows a favorable regularization
+effect, but it remains far from the `<=0.08 m/s` endpoint and still does not isolate stance. It
+does not replace the phase-balanced C4 arm.
+
 **Decision.** Do not resume the current jobs until objective scales, gradient contributions, and the
 E10 manifest are known. Then run the factorized contact matrix in Gate 1.
 

@@ -200,18 +200,29 @@ factorized C0–C6 matrix in docs/NEURAL_RETARGETING_RESEARCH_sol.md instead of 
 
 ## 2026-07-13/14
 
-### E25 — foot-velocity distill sweep — w2.0 DONE (`runs/e25_footvel_w2.0/`), w10.0 running
+### E25 — foot-velocity distill sweep — COMPLETE
 w=2.0, G1, 100k, z=128: val MPJPE 2.11 cm (4-win) / **2.99 cm final (16-win)**, benchmark 3.01 cm
 — BETTER than the E03 no-footvel baseline (3.12/3.62 cm): the term costs nothing and slightly
-helps fidelity. Skate: legacy metric **0.225 m/s vs E03 0.255** — improved, but the skate/MPJPE
-ratio (~7.5 s⁻¹) is UNCHANGED, i.e. the improvement is the fidelity improvement's shadow, not a
-stance-specific fix. Verdict: **keep the term as a free regularizer; it is NOT the C5 fix.**
-Consistent with E24's diagnosis: matching teacher foot velocity everywhere mostly reweights the
-same regression error; the stance oscillation survives because it is the *residual* of that
-regression, not a separately-supervised quantity. Literature context (verified 2026-07-13 review):
+helps fidelity. Its original benchmark predates the corrected teacher-height aggregation and must
+not be compared with the final w=10 artifact. Re-evaluation with the same current evaluator
+(`benchmark_matched.json`) gives w=2 teacher-height stance speed **0.417 m/s**, source-contact
+speed **0.289 m/s**, and DOF jerk **682 rad/s^3**.
+
+w=10.0 completed 100k with 1.91 cm four-window validation MPJPE and 2.66 cm final held-out MPJPE.
+On the matched 42-window evaluator it improves MPJPE **3.01 -> 2.68 cm**, teacher-height stance
+speed **0.417 -> 0.304 m/s** (27%), source-contact speed **0.289 -> 0.221 m/s** (24%), and DOF
+jerk **682 -> 648 rad/s^3**. This is a real favorable tradeoff, but `0.304 m/s` is still 3.8x the
+Gate-1 `<=0.08 m/s` endpoint and 2.3x the matched teacher (`0.133 m/s`). Over the final 26
+diagnostic events, the legacy all-phase displacement term's shared-trunk gradient ratio has median
+0.069 and p90 0.131. It does not isolate stance and its median is below the factorized movement
+band.
+
+Verdict: **use E25 as evidence that stronger velocity matching helps, not as the contact fix.**
+The phase-balanced C4 arm remains required, with all legacy weights zero in Gate 1 so attribution
+is preserved. Literature context (verified 2026-07-13 review):
 Aberman'20 (2005.05732) uses EE-velocity matching at their LARGEST loss weight (anti-slide, with
 residual IK cleanup still needed); T2M-GPT shows weight sensitivity (α=0.5 helps, α=1 hurts) —
-w=10.0 (running) tests whether a much larger weight shifts the trade-off or destabilizes.
+w=10.0 confirms that a much larger weight shifts the tradeoff without destabilizing.
 
 ### E26 — foot-lock driven by SOURCE contact mask — promising pilot, not a gate result
 (`runs/skate_structure/diagnosis_v2.json`, `scripts/diagnose_skate_structure.py`, E03 ckpt, 3
@@ -329,12 +340,10 @@ localizes the remaining deployable C6 gap to mask precision/coverage. Do not cal
 closed; proceed with C0-C4 and prioritize learned/physics-repaired contact labels over another
 post-process parameter sweep.
 
-### GPU queue (2026-07-13 night)
-1. E25 w10.0 (running, ~35k/100k) — note new diagnostics.jsonl shows w10 foot-vel term reaches
-   grad-norm ~0.08 on output heads vs distill 0.22 with cosine −0.11 (mild conflict, not the
-   w≤0.2 swamping of E10a).
-2. WBT pilot (6 runs, auto-chained).
-3. Next block: factorized contact calibration C0–C4 (Gate 1), from one fixed clean revision.
+### GPU queue (2026-07-14)
+1. E25 w10.0 complete; matched result and verdict recorded above.
+2. WBT pilot (6 runs, auto-chained) is the active block.
+3. Factorized contact calibration C0–C4 (Gate 1) remains queued from one fixed clean revision.
    `zr_decode_prob` remains a later, separate Gate 4 experiment.
 CPU: E26b DLS grid complete; see above.
 
