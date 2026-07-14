@@ -25,6 +25,7 @@ class WindowedProjectionConfig:
     history_size: int = 10
     learning_rate: float = 1.0
     stance_weight: float = 1000.0
+    stance_velocity_weight: float = 1000.0
     deviation_weight: float = 0.1
     velocity_weight: float = 0.5
     acceleration_weight: float = 1.0
@@ -33,7 +34,7 @@ class WindowedProjectionConfig:
     joint_delta_bound_rad: float = 0.35
     merge_gap: int = 0
     extend: int = 0
-    min_stance_frames: int = 2
+    min_stance_frames: int = 1
     tolerance_grad: float = 1e-7
     tolerance_change: float = 1e-9
 
@@ -94,6 +95,7 @@ def _validate_inputs(
         raise ValueError(f"projection config values must be positive: {invalid}")
     weights = (
         config.stance_weight,
+        config.stance_velocity_weight,
         config.deviation_weight,
         config.velocity_weight,
         config.acceleration_weight,
@@ -114,7 +116,7 @@ def build_stance_anchors(
     foot_pos: torch.Tensor,
     contact_mask: torch.Tensor,
     *,
-    min_stance_frames: int = 2,
+    min_stance_frames: int = 1,
 ) -> tuple[torch.Tensor, torch.Tensor, list[dict[str, Any]]]:
     """Build one fixed anchor for each contiguous per-foot stance interval."""
     if foot_pos.ndim != 3 or foot_pos.shape[-1] != 3:
@@ -298,6 +300,21 @@ def windowed_contact_projection(
         )
         projected_feet = projected_body[:, foot_indices]
         stance = (projected_feet[active] - targets[active]).square().sum(dim=-1).mean()
+        if projected_feet.shape[0] > 1:
+            foot_displacement = (
+                projected_feet[1:, :, :2] - projected_feet[:-1, :, :2]
+            )
+            # The evaluator scores displacement into active frame t. It also assigns frame 0
+            # the frame-1 speed, so active frame 0 contributes one additional frame-1 weight.
+            velocity_weights = active[1:].to(projected_feet.dtype)
+            velocity_weights = velocity_weights.clone()
+            velocity_weights[0] = velocity_weights[0] + active[0].to(projected_feet.dtype)
+            stance_velocity = (
+                (foot_displacement.square().sum(dim=-1) * velocity_weights).sum()
+                / velocity_weights.sum().clamp_min(1.0)
+            )
+        else:
+            stance_velocity = projected_feet.new_zeros(())
         deviation = correction.square().mean()
         velocity = (
             (correction[1:] - correction[:-1]).square().mean()
@@ -311,12 +328,14 @@ def windowed_contact_projection(
         )
         terms = {
             "stance": stance,
+            "stance_velocity": stance_velocity,
             "deviation": deviation,
             "velocity": velocity,
             "acceleration": acceleration,
         }
         total = (
             cfg.stance_weight * stance
+            + cfg.stance_velocity_weight * stance_velocity
             + cfg.deviation_weight * deviation
             + cfg.velocity_weight * velocity
             + cfg.acceleration_weight * acceleration

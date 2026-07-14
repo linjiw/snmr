@@ -79,6 +79,7 @@ def main() -> None:
     ap.add_argument("--projection_history_size", type=int, default=10)
     ap.add_argument("--projection_lr", type=float, default=1.0)
     ap.add_argument("--projection_stance_weight", type=float, default=1000.0)
+    ap.add_argument("--projection_stance_velocity_weight", type=float, default=1000.0)
     ap.add_argument("--projection_deviation_weight", type=float, default=0.1)
     ap.add_argument("--projection_velocity_weight", type=float, default=0.5)
     ap.add_argument("--projection_acceleration_weight", type=float, default=1.0)
@@ -87,7 +88,7 @@ def main() -> None:
     ap.add_argument("--projection_joint_delta_bound", type=float, default=0.35)
     ap.add_argument("--projection_merge_gap", type=int, default=0)
     ap.add_argument("--projection_extend", type=int, default=0)
-    ap.add_argument("--projection_min_stance_frames", type=int, default=2)
+    ap.add_argument("--projection_min_stance_frames", type=int, default=1)
     ap.add_argument("--projection_tolerance_grad", type=float, default=1e-7)
     ap.add_argument("--projection_tolerance_change", type=float, default=1e-9)
     ap.add_argument(
@@ -109,6 +110,7 @@ def main() -> None:
         history_size=args.projection_history_size,
         learning_rate=args.projection_lr,
         stance_weight=args.projection_stance_weight,
+        stance_velocity_weight=args.projection_stance_velocity_weight,
         deviation_weight=args.projection_deviation_weight,
         velocity_weight=args.projection_velocity_weight,
         acceleration_weight=args.projection_acceleration_weight,

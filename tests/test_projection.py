@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from snmr.metrics import FOOT_BODIES
+from snmr.metrics import FOOT_BODIES, contact_motion_metrics
 from snmr.projection import (
     WindowedProjectionConfig,
     _norm_bounded_translation,
@@ -30,11 +30,13 @@ def test_build_stance_anchors_keeps_per_foot_intervals_separate():
     mask[1:4, 0] = True
     mask[5:8, 0] = True
     mask[2:7, 1] = True
+    mask[0, 1] = True
 
     targets, active, intervals = build_stance_anchors(feet, mask)
 
-    assert len(intervals) == 3
+    assert len(intervals) == 4
     assert active.equal(mask)
+    assert targets[0, 1, 1] == 0
     assert torch.all(targets[1:4, 0, 0] == 2)
     assert torch.all(targets[5:8, 0, 0] == 6)
     assert torch.all(targets[2:7, 1, 1] == 4)
@@ -97,8 +99,24 @@ def test_windowed_projection_reduces_anchor_error_within_all_bounds(g1_mjcf):
     )
 
     diagnostics = result.diagnostics
+    foot_indices = [rk.body_index(name) for name in feet]
+    raw_body, _ = rk.forward_kinematics(root_pos, root_quat, dof)
+    projected_body, _ = rk.forward_kinematics(
+        result.root_pos,
+        result.root_quat,
+        result.dof_pos,
+    )
+    raw_speed = contact_motion_metrics(raw_body[:, foot_indices], 30.0, mask)[
+        "stance_speed_ms"
+    ]
+    projected_speed = contact_motion_metrics(
+        projected_body[:, foot_indices],
+        30.0,
+        mask,
+    )["stance_speed_ms"]
     assert diagnostics["accepted"]
     assert diagnostics["final_anchor_rmse_m"] < diagnostics["initial_anchor_rmse_m"]
+    assert projected_speed < raw_speed
     assert diagnostics["max_root_translation_m"] <= config.root_translation_bound_m + 1e-6
     assert diagnostics["max_root_yaw_rad"] <= config.root_yaw_bound_rad + 1e-6
     assert diagnostics["max_joint_delta_rad"] <= config.joint_delta_bound_rad + 1e-6
