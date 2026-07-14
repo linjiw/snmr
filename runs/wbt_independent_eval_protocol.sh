@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MAIN_REV=b1b7be6ba63b1a7e5473a2f3a18c6f952392a55c
+MAIN_REV=2287ca672a7bbcdf50a60d4d83ffa790bde13d1a
 HOLOSOMA_REV=eebdcf428d6ff6b17113c221fcc42a9e51168dc2
 MAIN=/home/ec2-user/work/retarget/snmr
 HOLOSOMA=/home/ec2-user/work/retarget/holosoma
