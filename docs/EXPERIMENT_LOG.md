@@ -421,6 +421,16 @@ runs and reports paired final-100 and curve-AUC effects across nine clip/seed pa
 the Stage B training-seed pilot, not non-inferiority; independent fixed-seed policy rollouts remain
 mandatory.
 
+### WBT independent rollout protocol - FROZEN
+Before reading the three-seed replication result, freeze evaluation of all 18 final policies with
+Holosoma `eebdcf4`: evaluation seeds `101/202/303`, 100 phase-stratified 10-second windows per
+seed, identical starts and keyed randomization for each GMR/SNMR pair, and terminal-step metrics
+captured before reset. Coprimary endpoints are completion (SNMR-minus-GMR margin `-0.05`) and
+joint-position RMSE (relative margin `+0.10`). A 10,000-replicate paired hierarchical bootstrap
+over clips, training seeds, evaluation seeds, and rollout ids must pass both confidence bounds.
+This 5,400-rollout experiment can support a conclusion only for the three pilot clips; Stage C
+still requires 15-21 clips. Protocol: `runs/wbt_independent_eval_protocol.sh`.
+
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`
   wired into train_phase2 (smoke-tested); fold p≈0.3 into the next shared retrain (can combine

@@ -988,6 +988,23 @@ only by run name, motion file, and training seed. It reports all nine paired cli
 their descriptive means/sign counts. Training curves are not deployment evaluation: even after
 this replication, non-inferiority requires fixed-seed policy rollouts and the Stage C endpoints.
 
+**Independent pilot evaluation frozen before reading the replication result (2026-07-14):**
+evaluate every final `model_00999.pt` with Holosoma revision
+`eebdcf428d6ff6b17113c221fcc42a9e51168dc2`. For each of the 18 policies, use evaluation seeds
+`101`, `202`, and `303`, 100 environments, and 100 identical phase-stratified 10-second windows
+per seed. GMR and SNMR receive the same window starts and keyed perturbations for each matched
+clip, training seed, evaluation seed, and environment id. Record completion, survival, root/body/
+joint tracking errors, undesired contacts, joint-limit violation, torque RMS, and absolute
+mechanical power; values from a failure-triggering step are snapshotted before environment reset.
+
+The two coprimary non-inferiority margins remain the preregistered `-5` percentage points for
+SNMR-minus-GMR completion and `+10%` for SNMR-over-GMR joint-position RMSE. A fixed-seed 10,000
+replicate hierarchical bootstrap resamples clips, training seeds, evaluation seeds, and paired
+rollouts. Both confidence bounds must pass their margin. This can establish non-inferiority only
+on the three-clip pilot; it does not replace the 15-21-clip Stage C study. The executable protocol
+is `runs/wbt_independent_eval_protocol.sh`, and its analyzer rejects missing checkpoints, unmatched
+starts, malformed outcomes, incomplete metrics, and nonfinite values.
+
 ### Stage B: pilot
 
 - Use the three existing clips across walk, fight, and dance.
