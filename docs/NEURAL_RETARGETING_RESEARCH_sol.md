@@ -505,6 +505,15 @@ frames independently, holds root pose fixed, and does not jointly optimize tempo
 An earlier `0.064 m/s` aggregate was invalid because empty teacher-height masks contributed zeros;
 the metric now emits undefined values and aggregation excludes them, with regression tests.
 
+Converging DLS at 12 iterations with three-frame mask extension reaches `0.068 m/s` with the
+deployable source mask, but raises DOF jerk from `693` to `939 rad/s^3` (`1.35x`) and therefore
+fails the physical guard. Extending the transition blend from two to five frames restores the jerk
+guard (`780 rad/s^3`, `1.13x`) but weakens stance speed to `0.132 m/s`. A teacher-height oracle at
+12 iterations reaches `0.047 m/s` with all guards passing. This is a measured speed-versus-jerk
+Pareto for the framewise heuristic and evidence that mask precision/transition handling, not DLS
+convergence, is limiting. It still does not replace the preregistered soft study or the temporal,
+root-adjusting C6 formulation.
+
 #### Frozen comparison protocol
 
 | Item | Frozen value |

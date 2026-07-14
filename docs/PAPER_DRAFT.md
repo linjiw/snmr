@@ -87,7 +87,7 @@ E5 linear CKA · [scale-normalized probe to attribute the leak: scale vs style].
 G1 6.67, T1 5.80, N1 5.54, PM01 5.72, Toddy 3.16 cm. Teacher-matched on penetration, limits,
 joint-jumps; *better* than teacher on limit-proximity margins (0.29 vs 0.57).
 
-**Foot skate [PARTIAL — E26b]:** raw decoder output skates at 0.25–0.5 m/s vs teacher 0.05.
+**Foot skate [PARTIAL — E26b/E26c]:** raw decoder output skates at 0.25–0.5 m/s vs teacher 0.05.
 Root cause (E24/E26): smooth xy oscillation (~2.9 cm RMS, τ≈0.1 s) of a correctly-placed stance
 foot — the velocity shadow of the regression error (skate/MPJPE ratio ~7–9 s⁻¹ constant across
 all checkpoints), NOT high-frequency jitter (low-pass ineffective) and NOT drift from a planted
@@ -100,9 +100,12 @@ Villegas'21 ESO beats IK-only post-processing; production practice per Harvey'20
 detection under-fires 0.03 vs 0.29 frac; the known chicken-and-egg), dilated for coverage, blended
 leg-IK per stance interval. On the corrected 42-window protocol, σ=0 reduces teacher-height speed
 **0.502→0.119 m/s** and source-contact speed **0.341→0.077**, with MPJPE 3.66→3.86 cm and
-13% higher DOF jerk. It passes all physical guards but misses the `<=0.08 m/s` primary endpoint.
-Smoothing lowers jerk but weakens contact correction. The current root-fixed, frame-independent
-heuristic is not the audit's full windowed constrained projection.
+13% higher DOF jerk. At 12 iterations, a two-frame blend reaches **0.068 m/s** but fails the jerk
+guard (`1.35x`), while a five-frame blend restores the jerk guard (`1.13x`) but weakens speed to
+**0.132 m/s**. A teacher-height oracle reaches **0.047 m/s** with all guards passing. This
+localizes the remaining heuristic gap to mask precision and transition handling, while the current
+root-fixed, frame-independent solver remains distinct from the audit's full windowed constrained
+projection.
 
 **Shared-latent analysis [DONE]:** CKA 0.910 (0.86–0.98 all 15 pairs incl. human); retrieval
 human→robot R@1 0.749 / MRR 0.838 (chance 0.010); E1 0.278 / E3 0.909 / proxy-A 1.78. E2 motion
@@ -144,8 +147,8 @@ Both reported with the confounds that earlier, wrong readings had (schedule alig
    (ablation): its cost may only be justified by jerk/smoothness, pending contact-retrain interplay.
 
 ## 5. TODO before submission
-- [ ] C5: run factorized Gate 1 C0–C4 and a full windowed projection; E26b is a strong partial
-      result but misses the teacher-height target
+- [ ] C5: run factorized Gate 1 C0–C4 and a full windowed projection; E26c establishes a
+      speed-versus-jerk Pareto for framewise DLS, not a gate pass
 - [ ] C6 WBT comparison — now LOCAL (holosoma MuJoCo/Warp backend, venv ready); smoke → pilot
       (3 clips × paired seeds) → confirmatory (per audit Gate 2)
 - [ ] Embodiment augmentation run (synthetic MJCF variants) → revisit LORO (audit Gate 4: keep

@@ -10,8 +10,9 @@ Date: 2026-07-10 · Status: **Historical design and implementation record.**
 > `docs/NEURAL_RETARGETING_RESEARCH_sol.md` as the current decision-gated plan. It supersedes
 > optimistic or stale status language below. Gate 0 is complete; the immediate work is the
 > factorized Gate 1 contact study and matched Gate 2 WBT validation. The source-mask DLS heuristic
-> is promising but does not yet pass Gate 1's teacher-height endpoint, and the shared-model,
-> unseen-target, representation, temporal, and throughput claims remain bounded by that audit.
+> exposes a speed-versus-jerk Pareto and does not yet pass Gate 1's combined endpoint and physical
+> guards; only a teacher-mask oracle passes both. The shared-model, unseen-target, representation,
+> temporal, and throughput claims remain bounded by that audit.
 
 ---
 
@@ -220,12 +221,12 @@ distill and even hurts MPJPE at w=1); (2) a post-hoc low-pass filter barely help
 sits at the **correct height** but **oscillates in xy during stance** (contact-mask agreement only
 58%; decoded contact frac 0.33 vs teacher 0.74) — a *velocity* error of a correctly-placed foot,
 correlated across the leg chain, so neither position-locking nor per-joint low-pass can fix it, and
-a low-weight contact term is swamped by distill. **Current fix (E25, running):** a
-`foot_velocity_distill_loss` that matches the teacher's FK foot velocity in world frame — folding
-"low stance velocity" into the *winning* distill objective rather than a competing term. Sweep
-w∈{2,10} on G1 @100k. If it fails too, the honest fallback is to report the gap (~2-3× teacher) as
-a known limitation of pure kinematic distillation that the downstream RL tracker absorbs (the GMR
-paper's own framing). Original literature-prior plan retained below for the record:
+a low-weight contact term is swamped by distill. **Execution update:** E25 `w=2` improved fidelity
+but left the skate/MPJPE ratio unchanged; `w=10` is still running. Converged source-mask framewise
+DLS can pass the speed endpoint only by failing the jerk guard, while longer blending passes jerk
+but misses speed; the teacher-mask oracle passes both. The factorized soft-objective study and a
+true windowed constrained projection therefore remain the decision path. Original
+literature-prior plan retained below for the record:
 
 *Prior-driven plan (partially falsified by E10a/E24 above):*
 - *The precedent that maps 1:1 onto our failure is SAME's own ablation:* their pose metrics were

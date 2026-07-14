@@ -266,11 +266,13 @@ E26b's residual was under-convergence (4 iters) + stance under-coverage (extend 
   ALL GUARDS PASS.** The oracle-vs-source gap (0.047 vs 0.068 + the jerk difference) is mask
   precision: the dilated source mask over-covers swing frames, whose blended pinning adds edits
   the oracle never makes.
-- Running (E26c-2): blend 5 (Kovar-style longer ease-in/out) on the source mask to buy the jerk
-  guard back without giving up the endpoint. If the trade persists, the honest report is a
-  skate-vs-jerk Pareto (σ/blend/iters knobs) + the oracle row showing the mask, not the solver,
-  is the remaining gap — and a trained contact head (UnderPressure F1 0.95 vs 0.91 heuristic)
-  as the identified next lever.
+- **E26c-2 blend 5 completed:** the longer ease-in/out restores the jerk guard (693→780,
+  `1.13×`) and keeps MPJPE within the absolute target (3.66→3.98 cm), but teacher-height speed
+  rebounds to **0.132 m/s** and misses the endpoint. The framewise heuristic therefore has a
+  measured skate-vs-jerk Pareto: blend 2 passes speed and fails jerk; blend 5 passes jerk and
+  fails speed. The oracle row shows that mask precision/transition handling, not the DLS solve,
+  is the remaining gap. A trained contact head is one possible mask lever, but C0-C4 attribution
+  and the full temporal C6 baseline come first.
 
 ### E27 — WBT-on-MuJoCo/Warp SMOKE — **PASSED (2026-07-13)**; paired pilot QUEUED
 Dedicated env `.venv-wbt` (py3.11, torch 2.6 cu124, holosoma editable, mujoco-warp 3.10.0.2,
