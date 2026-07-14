@@ -219,6 +219,21 @@ def test_contact_motion_metrics_reports_per_foot_values():
     assert floating["per_foot_floating_fraction"] == [1.0, 0.0]
 
 
+def test_contact_motion_metrics_empty_mask_is_undefined():
+    feet = torch.zeros(4, 2, 3)
+    metrics = contact_motion_metrics(
+        feet,
+        fps=30.0,
+        contact_mask=torch.zeros(4, 2, dtype=torch.bool),
+    )
+    assert metrics["contact_samples"] == 0
+    assert metrics["stance_speed_ms"] is None
+    assert metrics["slide_fraction"] is None
+    assert metrics["floating_mean_m"] is None
+    assert metrics["floating_fraction"] is None
+    assert metrics["per_foot_stance_speed_ms"] == [None, None]
+
+
 def test_all_foot_bodies_exist():
     """Every FOOT_BODIES entry must name real bodies in its robot's MJCF."""
     import pytest

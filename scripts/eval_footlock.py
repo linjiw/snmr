@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from snmr.data import local_root_to_world  # noqa: E402
+from snmr.experiment import git_state, runtime_state, sha256_file, utc_now  # noqa: E402
 from snmr.footlock import foot_lock_masked  # noqa: E402
 from snmr.human import (  # noqa: E402
     LAFAN1_CONTACT_BODIES,
@@ -63,6 +64,11 @@ def main() -> None:
     ap.add_argument("--lock_blend", type=int, default=2)
     ap.add_argument("--lock_merge_gap", type=int, default=6)
     ap.add_argument("--lock_extend", type=int, default=2)
+    ap.add_argument(
+        "--lock_mask",
+        choices=["source_contact", "source_height", "teacher_height"],
+        default="source_contact",
+    )
     ap.add_argument("--bootstrap_samples", type=int, default=2000)
     ap.add_argument("--bootstrap_seed", type=int, default=0)
     ap.add_argument("--device", default="cpu")
@@ -76,6 +82,27 @@ def main() -> None:
     outp = pathlib.Path(args.out)
     if outp.exists() and not args.overwrite:
         raise FileExistsError(f"refusing to overwrite existing result: {outp}")
+
+    provenance = {
+        "created_at": utc_now(),
+        "command": [sys.executable, *sys.argv],
+        "git": git_state(ROOT),
+        "runtime": runtime_state(args.device),
+        "artifacts": {
+            "checkpoint": {
+                "path": str(pathlib.Path(args.ckpt).resolve()),
+                "sha256": sha256_file(args.ckpt),
+            },
+            "evaluator": {
+                "path": str(pathlib.Path(__file__).resolve()),
+                "sha256": sha256_file(__file__),
+            },
+            "solver": {
+                "path": str((ROOT / "snmr" / "footlock.py").resolve()),
+                "sha256": sha256_file(ROOT / "snmr" / "footlock.py"),
+            },
+        },
+    }
 
     dev = args.device
     model, state = load_model(args.ckpt, dev)
@@ -185,7 +212,7 @@ def main() -> None:
                     wq,
                     pred["dof_pos"],
                     feet,
-                    window_masks["source_contact"],
+                    window_masks[args.lock_mask],
                     iters=args.lock_iters,
                     lr=args.lock_step_scale,
                     damping=args.lock_damping,
@@ -237,13 +264,19 @@ def main() -> None:
 
     out = {
         "ckpt": args.ckpt,
+        "provenance": provenance,
         "protocol": {
             "robot": args.robot,
             "clips": args.clips,
             "window": args.window,
             "windows_per_clip_max": args.windows_per_clip,
             "num_windows": len(rows["raw"]),
-            "lock_mask": "full-clip source_contact; height<0.08m and speed<0.24m/s",
+            "lock_mask": args.lock_mask,
+            "lock_mask_definitions": {
+                "source_contact": "source height<0.08m and speed<0.24m/s",
+                "source_height": "source height hysteresis enter=0.08m, exit=0.10m",
+                "teacher_height": "teacher height hysteresis enter=0.03m, exit=0.05m",
+            },
             "lock_parameters": {
                 "iters": args.lock_iters,
                 "step_scale": args.lock_step_scale,

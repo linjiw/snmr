@@ -15,14 +15,14 @@ embodiments. We present SNMR, a skeleton-agnostic neural retargeter that maps hu
 shared per-frame latent space and decodes it onto any of five heterogeneous humanoid robots
 (0.34–0.78 m root height, 22–29 DoF) as MuJoCo-ready joint trajectories, with joint-limit
 satisfaction by construction. Distilled from an IK teacher (GMR) with differentiable-FK task
-losses, a single 1.6 M-parameter network reaches 2.2 cm held-out whole-body error on Unitree G1 —
-matching the teacher's fidelity at 12× its throughput — and 3.2–6.7 cm across all five robots
-simultaneously. We contribute the first quantitative *representation analysis* in cross-embodiment
+losses, a 1.6 M-parameter specialist reaches 3.1 cm on a dense held-out Unitree G1 evaluation,
+and one shared model reaches 3.2–6.7 cm across five trained robots simultaneously. We contribute
+a quantitative *representation analysis* for cross-embodiment
 robot learning: the latent is strongly aligned across embodiments (linear CKA 0.91; 75 %
 cross-embodiment motion retrieval at 1 % chance) yet embodiment identity remains nonlinearly
 decodable (91 % MLP attacker vs 28 % linear probe) — a measured gap between "shared" and
 "invariant" that prior work leaves unexamined. We report honest negative results with matched
-baselines: at fixed parameter budget, joint training costs ~1.4 cm per robot versus specialists,
+baselines: under the current matched G1 comparison, joint training costs ~1.4 cm versus a specialist,
 and zero-shot decoding to an unseen robot from its kinematic description alone fails (5.2× the
 in-training error), quantifying how far embodiment-level generalization remains. All code, metrics
 aligned with the GMR/OmniRetarget/NMR/SAME evaluation conventions, and a matched-pipeline
@@ -34,12 +34,12 @@ whole-body-tracking validation package are released.
 
 | # | Claim | Evidence | Status |
 |---|---|---|---|
-| C1 | One skeleton-agnostic network retargets to 5 heterogeneous humanoids at IK-teacher fidelity, 12× throughput, joint limits by construction | G1 2.18 cm held-out (Gate G1); all-5: 3.2–6.7 cm; ~2000 fps GPU vs ~160 fps CPU teacher; 0 limit violations | [DONE] |
+| C1 | One skeleton-agnostic network amortizes a GMR teacher across 5 trained humanoids with low pose error and joint limits by construction | G1 2.18 cm sparse held-out eval; all-5: 3.2–6.7 cm; 0 limit violations; controlled throughput pending | [DONE, contact caveat] |
 | C2 | First quantitative shared-latent analysis in cross-embodiment robotics | CKA 0.91, retrieval R@1 0.75, E1 linear 0.28 vs E3 MLP 0.91 (Elazar-Goldberg protocol) | [DONE] |
 | C3 | Honest matched-baseline accounting of sharing costs | specialist 3.75 vs shared 5.12 cm at matched steps/schedule | [DONE] |
 | C4 | Zero-shot embodiment transfer quantified (negative) | LORO PM01: 29.6 vs 5.7 cm (5.2×) | [DONE] |
-| C5 | Foot-skate gap closed by prediction + source-mask-constrained correction | E26 pilot: skate 0.489→0.064 m/s (≤0.08 target) at +0.1 cm MPJPE; training-time losses alone verifiably insufficient (E10a bundled sweep, E25 velocity-distill) | [PILOT DONE — full-clip eval E26b running] |
-| C6 | Matched-pipeline tracking validation (retargeting → RL) | N8 package ready; **WBT trains locally on holosoma's MuJoCo/Warp backend (E20 scout: CLI overrides only)** + trackability proxy already shows PD-replay equivalence (E18) | [PEND — local GPU block] |
+| C5 | Source-mask DLS strongly reduces foot skate but does not yet close the preregistered endpoint | E26b: teacher-height speed 0.502→0.119 m/s; source-mask speed 0.341→0.077; MPJPE 3.66→3.86 cm; all guards except primary endpoint pass | [PARTIAL] |
+| C6 | Matched-pipeline tracking validation (retargeting → RL) | N8 package ready; paired MuJoCo/Warp smoke passed; trackability proxy shows no detectable PD-replay difference | [PILOT QUEUED] |
 | C7 | Robot→robot motion transfer via the shared latent (no human data) | currently FAILS (24–45 cm; decoder never trained on robot encodings — E19); decode-from-z_r augmentation (E21) is the fix | [PEND] |
 
 ## 2. Method (framework)
@@ -87,18 +87,22 @@ E5 linear CKA · [scale-normalized probe to attribute the leak: scale vs style].
 G1 6.67, T1 5.80, N1 5.54, PM01 5.72, Toddy 3.16 cm. Teacher-matched on penetration, limits,
 joint-jumps; *better* than teacher on limit-proximity margins (0.29 vs 0.57).
 
-**Foot skate [PILOT RESOLVED — E26]:** raw decoder output skates at 0.25–0.5 m/s vs teacher 0.05.
+**Foot skate [PARTIAL — E26b]:** raw decoder output skates at 0.25–0.5 m/s vs teacher 0.05.
 Root cause (E24/E26): smooth xy oscillation (~2.9 cm RMS, τ≈0.1 s) of a correctly-placed stance
 foot — the velocity shadow of the regression error (skate/MPJPE ratio ~7–9 s⁻¹ constant across
 all checkpoints), NOT high-frequency jitter (low-pass ineffective) and NOT drift from a planted
-point. Training-time levers verifiably insufficient: bundled contact losses fail at every weight
-(E10a), foot-velocity distill helps MPJPE but leaves the ratio unchanged (E25). The fix is the
+point. Available training-time levers are insufficient: the bundled E10a objective failed at every
+tested weight, while E25 w=2 improves MPJPE but leaves the ratio unchanged; the factorized Gate 1
+study remains pending. The strongest current lever is the
 field's standard hybrid (cf. OmniRetarget hard stance constraints → exactly-zero skate;
 Villegas'21 ESO beats IK-only post-processing; production practice per Harvey'20/PFNN): a
 **source-mask-driven foot-lock** — contact labels from the CLEAN human input (decoded-motion
 detection under-fires 0.03 vs 0.29 frac; the known chicken-and-egg), dilated for coverage, blended
-leg-IK per stance interval. E26 pilot: **0.489→0.064 m/s (below the 0.08 target) at +0.1 cm
-MPJPE**; jerk cost mitigated by smoothing the IK correction (σ grid in E26b).
+leg-IK per stance interval. On the corrected 42-window protocol, σ=0 reduces teacher-height speed
+**0.502→0.119 m/s** and source-contact speed **0.341→0.077**, with MPJPE 3.66→3.86 cm and
+13% higher DOF jerk. It passes all physical guards but misses the `<=0.08 m/s` primary endpoint.
+Smoothing lowers jerk but weakens contact correction. The current root-fixed, frame-independent
+heuristic is not the audit's full windowed constrained projection.
 
 **Shared-latent analysis [DONE]:** CKA 0.910 (0.86–0.98 all 15 pairs incl. human); retrieval
 human→robot R@1 0.749 / MRR 0.838 (chance 0.010); E1 0.278 / E3 0.909 / proxy-A 1.78. E2 motion
@@ -106,22 +110,24 @@ probe stays ~chance under both window-mean and temporal-statistics readouts (0.1
 space is **content-specific, not semantically organized**: it carries instance-level trajectory
 detail (75 % exact-clip retrieval) but no linearly-separable category structure, consistent with
 what pure distillation trains for. (Earlier "window-mean artifact" hypothesis tested and rejected.)
-**Leak attribution [DONE]:** height-normalizing input features moves the MLP attacker only
-0.943→0.933 — **scale explains ~1 % of the embodiment leak; the signature is structural/stylistic
-(H-deep)**. This measurement (a) motivates a domain-confusion term as the principled fix and
-(b) upgrades the analysis contribution: we don't just report the shared-vs-invariant gap, we
-attribute it.
+**Leak diagnostic [DONE]:** height-normalizing input features at evaluation moves the MLP attacker
+only 0.943→0.933. Because the encoder was trained on raw features, this is an out-of-distribution
+intervention: it does not causally attribute the remaining leakage, but it rules out claiming that
+simple evaluation-time amplitude normalization removes identity.
 **Figures [DONE]** (`runs/figures/`): dual-colored t-SNE+UMAP — embodiment-colored intermixed,
-motion-colored cleanly clustered — the visual proof of the shared space, and it shows motion is
-*nonlinearly* organized (reconciling the weak linear motion probe). CKA heatmap tracks morphology
+motion-colored cleanly clustered — an exploratory visualization consistent with a shared space,
+not proof of invariance. CKA heatmap tracks morphology
 (adult humanoids 0.96–0.98; human↔toddy weakest at 0.82).
 
-**Ablations [PARTIAL — grid running]:**
+**Ablations [DONE]:**
 | variant | MPJPE (cm) | skate (m/s) | dof jerk | note |
 |---|---|---|---|---|
 | base z=128 (50k) | 4.71 | 0.386 | 614 | control |
 | no_temporal | **3.95** | **0.358** | 720 | temporal transformer NOT the noise-suppressor we assumed — removing it *improves* MPJPE/skate, worsens jerk |
-| z32 / small / contact / lr8e4 | — | — | — | running |
+| z32 | 5.51 | 0.435 | — | latent bottleneck hurts |
+| small | 4.78 | 0.412 | — | width alone does not explain specialist fidelity |
+| bundled contact w=0.1 | 4.87 | 0.402 | — | no contact gain |
+| lr8e4 | 32.0 | 0.829 | — | divergent negative control |
 | teacher (GMR) | — | 0.052 | 621 | reference |
 
 **Negative results [DONE]:** matched-budget sharing cost (3.75→5.12 cm); LORO zero-shot 5.2×.
@@ -138,13 +144,14 @@ Both reported with the confounds that earlier, wrong readings had (schedule alig
    (ablation): its cost may only be justified by jerk/smoothness, pending contact-retrain interplay.
 
 ## 5. TODO before submission
-- [x] C5: E26 source-mask foot-lock pilot passes the ≤0.08 m/s target — full 7-clip eval (E26b)
-      + apply to WBT exports; contact sweep DONE (negative, reported as evidence)
+- [ ] C5: run factorized Gate 1 C0–C4 and a full windowed projection; E26b is a strong partial
+      result but misses the teacher-height target
 - [ ] C6 WBT comparison — now LOCAL (holosoma MuJoCo/Warp backend, venv ready); smoke → pilot
       (3 clips × paired seeds) → confirmatory (per audit Gate 2)
 - [ ] Embodiment augmentation run (synthetic MJCF variants) → revisit LORO (audit Gate 4: keep
       separate from zr_decode_prob arm)
-- [ ] Sharing-cost diagnosis: per-robot gradient cosine/norm BEFORE capacity scale-up (audit Gate 3)
+- [x] Sharing-cost diagnosis: per-robot gradient cosine/norm; no pervasive mean conflict, but
+      sporadic negative observations remain; test width/adapters before PCGrad
 - [ ] Temporal: positional-encoding transformer arm before any temporal-modeling claim (audit Gate 6
       — current module is content-only attention, snmr/model.py:164)
 - [ ] Figures: architecture, CKA heatmap, dual-colored t-SNE, per-robot qualitative strips

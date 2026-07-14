@@ -49,59 +49,83 @@ def _solve_foot_dls(
     step_scale: float,
     damping: float,
 ) -> torch.Tensor:
-    """Solve one frame with a task-space damped least-squares FK update."""
+    """Solve one frame or a batch of independent frames with task-space DLS."""
     q = dof_pos.detach().clone()
+    squeeze = q.ndim == 1
+    if squeeze:
+        q = q.unsqueeze(0)
+        root_pos = root_pos.unsqueeze(0)
+        root_quat = root_quat.unsqueeze(0)
+        target = target.unsqueeze(0)
+    if q.ndim != 2 or target.shape != (q.shape[0], 3):
+        raise ValueError(
+            f"expected dof_pos (B,D) and target (B,3), got {tuple(q.shape)} "
+            f"and {tuple(target.shape)}"
+        )
+
     lo, hi = kin.dof_limits()
     lo = lo.to(device=q.device, dtype=q.dtype)
     hi = hi.to(device=q.device, dtype=q.dtype)
-    eye = torch.eye(3, device=q.device, dtype=q.dtype)
+    eye = torch.eye(3, device=q.device, dtype=q.dtype).expand(q.shape[0], -1, -1)
 
     for _ in range(iters):
         q = q.detach().requires_grad_(True)
         body_pos, _ = kin.forward_kinematics(root_pos, root_quat, q)
-        foot_pos = body_pos[foot_body_index]
+        foot_pos = body_pos[:, foot_body_index]
         residual = foot_pos - target
-        current_error = residual.square().sum().detach()
-        if current_error <= 1e-10:
+        current_error = residual.square().sum(dim=-1).detach()
+        if bool((current_error <= 1e-10).all()):
             break
 
         jacobian = torch.stack(
             [
                 torch.autograd.grad(
-                    foot_pos[axis],
+                    foot_pos[:, axis].sum(),
                     q,
                     retain_graph=axis < 2,
-                )[0][leg_dof_indices]
+                )[0][:, leg_dof_indices]
                 for axis in range(3)
-            ]
+            ],
+            dim=1,
         )
-        normal = jacobian @ jacobian.transpose(0, 1) + damping * eye
-        delta = -jacobian.transpose(0, 1) @ torch.linalg.solve(normal, residual.detach())
-        delta_norm = delta.norm()
-        if delta_norm > 0.25:
-            delta = delta * (0.25 / delta_norm)
+        normal = jacobian @ jacobian.transpose(1, 2) + damping * eye
+        delta = -(
+            jacobian.transpose(1, 2)
+            @ torch.linalg.solve(normal, residual.detach().unsqueeze(-1))
+        ).squeeze(-1)
+        delta_norm = delta.norm(dim=-1, keepdim=True)
+        delta = delta * (0.25 / delta_norm.clamp_min(0.25))
 
         base = q.detach()
-        base_leg = base[leg_dof_indices]
-        alpha = min(max(step_scale, 0.0), 1.0)
-        accepted = base
+        base_leg = base[:, leg_dof_indices]
+        alpha = torch.full(
+            (q.shape[0], 1),
+            min(max(step_scale, 0.0), 1.0),
+            device=q.device,
+            dtype=q.dtype,
+        )
+        accepted = base.clone()
+        pending = current_error > 1e-10
         for _ in range(6):
             candidate_leg = (
                 base_leg + alpha * delta
             ).clamp(lo[leg_dof_indices], hi[leg_dof_indices])
-            candidate = base.index_copy(0, leg_dof_indices, candidate_leg)
+            candidate = base.index_copy(1, leg_dof_indices, candidate_leg)
             with torch.no_grad():
                 candidate_pos, _ = kin.forward_kinematics(root_pos, root_quat, candidate)
                 candidate_error = (
-                    candidate_pos[foot_body_index] - target
-                ).square().sum()
-            if candidate_error < current_error:
-                accepted = candidate
+                    candidate_pos[:, foot_body_index] - target
+                ).square().sum(dim=-1)
+            improved = pending & (candidate_error < current_error)
+            accepted = torch.where(improved[:, None], candidate, accepted)
+            pending = pending & ~improved
+            if not bool(pending.any()):
                 break
-            alpha *= 0.5
+            alpha = torch.where(pending[:, None], alpha * 0.5, alpha)
         q = accepted
 
-    return q.detach()
+    result = q.detach()
+    return result[0] if squeeze else result
 
 
 def foot_lock(
@@ -277,22 +301,31 @@ def foot_lock_masked(
                 target = torch.empty(3, device=dof.device, dtype=dof.dtype)
                 target[:2] = seg[:, :2].median(dim=0).values
                 target[2] = seg[:, 2].min()
-            for t in range(lo, hi):
-                w = min(1.0, (t - lo + 1) / max(blend, 1), (hi - t) / max(blend, 1))
-                tgt_t = w * target + (1 - w) * feet0[t, fi, :]
-                targets[t, fi] = tgt_t
-                dof[t] = _solve_foot_dls(
-                    kin,
-                    root_pos[t],
-                    root_quat[t],
-                    dof[t],
-                    bidx,
-                    leg_dofs_t,
-                    tgt_t,
-                    iters,
-                    lr,
-                    damping,
-                )
+            frame = torch.arange(lo, hi, device=dof.device, dtype=dof.dtype)
+            weight = torch.minimum(
+                torch.ones_like(frame),
+                torch.minimum(
+                    (frame - lo + 1) / max(blend, 1),
+                    (hi - frame) / max(blend, 1),
+                ),
+            )
+            interval_targets = (
+                weight[:, None] * target
+                + (1 - weight[:, None]) * feet0[lo:hi, fi, :]
+            )
+            targets[lo:hi, fi] = interval_targets
+            dof[lo:hi] = _solve_foot_dls(
+                kin,
+                root_pos[lo:hi],
+                root_quat[lo:hi],
+                dof[lo:hi],
+                bidx,
+                leg_dofs_t,
+                interval_targets,
+                iters,
+                lr,
+                damping,
+            )
 
     if smooth_sigma > 0:
         dof = smooth_correction(dof_pos, dof, sigma=smooth_sigma)
@@ -308,15 +341,16 @@ def foot_lock_masked(
             )
             bidx = foot_idx[fi]
             valid_targets = torch.isfinite(targets[:, fi]).all(dim=-1)
-            for t in torch.nonzero(valid_targets, as_tuple=False).flatten().tolist():
-                dof[t] = _solve_foot_dls(
+            valid_indices = torch.nonzero(valid_targets, as_tuple=False).flatten()
+            if valid_indices.numel():
+                dof[valid_indices] = _solve_foot_dls(
                     kin,
-                    root_pos[t],
-                    root_quat[t],
-                    dof[t],
+                    root_pos[valid_indices],
+                    root_quat[valid_indices],
+                    dof[valid_indices],
                     bidx,
                     leg_dofs_t,
-                    targets[t, fi],
+                    targets[valid_indices, fi],
                     reprojection_iters,
                     lr,
                     damping,

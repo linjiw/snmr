@@ -3,7 +3,14 @@
 import pytest
 import torch
 
-from snmr.footlock import dilate_contact_mask, foot_lock, foot_lock_masked, smooth_correction
+from snmr.footlock import (
+    _leg_dof_indices,
+    _solve_foot_dls,
+    dilate_contact_mask,
+    foot_lock,
+    foot_lock_masked,
+    smooth_correction,
+)
 from snmr.metrics import FOOT_BODIES
 from snmr.robot_model import RobotKinematics
 
@@ -77,6 +84,37 @@ def test_foot_lock_masked_reduces_stance_velocity(g1_mjcf):
     assert torch.isfinite(locked).all()
     lo, hi = rk.dof_limits()
     assert (locked >= lo).all() and (locked <= hi).all()
+
+
+def test_batched_dls_matches_independent_frame_solves(g1_mjcf):
+    rk = RobotKinematics(g1_mjcf)
+    foot = FOOT_BODIES["unitree_g1"][0]
+    root_pos, root_quat, dof = _standing_motion(rk, T=4)
+    body_pos, _ = rk.forward_kinematics(root_pos, root_quat, dof)
+    foot_index = rk.body_index(foot)
+    target = body_pos[:, foot_index].detach().clone()
+    target[:, 0] += torch.tensor([0.004, -0.003, 0.002, -0.001])
+    leg_dofs = torch.tensor(_leg_dof_indices(rk, foot), dtype=torch.long)
+
+    batched = _solve_foot_dls(
+        rk, root_pos, root_quat, dof, foot_index, leg_dofs, target, 3, 0.5, 1e-2
+    )
+    independent = torch.stack([
+        _solve_foot_dls(
+            rk,
+            root_pos[frame],
+            root_quat[frame],
+            dof[frame],
+            foot_index,
+            leg_dofs,
+            target[frame],
+            3,
+            0.5,
+            1e-2,
+        )
+        for frame in range(dof.shape[0])
+    ])
+    assert torch.allclose(batched, independent, atol=1e-6, rtol=1e-6)
 
 
 def test_foot_lock_masked_respects_empty_mask(g1_mjcf):

@@ -161,16 +161,33 @@ def contact_motion_metrics(
         speed[0] = speed[1]
     active = contact_mask.to(dtype=torch.bool, device=foot_pos.device)
     active_float = active.to(foot_pos.dtype)
+    active_count = int(active.sum())
     denominator = active_float.sum().clamp_min(1.0)
-    mean_speed = (speed * active_float).sum() / denominator
-    slide_fraction = ((speed > slide_speed_threshold) & active).sum() / denominator
+    mean_speed = (
+        float((speed * active_float).sum() / denominator)
+        if active_count
+        else None
+    )
+    slide_fraction = (
+        float(((speed > slide_speed_threshold) & active).sum() / denominator)
+        if active_count
+        else None
+    )
     if reference_foot_pos is None:
         baseline_height = foot_pos[..., 2].min(dim=0, keepdim=True).values
     else:
         baseline_height = reference_foot_pos[..., 2]
     height_excess = foot_pos[..., 2] - baseline_height
-    floating_mean = (height_excess.clamp_min(0.0) * active_float).sum() / denominator
-    floating_fraction = ((height_excess > floating_height_threshold) & active).sum() / denominator
+    floating_mean = (
+        float((height_excess.clamp_min(0.0) * active_float).sum() / denominator)
+        if active_count
+        else None
+    )
+    floating_fraction = (
+        float(((height_excess > floating_height_threshold) & active).sum() / denominator)
+        if active_count
+        else None
+    )
 
     per_foot_speed = []
     per_foot_slide = []
@@ -178,25 +195,34 @@ def contact_motion_metrics(
     per_foot_samples = []
     for foot in range(feet):
         foot_active = active[:, foot]
+        foot_count = int(foot_active.sum())
         foot_denominator = foot_active.sum().clamp_min(1)
-        per_foot_speed.append(float(speed[:, foot][foot_active].sum() / foot_denominator))
+        per_foot_speed.append(
+            float(speed[:, foot][foot_active].sum() / foot_denominator)
+            if foot_count
+            else None
+        )
         per_foot_slide.append(
             float(((speed[:, foot] > slide_speed_threshold) & foot_active).sum() / foot_denominator)
+            if foot_count
+            else None
         )
         per_foot_floating.append(
             float(
                 ((height_excess[:, foot] > floating_height_threshold) & foot_active).sum()
                 / foot_denominator
             )
+            if foot_count
+            else None
         )
-        per_foot_samples.append(int(foot_active.sum()))
+        per_foot_samples.append(foot_count)
     return {
-        "stance_speed_ms": float(mean_speed),
-        "slide_fraction": float(slide_fraction),
-        "floating_mean_m": float(floating_mean),
-        "floating_fraction": float(floating_fraction),
+        "stance_speed_ms": mean_speed,
+        "slide_fraction": slide_fraction,
+        "floating_mean_m": floating_mean,
+        "floating_fraction": floating_fraction,
         "contact_prevalence": float(active_float.mean()) if active.numel() else 0.0,
-        "contact_samples": int(active.sum()),
+        "contact_samples": active_count,
         "per_foot_stance_speed_ms": per_foot_speed,
         "per_foot_slide_fraction": per_foot_slide,
         "per_foot_floating_fraction": per_foot_floating,

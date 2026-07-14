@@ -495,6 +495,16 @@ and swing contributions. C5 is run only if component results justify it.
 **Status:** next active experiment. The sequence is diagnostic calibration, a seed-0 screen, exact
 benchmarking, then replication. A 50k run must not start before its diagnostic arm passes.
 
+**Execution update (2026-07-14):** the factorized C0-C4 calibration remains next and has not been
+replaced by a post-process result. A source-contact-mask, root-fixed DLS heuristic was evaluated on
+the frozen 42-window protocol (`runs/skate_structure/footlock_dls_grid_full.json`). Its best
+unsmoothed arm reduced teacher-height stance speed from `0.502` to `0.119 m/s` and source-contact
+speed from `0.341` to `0.077 m/s`, with MPJPE `3.66` to `3.86 cm`; all physical guards passed
+except the primary `<=0.08 m/s` endpoint. This is a strong partial diagnostic, not C6: it edits
+frames independently, holds root pose fixed, and does not jointly optimize temporal residuals.
+An earlier `0.064 m/s` aggregate was invalid because empty teacher-height masks contributed zeros;
+the metric now emits undefined values and aggregation excludes them, with regression tests.
+
 #### Frozen comparison protocol
 
 | Item | Frozen value |
@@ -848,6 +858,13 @@ Do not wait for Gate 1 to finish before starting the baseline smoke test.
 - Verify learning progresses, buffers are nonzero, episode termination is meaningful, and both
   sources use identical configuration.
 
+**Execution update (2026-07-13):** the MuJoCo/Warp backend smoke passed for the exported GMR
+`walk1_subject5` reference: 20 PPO iterations at 256 environments, finite populated reward/loss
+signals, roughly 4k simulation steps/s, and a saved checkpoint. A six-run seed-0 pilot
+(three clips times GMR/SNMR, 1024 environments, 1000 iterations) is queued after the active E25
+training job. This establishes backend feasibility only; the paired SNMR arm and Stage B evidence
+remain pending.
+
 ### Stage B: pilot
 
 - Use the three existing clips across walk, fight, and dance.
@@ -892,6 +909,17 @@ On the same human window, compute each robot's loss gradient on shared parameter
 - per-robot gradient norm;
 - per-robot training rate and loss scale;
 - exposure counts.
+
+**Execution update (2026-07-14):** the first checkpoint diagnostic is complete
+(`runs/phase2_all5/sharing_gradient_diagnosis_eval.json`, 12 matched windows, model in evaluation
+mode). Mean gradient cosine is `0.30` for the encoder, `0.14` for the decoder trunk, and `0.12`
+for the embodiment encoder. Negative per-window observations are still material
+(`20.8%`, `28.3%`, and `41.7%` respectively), but only one of ten robot pairs has a negative mean
+in the latter two groups. Mean gradient-norm imbalance is `2.94x`, `1.88x`, and `1.89x`.
+Therefore pervasive mean conflict and severe decoder imbalance are not the leading explanations;
+S2 width and S3 adapters should precede PCGrad/GradNorm, while sporadic conflicts remain a
+secondary measured hypothesis. Matched exposure/training-rate controls are still required before
+the Gate 3 causal matrix.
 
 ### Controlled matrix
 

@@ -1,0 +1,470 @@
+{
+  "ckpt": "/home/ec2-user/work/retarget/snmr/runs/phase2_all5/ckpt_100k_final.pt",
+  "provenance": {
+    "created_at": "2026-07-13T23:53:31.356124+00:00",
+    "command": [
+      "/home/ec2-user/work/retarget/.venv-snmr/bin/python",
+      "scripts/diagnose_sharing_gradients.py",
+      "--num_windows",
+      "12",
+      "--window",
+      "64",
+      "--seed",
+      "0",
+      "--device",
+      "cpu",
+      "--out",
+      "runs/phase2_all5/sharing_gradient_diagnosis_eval.json"
+    ],
+    "git": {
+      "available": true,
+      "sha": "26deb08e76cc8bc0e38cd725800f4c8c44d3e769",
+      "dirty": true,
+      "tracked_dirty": true,
+      "tracked_diff_sha256": "e851481b0f0e558d727bb63eca494858f04228a76f9a7c049437c3d299061c2b",
+      "untracked_paths": 15
+    },
+    "runtime": {
+      "python": "3.10.20",
+      "torch": "2.5.1+cu124",
+      "device": "cpu",
+      "cuda_available": true,
+      "cuda_device": null
+    },
+    "artifacts": {
+      "checkpoint": {
+        "path": "/home/ec2-user/work/retarget/snmr/runs/phase2_all5/ckpt_100k_final.pt",
+        "sha256": "95bf78a49e40836b06903f4557796b2ead4f1fa02c0cc892e00398553b6f195f"
+      },
+      "evaluator": {
+        "path": "/home/ec2-user/work/retarget/snmr/scripts/diagnose_sharing_gradients.py",
+        "sha256": "2c21cb3add797dd7a59d486ef1ad7bbef50f9275bfa9f429c149e4c5d243b204"
+      }
+    }
+  },
+  "protocol": {
+    "model_mode": "eval",
+    "num_windows": 12,
+    "window": 64,
+    "seed": 0,
+    "same_human_window_for_all_robots": true
+  },
+  "robots": [
+    "unitree_g1",
+    "booster_t1_29dof",
+    "fourier_n1",
+    "engineai_pm01",
+    "stanford_toddy"
+  ],
+  "mean_loss": {
+    "unitree_g1": 0.03762003895826638,
+    "booster_t1_29dof": 0.0688197585598876,
+    "fourier_n1": 0.09082071289109687,
+    "engineai_pm01": 0.06721014129774024,
+    "stanford_toddy": 0.037952125421725214
+  },
+  "groups": {
+    "encoder": {
+      "pairwise_cosine": {
+        "unitree_g1|booster_t1_29dof": {
+          "mean": 0.2343358881274595,
+          "median": 0.26096958973176665,
+          "p10": 0.08409442296404387,
+          "p90": 0.3624555025406846,
+          "negative_observation_fraction": 0.08333333333333333,
+          "negative_mean": -0.1593148192669541,
+          "observations": 12
+        },
+        "unitree_g1|fourier_n1": {
+          "mean": 0.2184932347051912,
+          "median": 0.22479876564281462,
+          "p10": -0.036613795946666534,
+          "p90": 0.4755150442664934,
+          "negative_observation_fraction": 0.25,
+          "negative_mean": -0.06613442532718415,
+          "observations": 12
+        },
+        "unitree_g1|engineai_pm01": {
+          "mean": 0.19980904817462256,
+          "median": 0.1656657318069563,
+          "p10": -0.22368922560766089,
+          "p90": 0.5218526079442004,
+          "negative_observation_fraction": 0.3333333333333333,
+          "negative_mean": -0.16476773534525108,
+          "observations": 12
+        },
+        "unitree_g1|stanford_toddy": {
+          "mean": 0.175836170084217,
+          "median": 0.222526483798614,
+          "p10": -0.0849906954360678,
+          "p90": 0.37700722508073564,
+          "negative_observation_fraction": 0.25,
+          "negative_mean": -0.12175531047740167,
+          "observations": 12
+        },
+        "booster_t1_29dof|fourier_n1": {
+          "mean": 0.6059560810308049,
+          "median": 0.5601473028338038,
+          "p10": 0.38919629155214436,
+          "p90": 0.8927174191622531,
+          "negative_observation_fraction": 0.0,
+          "negative_mean": null,
+          "observations": 12
+        },
+        "booster_t1_29dof|engineai_pm01": {
+          "mean": 0.389427337688409,
+          "median": 0.4728772058966981,
+          "p10": 0.11230399422629046,
+          "p90": 0.7573188809129099,
+          "negative_observation_fraction": 0.08333333333333333,
+          "negative_mean": -0.7502614665511549,
+          "observations": 12
+        },
+        "booster_t1_29dof|stanford_toddy": {
+          "mean": 0.21490147442459584,
+          "median": 0.2312660069000725,
+          "p10": -0.22712147588538548,
+          "p90": 0.564912825651863,
+          "negative_observation_fraction": 0.25,
+          "negative_mean": -0.1883338649219987,
+          "observations": 12
+        },
+        "fourier_n1|engineai_pm01": {
+          "mean": 0.6429872287148073,
+          "median": 0.7795138762381676,
+          "p10": 0.6901661265379505,
+          "p90": 0.8104033666595963,
+          "negative_observation_fraction": 0.08333333333333333,
+          "negative_mean": -0.8121940882760852,
+          "observations": 12
+        },
+        "fourier_n1|stanford_toddy": {
+          "mean": 0.17157863544087093,
+          "median": 0.1859281970800479,
+          "p10": -0.09363640851963276,
+          "p90": 0.3133218343369137,
+          "negative_observation_fraction": 0.3333333333333333,
+          "negative_mean": -0.07673119664869207,
+          "observations": 12
+        },
+        "engineai_pm01|stanford_toddy": {
+          "mean": 0.12270158531088741,
+          "median": 0.09672456158916895,
+          "p10": -0.10272969782394933,
+          "p90": 0.3382813370935766,
+          "negative_observation_fraction": 0.4166666666666667,
+          "negative_mean": -0.11865679082199121,
+          "observations": 12
+        }
+      },
+      "mean_cosine": 0.2976026683701865,
+      "median_cosine": 0.2935457973818719,
+      "negative_observation_fraction": 0.20833333333333334,
+      "negative_cosine_mean": -0.17638883433438707,
+      "negative_mean_pair_fraction": 0.0,
+      "mean_grad_norm": {
+        "unitree_g1": 0.28841618200143176,
+        "booster_t1_29dof": 0.6755724158138037,
+        "fourier_n1": 0.8483529357860485,
+        "engineai_pm01": 0.6023132000118494,
+        "stanford_toddy": 0.3682583384215832
+      },
+      "grad_norm_distribution": {
+        "unitree_g1": {
+          "median": 0.26477285474538803,
+          "p10": 0.13283514231443405,
+          "p90": 0.42616080939769746
+        },
+        "booster_t1_29dof": {
+          "median": 0.3577827513217926,
+          "p10": 0.126141856610775,
+          "p90": 1.6145376443862915
+        },
+        "fourier_n1": {
+          "median": 0.39353732764720917,
+          "p10": 0.1511103555560112,
+          "p90": 1.6059779167175292
+        },
+        "engineai_pm01": {
+          "median": 0.3611409515142441,
+          "p10": 0.12650536745786667,
+          "p90": 1.5073842287063601
+        },
+        "stanford_toddy": {
+          "median": 0.24565323442220688,
+          "p10": 0.12490756288170815,
+          "p90": 0.3397133588790894
+        }
+      },
+      "norm_imbalance_ratio": 2.9414193402707105
+    },
+    "decoder_trunk": {
+      "pairwise_cosine": {
+        "unitree_g1|booster_t1_29dof": {
+          "mean": 0.13309962871922945,
+          "median": 0.13521163576646605,
+          "p10": -0.056123542496147774,
+          "p90": 0.3382013905679372,
+          "negative_observation_fraction": 0.25,
+          "negative_mean": -0.10282921809157136,
+          "observations": 12
+        },
+        "unitree_g1|fourier_n1": {
+          "mean": 0.16260616853716867,
+          "median": 0.15910438886238487,
+          "p10": -0.10494720457601363,
+          "p90": 0.5703887906458966,
+          "negative_observation_fraction": 0.4166666666666667,
+          "negative_mean": -0.10082137886157097,
+          "observations": 12
+        },
+        "unitree_g1|engineai_pm01": {
+          "mean": 0.03690431298798236,
+          "median": 0.06888528937659177,
+          "p10": -0.2156250434129616,
+          "p90": 0.2351034959065713,
+          "negative_observation_fraction": 0.4166666666666667,
+          "negative_mean": -0.1533600163786158,
+          "observations": 12
+        },
+        "unitree_g1|stanford_toddy": {
+          "mean": -0.03147844117779636,
+          "median": 0.053778045670301866,
+          "p10": -0.3055351724300401,
+          "p90": 0.2041739887387488,
+          "negative_observation_fraction": 0.4166666666666667,
+          "negative_mean": -0.2738885810951458,
+          "observations": 12
+        },
+        "booster_t1_29dof|fourier_n1": {
+          "mean": 0.36718839000999065,
+          "median": 0.39759866346214734,
+          "p10": 0.10211930432189645,
+          "p90": 0.6252153029233739,
+          "negative_observation_fraction": 0.0,
+          "negative_mean": null,
+          "observations": 12
+        },
+        "booster_t1_29dof|engineai_pm01": {
+          "mean": 0.17772068567502664,
+          "median": 0.17012220817151927,
+          "p10": -0.14082223746898517,
+          "p90": 0.6032347610148664,
+          "negative_observation_fraction": 0.25,
+          "negative_mean": -0.21039565151091988,
+          "observations": 12
+        },
+        "booster_t1_29dof|stanford_toddy": {
+          "mean": 0.09715958164916229,
+          "median": 0.0634607044798534,
+          "p10": -0.07197863169671184,
+          "p90": 0.3655937906800273,
+          "negative_observation_fraction": 0.25,
+          "negative_mean": -0.1630740167635046,
+          "observations": 12
+        },
+        "fourier_n1|engineai_pm01": {
+          "mean": 0.37683266581810093,
+          "median": 0.43949393274380344,
+          "p10": 0.1330230145014469,
+          "p90": 0.710151007857229,
+          "negative_observation_fraction": 0.08333333333333333,
+          "negative_mean": -0.5902361328281205,
+          "observations": 12
+        },
+        "fourier_n1|stanford_toddy": {
+          "mean": 0.03134393331380538,
+          "median": 0.08070444470237893,
+          "p10": -0.16452055670416646,
+          "p90": 0.20617905632156583,
+          "negative_observation_fraction": 0.3333333333333333,
+          "negative_mean": -0.18672479942580272,
+          "observations": 12
+        },
+        "engineai_pm01|stanford_toddy": {
+          "mean": 0.05791256191558963,
+          "median": 0.0655713379919853,
+          "p10": -0.26223675551109354,
+          "p90": 0.3005041951130879,
+          "negative_observation_fraction": 0.4166666666666667,
+          "negative_mean": -0.1570182258080469,
+          "observations": 12
+        }
+      },
+      "mean_cosine": 0.14092894874482595,
+      "median_cosine": 0.14925292699513384,
+      "negative_observation_fraction": 0.2833333333333333,
+      "negative_cosine_mean": -0.18210214706900635,
+      "negative_mean_pair_fraction": 0.1,
+      "mean_grad_norm": {
+        "unitree_g1": 0.33201731741428375,
+        "booster_t1_29dof": 0.5069643178333839,
+        "fourier_n1": 0.6237834009031454,
+        "engineai_pm01": 0.5034197730322679,
+        "stanford_toddy": 0.3354382775723934
+      },
+      "grad_norm_distribution": {
+        "unitree_g1": {
+          "median": 0.3257806748151779,
+          "p10": 0.15657473504543304,
+          "p90": 0.40449486672878265
+        },
+        "booster_t1_29dof": {
+          "median": 0.33490973711013794,
+          "p10": 0.1370733454823494,
+          "p90": 1.2655858755111695
+        },
+        "fourier_n1": {
+          "median": 0.3561697006225586,
+          "p10": 0.16062152683734893,
+          "p90": 1.116321086883545
+        },
+        "engineai_pm01": {
+          "median": 0.3340907245874405,
+          "p10": 0.17858419865369796,
+          "p90": 1.1765776574611666
+        },
+        "stanford_toddy": {
+          "median": 0.26322340965270996,
+          "p10": 0.15300396978855133,
+          "p90": 0.3293909102678299
+        }
+      },
+      "norm_imbalance_ratio": 1.8787676671840658
+    },
+    "embodiment_encoder": {
+      "pairwise_cosine": {
+        "unitree_g1|booster_t1_29dof": {
+          "mean": 0.0877655866380075,
+          "median": 0.17009427651551545,
+          "p10": -0.5102370163482943,
+          "p90": 0.5530952218116437,
+          "negative_observation_fraction": 0.4166666666666667,
+          "negative_mean": -0.32496402594648216,
+          "observations": 12
+        },
+        "unitree_g1|fourier_n1": {
+          "mean": 0.03680316915212632,
+          "median": 0.0459023195103266,
+          "p10": -0.47441501241722084,
+          "p90": 0.6091046319289575,
+          "negative_observation_fraction": 0.5,
+          "negative_mean": -0.274533608567377,
+          "observations": 12
+        },
+        "unitree_g1|engineai_pm01": {
+          "mean": 0.03053459701062253,
+          "median": 0.019167254432594823,
+          "p10": -0.3230278999716204,
+          "p90": 0.47738294615942145,
+          "negative_observation_fraction": 0.5,
+          "negative_mean": -0.2542233604949685,
+          "observations": 12
+        },
+        "unitree_g1|stanford_toddy": {
+          "mean": 0.03111754786441422,
+          "median": -0.06272225771473043,
+          "p10": -0.34186887089675466,
+          "p90": 0.5018511900784904,
+          "negative_observation_fraction": 0.5833333333333334,
+          "negative_mean": -0.23602308286534623,
+          "observations": 12
+        },
+        "booster_t1_29dof|fourier_n1": {
+          "mean": 0.42914623265208984,
+          "median": 0.4957043740141865,
+          "p10": 0.04905516031684415,
+          "p90": 0.8148221432330292,
+          "negative_observation_fraction": 0.08333333333333333,
+          "negative_mean": -0.2355064956851692,
+          "observations": 12
+        },
+        "booster_t1_29dof|engineai_pm01": {
+          "mean": 0.16143817086527487,
+          "median": 0.2349162266187002,
+          "p10": -0.24491928968057686,
+          "p90": 0.6304688456591188,
+          "negative_observation_fraction": 0.3333333333333333,
+          "negative_mean": -0.3003775660240363,
+          "observations": 12
+        },
+        "booster_t1_29dof|stanford_toddy": {
+          "mean": 0.16273942474950628,
+          "median": 0.24875081900800147,
+          "p10": -0.27002804076630305,
+          "p90": 0.48342379179250794,
+          "negative_observation_fraction": 0.25,
+          "negative_mean": -0.37853292455385223,
+          "observations": 12
+        },
+        "fourier_n1|engineai_pm01": {
+          "mean": 0.21386001869811055,
+          "median": 0.24788124827522087,
+          "p10": -0.15389970639764855,
+          "p90": 0.5731284030884596,
+          "negative_observation_fraction": 0.3333333333333333,
+          "negative_mean": -0.19615795086950394,
+          "observations": 12
+        },
+        "fourier_n1|stanford_toddy": {
+          "mean": 0.09321759263941125,
+          "median": 0.00880773872879832,
+          "p10": -0.4214910458989209,
+          "p90": 0.5821959208746614,
+          "negative_observation_fraction": 0.5,
+          "negative_mean": -0.2578483289527697,
+          "observations": 12
+        },
+        "engineai_pm01|stanford_toddy": {
+          "mean": -0.08185596432131144,
+          "median": -0.06482479277297576,
+          "p10": -0.45158732833992365,
+          "p90": 0.366553103280105,
+          "negative_observation_fraction": 0.6666666666666666,
+          "negative_mean": -0.252474155033688,
+          "observations": 12
+        }
+      },
+      "mean_cosine": 0.1164766375948252,
+      "median_cosine": 0.12084005049786406,
+      "negative_observation_fraction": 0.4166666666666667,
+      "negative_cosine_mean": -0.26747308150141835,
+      "negative_mean_pair_fraction": 0.1,
+      "mean_grad_norm": {
+        "unitree_g1": 0.0266913918312639,
+        "booster_t1_29dof": 0.044134737768520914,
+        "fourier_n1": 0.03974907806453606,
+        "engineai_pm01": 0.03573727646532158,
+        "stanford_toddy": 0.02330197913882633
+      },
+      "grad_norm_distribution": {
+        "unitree_g1": {
+          "median": 0.021359884180128574,
+          "p10": 0.010129761323332787,
+          "p90": 0.047659188508987434
+        },
+        "booster_t1_29dof": {
+          "median": 0.026252198964357376,
+          "p10": 0.01885208748281002,
+          "p90": 0.08786486461758614
+        },
+        "fourier_n1": {
+          "median": 0.022066036239266396,
+          "p10": 0.01548348730430007,
+          "p90": 0.07281101122498512
+        },
+        "engineai_pm01": {
+          "median": 0.024543676525354385,
+          "p10": 0.01617231871932745,
+          "p90": 0.07101908400654794
+        },
+        "stanford_toddy": {
+          "median": 0.013840735424309969,
+          "p10": 0.008161650132387876,
+          "p90": 0.04075775071978569
+        }
+      },
+      "norm_imbalance_ratio": 1.8940338717831282
+    }
+  }
+}

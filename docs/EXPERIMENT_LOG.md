@@ -194,8 +194,8 @@ framework, doesn't conflict. E25 = add FK-foot-velocity distill term.
 ### E10b — G1 contact sweep WITH EDGE head — ABANDONED mid-run
 `runs/e10_edge_w{0.5,2.0}/` via train_phase1 --edge_contact, 100k. w0.5 has only a 5k-step log
 point (19.3 cm); w2.0 never started. Superseded: (a) the 2026-07-13 audit showed E10a already
-bundled the EDGE head, so E10b was not the clean test it was framed as; (b) E26 (below) closes the
-skate gap at inference, changing what a contact-loss retrain is for. If revisited, use the
+bundled the EDGE head, so E10b was not the clean test it was framed as; (b) E26 (below) identified
+a strong source-mask correction lever, changing what a contact-loss retrain is for. If revisited, use the
 factorized C0–C6 matrix in docs/NEURAL_RETARGETING_RESEARCH_sol.md instead of a bundled weight.
 
 ## 2026-07-13/14
@@ -213,7 +213,7 @@ Aberman'20 (2005.05732) uses EE-velocity matching at their LARGEST loss weight (
 residual IK cleanup still needed); T2M-GPT shows weight sensitivity (α=0.5 helps, α=1 hurts) —
 w=10.0 (running) tests whether a much larger weight shifts the trade-off or destabilizes.
 
-### E26 — foot-lock driven by SOURCE contact mask — **C5 BREAKTHROUGH (pilot)**
+### E26 — foot-lock driven by SOURCE contact mask — promising pilot, not a gate result
 (`runs/skate_structure/diagnosis_v2.json`, `scripts/diagnose_skate_structure.py`, E03 ckpt, 3
 held-out clips.) E24's foot-lock failed because contact DETECTION fails on the decoded motion —
 the stance xy oscillation (~2.9 cm RMS, autocorr τ≈0.10 s) exceeds the 0.3 m/s speed gate, so
@@ -235,11 +235,24 @@ smoothing. The production implementation (`snmr.footlock.foot_lock_masked`) was 
 a true damped-least-squares solver (Jacobian via autograd, line search, limit clamping) replacing
 the pilot's normalized-gradient step; E26b re-runs the full 7-clip × windows × σ grid with the
 Gate-0 bootstrap protocol on the DLS solver — its numbers are the citable ones.
-Framing shift for the paper: C5 is closed by **prediction + source-mask-constrained correction**
-(the field's hybrid: OmniRetarget gets exactly-zero skate from hard stance constraints; Villegas
-ESO beats IK-only; SAME/EDGE training losses alone never reached teacher level) rather than by a
-training-time loss. Training losses remain worth one factorized pass (audit Gate 1) to reduce the
-raw gap, but they are no longer load-bearing for C5.
+
+### E26b — full source-mask DLS grid — strong partial result, Gate 1 still open
+`runs/skate_structure/footlock_dls_grid_full.json`: 42 fixed windows, seven held-out clips,
+source-contact mask, four DLS iterations, σ∈{0,1,2}, clip bootstrap. An evaluator bug was found
+while expanding the pilot: windows with no active teacher-height samples previously returned zero,
+which biased the first aggregate downward. `contact_motion_metrics` now returns undefined values
+for empty masks and `_aggregate_rows` excludes them; regression coverage protects this contract.
+
+The best arm is **σ=0**. Window-weighted teacher-height stance speed falls
+**0.502→0.119 m/s** (clip mean 0.419→0.094, 95% clip-bootstrap CI
+`[0.043, 0.161]`), while source-contact speed falls **0.341→0.077 m/s**. MPJPE changes
+3.66→3.86 cm, DOF jerk rises 13%, limits remain valid, and penetration/MPJPE/jerk guards all pass.
+However, the preregistered teacher-height target is `<=0.08 m/s`, so **E26b does not pass Gate 1**.
+σ=1/2 reduce the jerk cost but weaken teacher-height speed to 0.142/0.167 m/s. A source-height
+mask over-locks badly (8.47 cm MPJPE), while a sparse teacher-height oracle reaches only
+0.110 m/s. The remaining issue is stance coverage/temporal constraints, not DLS convergence or
+smoothing. This heuristic also holds root pose fixed and solves frames independently, so it is
+not the full windowed C6 projection specified by the audit.
 
 ### E27 — WBT-on-MuJoCo/Warp SMOKE — **PASSED (2026-07-13)**; paired pilot QUEUED
 Dedicated env `.venv-wbt` (py3.11, torch 2.6 cu124, holosoma editable, mujoco-warp 3.10.0.2,
@@ -254,30 +267,29 @@ simulator are tyro SUBCOMMANDS (`logger:disabled`), not flags.
 (`$CLAUDE_JOB_DIR/tmp/wbt_pilot.sh` → `runs/wbt_pilot/`). Per audit Gate 2: pilot detects
 catastrophic regressions only; the confirmatory claim needs more clips + seeds.
 
-### E28 — Gate-3 sharing-gradient diagnostic — DONE (`runs/phase2_all5/sharing_gradient_diagnosis.json`)
+### E28 — Gate-3 sharing-gradient diagnostic — DONE (`runs/phase2_all5/sharing_gradient_diagnosis_eval.json`)
 Per-robot distill gradients on the shared parameters of the E04 checkpoint (12 windows × 5 robots,
-`scripts/diagnose_sharing_gradients.py`): mean pairwise cosine encoder **+0.29**, decoder trunk
-**+0.14**, embodiment encoder +0.12; negative pairs only 1/10 and mild (worst
-G1|Toddy −0.02, PM01|Toddy −0.08); grad-norm imbalance ≤2.9× (N1 largest, G1/Toddy smallest).
-**Verdict per the audit's decision rule: NO pervasive destructive interference (rules out
-PCGrad/S4) and NO severe imbalance (rules out GradNorm/S5).** The robots pull in *nearly
-orthogonal* directions — the shared trunk must encode ~5 quasi-independent mappings, which is
-precisely the capacity/conditioning story. Next arms: S2 (width scale-up) and S3 (per-robot
-AdaLN/LoRA adapters); prediction: S3 wins on parameter-efficiency because orthogonal demands
-are cheap to satisfy with per-robot output specialization.
+`scripts/diagnose_sharing_gradients.py`, model in eval mode): mean cosine is **+0.30** for the
+encoder, **+0.14** for the decoder trunk, and +0.12 for the embodiment encoder. Mean-pair conflict
+is limited to 1/10 pairs in the latter two groups, but per-window conflict is not negligible:
+20.8%/28.3%/41.7% of observations are negative, with negative means
+−0.18/−0.18/−0.27. Gradient-norm imbalance is 2.94×/1.88×/1.89×.
+**Verdict:** there is no pervasive mean directional conflict and no severe decoder imbalance, so
+PCGrad/GradNorm are not first-line arms. Sporadic conflicts remain a measured secondary
+hypothesis; test S2 width and S3 lightweight adapters first, then use matched training to decide
+whether S4 is warranted. The earlier diagnostic used training mode and only pair means; this
+revision removes dropout contamination and preserves per-window distributions.
 
 ### GPU queue (2026-07-13 night)
-1. E25 w10.0 (running, ~15k/100k) — note new diagnostics.jsonl shows w10 foot-vel term reaches
+1. E25 w10.0 (running, ~35k/100k) — note new diagnostics.jsonl shows w10 foot-vel term reaches
    grad-norm ~0.08 on output heads vs distill 0.22 with cosine −0.11 (mild conflict, not the
    w≤0.2 swamping of E10a).
 2. WBT pilot (6 runs, auto-chained).
-3. Next block (needs decision): factorized contact matrix C0–C4 (Gate 1) vs zr_decode_prob sweep
-   (Gate 4 G-source) — audit says do NOT bundle them.
-CPU: E26b DLS foot-lock eval running (`runs/skate_structure/footlock_eval_dls.json`).
+3. Next block: factorized contact calibration C0–C4 (Gate 1), from one fixed clean revision.
+   `zr_decode_prob` remains a later, separate Gate 4 experiment.
+CPU: E26b DLS grid complete; see above.
 
-## Queued / planned (EDGE head + world-frame losses,
-  post-review). Decisive for C5. Accept: skate ≤ 0.08 m/s at MPJPE ≤ 1.5× current. AUTO-CHAINED
-  after the ablation grid.
+## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`
   wired into train_phase2 (smoke-tested); fold p≈0.3 into the next shared retrain (can combine
   with E10's contact run or E12's augmented run to save GPU blocks).
@@ -289,17 +301,15 @@ CPU: E26b DLS foot-lock eval running (`runs/skate_structure/footlock_eval_dls.js
 ### E11 — scale-leak probe — DONE (`runs/phase2_all5/scale_leak_probe.json`)
 - setup: robot-only latents (5 classes, chance 0.2), E04 ckpt; features height-normalized by
   standing root height (positions+velocities /h; rot6d untouched) vs raw.
-- result: MLP attacker **0.943 raw → 0.933 normalized — scale explains only ~1% of the leak.**
-  **H-deep confirmed:** the embodiment signature is structural/stylistic (limb proportions,
-  per-robot IK habits), not amplitude. Curious secondary: the *linear* probe **rose** 0.35→0.68
-  under normalization — height division seems to make proportional differences more linearly
-  separable (worth a sentence in the paper, not a headline).
-- consequence: a domain-confusion (GRL/uniform-CE) term on the encoder is now *motivated by
-  measurement*, not speculation → schedule as E15 after the contact sweep. Also: "leak ≠ scale"
-  strengthens the analysis-section contribution.
+- result: MLP attacker **0.943 raw → 0.933 normalized**; the linear probe rises 0.35→0.68.
+- audit correction: this evaluation-time normalization is out of distribution because the encoder
+  was trained on raw features. It shows that this intervention does not erase identity, but it
+  does **not** quantify scale's causal share or prove a structural/stylistic cause. Use a
+  normalized-input retrain, matched-scale subsets, or conditional morphology probes before a
+  domain-confusion intervention.
 - E12 — embodiment augmentation (synthetic MJCF variants) → LORO revisit.
 - E13 — capacity scale-up of the shared model (does the 1.4 cm sharing cost shrink?).
-- E14 — WBT tracking comparison (N8 package, needs IsaacSim machine).
+- E14 — WBT tracking comparison (N8 package; local MuJoCo/Warp smoke passed, pilot queued).
 - E15 — domain-confusion term on the encoder (motivated by E11's H-deep verdict): GRL or
   uniform-CE adversary on embodiment id; measure attacker drop vs MPJPE cost.
 

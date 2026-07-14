@@ -19,6 +19,21 @@ def test_benchmark_aggregation_preserves_window_mean_and_summarizes_clips():
     assert distribution["metric"]["num_clips"] == 2
 
 
+def test_benchmark_aggregation_excludes_undefined_clip_metrics():
+    rows = [
+        ("clip_a", {"metric": 1.0}),
+        ("clip_a", {"metric": None}),
+        ("clip_b", {"metric": None}),
+    ]
+    aggregate, distribution, per_clip = _aggregate_rows(
+        rows, bootstrap_samples=100, seed=4
+    )
+    assert aggregate["metric"] == 1.0
+    assert per_clip == {"clip_a": {"metric": 1.0}, "clip_b": {}}
+    assert distribution["metric"]["num_clips"] == 1
+    assert distribution["metric"]["clip_mean"] == 1.0
+
+
 def test_timing_reports_repeat_distribution():
     value = torch.ones(4)
     output, timing = _time_inference(

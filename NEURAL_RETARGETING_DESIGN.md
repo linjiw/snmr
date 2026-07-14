@@ -4,7 +4,14 @@
 with a SAME-style skeleton-agnostic neural retargeter built around a **shared latent motion space**,
 feeding a **shared (multi-embodiment) whole-body tracking training** pipeline.
 
-Date: 2026-07-10 · Status: **Phases 0–2 trained; N6–N8 built+reviewed; pipeline running (LORO→ablations); see §0.5 for direction**
+Date: 2026-07-10 · Status: **Historical design and implementation record.**
+
+> **Status precedence (2026-07-14):** use
+> `docs/NEURAL_RETARGETING_RESEARCH_sol.md` as the current decision-gated plan. It supersedes
+> optimistic or stale status language below. Gate 0 is complete; the immediate work is the
+> factorized Gate 1 contact study and matched Gate 2 WBT validation. The source-mask DLS heuristic
+> is promising but does not yet pass Gate 1's teacher-height endpoint, and the shared-model,
+> unseen-target, representation, temporal, and throughput claims remain bounded by that audit.
 
 ---
 
@@ -480,11 +487,11 @@ directly measures lever 1a on the skate metric.
 - **Defer:** AMASS scale-up, T1 WBT port, ReActor-style bilevel refinement — valuable but none
   blocks the paper story; revisit after G-next-3 lands.
 
-**Paper framing that today's evidence supports:** "A single skeleton-agnostic network retargets
-human motion to five heterogeneous humanoids at IK-teacher fidelity and 12× throughput, with a
-quantitatively analyzed shared latent (aligned but measurably not invariant — and we show which
-part of the gap is scale) and matched-pipeline tracking validation." Every claim in that sentence
-has an experiment either done or in the queue above.
+**Historical framing, superseded by the 2026-07-13 audit:** the earlier draft claimed
+IK-teacher fidelity, an exact throughput ratio, scale attribution, and tracking validation before
+the corresponding controlled gates passed. Current wording must remain: low pose error with an
+open contact gap; plausibly faster inference with controlled timing pending; aligned but not
+invariant latent; no causal scale attribution; and WBT evidence pending the paired pilot.
 
 ---
 
