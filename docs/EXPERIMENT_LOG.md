@@ -353,7 +353,8 @@ post-process parameter sweep.
 1. E25 w10.0 complete; matched result and verdict recorded above.
 2. WBT seed-0 pilot complete; protocol passed and the descriptive verdict is recorded above.
 3. Gate 1 three-seed replication complete: C4/C3 pass relative guards but fail the endpoint.
-4. WBT pilot seeds 1-2 and independent evaluation rollouts are the next decisive GPU work.
+4. WBT pilot seeds 1-2 and 5,400 independent rollouts complete; the GMR control is undertrained.
+5. Calibrate GMR seed-0 training horizon at 2k/4k/8k before extending the matched policy matrix.
    `zr_decode_prob` remains a later, separate Gate 4 experiment.
 CPU: E26b DLS grid complete; see above.
 
@@ -450,6 +451,29 @@ SNMR has a consistent joint-space advantage and small reference-space disadvanta
 large aggregate reward or episode-length shift. These are training curves, so E33 completes the
 training-seed pilot but makes no non-inferiority or benefit claim. Run the frozen independent
 policy evaluation next.
+
+### E34 - WBT independent policy evaluation - **UNDERTRAINED CONTROL**
+Frozen Holosoma `eebdcf4`, 18 final policies, evaluation seeds `101/202/303`, 100 matched
+phase-stratified 10-second windows per policy/seed, and 5,400 total rollout rows. Every artifact
+and pairing check passes.
+
+| Endpoint | GMR | SNMR | SNMR effect |
+|---|---:|---:|---:|
+| 10 s completion | `0.0%` | `0.0%` | `0.0 pp`, CI `[0.0, 0.0]` |
+| Survival | `0.934 s` | `0.956 s` | `+2.3%` descriptive |
+| Joint-position RMSE | `0.296 rad` | `0.286 rad` | `-3.30%`, CI `[-5.43%, +0.26%]` |
+| Root-position error | `0.250 m` | `0.254 m` | `+1.5%` descriptive |
+| Absolute mechanical power | `187.6 W` | `177.3 W` | `-5.5%` descriptive |
+
+Both numerical relative bounds satisfy the stated margins, but the GMR control misses the
+preregistered `50%` completion floor by 50 points. The formal verdict is **undertrained GMR
+control**; do not claim non-inferiority or tracking benefit. Errors and costs are conditional on
+the roughly one second before termination.
+
+Next, calibrate GMR seed-0 controls only at total PPO iterations `2k/4k/8k`, using development
+rollout seed `404`. Promote the earliest horizon with pooled completion `>=50%` and every clip
+`>=25%`; if none passes at 8k, stop before spending the full 18-policy matrix and reassess the
+default 30k schedule/config.
 
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`

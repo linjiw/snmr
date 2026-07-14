@@ -1,0 +1,4 @@
+completion SNMR-GMR: 0.000000 CI=[0.0, 0.0]
+joint RMSE relative effect: -0.033012 CI=[-0.054316629068766095, 0.0026082875304121824]
+verdict: undertrained_gmr_control_on_three_clip_pilot
+independent fixed-policy rollouts on the three-clip pilot; not a broad Stage C tracking claim

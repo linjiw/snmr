@@ -1018,6 +1018,30 @@ The executable protocol is `runs/wbt_independent_eval_protocol.sh`, and its anal
 missing checkpoints, unmatched starts, malformed outcomes, incomplete metrics, and nonfinite
 values.
 
+**Independent evaluation result (2026-07-14):** all 54 evaluation processes and 5,400 rollout
+rows pass the frozen artifact contract, but the assay is not sensitive. GMR and SNMR both complete
+`0/2700` 10-second windows; mean survival is only `0.934 s` and `0.956 s`, respectively. The
+completion effect and CI are exactly zero. SNMR joint-position RMSE is descriptively lower
+(`0.296 -> 0.286 rad`, relative effect `-3.30%`, hierarchical 95% CI
+`[-5.43%, +0.26%]`), and its mean absolute mechanical power is `5.5%` lower, while root-position
+error is `1.5%` higher. These conditional errors cover only the roughly one second before
+termination and are secondary.
+
+The preregistered GMR completion floor is `50%`; observed GMR completion is `0%`. Therefore the
+formal verdict is **undertrained GMR control**, not non-inferiority, equivalence, or tracking
+benefit. The 1000-iteration pilot is useful for plumbing and paired training-curve screening but
+not for the central deployment claim.
+
+**Next Gate 2 action:** calibrate policy-training horizon using GMR only, so source identity cannot
+drive schedule selection. Continue seed-0 GMR policies for all three clips and retain total-step
+checkpoints at 2k, 4k, and 8k PPO iterations. Evaluate those checkpoints with development rollout
+seed `404`, the same 100 phase-stratified 10-second windows, and the same terminal-aware metrics.
+Choose the earliest horizon with pooled completion `>=50%` and per-clip completion `>=25%`. If no
+8k checkpoint passes, stop before extending the 18-policy matrix and reassess the 30k default
+training budget/config. If a horizon passes, freeze it, extend every matched GMR/SNMR training
+seed to that same total iteration count, and rerun evaluation seeds `101/202/303` without changing
+margins or endpoints.
+
 ### Stage B: pilot
 
 - Use the three existing clips across walk, fight, and dance.

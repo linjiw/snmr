@@ -16,8 +16,11 @@ Date: 2026-07-10 · Status: **Historical design and implementation record.**
 > 18-run artifact contract. Final-window effects are mixed but modest: pooled SNMR reward is
 > `0.655 -> 0.658`, episode length `39.37 -> 39.63` steps, joint-position error
 > `1.680 -> 1.615 rad`, and reference-position error `0.267 -> 0.272 m`. These are training
-> curves, not policy evaluation; the preregistered 5,400-rollout fixed-policy study remains
-> required before any pilot non-inferiority claim.
+> curves, not policy evaluation. The preregistered 5,400-rollout study then finds zero 10-second
+> completions for both sources and mean survival of only `0.934 / 0.956 s` (GMR/SNMR).
+> Although SNMR joint RMSE is descriptively `3.3%` lower (95% CI `[-5.43%, +0.26%]`), GMR fails
+> the `50%` assay floor, so no non-inferiority claim is allowed. Calibrate a longer policy-training
+> horizon on GMR controls before repeating the matched comparison.
 > Gate 1 calibration accepts C1 BCE `0.25`, C3 stance `0.03`, and C4 phase-balanced velocity
 > `0.05`; C2 is dropped after its only retry still leaves BCE above the gradient band. Three-seed
 > replication confirms robust favorable tradeoffs for C4 (mean speed `0.701 -> 0.264 m/s`,

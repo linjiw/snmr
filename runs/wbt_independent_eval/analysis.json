@@ -1,0 +1,237 @@
+{
+  "passed": true,
+  "verdict": "undertrained_gmr_control_on_three_clip_pilot",
+  "interpretation": "independent fixed-policy rollouts on the three-clip pilot; not a broad Stage C tracking claim",
+  "protocol_errors": [],
+  "protocol": {
+    "clips": [
+      "walk1",
+      "dance2",
+      "fight1"
+    ],
+    "training_seeds": [
+      0,
+      1,
+      2
+    ],
+    "evaluation_seeds": [
+      101,
+      202,
+      303
+    ],
+    "rollouts_per_policy_seed": 100,
+    "horizon_s": 10.0,
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": 20260714,
+    "completion_noninferiority_margin": -0.05,
+    "joint_error_relative_noninferiority_margin": 0.1,
+    "gmr_completion_assay_floor": 0.5
+  },
+  "assay_validity": {
+    "gmr_completion_mean": 0.0,
+    "minimum_required": 0.5,
+    "passed": false
+  },
+  "primary": {
+    "completion": {
+      "effect_snmr_minus_gmr": 0.0,
+      "confidence_interval_95": [
+        0.0,
+        0.0
+      ],
+      "noninferior": true
+    },
+    "joint_position_rmse": {
+      "relative_effect_snmr_over_gmr_minus_one": -0.03301224511880818,
+      "confidence_interval_95": [
+        -0.054316629068766095,
+        0.0026082875304121824
+      ],
+      "noninferior": true
+    }
+  },
+  "metric_effects": {
+    "completion": {
+      "gmr_mean": 0.0,
+      "snmr_mean": 0.0,
+      "snmr_minus_gmr": 0.0,
+      "snmr_relative_to_gmr": null
+    },
+    "survival_s": {
+      "gmr_mean": 0.9338370370370371,
+      "snmr_mean": 0.9556592592592592,
+      "snmr_minus_gmr": 0.021822222222222076,
+      "snmr_relative_to_gmr": 0.023368340895389528
+    },
+    "root_position_error_m": {
+      "gmr_mean": 0.25039315691206016,
+      "snmr_mean": 0.25420306756399264,
+      "snmr_minus_gmr": 0.00380991065193248,
+      "snmr_relative_to_gmr": 0.015215713955276211
+    },
+    "root_orientation_error_rad": {
+      "gmr_mean": 0.20699146359525306,
+      "snmr_mean": 0.20997340047759525,
+      "snmr_minus_gmr": 0.00298193688234219,
+      "snmr_relative_to_gmr": 0.014406086273069718
+    },
+    "root_linear_velocity_error_mps": {
+      "gmr_mean": 0.8749822154253339,
+      "snmr_mean": 0.8924219792486255,
+      "snmr_minus_gmr": 0.0174397638232916,
+      "snmr_relative_to_gmr": 0.019931563768772254
+    },
+    "root_angular_velocity_error_radps": {
+      "gmr_mean": 1.8499751681148626,
+      "snmr_mean": 1.8251016530494653,
+      "snmr_minus_gmr": -0.024873515065397367,
+      "snmr_relative_to_gmr": -0.013445323750341798
+    },
+    "body_position_error_m": {
+      "gmr_mean": 0.6245154912363255,
+      "snmr_mean": 0.6268424235120302,
+      "snmr_minus_gmr": 0.002326932275704685,
+      "snmr_relative_to_gmr": 0.0037259800731255233
+    },
+    "body_orientation_error_rad": {
+      "gmr_mean": 0.7023671646537104,
+      "snmr_mean": 0.6913989503916169,
+      "snmr_minus_gmr": -0.01096821426209349,
+      "snmr_relative_to_gmr": -0.015616069221432327
+    },
+    "body_linear_velocity_error_mps": {
+      "gmr_mean": 1.1625553513017897,
+      "snmr_mean": 1.1631815707686863,
+      "snmr_minus_gmr": 0.0006262194668966714,
+      "snmr_relative_to_gmr": 0.0005386577647210622
+    },
+    "body_angular_velocity_error_radps": {
+      "gmr_mean": 3.0062314230009815,
+      "snmr_mean": 2.9885356932262517,
+      "snmr_minus_gmr": -0.017695729774729774,
+      "snmr_relative_to_gmr": -0.005886349813037706
+    },
+    "joint_position_error_l2_rad": {
+      "gmr_mean": 1.59343950202143,
+      "snmr_mean": 1.5408364865355604,
+      "snmr_minus_gmr": -0.05260301548586965,
+      "snmr_relative_to_gmr": -0.03301224515843726
+    },
+    "joint_velocity_error_l2_radps": {
+      "gmr_mean": 10.840899102037788,
+      "snmr_mean": 10.282706823562782,
+      "snmr_minus_gmr": -0.5581922784750066,
+      "snmr_relative_to_gmr": -0.05148948193513603
+    },
+    "joint_position_rmse_rad": {
+      "gmr_mean": 0.29589428664447115,
+      "snmr_mean": 0.28612615192450896,
+      "snmr_minus_gmr": -0.009768134719962185,
+      "snmr_relative_to_gmr": -0.03301224511880818
+    },
+    "torque_rms_nm": {
+      "gmr_mean": 8.277265580669898,
+      "snmr_mean": 8.277086509744256,
+      "snmr_minus_gmr": -0.00017907092564151128,
+      "snmr_relative_to_gmr": -2.1634067905229593e-05
+    },
+    "mechanical_power_abs_w": {
+      "gmr_mean": 187.57386865793194,
+      "snmr_mean": 177.28496310041373,
+      "snmr_minus_gmr": -10.288905557518206,
+      "snmr_relative_to_gmr": -0.05485255292293145
+    },
+    "joint_limit_violation_rad": {
+      "gmr_mean": 0.0007270572855573663,
+      "snmr_mean": 0.0007575853363007832,
+      "snmr_minus_gmr": 3.052805074341689e-05,
+      "snmr_relative_to_gmr": 0.04198850812699573
+    },
+    "undesired_contact_count": {
+      "gmr_mean": 0.13997223130923478,
+      "snmr_mean": 0.13869800448091651,
+      "snmr_minus_gmr": -0.0012742268283182645,
+      "snmr_relative_to_gmr": -0.009103425846682223
+    }
+  },
+  "clip_training_seed_pairs": {
+    "walk1": {
+      "0": {
+        "gmr_completion": 0.0,
+        "snmr_completion": 0.0,
+        "completion_effect": 0.0,
+        "gmr_joint_rmse_rad": 0.2415251843201058,
+        "snmr_joint_rmse_rad": 0.25199038634539295,
+        "joint_relative_effect": 0.04332965133531186
+      },
+      "1": {
+        "gmr_completion": 0.0,
+        "snmr_completion": 0.0,
+        "completion_effect": 0.0,
+        "gmr_joint_rmse_rad": 0.24245518991034434,
+        "snmr_joint_rmse_rad": 0.23966139793523192,
+        "joint_relative_effect": -0.011522920899921796
+      },
+      "2": {
+        "gmr_completion": 0.0,
+        "snmr_completion": 0.0,
+        "completion_effect": 0.0,
+        "gmr_joint_rmse_rad": 0.2481207043669013,
+        "snmr_joint_rmse_rad": 0.24591385839005597,
+        "joint_relative_effect": -0.008894243559707249
+      }
+    },
+    "dance2": {
+      "0": {
+        "gmr_completion": 0.0,
+        "snmr_completion": 0.0,
+        "completion_effect": 0.0,
+        "gmr_joint_rmse_rad": 0.3534988250694796,
+        "snmr_joint_rmse_rad": 0.33427822006451136,
+        "joint_relative_effect": -0.054372472104229685
+      },
+      "1": {
+        "gmr_completion": 0.0,
+        "snmr_completion": 0.0,
+        "completion_effect": 0.0,
+        "gmr_joint_rmse_rad": 0.3633589832168103,
+        "snmr_joint_rmse_rad": 0.3476765610910371,
+        "joint_relative_effect": -0.04315958280964183
+      },
+      "2": {
+        "gmr_completion": 0.0,
+        "snmr_completion": 0.0,
+        "completion_effect": 0.0,
+        "gmr_joint_rmse_rad": 0.36727899375485656,
+        "snmr_joint_rmse_rad": 0.35265760191109624,
+        "joint_relative_effect": -0.039810041119638595
+      }
+    },
+    "fight1": {
+      "0": {
+        "gmr_completion": 0.0,
+        "snmr_completion": 0.0,
+        "completion_effect": 0.0,
+        "gmr_joint_rmse_rad": 0.284777843441217,
+        "snmr_joint_rmse_rad": 0.27033431009896897,
+        "joint_relative_effect": -0.05071859933945111
+      },
+      "1": {
+        "gmr_completion": 0.0,
+        "snmr_completion": 0.0,
+        "completion_effect": 0.0,
+        "gmr_joint_rmse_rad": 0.28492086771865166,
+        "snmr_joint_rmse_rad": 0.26609668443212653,
+        "joint_relative_effect": -0.0660681101993319
+      },
+      "2": {
+        "gmr_completion": 0.0,
+        "snmr_completion": 0.0,
+        "completion_effect": 0.0,
+        "gmr_joint_rmse_rad": 0.2771119880018739,
+        "snmr_joint_rmse_rad": 0.26652634705215983,
+        "joint_relative_effect": -0.03819986650899598
+      }
+    }
+  }
+}

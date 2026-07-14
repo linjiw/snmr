@@ -1,0 +1,5 @@
+evaluation_seeds=101,202,303
+rollouts_per_seed=100
+horizon_steps=500
+horizon_s=10.0
+gmr_completion_floor=0.50
