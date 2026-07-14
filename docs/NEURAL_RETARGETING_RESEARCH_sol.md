@@ -514,6 +514,24 @@ Pareto for the framewise heuristic and evidence that mask precision/transition h
 convergence, is limiting. It still does not replace the preregistered soft study or the temporal,
 root-adjusting C6 formulation.
 
+The full C6 baseline is now implemented (`f6ed96a`) as one differentiable L-BFGS solve per
+192-frame window: interval anchors, both leg chains, bounded root XYZ/yaw, exact joint limits, and
+correction deviation/velocity/acceleration terms. A first anchor-only run exposed a contract bug:
+the evaluator scores displacement into the first stance frame, and one-frame intervals had been
+skipped. The corrected objective includes those intervals and the exact non-circular,
+mask-gated XY velocity residual.
+
+On the same clean 42-window protocol, the deployable source-mask C6 arm reduces teacher-height
+speed `0.502 -> 0.099 m/s` and source-contact speed `0.341 -> 0.020 m/s`; jerk remains within the
+guard (`693 -> 741 rad/s^3`), but MPJPE rises `3.66 -> 4.28 cm`. It therefore fails both the
+`<=0.08 m/s` endpoint and the `+0.5 cm` relative MPJPE guard. With only the mask changed to the
+teacher-height oracle, the same committed solver reaches `0.0056 m/s`, MPJPE `3.82 cm`, and jerk
+`697 rad/s^3`, with every physical guard passing. Source-mask windows already saturate the bounded
+root correction and all reach the iteration cap, so loosening constraints would worsen an MPJPE
+guard that already fails. The dominant deployable C6 blocker is now contact-mask precision and
+coverage; C0-C4 remain necessary, and a learned mask or physics-repaired supervision is preferable
+to another post-process bound sweep.
+
 #### Frozen comparison protocol
 
 | Item | Frozen value |

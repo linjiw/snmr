@@ -300,6 +300,26 @@ hypothesis; test S2 width and S3 lightweight adapters first, then use matched tr
 whether S4 is warranted. The earlier diagnostic used training mode and only pair means; this
 revision removes dropout contamination and preserves per-window distributions.
 
+### E29 — full temporal C6 projection — **source mask fails; teacher-mask oracle passes**
+Implementation commits `7903994` and `f6ed96a`; clean 42-window artifacts:
+`windowed_c6_{source,teacher_oracle}_velocity_full.json`. This is materially different from E26:
+one L-BFGS solve jointly optimizes the full 192-frame window over both leg chains and bounded root
+XYZ/yaw, with interval anchors, exact joint limits, and correction deviation/velocity/acceleration.
+The endpoint-aligned revision also supports one-frame intervals and directly penalizes the
+non-circular, mask-gated XY displacement scored by the evaluator.
+
+- **Source-contact mask:** teacher-height speed **0.502→0.099 m/s**, source-contact speed
+  **0.341→0.020**, MPJPE **3.66→4.28 cm**, DOF jerk **693→741**. Limits and penetration/jerk
+  guards pass; the primary speed and relative MPJPE guards fail.
+- **Teacher-height oracle:** teacher-height speed **0.502→0.0056 m/s**, MPJPE
+  **3.66→3.82 cm**, DOF jerk **693→697**; **all guards pass**.
+
+All 42 source-mask windows reached the iteration cap and most saturated the 4 cm root bound.
+Loosening bounds is not justified because MPJPE already fails. The controlled oracle result
+localizes the remaining deployable C6 gap to mask precision/coverage. Do not call C6 or Gate 1
+closed; proceed with C0-C4 and prioritize learned/physics-repaired contact labels over another
+post-process parameter sweep.
+
 ### GPU queue (2026-07-13 night)
 1. E25 w10.0 (running, ~35k/100k) — note new diagnostics.jsonl shows w10 foot-vel term reaches
    grad-norm ~0.08 on output heads vs distill 0.22 with cosine −0.11 (mild conflict, not the

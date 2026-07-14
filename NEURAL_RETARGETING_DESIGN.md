@@ -9,10 +9,11 @@ Date: 2026-07-10 · Status: **Historical design and implementation record.**
 > **Status precedence (2026-07-14):** use
 > `docs/NEURAL_RETARGETING_RESEARCH_sol.md` as the current decision-gated plan. It supersedes
 > optimistic or stale status language below. Gate 0 is complete; the immediate work is the
-> factorized Gate 1 contact study and matched Gate 2 WBT validation. The source-mask DLS heuristic
-> exposes a speed-versus-jerk Pareto and does not yet pass Gate 1's combined endpoint and physical
-> guards; only a teacher-mask oracle passes both. The shared-model, unseen-target, representation,
-> temporal, and throughput claims remain bounded by that audit.
+> factorized Gate 1 contact study and matched Gate 2 WBT validation. Framewise DLS exposes a
+> speed-versus-jerk Pareto. A full temporal C6 projection reaches `0.099 m/s` with the deployable
+> source mask but fails speed and MPJPE, while the same solver reaches `0.0056 m/s` with all guards
+> under a teacher-mask oracle. The shared-model, unseen-target, representation, temporal, and
+> throughput claims remain bounded by that audit.
 
 ---
 
