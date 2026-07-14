@@ -1,0 +1,12 @@
+training_source=gmr
+training_seed=0
+evaluation_seed=404
+source_iterations=1000
+additional_iterations=7000
+candidate_total_iterations=2000,4000,8000
+save_interval=2000
+rollouts_per_clip_horizon=100
+horizon_steps=500
+horizon_s=10.0
+pooled_completion_floor=0.50
+per_clip_completion_floor=0.25
