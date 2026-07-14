@@ -55,6 +55,24 @@ from benchmark import (  # noqa: E402
 from train_phase2 import VAL_CLIPS, RobotContext  # noqa: E402
 
 
+def predicted_contact_mask(
+    contact_logits: torch.Tensor,
+    foot_indices: list[int],
+    *,
+    probability_threshold: float = 0.5,
+) -> torch.Tensor:
+    """Threshold decoder foot-contact probabilities for projection."""
+    if contact_logits.ndim != 2:
+        raise ValueError(
+            f"contact logits must have shape (T, N), got {tuple(contact_logits.shape)}"
+        )
+    if not 0.0 < probability_threshold < 1.0:
+        raise ValueError("contact probability threshold must be in (0, 1)")
+    if not foot_indices:
+        raise ValueError("at least one foot index is required")
+    return torch.sigmoid(contact_logits[:, foot_indices]) >= probability_threshold
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt", default=str(ROOT / "runs/phase1_g1_large/ckpt_100k_final.pt"))
@@ -93,8 +111,19 @@ def main() -> None:
     ap.add_argument("--projection_tolerance_change", type=float, default=1e-9)
     ap.add_argument(
         "--lock_mask",
-        choices=["source_contact", "source_height", "teacher_height"],
+        choices=[
+            "source_contact",
+            "source_height",
+            "teacher_height",
+            "predicted_contact",
+        ],
         default="source_contact",
+    )
+    ap.add_argument(
+        "--contact_probability_threshold",
+        type=float,
+        default=0.5,
+        help="fixed decoder contact probability threshold for --lock_mask predicted_contact",
     )
     ap.add_argument("--bootstrap_samples", type=int, default=2000)
     ap.add_argument("--bootstrap_seed", type=int, default=0)
@@ -161,6 +190,10 @@ def main() -> None:
 
     dev = args.device
     model, state = load_model(args.ckpt, dev)
+    if args.lock_mask == "predicted_contact" and model.decoder.contact_head is None:
+        raise ValueError(
+            "--lock_mask predicted_contact requires a checkpoint with a contact head"
+        )
     ctx = RobotContext(args.robot, dev)
     if "xy_scale" in state:
         ctx.xy_scale = float(state["xy_scale"])
@@ -239,6 +272,12 @@ def main() -> None:
             window_masks = {
                 name: mask[start:end] for name, mask in full_masks.items()
             }
+            if "contact_logits" in pred:
+                window_masks["predicted_contact"] = predicted_contact_mask(
+                    pred["contact_logits"],
+                    foot_idx,
+                    probability_threshold=args.contact_probability_threshold,
+                )
             teacher_feet = teacher_feet_all[start:end]
 
             def score(
@@ -370,7 +409,12 @@ def main() -> None:
                 "source_contact": "source height<0.08m and speed<0.24m/s",
                 "source_height": "source height hysteresis enter=0.08m, exit=0.10m",
                 "teacher_height": "teacher height hysteresis enter=0.03m, exit=0.05m",
+                "predicted_contact": (
+                    "decoder sigmoid probability"
+                    f">={args.contact_probability_threshold:g}"
+                ),
             },
+            "contact_probability_threshold": args.contact_probability_threshold,
             "lock_parameters": {
                 "iters": args.lock_iters,
                 "step_scale": args.lock_step_scale,
