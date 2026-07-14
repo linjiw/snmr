@@ -262,17 +262,87 @@ def analyze_root(
     cross_arm_errors = []
     if not arms:
         cross_arm_errors.append("no diagnostic run directories found")
-    present_initial_arms = {arm["arm"] for arm in arms} & set(EXPECTED_ARM_TERMS)
-    missing_initial_arms = set(EXPECTED_ARM_TERMS) - present_initial_arms
+    arms_by_name = {arm["arm"]: arm for arm in arms}
+    expected_initial = set(EXPECTED_ARM_TERMS)
+    expected_retries = {f"{name}-r1" for name in expected_initial}
+    unexpected_arms = set(arms_by_name) - expected_initial - expected_retries
+    if unexpected_arms:
+        cross_arm_errors.append(f"unexpected arms: {sorted(unexpected_arms)}")
+
+    present_initial_arms = set(arms_by_name) & expected_initial
+    missing_initial_arms = expected_initial - present_initial_arms
     if missing_initial_arms:
         cross_arm_errors.append(f"missing initial arms: {sorted(missing_initial_arms)}")
     if len(revisions) > 1:
         cross_arm_errors.append(f"runs use multiple revisions: {sorted(revisions)}")
+
+    effective_arms = {}
+    for base_name in sorted(expected_initial & set(arms_by_name)):
+        initial = arms_by_name[base_name]
+        retry_name = f"{base_name}-r1"
+        retry = arms_by_name.get(retry_name)
+        effective_arms[base_name] = retry_name if retry is not None else base_name
+        if retry is None:
+            continue
+        if initial["passed"]:
+            cross_arm_errors.append(f"{retry_name}: retry is not allowed after a passing initial arm")
+            continue
+
+        term_prefixes = tuple(f"{term}: " for term in initial.get("terms", {}))
+        non_term_errors = [
+            error for error in initial["errors"]
+            if not error.startswith(term_prefixes)
+        ]
+        if non_term_errors:
+            cross_arm_errors.append(
+                f"{retry_name}: retry cannot replace structural errors in {base_name}: "
+                f"{non_term_errors}"
+            )
+
+        initial_terms = initial.get("terms", {})
+        retry_terms = retry.get("terms", {})
+        for term, initial_result in initial_terms.items():
+            retry_result = retry_terms.get(term)
+            if retry_result is None:
+                continue
+            expected_weight = initial_result["weight"]
+            if not initial_result["passed"]:
+                expected_weight = initial_result["suggested_recalibrated_weight"]
+                if expected_weight is None:
+                    cross_arm_errors.append(
+                        f"{retry_name}: {term} has no valid deterministic recalibration"
+                    )
+                    continue
+            actual_weight = retry_result["weight"]
+            if (
+                expected_weight is None
+                or actual_weight is None
+                or not math.isclose(
+                    actual_weight,
+                    expected_weight,
+                    rel_tol=0.0,
+                    abs_tol=1e-12,
+                )
+            ):
+                cross_arm_errors.append(
+                    f"{retry_name}: {term} weight {actual_weight!r}, "
+                    f"expected {expected_weight!r}"
+                )
+
+    selected = [
+        arms_by_name[name]
+        for name in effective_arms.values()
+    ]
     return {
         "root": str(root),
-        "passed": bool(arms) and not cross_arm_errors and all(arm["passed"] for arm in arms),
+        "passed": (
+            len(selected) == len(expected_initial)
+            and not cross_arm_errors
+            and all(arm["passed"] for arm in selected)
+        ),
         "cross_arm_errors": cross_arm_errors,
         "revision": next(iter(revisions)) if len(revisions) == 1 else None,
+        "effective_arms": effective_arms,
         "arms": arms,
     }
 

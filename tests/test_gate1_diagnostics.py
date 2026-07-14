@@ -93,6 +93,52 @@ def test_gate1_diagnostic_contract_suggests_one_capped_recalibration(tmp_path):
     assert "median ratio" in term["errors"][0]
 
 
+def test_gate1_diagnostic_contract_accepts_deterministic_recalibration(tmp_path):
+    _write_run(tmp_path, "c0_seed0", {})
+    _write_run(tmp_path, "c1_bce_seed0", {"contact_bce": (1.0, 0.1)})
+    _write_run(tmp_path, "c2_edge_seed0", {
+        "contact_bce": (1.0, 0.1),
+        "edge_velocity": (0.03, 0.3),
+    })
+    _write_run(tmp_path, "c3_stance_seed0", {
+        "teacher_stance_velocity": (0.03, 0.01),
+    })
+    _write_run(tmp_path, "c3_stance_seed0-r1", {
+        "teacher_stance_velocity": (0.12, 0.3),
+    })
+    _write_run(tmp_path, "c4_teacher_velocity_seed0", {
+        "teacher_velocity": (0.05, 0.3),
+    })
+
+    report = gate1.analyze_root(tmp_path)
+
+    assert report["passed"]
+    assert report["effective_arms"]["c3_stance_seed0"] == "c3_stance_seed0-r1"
+
+
+def test_gate1_diagnostic_contract_rejects_nondeterministic_recalibration(tmp_path):
+    _write_run(tmp_path, "c0_seed0", {})
+    _write_run(tmp_path, "c1_bce_seed0", {"contact_bce": (1.0, 0.1)})
+    _write_run(tmp_path, "c2_edge_seed0", {
+        "contact_bce": (1.0, 0.1),
+        "edge_velocity": (0.03, 0.3),
+    })
+    _write_run(tmp_path, "c3_stance_seed0", {
+        "teacher_stance_velocity": (0.03, 0.01),
+    })
+    _write_run(tmp_path, "c3_stance_seed0-r1", {
+        "teacher_stance_velocity": (0.06, 0.3),
+    })
+    _write_run(tmp_path, "c4_teacher_velocity_seed0", {
+        "teacher_velocity": (0.05, 0.3),
+    })
+
+    report = gate1.analyze_root(tmp_path)
+
+    assert not report["passed"]
+    assert any("weight 0.06, expected 0.12" in error for error in report["cross_arm_errors"])
+
+
 def test_gate1_diagnostic_contract_rejects_incomplete_and_mixed_revision_runs(tmp_path):
     _write_run(tmp_path, "c0_seed0", {}, completed=False)
     _write_run(tmp_path, "c1_bce_seed0", {"contact_bce": (1.0, 0.1)}, revision="different")
