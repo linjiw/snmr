@@ -12,8 +12,10 @@ Date: 2026-07-10 · Status: **Historical design and implementation record.**
 > factorized Gate 1 contact study and matched Gate 2 WBT validation. Framewise DLS exposes a
 > speed-versus-jerk Pareto. A full temporal C6 projection reaches `0.099 m/s` with the deployable
 > source mask but fails speed and MPJPE, while the same solver reaches `0.0056 m/s` with all guards
-> under a teacher-mask oracle. The shared-model, unseen-target, representation, temporal, and
-> throughput claims remain bounded by that audit.
+> under a teacher-mask oracle. A matched three-clip, seed-0 WBT pilot shows no catastrophic SNMR
+> regression but is too small for non-inferiority or benefit; two more training seeds remain.
+> The shared-model, unseen-target, representation, temporal, and throughput claims remain bounded
+> by that audit.
 
 ---
 

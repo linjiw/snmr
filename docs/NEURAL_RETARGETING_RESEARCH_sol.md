@@ -893,12 +893,19 @@ Do not wait for Gate 1 to finish before starting the baseline smoke test.
 - Verify learning progresses, buffers are nonzero, episode termination is meaningful, and both
   sources use identical configuration.
 
-**Execution update (2026-07-13):** the MuJoCo/Warp backend smoke passed for the exported GMR
+**Execution update (2026-07-14):** the MuJoCo/Warp backend smoke passed for the exported GMR
 `walk1_subject5` reference: 20 PPO iterations at 256 environments, finite populated reward/loss
-signals, roughly 4k simulation steps/s, and a saved checkpoint. A six-run seed-0 pilot
-(three clips times GMR/SNMR, 1024 environments, 1000 iterations) is queued after the active E25
-training job. This establishes backend feasibility only; the paired SNMR arm and Stage B evidence
-remain pending.
+signals, roughly 4k simulation steps/s, and a saved checkpoint. The subsequent six-run seed-0
+pilot (three clips times GMR/SNMR, 1024 environments, 1000 iterations) also passed its artifact
+contract: every run has 1000 finite scalar events, a final checkpoint, and the same resolved config
+apart from motion path and run name.
+
+Final-100 SNMR-minus-GMR effects are mixed and small. Reward differs by −2.9%, +3.1%, and +3.3%
+for walk, dance, and fight; episode length by −1.2%, +2.7%, and +0.02%; joint-position error is
+3.9% worse, 5.2% better, and 6.0% better. Reference-position error is 0.5–1.8% worse on all three.
+This rules out a catastrophic seed-0 regression and supports replication. It is not Stage B
+completion or a non-inferiority result: seeds 1–2 and independent evaluation rollouts remain
+required.
 
 ### Stage B: pilot
 

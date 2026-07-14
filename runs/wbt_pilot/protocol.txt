@@ -1,0 +1,3 @@
+seed=0
+envs=1024
+iterations=1000

@@ -285,7 +285,7 @@ E26b's residual was under-convergence (4 iters) + stance under-coverage (extend 
   is the remaining gap. A trained contact head is one possible mask lever, but C0-C4 attribution
   and the full temporal C6 baseline come first.
 
-### E27 — WBT-on-MuJoCo/Warp SMOKE — **PASSED (2026-07-13)**; paired pilot QUEUED
+### E27 — WBT-on-MuJoCo/Warp smoke + seed-0 paired pilot — **PASSED**
 Dedicated env `.venv-wbt` (py3.11, torch 2.6 cu124, holosoma editable, mujoco-warp 3.10.0.2,
 warp-lang 1.15 — holosoma's ==1.10.0 pin conflicts on paper but everything imports and runs).
 Smoke: `exp:g1-29dof-wbt simulator:mjwarp logger:disabled --training.num_envs=256
@@ -293,10 +293,19 @@ Smoke: `exp:g1-29dof-wbt simulator:mjwarp logger:disabled --training.num_envs=25
 ~4k steps/s at 256 envs, reward terms populate, checkpoint saved. **E20's GO-WITH-SHIM verdict is
 now executed reality; C6 no longer has an infrastructure blocker.** Syntax gotchas: logger and
 simulator are tyro SUBCOMMANDS (`logger:disabled`), not flags.
-**Queued (auto-chained after E25 w10 frees the GPU):** paired pilot — 3 clips (walk/dance/fight)
-× {gmr, snmr} × seed 0, 1024 envs, 1000 iters each, identical config
-(`$CLAUDE_JOB_DIR/tmp/wbt_pilot.sh` → `runs/wbt_pilot/`). Per audit Gate 2: pilot detects
-catastrophic regressions only; the confirmatory claim needs more clips + seeds.
+
+The auto-chained paired pilot completed three clips (walk/dance/fight) × {GMR, SNMR} × seed 0,
+1024 environments, 1000 iterations. `runs/wbt_pilot/analysis.json` passes the frozen analyzer:
+all six runs contain exactly 1000 finite events at steps 0–999, final checkpoints, and resolved
+configs identical except motion path and run name.
+
+Final-100 effects are small and mixed. Relative to GMR, SNMR reward is −2.9% on walk, +3.1% on
+dance, and +3.3% on fight; episode length is −1.2%, +2.7%, and +0.02%. Joint-position error is
+3.9% worse on walk and 5.2%/6.0% better on dance/fight. Reference-position error is consistently
+0.5–1.8% higher. **Verdict:** no catastrophic tracking regression is visible, and this is enough
+to justify replication, but one training seed and training curves cannot establish
+non-inferiority or benefit. Complete seeds 1–2 for these clips before calling Stage B complete;
+the confirmatory study still needs independent evaluation rollouts and deployment endpoints.
 
 ### E28 — Gate-3 sharing-gradient diagnostic — DONE (`runs/phase2_all5/sharing_gradient_diagnosis_eval.json`)
 Per-robot distill gradients on the shared parameters of the E04 checkpoint (12 windows × 5 robots,
@@ -342,8 +351,9 @@ post-process parameter sweep.
 
 ### GPU queue (2026-07-14)
 1. E25 w10.0 complete; matched result and verdict recorded above.
-2. WBT pilot (6 runs, auto-chained) is the active block.
-3. Factorized contact calibration C0–C4 (Gate 1) remains queued from one fixed clean revision.
+2. WBT seed-0 pilot complete; protocol passed and the descriptive verdict is recorded above.
+3. Factorized contact calibration C0–C4 (Gate 1) is the next active block from one fixed clean
+   revision.
    `zr_decode_prob` remains a later, separate Gate 4 experiment.
 CPU: E26b DLS grid complete; see above.
 
