@@ -31,3 +31,7 @@ runs/wbt_pilot_replication/pilot_*.log
 runs/wbt_independent_eval/pilot_*.log
 runs/wbt_horizon_calibration/*.train.log
 runs/wbt_horizon_calibration/*.eval.log
+runs/wbt_reference_dev/*.train.log
+runs/wbt_reference_dev/*.eval.log
+runs/wbt_reference_confirmatory/*.train.log
+runs/wbt_reference_confirmatory/*.eval.log
