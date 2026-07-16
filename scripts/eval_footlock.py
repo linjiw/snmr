@@ -73,6 +73,59 @@ def predicted_contact_mask(
     return torch.sigmoid(contact_logits[:, foot_indices]) >= probability_threshold
 
 
+def decoded_clip_ground_height(
+    model,
+    ctx: RobotContext,
+    hp_all: torch.Tensor,
+    hq_all: torch.Tensor,
+    h_static: torch.Tensor,
+    h_adj: torch.Tensor,
+    foot_indices: list[int],
+    *,
+    window: int,
+) -> torch.Tensor:
+    """Decode consecutive clip tiles and return each foot's minimum world height."""
+    if window < 2:
+        raise ValueError("window must be at least 2 frames")
+    if hp_all.shape[0] != hq_all.shape[0]:
+        raise ValueError("human position and quaternion clips must have equal length")
+    if hp_all.shape[0] < 2:
+        raise ValueError("clip must contain at least 2 frames")
+
+    heights = []
+    for seg_start in range(0, hp_all.shape[0], window):
+        seg_end = min(seg_start + window, hp_all.shape[0])
+        if seg_end - seg_start < 2:
+            continue
+        hp_seg = hp_all[seg_start:seg_end]
+        hq_seg = hq_all[seg_start:seg_end]
+        seg_anchor_pos = hp_seg[:, 0, :].clone()
+        seg_anchor_pos[:, :2] *= ctx.xy_scale
+        with torch.no_grad():
+            seg_feats = human_pose_features(hp_seg, hq_seg)
+            seg_z = model.encode(seg_feats, h_static, h_adj)
+            seg_pred = model.decoder(
+                seg_z,
+                ctx.static,
+                ctx.adj,
+                model.embodiment_encoder(ctx.static),
+                ctx.kin.graph,
+            )
+            seg_wp, seg_wq = local_root_to_world(
+                seg_anchor_pos,
+                hq_seg[:, 0, :],
+                seg_pred["root_pos"],
+                seg_pred["root_quat"],
+            )
+            seg_body, _ = ctx.kin.forward_kinematics(
+                seg_wp, seg_wq, seg_pred["dof_pos"]
+            )
+        heights.append(seg_body[:, foot_indices, 2])
+    if not heights:
+        raise ValueError("clip tiling produced no decodable segments")
+    return torch.cat(heights, dim=0).min(dim=0).values
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt", default=str(ROOT / "runs/phase1_g1_large/ckpt_100k_final.pt"))
@@ -80,6 +133,12 @@ def main() -> None:
     ap.add_argument("--clips", nargs="+", default=VAL_CLIPS)
     ap.add_argument("--window", type=int, default=192)
     ap.add_argument("--windows_per_clip", type=int, default=6)
+    ap.add_argument(
+        "--only_window_start",
+        type=int,
+        default=None,
+        help="evaluate one explicit start frame; requires exactly one --clips value",
+    )
     ap.add_argument(
         "--method",
         choices=["framewise", "windowed"],
@@ -267,43 +326,32 @@ def main() -> None:
         if args.lock_mask == "decoded_height_clip":
             # M1b: clip-local decoded ground — tile the whole clip in consecutive windows,
             # decode, FK, and take the per-foot minimum height. Uses no teacher signal.
-            heights = []
-            for seg_start in range(0, T, args.window):
-                seg_end = min(seg_start + args.window, T)
-                if seg_end - seg_start < 2:
-                    continue
-                hp_seg = hp_all[seg_start:seg_end]
-                hq_seg = hq_all[seg_start:seg_end]
-                seg_anchor_pos = hp_seg[:, 0, :].clone()
-                seg_anchor_pos[:, :2] *= ctx.xy_scale
-                with torch.no_grad():
-                    seg_feats = human_pose_features(hp_seg, hq_seg)
-                    seg_z = model.encode(seg_feats, h_static, h_adj)
-                    seg_pred = model.decoder(
-                        seg_z,
-                        ctx.static,
-                        ctx.adj,
-                        model.embodiment_encoder(ctx.static),
-                        ctx.kin.graph,
-                    )
-                    seg_wp, seg_wq = local_root_to_world(
-                        seg_anchor_pos,
-                        hq_seg[:, 0, :],
-                        seg_pred["root_pos"],
-                        seg_pred["root_quat"],
-                    )
-                    seg_body, _ = ctx.kin.forward_kinematics(
-                        seg_wp, seg_wq, seg_pred["dof_pos"]
-                    )
-                heights.append(seg_body[:, foot_idx, 2])
-            decoded_clip_ground = torch.cat(heights, dim=0).min(dim=0).values
+            decoded_clip_ground = decoded_clip_ground_height(
+                model,
+                ctx,
+                hp_all,
+                hq_all,
+                h_static,
+                h_adj,
+                foot_idx,
+                window=args.window,
+            )
 
-        starts = np.linspace(
-            0,
-            max(T - args.window, 0),
-            num=min(args.windows_per_clip, max(T // args.window, 1)),
-            dtype=int,
-        )
+        if args.only_window_start is not None:
+            if len(args.clips) != 1:
+                raise ValueError("--only_window_start requires exactly one --clips value")
+            if not 0 <= args.only_window_start <= max(T - args.window, 0):
+                raise ValueError(
+                    f"--only_window_start must be in [0, {max(T - args.window, 0)}]"
+                )
+            starts = np.array([args.only_window_start], dtype=int)
+        else:
+            starts = np.linspace(
+                0,
+                max(T - args.window, 0),
+                num=min(args.windows_per_clip, max(T // args.window, 1)),
+                dtype=int,
+            )
         for start in starts:
             start = int(start)
             end = start + args.window

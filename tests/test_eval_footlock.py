@@ -35,3 +35,17 @@ def test_predicted_contact_mask_rejects_degenerate_threshold(threshold):
             [1],
             probability_threshold=threshold,
         )
+
+
+def test_decoded_clip_ground_rejects_mismatched_clip_lengths():
+    with pytest.raises(ValueError, match="must have equal length"):
+        eval_footlock.decoded_clip_ground_height(
+            None,
+            None,
+            torch.zeros(3, 1, 3),
+            torch.zeros(2, 1, 4),
+            torch.zeros(1),
+            torch.zeros(1),
+            [0],
+            window=2,
+        )
