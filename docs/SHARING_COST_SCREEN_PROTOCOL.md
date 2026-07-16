@@ -63,4 +63,6 @@ base as the paper result and investigate morphology-complete conditioning rather
 runs from `/tmp`, so later edits to the main checkout cannot alter an active long-running shell or
 trainer. The driver is resumable from retained 25k checkpoints. Raw checkpoints and stdout logs
 remain ignored; manifests, exposure counts, checkpoint hashes, learning curves, final metrics,
-and the frozen analyzer are the reviewable record.
+and the frozen analyzer are the reviewable record. The analyzer rejects source or resume drift,
+requires all shared arms to use one exact dataset fingerprint, and verifies that the five
+specialist datasets partition that shared dataset.

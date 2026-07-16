@@ -51,6 +51,133 @@ def _finite(value: Any) -> bool:
     )
 
 
+def _valid_sha256(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
+    )
+
+
+def _validate_resume_checks(manifest: dict[str, Any]) -> list[str]:
+    errors = []
+    invocations = manifest.get("invocations")
+    if not isinstance(invocations, list) or not invocations:
+        return ["manifest invocations are missing"]
+    if not isinstance(invocations[0], dict) or invocations[0].get("resume") is not False:
+        errors.append("the first invocation must be a fresh launch")
+    resume_count = sum(
+        isinstance(invocation, dict) and invocation.get("resume") is True
+        for invocation in invocations
+    )
+    checks = manifest.get("resume_checks", [])
+    if not isinstance(checks, list):
+        return ["resume_checks must be a list"]
+    if len(checks) != resume_count:
+        errors.append("resume invocation and integrity-check counts differ")
+    for index, check in enumerate(checks):
+        if not isinstance(check, dict):
+            errors.append(f"resume check {index} is malformed")
+            continue
+        if check.get("config_matches_original_except_resume") is not True:
+            errors.append(f"resume check {index} changed the original config")
+        if check.get("config_differences") != {}:
+            errors.append(f"resume check {index} has config differences")
+        if check.get("dataset_matches_original") is not True:
+            errors.append(f"resume check {index} changed the original dataset")
+        if not _valid_sha256(check.get("dataset_hash")):
+            errors.append(f"resume check {index} has an invalid dataset hash")
+    return errors
+
+
+def _dataset_file_sets(
+    dataset: dict[str, Any],
+) -> dict[str, set[tuple[str, int, str]]]:
+    if not isinstance(dataset, dict) or not _valid_sha256(dataset.get("sha256")):
+        raise ValueError("dataset fingerprint is missing or invalid")
+    splits = dataset.get("splits")
+    if not isinstance(splits, dict):
+        raise ValueError("dataset split fingerprints are missing")
+    records = {}
+    for split, split_record in splits.items():
+        if not isinstance(split, str) or not isinstance(split_record, dict):
+            raise ValueError("dataset split fingerprint is malformed")
+        files = split_record.get("files")
+        if (
+            not isinstance(files, list)
+            or split_record.get("file_count") != len(files)
+            or not _valid_sha256(split_record.get("sha256"))
+        ):
+            raise ValueError(f"dataset split {split!r} is incomplete")
+        file_records = set()
+        for file_record in files:
+            if not isinstance(file_record, dict):
+                raise ValueError(f"dataset split {split!r} has a malformed file")
+            path = file_record.get("path")
+            size = file_record.get("size_bytes")
+            sha256 = file_record.get("sha256")
+            if (
+                not isinstance(path, str)
+                or not isinstance(size, int)
+                or isinstance(size, bool)
+                or size < 0
+                or not _valid_sha256(sha256)
+            ):
+                raise ValueError(f"dataset split {split!r} has an invalid file")
+            file_records.add((path, size, sha256))
+        if len(file_records) != len(files):
+            raise ValueError(f"dataset split {split!r} has duplicate files")
+        records[split] = file_records
+    return records
+
+
+def _validate_dataset_partition(
+    datasets: dict[str, dict[str, Any]],
+) -> list[str]:
+    errors = []
+    shared_hashes = {
+        datasets[arm].get("sha256")
+        for arm in SHARED_ARMS
+    }
+    if len(shared_hashes) != 1:
+        errors.append(
+            f"shared arms do not use one dataset fingerprint: {sorted(shared_hashes)}"
+        )
+        return errors
+
+    try:
+        shared_files = _dataset_file_sets(datasets["shared_base_seed0"])
+        for arm in SHARED_ARMS[1:]:
+            if _dataset_file_sets(datasets[arm]) != shared_files:
+                errors.append(f"{arm} dataset files differ from shared base")
+        specialist_files = {
+            robot: _dataset_file_sets(
+                datasets[f"{SPECIALIST_PREFIX}{robot}_seed0"]
+            )
+            for robot in ROBOTS
+        }
+    except ValueError as exc:
+        return [str(exc)]
+
+    if any(set(files) != set(shared_files) for files in specialist_files.values()):
+        errors.append("specialist and shared datasets have different split names")
+        return errors
+    for split, expected in shared_files.items():
+        observed: set[tuple[str, int, str]] = set()
+        total_records = 0
+        for robot in ROBOTS:
+            robot_records = specialist_files[robot][split]
+            total_records += len(robot_records)
+            observed.update(robot_records)
+        if len(observed) != total_records:
+            errors.append(f"specialist dataset split {split!r} overlaps across robots")
+        if observed != expected:
+            errors.append(
+                f"specialist datasets do not partition shared split {split!r}"
+            )
+    return errors
+
+
 def _arm_specs() -> dict[str, dict[str, Any]]:
     specs = {
         f"{SPECIALIST_PREFIX}{robot}_seed0": {
@@ -169,9 +296,18 @@ def _validate_arm(
         errors.append(f"unexpected trainer {manifest.get('trainer')!r}")
     if manifest.get("status") != "completed":
         errors.append(f"manifest status is {manifest.get('status')!r}")
+    errors.extend(_validate_resume_checks(manifest))
     git = manifest.get("git", {})
     if git.get("sha") != launch_revision or git.get("dirty") is not False:
         errors.append("manifest does not use the clean frozen launch revision")
+    source_sha256 = manifest.get("source", {}).get("sha256")
+    if not _valid_sha256(source_sha256):
+        errors.append("manifest source fingerprint is missing or invalid")
+    dataset = manifest.get("dataset", {})
+    try:
+        _dataset_file_sets(dataset)
+    except ValueError as exc:
+        errors.append(str(exc))
     progress = manifest.get("progress", {})
     if (
         progress.get("completion_state") != "completed"
@@ -265,6 +401,13 @@ def _validate_arm(
         errors.append("checkpoint step is incorrect")
     if checkpoint.get("robot_exposures") != expected_exposures:
         errors.append("checkpoint exposure counts are incorrect")
+    checkpoint_config = checkpoint.get("config")
+    if not isinstance(checkpoint_config, dict):
+        errors.append("checkpoint config is missing")
+    else:
+        config_keys = (set(checkpoint_config) | set(config)) - {"resume"}
+        if any(checkpoint_config.get(key) != config.get(key) for key in config_keys):
+            errors.append("checkpoint config differs from the manifest config")
     for key in ("opt", "sched", "rng_state"):
         if not isinstance(checkpoint.get(key), dict) or not checkpoint[key]:
             errors.append(f"checkpoint is missing {key}")
@@ -315,7 +458,8 @@ def _validate_arm(
         if not _finite(dof) or float(dof) <= 0:
             errors.append(f"{robot} DOF error is missing or invalid")
     provenance = {
-        "source_sha256": manifest.get("source", {}).get("sha256"),
+        "source_sha256": source_sha256,
+        "dataset_sha256": dataset.get("sha256"),
         "checkpoint_sha256": (
             checkpoints[0].get("sha256") if len(checkpoints) == 1 else None
         ),
@@ -417,9 +561,16 @@ def analyze(root: pathlib.Path) -> dict[str, Any]:
         )
     arms = {}
     source_hashes = set()
+    datasets = {}
     for arm, spec in specs.items():
         errors, metrics, provenance = _validate_arm(
             root / arm, spec, launch_revision
+        )
+        manifest_path = root / arm / "manifest.json"
+        datasets[arm] = (
+            _read_json(manifest_path).get("dataset", {})
+            if manifest_path.is_file()
+            else {}
         )
         arms[arm] = {
             "passed": not errors,
@@ -434,6 +585,8 @@ def analyze(root: pathlib.Path) -> dict[str, Any]:
         protocol_errors.append(
             f"arms do not share one source fingerprint: {sorted(source_hashes)}"
         )
+    if all(arm in datasets for arm in specs):
+        protocol_errors.extend(_validate_dataset_partition(datasets))
     if protocol_errors:
         return {
             "passed": False,

@@ -74,3 +74,64 @@ def test_sharing_decision_requires_worst_robot_gap_closure():
         "worst_gap_closure_ge_0.5"
     ]
     assert result["winner"] is None
+
+
+def _dataset(*records):
+    files = [
+        {"path": path, "size_bytes": size, "sha256": character * 64}
+        for path, size, character in records
+    ]
+    return {
+        "sha256": "f" * 64,
+        "splits": {
+            "train": {
+                "sha256": "e" * 64,
+                "file_count": len(files),
+                "files": files,
+            }
+        },
+    }
+
+
+def test_dataset_contract_requires_specialists_to_partition_shared_data():
+    robot_records = {
+        robot: (f"{robot}/clip.npz", index + 1, str(index))
+        for index, robot in enumerate(sharing.ROBOTS)
+    }
+    shared = _dataset(*robot_records.values())
+    datasets = {
+        f"specialist_{robot}_seed0": _dataset(robot_records[robot])
+        for robot in sharing.ROBOTS
+    }
+    datasets.update({arm: shared for arm in sharing.SHARED_ARMS})
+
+    assert sharing._validate_dataset_partition(datasets) == []
+
+    bad = dict(datasets)
+    bad["specialist_unitree_g1_seed0"] = _dataset(
+        ("unitree_g1/changed.npz", 1, "0")
+    )
+    assert sharing._validate_dataset_partition(bad) == [
+        "specialist datasets do not partition shared split 'train'"
+    ]
+
+
+def test_resume_contract_rejects_dataset_drift():
+    manifest = {
+        "invocations": [
+            {"resume": False},
+            {"resume": True},
+        ],
+        "resume_checks": [
+            {
+                "config_matches_original_except_resume": True,
+                "config_differences": {},
+                "dataset_matches_original": False,
+                "dataset_hash": "a" * 64,
+            }
+        ]
+    }
+
+    assert sharing._validate_resume_checks(manifest) == [
+        "resume check 0 changed the original dataset"
+    ]
