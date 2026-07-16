@@ -76,3 +76,38 @@ oracle's own definition with window-local ground scores precision 0.157. The ora
 precision-biased, sparse ("deep stance only") mask. The open question the arms answer is
 whether a dense deployable mask can pass the sparse scored endpoint without breaking MPJPE
 (E29-M0 failed via root-correction saturation), or whether density itself is the failure mode.
+
+## Registered label iteration M1b (amendment frozen 2026-07-14 ~22:15, before its run)
+
+M1 and M2 have completed and both FAIL as frozen (`windowed_c6_m1_decoded_height_full.json`,
+`windowed_c6_m2_c1head_full.json`):
+
+| Arm | Teacher-height speed | Source-contact speed | MPJPE | Verdict |
+|---|---:|---:|---:|---|
+| M1 decoded_height (window-local ground) | 0.199 m/s | 0.236 m/s | 4.22 cm | fails both coprimaries + MPJPE |
+| M2 C1 head t0.5 | **0.024 m/s (endpoint passes)** | 0.127 m/s | 4.61 cm | fails MPJPE (+0.95 cm), penetration fraction, source coprimary |
+
+The failure pattern matches the pre-registered "density is the failure mode" branch: M2's dense
+mask (prevalence 0.657, precision 0.140 vs oracle) passes the sparse speed endpoint but pins
+swing frames, saturating root corrections (20/42 windows) and breaking MPJPE/penetration. Mask
+precision is therefore the measured blocker, and the pre-specified single label iteration is
+exercised exactly as registered:
+
+- **M1b = decoded_height with CLIP-LOCAL decoded ground**: per-foot ground_z = minimum decoded
+  foot height over the full clip (decoded by tiling the clip in consecutive 192-frame windows —
+  deployable, uses no teacher signal), hysteresis enter 0.03 / exit 0.05 unchanged.
+- Rationale: decoded foot heights are accurate (E24), so clip-local decoded ground should
+  approximate the oracle's clip-local teacher ground; predicted effect is prevalence dropping
+  from 0.44 toward the oracle's 0.09 with much higher precision.
+- Everything else (solver, endpoints, guards, protocol) is unchanged. No further mask iteration
+  is permitted after M1b: if M1b fails, M3 (already registered) runs; if M3 also fails,
+  escalate to physics-repaired supervision per the frozen decision rules.
+
+## M1b pre-run smoke status (observed after the amendment)
+
+`smoke_m1b.json` selected zero stance samples in the first `walk1_subject5` window and returned
+the solver's `empty_contact_support` result. The full-clip decoded foot minima are 5.1/6.9 cm
+below that window's minima, so the clip-ground mask never enters contact there. This is a mask
+support diagnostic, not a successful solver smoke. Audit all 42 windows for support, then use a
+support-bearing window for projection plumbing before the full run; zero-support windows remain
+mask failures under the frozen study.

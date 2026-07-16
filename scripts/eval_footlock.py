@@ -117,6 +117,7 @@ def main() -> None:
             "teacher_height",
             "predicted_contact",
             "decoded_height",
+            "decoded_height_clip",
         ],
         default="source_contact",
     )
@@ -262,6 +263,41 @@ def main() -> None:
             "teacher_legacy": detect_contact(teacher_feet_all, fps),
         }
 
+        decoded_clip_ground = None
+        if args.lock_mask == "decoded_height_clip":
+            # M1b: clip-local decoded ground — tile the whole clip in consecutive windows,
+            # decode, FK, and take the per-foot minimum height. Uses no teacher signal.
+            heights = []
+            for seg_start in range(0, T, args.window):
+                seg_end = min(seg_start + args.window, T)
+                if seg_end - seg_start < 2:
+                    continue
+                hp_seg = hp_all[seg_start:seg_end]
+                hq_seg = hq_all[seg_start:seg_end]
+                seg_anchor_pos = hp_seg[:, 0, :].clone()
+                seg_anchor_pos[:, :2] *= ctx.xy_scale
+                with torch.no_grad():
+                    seg_feats = human_pose_features(hp_seg, hq_seg)
+                    seg_z = model.encode(seg_feats, h_static, h_adj)
+                    seg_pred = model.decoder(
+                        seg_z,
+                        ctx.static,
+                        ctx.adj,
+                        model.embodiment_encoder(ctx.static),
+                        ctx.kin.graph,
+                    )
+                    seg_wp, seg_wq = local_root_to_world(
+                        seg_anchor_pos,
+                        hq_seg[:, 0, :],
+                        seg_pred["root_pos"],
+                        seg_pred["root_quat"],
+                    )
+                    seg_body, _ = ctx.kin.forward_kinematics(
+                        seg_wp, seg_wq, seg_pred["dof_pos"]
+                    )
+                heights.append(seg_body[:, foot_idx, 2])
+            decoded_clip_ground = torch.cat(heights, dim=0).min(dim=0).values
+
         starts = np.linspace(
             0,
             max(T - args.window, 0),
@@ -298,9 +334,18 @@ def main() -> None:
             }
             with torch.no_grad():
                 decoded_body, _ = ctx.kin.forward_kinematics(wp, wq, pred["dof_pos"])
+            decoded_feet_window = decoded_body[:, foot_idx, :]
             window_masks["decoded_height"] = detect_contact_height_hysteresis(
-                decoded_body[:, foot_idx, :], enter_height=0.03, exit_height=0.05
+                decoded_feet_window, enter_height=0.03, exit_height=0.05
             )
+            if decoded_clip_ground is not None:
+                # Per-foot clip-local ground; broadcast against (T, F) heights.
+                window_masks["decoded_height_clip"] = detect_contact_height_hysteresis(
+                    decoded_feet_window,
+                    enter_height=0.03,
+                    exit_height=0.05,
+                    ground_z=decoded_clip_ground,
+                )
             if mask_model is not None:
                 with torch.no_grad():
                     z_m = mask_model.encode(feats, h_static, h_adj)
@@ -461,6 +506,10 @@ def main() -> None:
                 "decoded_height": (
                     "height hysteresis enter=0.03m, exit=0.05m on the decoded feet "
                     "(window-local ground)"
+                ),
+                "decoded_height_clip": (
+                    "height hysteresis enter=0.03m, exit=0.05m on the decoded feet, "
+                    "per-foot CLIP-local decoded ground (M1b; no teacher signal)"
                 ),
             },
             "contact_probability_threshold": args.contact_probability_threshold,
