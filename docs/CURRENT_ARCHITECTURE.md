@@ -1,9 +1,9 @@
 # SNMR Current Architecture and Workflow
 
-**Status snapshot: 2026-07-14.** This guide describes the code and experiment artifacts that
+**Status snapshot: 2026-07-16.** This guide describes the code and experiment artifacts that
 currently exist. It separates them from the proposed next method and the longer-term shared
-tracking framework. For experiment decisions, `docs/NEURAL_RETARGETING_RESEARCH_sol.md` remains
-the frozen record.
+tracking framework. For current experiment decisions, use `docs/20260716-1931-sol.md` and
+`docs/EXPERIMENT_LOG.md`.
 
 ## 1. The shortest useful explanation
 
@@ -16,9 +16,9 @@ There are three different systems:
 3. **Holosoma WBT** is a separate reinforcement-learning controller. It learns a policy that
    physically tracks a robot reference trajectory in simulation.
 
-The current WBT policy does **not** train SNMR, does **not** run GMR online, and does **not**
-consume SNMR's latent. It consumes explicit robot-space reference positions and velocities from
-an NPZ file.
+The matched reference-source WBT policies do **not** train SNMR, do **not** run GMR online, and
+consume explicit robot-space reference positions and velocities from an NPZ file. Separate E36-E39
+policies tested the frozen SNMR latent as an observation or command.
 
 ```mermaid
 flowchart LR
@@ -55,15 +55,15 @@ clip, and seed. The reference-motion source is the intended experimental differe
 | WBT data handoff | SNMR/GMR `qpos` to matched Holosoma NPZs | Implemented |
 | WBT Stage A | Separate G1 PPO policies trained on GMR or SNMR references | Implemented and run |
 | Formal tracking verdict | Non-inferiority/benefit after a sufficiently trained GMR control | Unresolved |
-| Latent NPZ and loader hook | `latent_z` export and Holosoma loader/observation monkeypatch | Implemented infrastructure only |
-| Latent-command WBT policy | Policy observes `z` instead of explicit joint command | Proposed, not trained |
+| Latent NPZ and loader hook | `latent_z` export and Holosoma loader/observation integration | Implemented and exercised |
+| Latent-command WBT policy | Policy observes `z` plus latent deltas instead of the explicit joint command | Feasible on one development clip; 72-77% completion across three training seeds, but worse than explicit commands |
 | Shared multi-robot WBT policy | One embodiment-conditioned policy for several robots | Proposed |
 | RL-to-retargeter feedback | Physics-repaired targets or bilevel co-optimization | Proposed fallback |
 
-The current horizon-calibration artifact is incomplete. Walk reaches 88% 10-second completion at
-8,000 PPO iterations, while dance reaches 10% and misses the frozen 25% per-clip floor. The fight
-continuation produced a 6,000-iteration checkpoint but no 8,000-iteration checkpoint, reports, or
-`COMPLETE` marker. Therefore the repository does not yet contain a valid E35 final verdict.
+The three-clip horizon-calibration artifact is incomplete. Its valid walk arm reaches 88%
+10-second completion at 8,000 PPO iterations, while dance reaches 10% and fight has no final 8k
+artifact. The walk result supports the current single-clip budget choice but is not a valid E35
+three-clip promotion verdict.
 
 ## 3. End-to-end repository workflow
 
@@ -339,34 +339,42 @@ It does not yet answer:
 - The 5,400 fixed-rollout evaluation had 0% 10-second completion for both sources.
 - Because the GMR control also failed, the formal result is **undertrained control**, not
   equivalence, non-inferiority, or benefit.
-- GMR-only horizon calibration shows that policy-training budget matters strongly and differs by
-  clip, but the calibration artifact is not yet complete.
+- The valid walk horizon arm reaches 88% completion at 8k; the full three-clip calibration remains
+  incomplete because dance fails and fight lacks its final checkpoint.
+- E39 establishes only latent-command feasibility: latent-only policies complete 72-77% across
+  three training seeds, 8-18 points below explicit commands. Critic latent preview does not
+  replicate and is reproduced by explicit privileged preview.
+- A fresh 8k SNMR-reference walk policy is now the development gate for the matched
+  GMR-reference versus SNMR-reference confirmatory matrix.
 
 ## 9. Proposed method and framework
 
 There are two proposal horizons. They should not be presented as though both are already the
 current system.
 
-### 9.1 Near-term proposed method: amortize, then project
+### 9.1 Near-term method direction: amortize, then repair
 
 The current neural model has low pose error but residual stance-foot motion. Soft contact losses
 did not meet the registered endpoint. A frozen windowed constrained projection succeeds with an
-oracle contact mask, so the proposed near-term method is:
+oracle contact mask, but decoded-height, source-contact, and learned masks all fail through low
+support or excessive density. The closed study therefore motivates repaired physical supervision,
+not another mask or solver iteration:
 
 ```mermaid
 flowchart LR
     H["Human motion"] --> S["SNMR amortized retargeter"]
     S --> Q0["Fast initial robot motion"]
-    S --> M["Deployable contact mask<br/>decoded height or learned head"]
-    Q0 --> P["Frozen windowed<br/>constraint projection"]
-    M --> P
-    P --> Q1["Contact-corrected robot motion"]
-    Q1 --> W["WBT export and matched RL test"]
+    Q0 --> W["Competent WBT policy<br/>and simulator rollouts"]
+    W --> R["Physics-repaired targets<br/>for failed contact phases"]
+    R --> T["Bounded retargeter retrain<br/>or residual corrector"]
+    T --> Q1["Physically improved robot motion"]
+    Q1 --> V["Re-evaluate tracking<br/>and contact"]
 ```
 
-SNMR solves most of the pose rapidly; projection handles the remaining exact contact constraint.
-The unresolved part is a deployable mask that reproduces the oracle result without violating pose
-and smoothness guards.
+SNMR still supplies the amortized initial motion, and the oracle result shows that the remaining
+contact constraints are correctable. The unresolved method question is how to obtain precise
+physical targets without relying on a low-precision deployable contact mask. This path begins
+only after calibrated WBT provides a competent simulator teacher.
 
 ### 9.2 Longer-term proposed framework: latent-command shared tracking
 
@@ -405,13 +413,15 @@ In this target design:
 What exists toward this target:
 
 - `scripts/export_wbt_with_latent.py` writes time-aligned `latent_z` into a WBT NPZ;
-- `snmr/integration/wbt_latent.py` loads it and exposes the current-frame latent as an observation.
+- `snmr/integration/wbt_latent.py` loads current and previewed latent observations;
+- E39 trained latent-only command policies across three seeds on one development clip.
 
 What is still missing:
 
-- an adopted Holosoma observation configuration for the latent experiment;
-- latent horizon/window construction and embodiment-code observation;
-- a trained latent-command baseline;
+- a causal or fixed-window control-trained command encoder with positional information;
+- predictive/contact objectives and a compact policy adapter;
+- calibrated multi-motion explicit-command and matched-width controls;
+- embodiment-code observation for control;
 - WBT configurations for additional robots;
 - multi-embodiment environment batching and policy training;
 - any RL gradient or repaired-data feedback into SNMR.
@@ -426,7 +436,7 @@ What is still missing:
 | SNMR latent `z` | SNMR decoder | Current internal command representation |
 | GMR qpos | WBT | Baseline reference NPZ |
 | SNMR qpos | WBT | Experimental reference NPZ |
-| SNMR latent `z` | WBT actor | Infrastructure exists; policy experiment not run |
+| SNMR latent `z` | WBT actor | Single-clip latent-only feasibility established; no tracking improvement |
 | WBT rollouts | SNMR | No current training connection |
 | WBT rollouts | SNMR, proposed | Hard-clip mining, physics-repaired supervision, or joint optimization |
 

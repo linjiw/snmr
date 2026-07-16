@@ -486,7 +486,7 @@ rollout seed `404`. Promote the earliest horizon with pooled completion `>=50%` 
 `>=25%`; if none passes at 8k, stop before spending the full 18-policy matrix and reassess the
 default 30k schedule/config.
 
-### E35 - WBT GMR horizon calibration - **FROZEN / READY**
+### E35 - WBT GMR horizon calibration - **PARTIAL: WALK CALIBRATED; FULL GATE INCOMPLETE**
 Use Holosoma `9fb2b57` and `runs/wbt_horizon_calibration_protocol.sh`. Two prerequisite PPO
 bookkeeping defects were fixed in Holosoma: resume now starts after the saved iteration
 (`1fb2840`), and periodic checkpoints are emitted after a completed update interval (`9fb2b57`).
@@ -500,9 +500,12 @@ updates with optimizer and normalization state restored. Retain `model_01999.pt`
 three finite 7,000-event training runs, exact checkpoint iteration/config/hash contracts, all
 nine rollout reports, and the frozen promotion thresholds. Seed `404` is development-only.
 
-Promote the earliest total horizon with pooled completion `>=50%` and every clip `>=25%`. If the
-8k checkpoint fails, stop before extending the matched 18-policy matrix. This calibration selects
-a training budget only and cannot establish non-inferiority or tracking benefit.
+The walk arm is complete and shows the intended budget effect: completion rises from `3%` at 2k
+to `48%` at 4k and `88%` at 8k. Dance reaches only `0%/2%/10%`; fight produced no final 8k
+checkpoint or reports. The registered pooled/per-clip gate therefore has no valid final verdict,
+and E35 cannot select one budget for all three clips. Its valid walk result supports 8k for the
+single-clip E36-E39 studies and current reference-source development gate only. Calibration
+selects a training budget; it cannot establish non-inferiority or tracking benefit.
 
 ## Queued / planned
 - E21 — decode-from-z_r augmentation (fix for E19's robot→robot failure): `--zr_decode_prob`

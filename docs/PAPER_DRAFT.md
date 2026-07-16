@@ -28,18 +28,18 @@ in-training error), quantifying how far embodiment-level generalization remains.
 aligned with the GMR/OmniRetarget/NMR/SAME evaluation conventions, and a matched-pipeline
 whole-body-tracking validation package are released.
 
-*(~230 words. Rewrite pass pending final ablation + contact-retrain numbers.)*
+*(~230 words. Rewrite pass pending the sharing-cost and calibrated WBT results.)*
 
 ## 1. Contributions (claim → evidence)
 
 | # | Claim | Evidence | Status |
 |---|---|---|---|
 | C1 | One skeleton-agnostic network amortizes a GMR teacher across 5 trained humanoids with low pose error and joint limits by construction | G1 2.18 cm sparse held-out eval; all-5: 3.2–6.7 cm; 0 limit violations; controlled throughput pending | [DONE, contact caveat] |
-| C2 | First quantitative shared-latent analysis in cross-embodiment robotics | CKA 0.91, retrieval R@1 0.75, E1 linear 0.28 vs E3 MLP 0.91 (Elazar-Goldberg protocol) | [DONE] |
+| C2 | Quantitative shared-latent analysis in cross-embodiment robotics | CKA 0.91, retrieval R@1 0.75, E1 linear 0.28 vs E3 MLP 0.91 (Elazar-Goldberg protocol) | [DONE] |
 | C3 | Honest matched-baseline accounting of sharing costs | specialist 3.75 vs shared 5.12 cm at matched steps/schedule | [DONE] |
 | C4 | Zero-shot embodiment transfer quantified (negative) | LORO PM01: 29.6 vs 5.7 cm (5.2×) | [DONE] |
 | C5 | Physical-error diagnosis and bounded correction study | Small pose error differentiates into stance oscillation; soft objectives fail the endpoint; oracle-mask projection passes, but all deployable masks fail through density, precision, or support (E29, E41-E42) | [DONE, NEGATIVE DEPLOYABLE RESULT] |
-| C6 | Matched-pipeline tracking validation (retargeting → RL) | Calibrated 8k GMR walk reaches 88% completion; from-scratch SNMR-reference development gate and conditional three-seed comparison are frozen | [DEVELOPMENT RUN QUEUED] |
+| C6 | Matched-pipeline tracking validation (retargeting → RL) | Calibrated 8k GMR walk reaches 88% completion; the frozen from-scratch SNMR-reference development gate is running and conditionally promotes a three-seed comparison | [DEVELOPMENT RUNNING] |
 | C7 | Robot→robot motion transfer via the shared latent (no human data) | currently FAILS (24–45 cm; decoder never trained on robot encodings — E19); decode-from-z_r augmentation (E21) is the fix | [PEND] |
 
 ## 2. Method (framework)
@@ -92,8 +92,9 @@ Root cause (E24/E26): smooth xy oscillation (~2.9 cm RMS, τ≈0.1 s) of a corre
 foot — the velocity shadow of the regression error (skate/MPJPE ratio ~7–9 s⁻¹ constant across
 all checkpoints), NOT high-frequency jitter (low-pass ineffective) and NOT drift from a planted
 point. Available training-time levers are insufficient: the bundled E10a objective failed at every
-tested weight, while E25 w=2 improves MPJPE but leaves the ratio unchanged; the factorized Gate 1
-study remains pending. The strongest current lever is the
+tested weight, while E25 w=2 improves MPJPE but leaves the ratio unchanged. The factorized
+Gate 1 arms improve stance speed consistently but miss the absolute endpoint at all three seeds.
+The strongest diagnostic lever is the
 field's standard hybrid (cf. OmniRetarget hard stance constraints → exactly-zero skate;
 Villegas'21 ESO beats IK-only post-processing; production practice per Harvey'20/PFNN): a
 **source-mask-driven foot-lock** — contact labels from the CLEAN human input (decoded-motion
@@ -153,13 +154,14 @@ Both reported with the confounds that earlier, wrong readings had (schedule alig
 4. Executed-code adversarial review found 8 real bugs across 2 rounds (frame conventions,
    probe leaks, binary-formula misuse, body-vs-world angular velocity) — recommend as practice.
 5. Temporal-transformer encoder mixing is not required for per-frame fidelity at this scale
-   (ablation): its cost may only be justified by jerk/smoothness, pending contact-retrain interplay.
+   (ablation): its cost is not justified by the current fidelity and contact results; an
+   order-aware temporal arm is required before making a broader temporal-modeling claim.
 
 ## 5. TODO before submission
-- [ ] C5: run factorized Gate 1 C0–C4; full windowed projection is complete but its source-mask
-      arm fails, while the teacher-mask oracle passes
-- [ ] C6 WBT comparison — now LOCAL (holosoma MuJoCo/Warp backend, venv ready); smoke → pilot
-      (3 clips × paired seeds) → confirmatory (per audit Gate 2)
+- [x] C5: factorized Gate 1, full projection, M1b, and M3 are complete. The oracle mask passes;
+      every deployable mask fails, so mask/solver iteration is closed (E29, E41-E42).
+- [ ] C6 WBT comparison: the calibrated from-scratch SNMR walk development policy is running;
+      launch the frozen three-seed GMR-vs-SNMR matrix only if it clears 70% completion.
 - [ ] Embodiment augmentation run (synthetic MJCF variants) → revisit LORO (audit Gate 4: keep
       separate from zr_decode_prob arm)
 - [x] Sharing-cost diagnosis: per-robot gradient cosine/norm; no pervasive mean conflict, but
