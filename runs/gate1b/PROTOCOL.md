@@ -111,3 +111,24 @@ below that window's minima, so the clip-ground mask never enters contact there. 
 support diagnostic, not a successful solver smoke. Audit all 42 windows for support, then use a
 support-bearing window for projection plumbing before the full run; zero-support windows remain
 mask failures under the frozen study.
+
+## Final result and decision (2026-07-16)
+
+The support audit found only 58 selected samples in 16,128 (`0.36%` prevalence): 8/42 windows
+had any support and 34/42 were forced identity projections. M1b precision was `0.259`, recall
+`0.0105`, and F1 `0.0201`. A support-bearing smoke exercised and accepted the real L-BFGS path,
+but the unchanged full run failed both coprimaries (`0.479 m/s` teacher-height and `0.339 m/s`
+source-contact speed) while preserving MPJPE at `3.66 cm`.
+
+M3 then trained only the four newly introduced `decoder.contact_head.*` tensors for 50k steps
+from the registered C4 seed-0 checkpoint. All 98 inherited tensors remained byte-identical. Its
+held-out mask was denser and less precise than M2: `71.5%` prevalence, `0.0963` precision,
+`0.6587` recall, and `0.3236` F1 against the `8.87%`-prevalence oracle. The frozen projection
+failed both coprimaries (`0.430 m/s`, `0.254 m/s`) and the MPJPE, jerk, and penetration-fraction
+guards (`6.51 cm` projected MPJPE).
+
+Final verdict: `fail_close_mask_iteration`. No M3 seed replication is triggered and no further
+mask or solver iteration is permitted in Gate 1b. The oracle result still establishes that the
+projection machinery can close contact when constraints are correct; the deployable-mask study
+establishes precision/density and clip-ground inconsistency as the blocker. The next contact
+method is physics-repaired supervision, conditional on a competent calibrated WBT policy.

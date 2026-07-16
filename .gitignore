@@ -35,3 +35,5 @@ runs/wbt_reference_dev/*.train.log
 runs/wbt_reference_dev/*.eval.log
 runs/wbt_reference_confirmatory/*.train.log
 runs/wbt_reference_confirmatory/*.eval.log
+runs/gate1b/m3_*/*.log
+runs/gate1b/m3_*/*.jsonl

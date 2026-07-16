@@ -1,0 +1,69 @@
+{
+  "passed": true,
+  "verdict": "fail_close_mask_iteration",
+  "errors": [],
+  "launch_revision": "921978f5d3decabd6af94eed2ce67eb4e494ce08",
+  "artifact_revisions": {
+    "training": "921978f5d3decabd6af94eed2ce67eb4e494ce08",
+    "mask_audit": "9e28183a4c278046bf0bb70d3a912f7acb8e2a5b",
+    "projection": "9e28183a4c278046bf0bb70d3a912f7acb8e2a5b"
+  },
+  "checkpoint_sha256": "ce47f6056c2bb5341aa6837f8e274797407bcb2a6bd77bb8aff66c38c9bd3c49",
+  "backbone_integrity": {
+    "passed": true,
+    "source_keys": 98,
+    "trained_keys": 102,
+    "changed_inherited_keys": [],
+    "missing_inherited_keys": [],
+    "new_keys": [
+      "decoder.contact_head.0.bias",
+      "decoder.contact_head.0.weight",
+      "decoder.contact_head.2.bias",
+      "decoder.contact_head.2.weight"
+    ],
+    "expected_new_keys": [
+      "decoder.contact_head.0.bias",
+      "decoder.contact_head.0.weight",
+      "decoder.contact_head.2.bias",
+      "decoder.contact_head.2.weight"
+    ]
+  },
+  "mask_quality": {
+    "precision": 0.09626988119307084,
+    "recall": 0.6587154899177237,
+    "f1": 0.32363696057613217,
+    "candidate_prevalence": 0.714905753968254,
+    "oracle_prevalence": 0.08872767857142858,
+    "samples": 16128.0,
+    "windows": 42
+  },
+  "raw": {
+    "teacher_height_stance_speed_ms": 0.5024670484034639,
+    "source_contact_stance_speed_ms": 0.3414165879865842,
+    "mpjpe_m": 0.03658373174922807,
+    "dof_jerk": 692.8837534359524,
+    "limit_violation_fraction": 0.0,
+    "penetration_mean_m": 0.00016970302966087946,
+    "penetration_fraction": 0.009424603344606501
+  },
+  "projected": {
+    "teacher_height_stance_speed_ms": 0.42982095848817964,
+    "source_contact_stance_speed_ms": 0.2537579701289533,
+    "mpjpe_m": 0.06514925687086015,
+    "dof_jerk": 840.4326884178888,
+    "limit_violation_fraction": 0.0,
+    "penetration_mean_m": 0.000847901903546904,
+    "penetration_fraction": 0.03509424619066218
+  },
+  "decision": {
+    "teacher_height_speed_le_0.08": false,
+    "source_contact_speed_le_0.10": false,
+    "mpjpe_delta_le_0.005": false,
+    "absolute_mpjpe_le_0.04": false,
+    "dof_jerk_le_1.2x": false,
+    "zero_limit_violations": true,
+    "penetration_mean_guard": true,
+    "penetration_fraction_guard": false,
+    "all_relative_guards_pass": false
+  }
+}

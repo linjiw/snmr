@@ -478,8 +478,8 @@ To isolate reference-data quality. Sharing one policy between sources would conf
 
 **Does RL currently make SNMR more physical?**
 
-No. Physics feedback is a proposed future training loop. Current contact correction is an
-inference-time projection proposal.
+No. Physics feedback is a proposed future training loop. The frozen projection passes with an
+oracle mask, but every deployable-mask arm failed; mask and solver iteration is now closed.
 
 **What is the central current research question?**
 

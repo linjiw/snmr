@@ -1,0 +1,9 @@
+verdict: fail_close_mask_iteration
+protocol_passed: True
+errors: 0
+mask_precision: 0.09626988119307084
+mask_recall: 0.6587154899177237
+mask_prevalence: 0.714905753968254
+teacher_height_speed_ms: 0.42982095848817964
+source_contact_speed_ms: 0.2537579701289533
+mpjpe_m: 0.06514925687086015

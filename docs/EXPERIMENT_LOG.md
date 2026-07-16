@@ -684,3 +684,36 @@ clip-minimum mask under-detect contact; it is not evidence of a code crash and n
 the optimization path. Before the full M1b run, audit support over all 42 frozen windows and use
 a support-bearing window for the solver plumbing smoke. The registered full-study semantics do
 not change: zero-support windows count as mask failures.
+
+### E41 - Gate-1b M1b support audit and full projection - **FAILS BY UNDER-SUPPORT**
+`runs/gate1b/m1b_support_audit.json` and
+`runs/gate1b/windowed_c6_m1b_decoded_clip_height_full.json`. Clip-local decoded ground selects
+only 58/16,128 samples across 8/42 windows; 34 windows have zero support. Precision is 0.259 but
+recall is 0.0105 (F1 0.0201). A support-bearing smoke validates the accepted L-BFGS path and all
+correction bounds, but the full unchanged projection is effectively identity on most windows:
+teacher-height speed `0.479 m/s`, source-contact speed `0.339 m/s`, and MPJPE `3.66 cm`.
+M1b therefore fails both coprimaries and triggers the already registered M3 arm.
+
+### E42 - Gate-1b M3 frozen contact-head retrain - **VALID FAILURE; CLOSE MASK ITERATION**
+`runs/gate1b/m3_teacher_height_head_seed0/analysis.json`, 50k G1 steps from C4 seed 0, with only
+the four new `decoder.contact_head.*` tensors trainable. The artifact contract passes: all 98
+inherited C4 tensors are byte-identical, the checkpoint and mask/projection hashes agree, and all
+42 registered windows are present.
+
+The learned mask reproduces the density failure instead of fixing it: prevalence `0.715` versus
+oracle `0.0887`, precision `0.0963`, recall `0.6587`, F1 `0.3236`. Projection reduces raw stance
+speeds but remains far above both endpoints (`0.430 m/s` teacher-height, `0.254 m/s`
+source-contact), raises MPJPE `3.66 -> 6.51 cm`, exceeds the 1.2x jerk guard, and fails the
+penetration-fraction guard. Verdict: `fail_close_mask_iteration`.
+
+The long-running shell encountered a non-scientific recovery event after training: its source
+driver had been committed in place while Bash was still reading it, causing a shifted command
+fragment after the valid 50k manifest was written. The exact frozen audit and projection commands
+were resumed from the staged protocol; `DRIVER_RECOVERY.md` records the details. This does not
+change the checkpoint, registered code paths, endpoints, or verdict.
+
+Decision: no M3 replication, no additional threshold/label/solver tuning, and no
+`contact-consistent` claim. Gate 1b is closed. The oracle-mask pass supports the diagnosis that
+correct constraints are sufficient; deployable mask precision/density remains unresolved.
+Proceed to physics-repaired supervision only after calibrated WBT provides a competent simulator
+teacher.

@@ -8,14 +8,9 @@ import json
 import math
 import pathlib
 import subprocess
-import sys
 from typing import Any
 
 import torch
-
-REPO_ROOT = pathlib.Path("/home/ec2-user/work/retarget/snmr")
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 from snmr.experiment import sha256_file
 
@@ -53,6 +48,7 @@ EXPECTED_CONFIG = {
     "diag_every": 5000,
     "seed": 0,
 }
+REPO_ROOT = pathlib.Path("/home/ec2-user/work/retarget/snmr")
 SCIENTIFIC_PATHS = (
     "scripts/train_phase1.py",
     "scripts/audit_contact_masks.py",

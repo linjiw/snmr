@@ -1,5 +1,7 @@
 import importlib.util
 from pathlib import Path
+import subprocess
+import sys
 
 import torch
 
@@ -70,3 +72,18 @@ def test_validate_artifact_revision_rejects_dirty_artifact(monkeypatch):
     )
 
     assert errors == ["artifact revision is dirty"]
+
+
+def test_analyzer_copy_can_import_package_outside_repository(tmp_path):
+    copied = tmp_path / SCRIPT.name
+    copied.write_bytes(SCRIPT.read_bytes())
+
+    result = subprocess.run(
+        [sys.executable, str(copied), "--help"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr

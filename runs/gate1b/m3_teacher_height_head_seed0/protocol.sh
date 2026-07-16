@@ -3,7 +3,6 @@ set -euo pipefail
 
 ROOT=/home/ec2-user/work/retarget/snmr
 PY=/home/ec2-user/work/retarget/.venv-snmr/bin/python
-ANALYZER="$ROOT/scripts/analyze_gate1b_m3.py"
 PAIRS=/home/ec2-user/work/retarget/data/pairs/unitree_g1
 OUT="$ROOT/runs/gate1b/m3_teacher_height_head_seed0"
 WORK=/tmp/snmr_gate1b_m3_teacher_height_head_seed0
@@ -31,13 +30,10 @@ jq -e '
 
 mkdir -p "$WORK"
 cp "$0" "$WORK/protocol.sh"
-cp "$ANALYZER" "$WORK/analyze_gate1b_m3.py"
 git rev-parse HEAD > "$WORK/launch_revision.txt"
 sha256sum "$INIT" > "$WORK/initial_checkpoint.sha256"
 sha256sum "$M1B" > "$WORK/m1b_result.sha256"
 sha256sum "$SUPPORT" > "$WORK/m1b_support.sha256"
-sha256sum "$WORK/protocol.sh" "$WORK/analyze_gate1b_m3.py" \
-  > "$WORK/code_sha256.txt"
 
 "$PY" scripts/train_phase1.py \
   --robot unitree_g1 \
@@ -95,6 +91,6 @@ jq -e '
   --out "$WORK/windowed_projection.json" \
   > "$WORK/projection_stdout.log" 2>&1
 
-PYTHONPATH="$ROOT" "$PY" "$WORK/analyze_gate1b_m3.py" --root "$WORK"
+"$PY" scripts/analyze_gate1b_m3.py --root "$WORK"
 date -u +%FT%TZ > "$WORK/COMPLETE"
 mv "$WORK" "$OUT"

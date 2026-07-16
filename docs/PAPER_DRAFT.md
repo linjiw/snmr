@@ -38,8 +38,8 @@ whole-body-tracking validation package are released.
 | C2 | First quantitative shared-latent analysis in cross-embodiment robotics | CKA 0.91, retrieval R@1 0.75, E1 linear 0.28 vs E3 MLP 0.91 (Elazar-Goldberg protocol) | [DONE] |
 | C3 | Honest matched-baseline accounting of sharing costs | specialist 3.75 vs shared 5.12 cm at matched steps/schedule | [DONE] |
 | C4 | Zero-shot embodiment transfer quantified (negative) | LORO PM01: 29.6 vs 5.7 cm (5.2×) | [DONE] |
-| C5 | Source-mask foot-lock closes the preregistered skate endpoint; jerk/skate trade-off reported as a Pareto | E26c (12 DLS iters, extend 3): teacher-height speed 0.502→**0.068** m/s (≤0.08 endpoint PASSES) at MPJPE 4.08 cm but jerk +35%; blend=5 arm 0.132 m/s at jerk +13% (all guards pass except endpoint); oracle teacher-mask arm passes ALL guards (0.047 m/s, jerk +5%) — residual gap is mask precision, not the solver | [ENDPOINT MET — trade-off tuning open] |
-| C6 | Matched-pipeline tracking validation (retargeting → RL) | N8 package ready; paired MuJoCo/Warp smoke passed; trackability proxy shows no detectable PD-replay difference | [PILOT QUEUED] |
+| C5 | Physical-error diagnosis and bounded correction study | Small pose error differentiates into stance oscillation; soft objectives fail the endpoint; oracle-mask projection passes, but all deployable masks fail through density, precision, or support (E29, E41-E42) | [DONE, NEGATIVE DEPLOYABLE RESULT] |
+| C6 | Matched-pipeline tracking validation (retargeting → RL) | Calibrated 8k GMR walk reaches 88% completion; from-scratch SNMR-reference development gate and conditional three-seed comparison are frozen | [DEVELOPMENT RUN QUEUED] |
 | C7 | Robot→robot motion transfer via the shared latent (no human data) | currently FAILS (24–45 cm; decoder never trained on robot encodings — E19); decode-from-z_r augmentation (E21) is the fix | [PEND] |
 
 ## 2. Method (framework)
@@ -87,7 +87,7 @@ E5 linear CKA · [scale-normalized probe to attribute the leak: scale vs style].
 G1 6.67, T1 5.80, N1 5.54, PM01 5.72, Toddy 3.16 cm. Teacher-matched on penetration, limits,
 joint-jumps; *better* than teacher on limit-proximity margins (0.29 vs 0.57).
 
-**Foot skate [PARTIAL — E26/E29]:** raw decoder output skates at 0.25–0.5 m/s vs teacher 0.05.
+**Foot skate [CLOSED MASK STUDY — E26/E29/E41/E42]:** raw decoder output skates at 0.25–0.5 m/s vs teacher 0.05.
 Root cause (E24/E26): smooth xy oscillation (~2.9 cm RMS, τ≈0.1 s) of a correctly-placed stance
 foot — the velocity shadow of the regression error (skate/MPJPE ratio ~7–9 s⁻¹ constant across
 all checkpoints), NOT high-frequency jitter (low-pass ineffective) and NOT drift from a planted
@@ -109,7 +109,12 @@ projection. The full temporal C6 baseline jointly optimizes both legs and bounde
 With source contacts it reaches **0.099 m/s** but raises MPJPE 3.66→4.28 cm, failing both endpoint
 and fidelity guards. Changing only to a teacher-height oracle reaches **0.0056 m/s**, MPJPE
 3.82 cm, and near-unchanged jerk, passing all guards. Thus the optimizer can satisfy the contract,
-but the deployable source mask cannot yet identify the right constraints.
+but the deployable source mask cannot identify the right constraints. Gate 1b tested decoded
+height, a trained contact head, clip-local decoded ground, and a contact-head-only retrain without
+changing the solver. M1b collapsed to 8/42 support-bearing windows; M3 instead predicted contact
+on 71.5% of samples at 9.6% precision and produced `0.430/0.254 m/s` coprimary speeds with
+`6.51 cm` MPJPE after projection. Mask iteration is closed; the next physical method is
+simulator-derived repaired supervision after WBT calibration.
 
 **Shared-latent analysis [DONE]:** CKA 0.910 (0.86–0.98 all 15 pairs incl. human); retrieval
 human→robot R@1 0.749 / MRR 0.838 (chance 0.010); E1 0.278 / E3 0.909 / proxy-A 1.78. E2 motion
