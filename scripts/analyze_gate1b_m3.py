@@ -48,7 +48,7 @@ EXPECTED_CONFIG = {
     "diag_every": 5000,
     "seed": 0,
 }
-REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
+REPO_ROOT = pathlib.Path("/home/ec2-user/work/retarget/snmr")
 SCIENTIFIC_PATHS = (
     "scripts/train_phase1.py",
     "scripts/audit_contact_masks.py",
