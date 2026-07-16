@@ -1,0 +1,5 @@
+de9cf936f2d569100617c177e181041811c5e1d5c11b59d4eb3d360c0477810c  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_phase2/protocol.sh
+0c935222460e40abce67f9dfc9fb2bbbd0891c9de637f35745a915e8e05319b8  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_phase2/analyze_wbt_latent_phase2.py
+c56c88fbfba2c3f1f19946c8516ba7b134cf6ffd7cf5f32dee69dff6a0a2bad7  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_phase2/analyze_wbt_latent_pilot.py
+79df267d45f0e3aa92cb8b16b639a3d7bed8aebf9d8f620e3e0cde94ef496d68  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_phase2/arm_rules.json
+a596ac45dc9eb5aef2c3377dcc13d6a1f910c1548829062ed7921eb076f95233  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_phase2/motion_files.json

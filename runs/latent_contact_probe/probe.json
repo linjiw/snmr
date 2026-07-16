@@ -1,0 +1,145 @@
+{
+  "checkpoint": "runs/phase2_all5/ckpt_100k_final.pt",
+  "robot": "unitree_g1",
+  "clips": [
+    "walk1_subject5",
+    "dance2_subject4"
+  ],
+  "labels": "teacher_height hysteresis enter=0.03 exit=0.05 (Gate-1b oracle)",
+  "protocol": "held-out-clip rotation; probe trained on remaining clips",
+  "feet": [
+    "left_ankle_roll_link",
+    "right_ankle_roll_link"
+  ],
+  "per_clip": {
+    "walk1_subject5": {
+      "left_ankle_roll_link": {
+        "z_linear": {
+          "f1": 0.0,
+          "accuracy": 0.47410714285714284,
+          "positive_rate": 0.5258928571428572,
+          "auroc": 0.36488060736078265,
+          "ap": 0.45778220432668415
+        },
+        "z_context_linear": {
+          "f1": 0.0,
+          "accuracy": 0.47410714285714284,
+          "positive_rate": 0.5258928571428572,
+          "auroc": 0.36483225559798893,
+          "ap": 0.4576349405313687
+        },
+        "source_height_mask": {
+          "f1": 0.7158863892990532,
+          "accuracy": 0.582780612244898,
+          "positive_rate": 0.5258928571428572,
+          "auroc": 0.5600211116455254,
+          "ap": 0.5576300641744232
+        },
+        "majority": {
+          "f1": 0.6892919836161499,
+          "accuracy": 0.5258928571428572,
+          "positive_rate": 0.5258928571428572,
+          "auroc": 0.5,
+          "ap": 0.5258928571428572
+        }
+      },
+      "right_ankle_roll_link": {
+        "z_linear": {
+          "f1": 0.0,
+          "accuracy": 0.625765306122449,
+          "positive_rate": 0.37423469387755104,
+          "auroc": 0.5847491809897928,
+          "ap": 0.4365365090744975
+        },
+        "z_context_linear": {
+          "f1": 0.0,
+          "accuracy": 0.625765306122449,
+          "positive_rate": 0.37423469387755104,
+          "auroc": 0.5829690200305624,
+          "ap": 0.4342477843836167
+        },
+        "source_height_mask": {
+          "f1": 0.5646514318773503,
+          "accuracy": 0.42410714285714285,
+          "positive_rate": 0.37423469387755104,
+          "auroc": 0.5394381655282918,
+          "ap": 0.3936673190226306
+        },
+        "majority": {
+          "f1": 0.0,
+          "accuracy": 0.625765306122449,
+          "positive_rate": 0.37423469387755104,
+          "auroc": 0.5,
+          "ap": 0.37423469387755104
+        }
+      }
+    },
+    "dance2_subject4": {
+      "left_ankle_roll_link": {
+        "z_linear": {
+          "f1": 0.0,
+          "accuracy": 0.529316201447349,
+          "positive_rate": 0.0008861320336730173,
+          "auroc": 0.04432126139443211,
+          "ap": 0.0005350757950130648
+        },
+        "z_context_linear": {
+          "f1": 0.0,
+          "accuracy": 0.5415743612464924,
+          "positive_rate": 0.0008861320336730173,
+          "auroc": 0.038162108893816216,
+          "ap": 0.0005362169954838148
+        },
+        "source_height_mask": {
+          "f1": 0.001969796454366382,
+          "accuracy": 0.10205287254467582,
+          "positive_rate": 0.0008861320336730173,
+          "auroc": 0.5506282335550627,
+          "ap": 0.000985869208018403
+        },
+        "majority": {
+          "f1": 0.0,
+          "accuracy": 0.999113867966327,
+          "positive_rate": 0.0008861320336730173,
+          "auroc": 0.5,
+          "ap": 0.0008861320336730173
+        }
+      },
+      "right_ankle_roll_link": {
+        "z_linear": {
+          "f1": 0.011785503830288745,
+          "accuracy": 0.7523260965883917,
+          "positive_rate": 0.003544528134692069,
+          "auroc": 0.6925855935971543,
+          "ap": 0.0075040764632073875
+        },
+        "z_context_linear": {
+          "f1": 0.007799442896935933,
+          "accuracy": 0.7369664746713928,
+          "positive_rate": 0.003544528134692069,
+          "auroc": 0.6426374685045205,
+          "ap": 0.005921285086269612
+        },
+        "source_height_mask": {
+          "f1": 0.007707129094412331,
+          "accuracy": 0.0872840053167922,
+          "positive_rate": 0.003544528134692069,
+          "auroc": 0.5420186749666518,
+          "ap": 0.0038684719535783366
+        },
+        "majority": {
+          "f1": 0.0,
+          "accuracy": 0.9964554718653079,
+          "positive_rate": 0.003544528134692069,
+          "auroc": 0.5,
+          "ap": 0.003544528134692069
+        }
+      }
+    }
+  },
+  "aggregate_f1_mean": {
+    "z_linear": 0.0029463759575721863,
+    "z_context_linear": 0.0019498607242339832,
+    "source_height_mask": 0.3225536866812956
+  }
+}

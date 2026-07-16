@@ -1,0 +1,7 @@
+?? src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof_var_arms_0.85.xml
+?? src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof_var_arms_1.15.xml
+?? src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof_var_legs_0.85.xml
+?? src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof_var_legs_1.15.xml
+?? src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof_var_uniform_0.9.xml
+?? src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof_var_uniform_1.1.xml
+?? src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof_variants_manifest.json

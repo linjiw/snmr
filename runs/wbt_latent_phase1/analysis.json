@@ -1,0 +1,546 @@
+{
+  "passed": true,
+  "verdict": "promote_for_multiseed_replication",
+  "interpretation": "one-clip, one-training-seed development screen; bootstrap intervals resample paired phase windows and do not establish cross-motion or cross-training-seed benefit",
+  "protocol_errors": [],
+  "protocol": {
+    "training_seed": 0,
+    "evaluation_seed": 404,
+    "training_iterations": 8000,
+    "num_envs": 1024,
+    "rollouts": 100,
+    "horizon_s": 10.0,
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": 20260714,
+    "completion_floor_delta": -0.05,
+    "completion_improvement": 0.05,
+    "relative_improvement": 0.05
+  },
+  "reference_integrity": {
+    "reference_path": "/home/ec2-user/work/retarget/snmr/runs/wbt_validation/gmr/walk1_subject5_mj.npz",
+    "augmented_path": "/home/ec2-user/work/retarget/snmr/runs/wbt_latent_gmr/walk1_subject5_mj_z.npz",
+    "standard_field_count": 9,
+    "standard_fields_unchanged": true,
+    "latent_shape": [
+      13066,
+      128
+    ]
+  },
+  "baseline": {
+    "training_name": "horizon_gmr_walk1_seed0_to8000",
+    "report_path": "/home/ec2-user/work/retarget/snmr/runs/wbt_horizon_calibration/reports/horizon_gmr_walk1_seed0_to8000_iter8000_eval404.json",
+    "checkpoint_path": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260714_162242-horizon_gmr_walk1_seed0_to8000-locomotion/model_07999.pt",
+    "checkpoint_sha256": "6fd0b0a86b8bfa742f8ff7c7936e8cc487602611b2668f42f3b23f17b41349b7"
+  },
+  "promoted_arms": [
+    "l1_latent_command"
+  ],
+  "arms": {
+    "c1_explicit_preview": {
+      "training_name": "latent_c1_explicit_preview_walk1_seed0_to8000",
+      "actor_func": "snmr.integration.wbt_latent:motion_command_with_explicit_preview",
+      "critic_func": "snmr.integration.wbt_latent:motion_command_with_explicit_preview",
+      "metric_effects": {
+        "completion": {
+          "baseline_mean": 0.88,
+          "arm_mean": 0.86,
+          "arm_minus_baseline": -0.020000000000000018,
+          "arm_minus_baseline_ci95": [
+            -0.08000000000000007,
+            0.040000000000000036
+          ],
+          "arm_relative_to_baseline": -0.022727272727272707,
+          "arm_relative_to_baseline_ci95": [
+            -0.09195402298850575,
+            0.048192771084337505
+          ]
+        },
+        "survival_s": {
+          "baseline_mean": 8.952800000000002,
+          "arm_mean": 8.8524,
+          "arm_minus_baseline": -0.10040000000000227,
+          "arm_minus_baseline_ci95": [
+            -0.5944150000000019,
+            0.3870050000000004
+          ],
+          "arm_relative_to_baseline": -0.011214368689125398,
+          "arm_relative_to_baseline_ci95": [
+            -0.06525218723610679,
+            0.04433338655228464
+          ]
+        },
+        "root_position_error_m": {
+          "baseline_mean": 1.0698357358084243,
+          "arm_mean": 1.0788537183766866,
+          "arm_minus_baseline": 0.009017982568262362,
+          "arm_minus_baseline_ci95": [
+            -0.09522115010463203,
+            0.10918263371023772
+          ],
+          "arm_relative_to_baseline": 0.008429315142897131,
+          "arm_relative_to_baseline_ci95": [
+            -0.0848577853702691,
+            0.10874398667075523
+          ]
+        },
+        "root_orientation_error_rad": {
+          "baseline_mean": 0.11342158043641697,
+          "arm_mean": 0.10882722388613819,
+          "arm_minus_baseline": -0.004594356550278775,
+          "arm_minus_baseline_ci95": [
+            -0.014239863643154905,
+            0.005751492411812555
+          ],
+          "arm_relative_to_baseline": -0.040506899415445274,
+          "arm_relative_to_baseline_ci95": [
+            -0.1220833646317973,
+            0.05226685767021938
+          ]
+        },
+        "root_linear_velocity_error_mps": {
+          "baseline_mean": 0.6027957488945713,
+          "arm_mean": 0.6240924686382356,
+          "arm_minus_baseline": 0.021296719743664316,
+          "arm_minus_baseline_ci95": [
+            -0.01147993797458336,
+            0.061201667053874496
+          ],
+          "arm_relative_to_baseline": 0.03532991030995003,
+          "arm_relative_to_baseline_ci95": [
+            -0.01905339320601946,
+            0.10177002260053034
+          ]
+        },
+        "root_angular_velocity_error_radps": {
+          "baseline_mean": 0.9866188924978794,
+          "arm_mean": 0.9912554450543367,
+          "arm_minus_baseline": 0.004636552556457341,
+          "arm_minus_baseline_ci95": [
+            -0.06958704423092191,
+            0.07853387774243233
+          ],
+          "arm_relative_to_baseline": 0.0046994362176855375,
+          "arm_relative_to_baseline_ci95": [
+            -0.06766228326817655,
+            0.08216231023377416
+          ]
+        },
+        "body_position_error_m": {
+          "baseline_mean": 0.4666885315056522,
+          "arm_mean": 0.46472971370375205,
+          "arm_minus_baseline": -0.001958817801900159,
+          "arm_minus_baseline_ci95": [
+            -0.00809728988842592,
+            0.004266193396171516
+          ],
+          "arm_relative_to_baseline": -0.004197270062712977,
+          "arm_relative_to_baseline_ci95": [
+            -0.017335954804782148,
+            0.00923919266385635
+          ]
+        },
+        "body_orientation_error_rad": {
+          "baseline_mean": 0.5851497851066803,
+          "arm_mean": 0.6201031960461915,
+          "arm_minus_baseline": 0.03495341093951121,
+          "arm_minus_baseline_ci95": [
+            0.022502664994783168,
+            0.048527579804269944
+          ],
+          "arm_relative_to_baseline": 0.059734125909554514,
+          "arm_relative_to_baseline_ci95": [
+            0.03832146048537969,
+            0.08319151226788878
+          ]
+        },
+        "body_linear_velocity_error_mps": {
+          "baseline_mean": 0.8694846152173235,
+          "arm_mean": 0.8793574948201632,
+          "arm_minus_baseline": 0.00987287960283978,
+          "arm_minus_baseline_ci95": [
+            -0.020679133277730917,
+            0.0456416110064
+          ],
+          "arm_relative_to_baseline": 0.011354864054002878,
+          "arm_relative_to_baseline_ci95": [
+            -0.023793381290754555,
+            0.05275541220628016
+          ]
+        },
+        "body_angular_velocity_error_radps": {
+          "baseline_mean": 2.0784715235918925,
+          "arm_mean": 2.073453484239856,
+          "arm_minus_baseline": -0.005018039352036485,
+          "arm_minus_baseline_ci95": [
+            -0.08447784947903758,
+            0.07358949385870713
+          ],
+          "arm_relative_to_baseline": -0.0024142930490405057,
+          "arm_relative_to_baseline_ci95": [
+            -0.039644722959010815,
+            0.03596649226271436
+          ]
+        },
+        "joint_position_error_l2_rad": {
+          "baseline_mean": 1.3695091965711845,
+          "arm_mean": 1.4771937806250655,
+          "arm_minus_baseline": 0.10768458405388093,
+          "arm_minus_baseline_ci95": [
+            0.07432264839230747,
+            0.1482110869670704
+          ],
+          "arm_relative_to_baseline": 0.07863005544138657,
+          "arm_relative_to_baseline_ci95": [
+            0.053965971782690594,
+            0.10910119279270046
+          ]
+        },
+        "joint_velocity_error_l2_radps": {
+          "baseline_mean": 7.680106907690405,
+          "arm_mean": 7.705931062313159,
+          "arm_minus_baseline": 0.02582415462275378,
+          "arm_minus_baseline_ci95": [
+            -0.2221591176847687,
+            0.2869158693826667
+          ],
+          "arm_relative_to_baseline": 0.003362473326627091,
+          "arm_relative_to_baseline_ci95": [
+            -0.02847862762466661,
+            0.03793302186855409
+          ]
+        },
+        "joint_position_rmse_rad": {
+          "baseline_mean": 0.25431147297521284,
+          "arm_mean": 0.27430799824418306,
+          "arm_minus_baseline": 0.019996525268970222,
+          "arm_minus_baseline_ci95": [
+            0.013801369338541935,
+            0.02752210809503699
+          ],
+          "arm_relative_to_baseline": 0.07863005563622072,
+          "arm_relative_to_baseline_ci95": [
+            0.053965971411995516,
+            0.10910119264121969
+          ]
+        },
+        "torque_rms_nm": {
+          "baseline_mean": 8.810784852896937,
+          "arm_mean": 9.119873677198324,
+          "arm_minus_baseline": 0.3090888243013872,
+          "arm_minus_baseline_ci95": [
+            -0.009619645434200878,
+            0.6178845787847387
+          ],
+          "arm_relative_to_baseline": 0.03508073678586765,
+          "arm_relative_to_baseline_ci95": [
+            -0.0010685296745335019,
+            0.07127969030940769
+          ]
+        },
+        "mechanical_power_abs_w": {
+          "baseline_mean": 174.36659499387,
+          "arm_mean": 180.0220485316329,
+          "arm_minus_baseline": 5.655453537762895,
+          "arm_minus_baseline_ci95": [
+            -7.483971142132711,
+            20.46686837728594
+          ],
+          "arm_relative_to_baseline": 0.032434271816581095,
+          "arm_relative_to_baseline_ci95": [
+            -0.04180748024411993,
+            0.12091843414091284
+          ]
+        },
+        "joint_limit_violation_rad": {
+          "baseline_mean": 0.0015216873778627787,
+          "arm_mean": 0.0020584161237396027,
+          "arm_minus_baseline": 0.000536728745876824,
+          "arm_minus_baseline_ci95": [
+            -0.0004833898469282295,
+            0.0016354831263450497
+          ],
+          "arm_relative_to_baseline": 0.35271945715332387,
+          "arm_relative_to_baseline_ci95": [
+            -0.2597673377676027,
+            1.3597498083828925
+          ]
+        },
+        "undesired_contact_count": {
+          "baseline_mean": 0.06005193044970316,
+          "arm_mean": 0.05214016701127702,
+          "arm_minus_baseline": -0.007911763438426138,
+          "arm_minus_baseline_ci95": [
+            -0.03157726735427433,
+            0.014948458284423071
+          ],
+          "arm_relative_to_baseline": -0.1317486944912234,
+          "arm_relative_to_baseline_ci95": [
+            -0.4495034626938564,
+            0.28698468174801495
+          ]
+        }
+      },
+      "promotion": {
+        "rule": "baseline_relative_frozen",
+        "completion_floor_passed": true,
+        "improvement_checks": {
+          "completion_at_least_5pp": false,
+          "survival_at_least_5pct": false,
+          "joint_rmse_at_least_5pct_lower": false
+        },
+        "eligible_for_replication": false
+      }
+    },
+    "l1_latent_command": {
+      "training_name": "latent_l1_latent_command_walk1_seed0_to8000",
+      "actor_func": "snmr.integration.wbt_latent:latent_preview_command",
+      "critic_func": "snmr.integration.wbt_latent:motion_command_with_latent_preview",
+      "metric_effects": {
+        "completion": {
+          "baseline_mean": 0.88,
+          "arm_mean": 0.72,
+          "arm_minus_baseline": -0.16000000000000003,
+          "arm_minus_baseline_ci95": [
+            -0.25,
+            -0.07999999999999996
+          ],
+          "arm_relative_to_baseline": -0.18181818181818188,
+          "arm_relative_to_baseline_ci95": [
+            -0.27588041085840054,
+            -0.08750000000000002
+          ]
+        },
+        "survival_s": {
+          "baseline_mean": 8.952800000000002,
+          "arm_mean": 7.824199999999999,
+          "arm_minus_baseline": -1.1286000000000023,
+          "arm_minus_baseline_ci95": [
+            -1.8146049999999996,
+            -0.4686000000000003
+          ],
+          "arm_relative_to_baseline": -0.126061120543294,
+          "arm_relative_to_baseline_ci95": [
+            -0.19969141981950184,
+            -0.05358595413515209
+          ]
+        },
+        "root_position_error_m": {
+          "baseline_mean": 1.0698357358084243,
+          "arm_mean": 0.9666938768053679,
+          "arm_minus_baseline": -0.10314185900305639,
+          "arm_minus_baseline_ci95": [
+            -0.23787712296454558,
+            0.0335047177341424
+          ],
+          "arm_relative_to_baseline": -0.09640906127062299,
+          "arm_relative_to_baseline_ci95": [
+            -0.2084088008006771,
+            0.03395586431014591
+          ]
+        },
+        "root_orientation_error_rad": {
+          "baseline_mean": 0.11342158043641697,
+          "arm_mean": 0.12420050255792693,
+          "arm_minus_baseline": 0.010778922121509965,
+          "arm_minus_baseline_ci95": [
+            -3.612622296866699e-05,
+            0.021759231968659507
+          ],
+          "arm_relative_to_baseline": 0.0950341379483115,
+          "arm_relative_to_baseline_ci95": [
+            -0.0003018874153455142,
+            0.20060843794614758
+          ]
+        },
+        "root_linear_velocity_error_mps": {
+          "baseline_mean": 0.6027957488945713,
+          "arm_mean": 0.6871543233290457,
+          "arm_minus_baseline": 0.08435857443447436,
+          "arm_minus_baseline_ci95": [
+            0.045772523971005674,
+            0.1291795939272968
+          ],
+          "arm_relative_to_baseline": 0.13994553642618435,
+          "arm_relative_to_baseline_ci95": [
+            0.07392874456707205,
+            0.2203284287496016
+          ]
+        },
+        "root_angular_velocity_error_radps": {
+          "baseline_mean": 0.9866188924978794,
+          "arm_mean": 1.1262729888121288,
+          "arm_minus_baseline": 0.1396540963142494,
+          "arm_minus_baseline_ci95": [
+            0.07565526556769708,
+            0.20411276417710708
+          ],
+          "arm_relative_to_baseline": 0.14154816756111277,
+          "arm_relative_to_baseline_ci95": [
+            0.07353536138675854,
+            0.2154064205561206
+          ]
+        },
+        "body_position_error_m": {
+          "baseline_mean": 0.4666885315056522,
+          "arm_mean": 0.47182639386233155,
+          "arm_minus_baseline": 0.005137862356679346,
+          "arm_minus_baseline_ci95": [
+            -0.002507318851725673,
+            0.012603060110534546
+          ],
+          "arm_relative_to_baseline": 0.011009189233991634,
+          "arm_relative_to_baseline_ci95": [
+            -0.0053792326600537,
+            0.027105838019890603
+          ]
+        },
+        "body_orientation_error_rad": {
+          "baseline_mean": 0.5851497851066803,
+          "arm_mean": 0.6293475172011019,
+          "arm_minus_baseline": 0.04419773209442168,
+          "arm_minus_baseline_ci95": [
+            0.030167963568121688,
+            0.05988436963855349
+          ],
+          "arm_relative_to_baseline": 0.07553233927337755,
+          "arm_relative_to_baseline_ci95": [
+            0.05128128778205866,
+            0.10316387825698119
+          ]
+        },
+        "body_linear_velocity_error_mps": {
+          "baseline_mean": 0.8694846152173235,
+          "arm_mean": 0.9340100542412229,
+          "arm_minus_baseline": 0.0645254390238994,
+          "arm_minus_baseline_ci95": [
+            0.028703811552196774,
+            0.10701489190679653
+          ],
+          "arm_relative_to_baseline": 0.07421113369300003,
+          "arm_relative_to_baseline_ci95": [
+            0.03232985528671256,
+            0.12556248897548905
+          ]
+        },
+        "body_angular_velocity_error_radps": {
+          "baseline_mean": 2.0784715235918925,
+          "arm_mean": 2.328811410540358,
+          "arm_minus_baseline": 0.25033988694846565,
+          "arm_minus_baseline_ci95": [
+            0.16605392834651808,
+            0.3378585704633576
+          ],
+          "arm_relative_to_baseline": 0.12044422264484189,
+          "arm_relative_to_baseline_ci95": [
+            0.07776542069435141,
+            0.166872412774293
+          ]
+        },
+        "joint_position_error_l2_rad": {
+          "baseline_mean": 1.3695091965711845,
+          "arm_mean": 1.4536993282210051,
+          "arm_minus_baseline": 0.08419013164982059,
+          "arm_minus_baseline_ci95": [
+            0.051991044703444504,
+            0.12109595977075212
+          ],
+          "arm_relative_to_baseline": 0.06147467418298902,
+          "arm_relative_to_baseline_ci95": [
+            0.03762058030420338,
+            0.0889396734221781
+          ]
+        },
+        "joint_velocity_error_l2_radps": {
+          "baseline_mean": 7.680106907690405,
+          "arm_mean": 8.513856595389287,
+          "arm_minus_baseline": 0.8337496876988819,
+          "arm_minus_baseline_ci95": [
+            0.5949851312896103,
+            1.0726754702330052
+          ],
+          "arm_relative_to_baseline": 0.10855964607263657,
+          "arm_relative_to_baseline_ci95": [
+            0.07590493252077467,
+            0.14232416981552673
+          ]
+        },
+        "joint_position_rmse_rad": {
+          "baseline_mean": 0.25431147297521284,
+          "arm_mean": 0.2699451879755345,
+          "arm_minus_baseline": 0.01563371500032168,
+          "arm_minus_baseline_ci95": [
+            0.009654494499944256,
+            0.022486955365325977
+          ],
+          "arm_relative_to_baseline": 0.061474674411741814,
+          "arm_relative_to_baseline_ci95": [
+            0.03762058074255471,
+            0.08893967362903557
+          ]
+        },
+        "torque_rms_nm": {
+          "baseline_mean": 8.810784852896937,
+          "arm_mean": 9.293147143088701,
+          "arm_minus_baseline": 0.48236229019176413,
+          "arm_minus_baseline_ci95": [
+            0.11488762588392981,
+            0.8305455678332445
+          ],
+          "arm_relative_to_baseline": 0.054746801589777405,
+          "arm_relative_to_baseline_ci95": [
+            0.012644481150455413,
+            0.09640659038035826
+          ]
+        },
+        "mechanical_power_abs_w": {
+          "baseline_mean": 174.36659499387,
+          "arm_mean": 190.0454600533046,
+          "arm_minus_baseline": 15.6788650594346,
+          "arm_minus_baseline_ci95": [
+            1.7427470429944332,
+            28.37411102651529
+          ],
+          "arm_relative_to_baseline": 0.08991897249576852,
+          "arm_relative_to_baseline_ci95": [
+            0.009469490114262631,
+            0.1712232958275712
+          ]
+        },
+        "joint_limit_violation_rad": {
+          "baseline_mean": 0.0015216873778627787,
+          "arm_mean": 0.0020618881995448065,
+          "arm_minus_baseline": 0.0005402008216820278,
+          "arm_minus_baseline_ci95": [
+            -0.0004309015340331976,
+            0.0015334119602595404
+          ],
+          "arm_relative_to_baseline": 0.35500118456705865,
+          "arm_relative_to_baseline_ci95": [
+            -0.22345244720969354,
+            1.4024887736261402
+          ]
+        },
+        "undesired_contact_count": {
+          "baseline_mean": 0.06005193044970316,
+          "arm_mean": 0.10435223314542799,
+          "arm_minus_baseline": 0.04430030269572483,
+          "arm_minus_baseline_ci95": [
+            0.0064477191071021026,
+            0.08887413982830393
+          ],
+          "arm_relative_to_baseline": 0.7376998934751782,
+          "arm_relative_to_baseline_ci95": [
+            0.08972840137008102,
+            1.8163092301055976
+          ]
+        }
+      },
+      "promotion": {
+        "rule": "absolute_completion_floor",
+        "min_completion": 0.7,
+        "completion": 0.72,
+        "eligible_for_replication": true
+      }
+    }
+  }
+}

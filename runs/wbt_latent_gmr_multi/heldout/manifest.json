@@ -1,0 +1,18 @@
+{
+  "ckpt": "runs/phase2_all5/ckpt_100k_final.pt",
+  "robot": "unitree_g1",
+  "output_fps": 50.0,
+  "reference_source": "gmr_teacher_qpos",
+  "clips": {
+    "walk1_subject5": {
+      "frames": 13066,
+      "latent_dim": 128,
+      "schema_problems": []
+    },
+    "run2_subject1": {
+      "frames": 12241,
+      "latent_dim": 128,
+      "schema_problems": []
+    }
+  }
+}

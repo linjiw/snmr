@@ -1,0 +1,6 @@
+{
+  "base": {},
+  "s3": {},
+  "l1": {"min_completion": 0.70},
+  "c3": {"screening": true}
+}

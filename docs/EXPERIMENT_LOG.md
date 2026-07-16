@@ -544,3 +544,143 @@ a training budget only and cannot establish non-inferiority or tracking benefit.
   not semantic classes (which nothing trains for). Honest paper phrasing: "content-specific, not
   semantically organized"; a nonlinear probe or contrastive category loss would be needed to say
   more. Correct the earlier "window-mean caveat" wording in the draft.
+
+### E36 - WBT latent observation screen (S1/S2/S3) - **COMPLETE, NO ARM PROMOTES; S3 DIRECTIONALLY POSITIVE**
+Frozen protocol `docs/WBT_LATENT_INTEGRATION_STUDY.md`; artifacts `runs/wbt_latent_pilot/`
+(driver + analyzer sha256'd; COMPLETE 2026-07-15T12:22Z). One clip (walk1_subject5), one
+training seed (0), 8k PPO iters, 1024 envs, eval seed 404, 100 stratified windows, vs the E35
+GMR seed-0 8k baseline (88% completion / 8.953 s / 0.2543 rad RMSE). Literature predictions
+pre-registered in `docs/WBT_LATENT_LITERATURE_REVIEW.md` §6 before unblinding.
+
+- S1 (GMR command + z_t, actor+critic): completion 78% (-10 pp, CI95 [-18,-3]), survival
+  -6.7%, joint RMSE +3.7% (CI [+1.3%,+6.2%] rel), undesired contacts +72%. HARMFUL.
+- S2 (+ latent tangent preview, actor+critic): completion 80% (-8 pp, CI [-17,+1]), RMSE +2.8%,
+  root-position error -11.4% (CI [-22%,-1%]), contacts +51%. Harmful on primaries.
+- S3 (preview to critic only, actor = baseline): completion 91% (+3 pp, CI [-4,+11]), survival
+  +2.7%, joint RMSE **-4.4%** (CI [-6.3%,-2.6%] rel — bootstrap CI excludes 0), undesired
+  contacts -40% (CI excludes 0). Floor passed; misses the frozen ≥5% promotion margin (RMSE
+  -4.4% vs -5% required). NOT promoted under the frozen rule.
+
+Verdict matches the pre-registered predictions in direction for all three arms (S1 predicted
+neutral-to-negative → negative; S2 predicted best-of-actor-arms → still negative on primaries;
+S3 predicted ~null-to-small-positive → the only arm with any significant improvements). Reading:
+adding the frozen latent to the ACTOR hurts on a single deterministic clip (redundant input,
+optimization cost — consistent with UniTracker's interference result and the frozen-features
+literature); giving the latent preview to the CRITIC only is cost-free at deployment and
+directionally beneficial but under-powered/under-sized at one seed. Interpretation limits: one
+clip, one seed; no cross-motion or cross-seed claim.
+
+Consequences for `docs/WBT_LATENT_PLAN_v2.md`: Phase 1 runs as designed (C1 explicit-preview
+control + L1 latent-only command, both unconditional). S1/S2 actor-concatenation line is closed
+absent new evidence. S3 sits 0.6 pp short of the margin: treat as "near-miss, replicate-eligible
+alongside Phase 1" — add S3 to the Phase-2 multi-seed replication set (seeds 1,2 + baseline
+seeds 1,2) rather than discarding it on a margin that is within one-seed noise. An explicit-
+preview-to-critic-only control (C1-critic variant) becomes the natural attribution partner for
+S3 in Phase 2 if S3 replicates.
+
+### E37 - WBT latent Phase 1 (C1 explicit preview, L1 latent-only command) - **L1 PROMOTES (72% >= 70% floor); C1 NULL/HARMFUL**
+Frozen driver `runs/wbt_latent_phase1/protocol.sh` (arms.json sha256'd; COMPLETE
+2026-07-15T17:03Z); same clip/seed/budget/eval as Phase 0; plan `docs/WBT_LATENT_PLAN_v2.md`
+§5.2 with pre-registered predictions. vs E35 GMR baseline (88% / 8.953 s / 0.2543 rad).
+
+- C1 (GMR command + explicit joint_pos preview +0.2/+0.5 s, actor+critic, 212-d actor):
+  completion 86% (-2 pp, ns), survival -1.1% (ns), joint RMSE **+7.9% WORSE** (CI [+5.4%,+10.8%]
+  excludes 0). NOT promoted. Prediction ("C1 >= baseline, gain >= S2's") WRONG in an informative
+  direction: raw robot-space preview concatenated into this 3-layer MLP actor hurts joint
+  tracking. Attribution consequence: S3's critic-only latent RMSE gain (-4.4%, E36) is NOT
+  explained by generic "future information helps" — actor-side preview of either kind (latent S2
+  or explicit C1) degrades RMSE at this scale, and the remaining open contrast is latent-vs-
+  explicit preview *to the critic only*.
+- L1 (latent-only command: [z, dz+0.2s, dz+0.5s], NO explicit joint command in the actor
+  (480-d); critic privileged with explicit command + latent preview): completion **72%** >= the
+  pre-registered 70% absolute floor -> PROMOTED for multi-seed replication. vs baseline:
+  -16 pp completion, survival -12.6%, RMSE +6.1%, contacts +73.8% — as predicted, worse than the
+  explicit-command policy, but the first demonstration that a WBT PPO policy can track a clip
+  from the frozen SNMR latent alone (rewards/termination still robot-space GMR). Root-position
+  error -9.6% (CI [-22%,+3%], ns) mirrors S2's root-error signal. L1 >= 85% fast-track NOT met.
+- Verdict: promote_for_multiseed_replication (L1). Interpretation limits: one clip, one seed.
+
+Reading against the lit review: consistent with UniTracker (explicit-reference concatenation
+interferes; latent-only command viable) and with GMT only at the encoder level (their preview
+gain used a *trained* conv encoder; frozen/raw concatenation is not the same mechanism).
+Phase 2 (next): multi-seed replication set = S3 (E36 near-miss) + L1 (promoted) + baseline
+seeds {1,2}; plus c3_explicit_preview_critic seed-0 screening arm (explicit preview to critic
+only) as S3's attribution partner, per the plan's C1-critic variant note.
+
+### E38 - latent contact probe (Phase-4 probe b) - **NEGATIVE: contact not deployably decodable from z**
+`scripts/probe_latent_contact.py`, `runs/latent_contact_probe/probe_val7.json`. Held-out-clip
+logistic probes on frozen Phase-2 z (7 G1 val clips; labels = teacher-height hysteresis oracle
+0.03/0.05, the Gate-1b reference). Result: aggregate held-out F1 0.044 (z), 0.052 (z with
++-1-frame context) vs 0.127 for the existing human-source height mask; on walk1_subject5 — the
+only clip with balanced label support (pos rate 0.37-0.53; all other clips <=5%, the known
+teacher-mask support problem) — z-linear AUROC is 0.51-0.64 (chance-ish) vs source-mask F1
+0.57-0.72. Mean AUROC 0.73 across cells is inflated by tiny-support clips where rare contact
+frames are posturally extreme. Temporal context adds ~nothing (0.731 -> 0.743).
+
+Conclusions: (i) consistent with E16 ("content-specific, not semantically organized") — the
+distillation-trained latent does not expose binary contact events linearly; (ii) Gate-1b should
+NOT wait on a z-derived mask; the contact-head routes (M2/M3) remain the lever; (iii) for the
+paper, this is the honest counterpoint to any "latent carries physics-relevant structure" claim:
+no evidence beyond decoded kinematics at linear readout. A nonlinear probe could be tried later
+but is not a deployable mask candidate under Gate-1b guards. CPU-only; no GPU contention with
+Phase 2.
+
+### E36/E37 addendum - per-window and cross-seed context (pre-Phase-2 verdict)
+Paired per-window analysis of the existing seed-0/eval-404 reports (same 100 stratified starts):
+
+- S3's RMSE gain is BROAD, not outlier-driven: improved in 83/100 windows vs baseline
+  (73/82 restricted to windows where both complete; mean delta -0.0086 rad there). Completion
+  gain concentrates in the last phase quintile (baseline 0.90 -> S3 1.00) and S3 removes 5 of
+  the baseline's 12 failure windows while adding 2 new ones.
+- L1's failures (28) cluster in early/mid-clip windows and are a superset-ish of baseline's;
+  RMSE is uniformly ~0.02 rad worse across phase quintiles — a global gap, not a phase-local
+  artifact. Consistent with a policy that tracks from a lossier command signal.
+- Baseline seed variance (training curves, mean reward at iter 7000): seed0 9.02, seed1 8.97,
+  seed2 7.98 — nontrivial spread; validates Phase 2's insistence on baseline seeds before any
+  claim.
+
+Multi-clip eval mechanics confirmed for Phase 3: holosoma MotionConfig.motion_dir takes
+precedence over motion_file when non-empty, so multi-clip training uses
+--...motion-config.motion-dir <dir>; held-out evaluation overrides motion-dir "" +
+motion-file <clip>.npz on top of the checkpoint's saved config (eval_agent tyro override path
+verified in source). The wbt_metrics report records the resolved motion_file for validation.
+
+### E39 - WBT latent Phase 2 multi-seed replication - **L1 FEASIBILITY REPLICATES; S3 BENEFIT DOES NOT**
+Frozen artifacts `runs/wbt_latent_phase2/` (COMPLETE 2026-07-16T08:12Z): train seeds
+{0,1,2}, eval seeds {404,405}, 100 paired windows/cell. Baseline, S3, and L1 each have six
+cells; C3 is a seed-0 attribution screen. The frozen analyzer passes every report/schema check.
+A post-completion source-analyzer audit aggregated eval seeds within each training seed, as the
+registered plan intended; it produces the same verdict.
+
+- **S3 critic-only latent preview does not replicate the promotion effect.** Per-train-seed
+  mean RMSE effects are -4.6%, -0.1%, and -12.0%; completion effects are +2.5 pp, +0.5 pp,
+  and +5.5 pp. The median training seed therefore misses every 5%/5 pp improvement threshold
+  while all completion-floor checks pass. The large seed-2 gain and null seed-1 result make this
+  an optimization-variance signal, not a stable latent benefit.
+- **L1 latent-only command robustly clears its registered feasibility floor.** All six cells
+  complete 72-77% (median 75%; none below 70%). Relative to the explicit-command baseline,
+  completion remains 8-18 pp lower and survival 5-14% lower; RMSE is worse for seeds 0/1 and
+  approximately tied for seed 2. This establishes that the frozen offline SNMR latent can carry
+  enough information for single-clip tracking across seeds. It does not establish a tracking
+  improvement.
+- **C3 removes a latent-specific reading of the seed-0 critic gain.** Explicit future joint
+  positions in the critic yield RMSE effects -3.7%/-5.1% on eval seeds 404/405, versus
+  -4.4%/-4.9% for S3. Direct paired S3-C3 RMSE differences are -0.66% and +0.16%, with
+  per-window bootstrap intervals crossing zero. Generic privileged future information is a
+  sufficient explanation at this resolution.
+
+Verdict: `replicated:l1`, interpreted strictly as a command-feasibility result on
+`walk1_subject5`. S1/S2 actor concatenation remains closed; S3 is not a paper claim. Phase 3
+must not launch the full arm matrix until a baseline-only multi-clip budget calibration passes.
+If S3 is nevertheless retained as a secondary method question, C3 is mandatory.
+
+### E40 - Gate-1b M1b plumbing smoke - **EMPTY MASK SUPPORT; NOT A VALID SOLVER SMOKE**
+`runs/gate1b/smoke_m1b.json` used the registered clip-local decoded-ground mask on the first
+192-frame `walk1_subject5` window. It produced zero contact samples and exercised only the
+projection solver's `empty_contact_support` return. Direct reproduction explains the result:
+the decoded per-foot full-clip minima are 5.1/6.9 cm below the first-window minima, beyond the
+3 cm contact-on threshold. This is evidence that decoder vertical drift can make the simple
+clip-minimum mask under-detect contact; it is not evidence of a code crash and not validation of
+the optimization path. Before the full M1b run, audit support over all 42 frozen windows and use
+a support-bearing window for the solver plumbing smoke. The registered full-study semantics do
+not change: zero-support windows count as mask failures.

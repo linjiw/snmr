@@ -1,0 +1,5 @@
+s1_current_ac: completion=78.0% (delta -10.0%), survival=8.3534s, joint_rmse=0.263634rad, promote=False
+s2_preview_ac: completion=80.0% (delta -8.0%), survival=8.3392s, joint_rmse=0.261372rad, promote=False
+s3_preview_critic: completion=91.0% (delta +3.0%), survival=9.1930s, joint_rmse=0.243169rad, promote=False
+verdict: no_arm_meets_frozen_promotion_rule
+one-clip, one-training-seed development screen; bootstrap intervals resample paired phase windows and do not establish cross-motion or cross-training-seed benefit

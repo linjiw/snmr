@@ -1,0 +1,3 @@
+b9914afa0dd98373bb2dde75ad2bdda87a82fff241f735ec16c57ca3315038c9  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_phase1/protocol.sh
+bde82ce0d2455e562174f0ba4aa9075bdf515d0b2544d4135f848fca1d6fb3f5  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_phase1/analyze_wbt_latent_pilot.py
+60f41d9ec86b4d949b3fc435d23297c62bd81811429b2c180988c8716221b3c9  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_phase1/arms.json

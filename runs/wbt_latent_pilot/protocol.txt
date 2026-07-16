@@ -1,0 +1,14 @@
+question=Can frozen SNMR latent observations improve GMR-reference WBT?
+clip=walk1_subject5
+training_seed=0
+evaluation_seed=404
+iterations=8000
+save_interval=2000
+num_envs=1024
+rollouts=100
+horizon_steps=500
+horizon_s=10.0
+arms=s1_current_ac s2_preview_ac s3_preview_critic
+completion_floor_delta=-0.05
+promotion_improvement=0.05
+interpretation=one-clip one-training-seed development screen

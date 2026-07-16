@@ -1,0 +1,16 @@
+question=Phase 1: does explicit preview explain latent-preview effects (C1), and can z carry the command (L1)?
+plan=docs/WBT_LATENT_PLAN_v2.md section 5.2
+clip=walk1_subject5
+training_seed=0
+evaluation_seed=404
+iterations=8000
+save_interval=2000
+num_envs=1024
+rollouts=100
+horizon_steps=500
+horizon_s=10.0
+arms=c1_explicit_preview l1_latent_command
+c1_rule=frozen baseline-relative (floor -5pp, >=5% improvement)
+l1_rule=absolute completion floor 0.70
+predictions=C1>=baseline with gain >= S2's; L1 below baseline but >=70%; L1>=85% fast-tracks Phase 3
+interpretation=one-clip one-training-seed development screen

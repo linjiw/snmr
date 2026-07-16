@@ -1,0 +1,6 @@
+{
+  "base": "/home/ec2-user/work/retarget/snmr/runs/wbt_validation/gmr/walk1_subject5_mj.npz",
+  "s3": "/home/ec2-user/work/retarget/snmr/runs/wbt_latent_gmr/walk1_subject5_mj_z.npz",
+  "l1": "/home/ec2-user/work/retarget/snmr/runs/wbt_latent_gmr/walk1_subject5_mj_z.npz",
+  "c3": "/home/ec2-user/work/retarget/snmr/runs/wbt_latent_gmr/walk1_subject5_mj_z.npz"
+}

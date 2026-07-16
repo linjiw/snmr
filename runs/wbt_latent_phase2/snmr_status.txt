@@ -1,0 +1,18 @@
+ M docs/EXPERIMENT_LOG.md
+ M runs/gate1b/PROTOCOL.md
+ M scripts/eval_footlock.py
+ M snmr/integration/wbt_latent.py
+ M tests/test_wbt_latent_integration.py
+?? docs/WBT_LATENT_LITERATURE_REVIEW.md
+?? docs/WBT_LATENT_PLAN_v2.md
+?? runs/gate1b/smoke_m1b.json
+?? runs/wbt_latent_phase1/
+?? runs/wbt_latent_phase2/
+?? runs/wbt_latent_pilot/
+?? scripts/analyze_wbt_latent_phase2.py
+?? scripts/analyze_wbt_latent_pilot.py
+?? scripts/run_wbt_latent_phase1.sh
+?? scripts/run_wbt_latent_phase2.sh
+?? scripts/run_wbt_latent_pilot.sh
+?? tests/test_wbt_latent_phase2_analysis.py
+?? tests/test_wbt_latent_pilot_analysis.py

@@ -1,0 +1,13 @@
+{
+  "c1_explicit_preview": {
+    "training_name": "latent_c1_explicit_preview_walk1_seed0_to8000",
+    "actor_func": "snmr.integration.wbt_latent:motion_command_with_explicit_preview",
+    "critic_func": "snmr.integration.wbt_latent:motion_command_with_explicit_preview"
+  },
+  "l1_latent_command": {
+    "training_name": "latent_l1_latent_command_walk1_seed0_to8000",
+    "actor_func": "snmr.integration.wbt_latent:latent_preview_command",
+    "critic_func": "snmr.integration.wbt_latent:motion_command_with_latent_preview",
+    "min_completion": 0.70
+  }
+}

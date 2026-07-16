@@ -1,0 +1,4 @@
+c1_explicit_preview: completion=86.0% (delta -2.0%), survival=8.8524s, joint_rmse=0.274308rad, promote=False
+l1_latent_command: completion=72.0% (delta -16.0%), survival=7.8242s, joint_rmse=0.269945rad, promote=True
+verdict: promote_for_multiseed_replication
+one-clip, one-training-seed development screen; bootstrap intervals resample paired phase windows and do not establish cross-motion or cross-training-seed benefit

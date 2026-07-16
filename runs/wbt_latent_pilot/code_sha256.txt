@@ -1,0 +1,2 @@
+d4b180a12fb7141df9a7f9cd290b22d9b5255ee2291c9846d5294980d2bffab1  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_pilot/protocol.sh
+a7678cbb225beb7cbd9f1b335c84ea0ee2880b1157dedd7648370df5a7f26d33  /home/ec2-user/work/retarget/snmr/runs/wbt_latent_pilot/analyze_wbt_latent_pilot.py

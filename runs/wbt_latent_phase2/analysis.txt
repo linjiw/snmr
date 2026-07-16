@@ -1,0 +1,18 @@
+s3 s0 e404: completion=91.0% (delta +3.0%), rmse_rel=-4.4%, survival_rel=+2.7%
+s3 s0 e405: completion=87.0% (delta +2.0%), rmse_rel=-4.9%, survival_rel=+3.1%
+s3 s1 e404: completion=88.0% (delta -3.0%), rmse_rel=-0.2%, survival_rel=-2.3%
+s3 s1 e405: completion=88.0% (delta +4.0%), rmse_rel=+0.1%, survival_rel=+2.7%
+s3 s2 e404: completion=92.0% (delta +5.0%), rmse_rel=-11.4%, survival_rel=+5.2%
+s3 s2 e405: completion=90.0% (delta +6.0%), rmse_rel=-12.5%, survival_rel=+6.6%
+s3 decision: {'rule': 'baseline_relative_frozen_median', 'median_completion_delta': 0.03500000000000003, 'median_joint_rmse_rel': -0.04641980930760031, 'median_survival_rel': 0.029046991847900383, 'floor_violation_count': 0, 'improvement_checks': {'completion_at_least_5pp': False, 'survival_at_least_5pct': False, 'joint_rmse_at_least_5pct_lower': False}, 'replicated': False}
+l1 s0 e404: completion=72.0% (delta -16.0%), rmse_rel=+6.1%, survival_rel=-12.6%
+l1 s0 e405: completion=77.0% (delta -8.0%), rmse_rel=+4.0%, survival_rel=-6.5%
+l1 s1 e404: completion=73.0% (delta -18.0%), rmse_rel=+9.9%, survival_rel=-14.2%
+l1 s1 e405: completion=76.0% (delta -8.0%), rmse_rel=+9.2%, survival_rel=-7.8%
+l1 s2 e404: completion=75.0% (delta -12.0%), rmse_rel=-0.7%, survival_rel=-10.1%
+l1 s2 e405: completion=75.0% (delta -9.0%), rmse_rel=-1.4%, survival_rel=-5.1%
+l1 decision: {'rule': 'absolute_completion_floor_all_cells', 'min_completion': 0.7, 'median_completion': 0.75, 'cells_below_floor': 0, 'replicated': True}
+c3 s0 e404: completion=89.0% (delta +1.0%), rmse_rel=-3.7%, survival_rel=+2.4%
+c3 s0 e405: completion=89.0% (delta +4.0%), rmse_rel=-5.1%, survival_rel=+4.9%
+c3 decision: {'rule': 'screening_descriptive_only'}
+verdict: replicated:l1

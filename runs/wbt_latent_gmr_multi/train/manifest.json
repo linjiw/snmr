@@ -1,0 +1,38 @@
+{
+  "ckpt": "runs/phase2_all5/ckpt_100k_final.pt",
+  "robot": "unitree_g1",
+  "output_fps": 50.0,
+  "reference_source": "gmr_teacher_qpos",
+  "clips": {
+    "walk1_subject2": {
+      "frames": 13066,
+      "latent_dim": 128,
+      "schema_problems": []
+    },
+    "walk2_subject1": {
+      "frames": 11909,
+      "latent_dim": 128,
+      "schema_problems": []
+    },
+    "walk3_subject1": {
+      "frames": 12331,
+      "latent_dim": 128,
+      "schema_problems": []
+    },
+    "walk3_subject3": {
+      "frames": 12331,
+      "latent_dim": 128,
+      "schema_problems": []
+    },
+    "run1_subject2": {
+      "frames": 11891,
+      "latent_dim": 128,
+      "schema_problems": []
+    },
+    "sprint1_subject2": {
+      "frames": 13656,
+      "latent_dim": 128,
+      "schema_problems": []
+    }
+  }
+}

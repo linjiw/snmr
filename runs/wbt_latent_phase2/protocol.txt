@@ -1,0 +1,14 @@
+question=Phase 2: do S3 (critic latent preview) and L1 (latent-only command) replicate across training seeds; c3 = explicit-vs-latent critic-preview screening
+plan=docs/WBT_LATENT_PLAN_v2.md section 5.3 (+ E36/E37 amendments in EXPERIMENT_LOG)
+clip=walk1_subject5
+training_seeds=base/s3/l1: {0 reused, 1, 2}; c3: {0}
+evaluation_seeds=404 405
+iterations=8000
+num_envs=1024
+rollouts=100
+horizon_s=10.0
+s3_rule=median cell meets frozen Phase-0 rule; no cell below -5pp completion floor
+l1_rule=all cells >= 0.70 absolute completion
+c3_rule=screening, descriptive only
+caveat=base seed 0 is the E35 continuation run; base seeds 1,2 are from scratch like all arms
+predictions=pre-registered: S3 replication plausible (E36 CIs excluded 0); L1 floor-fragile (72% is 2pp above floor); c3 tests whether S3's gain needs the latent
