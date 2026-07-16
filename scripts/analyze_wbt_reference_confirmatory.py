@@ -92,6 +92,7 @@ def _normalized_config(config: dict[str, Any]) -> dict[str, Any]:
     normalized = copy.deepcopy(config)
     training = normalized.get("training", {})
     training["name"] = "<TRAINING_NAME>"
+    training["seed"] = "<TRAINING_SEED>"
     motion = _get(
         normalized,
         "command",
@@ -372,26 +373,52 @@ def analyze(
         )
         reports[cell] = report
 
-    for seed in TRAINING_SEEDS:
-        gmr_config = configs.get(("gmr", seed))
-        snmr_config = configs.get(("snmr", seed))
-        if (
-            gmr_config is not None
-            and snmr_config is not None
-            and _normalized_config(gmr_config) != _normalized_config(snmr_config)
-        ):
-            errors.append(f"seed {seed}: GMR/SNMR configs differ beyond source and name")
-        for eval_seed in EVALUATION_SEEDS:
-            gmr = reports.get(("gmr", seed, eval_seed))
-            snmr = reports.get(("snmr", seed, eval_seed))
-            if gmr is None or snmr is None:
-                continue
-            gmr_starts = [row["start_step"] for row in gmr["rollouts"]]
-            snmr_starts = [row["start_step"] for row in snmr["rollouts"]]
-            if gmr_starts != snmr_starts:
-                errors.append(f"seed {seed} eval {eval_seed}: phase starts differ")
-            if gmr.get("motion_steps") != snmr.get("motion_steps"):
-                errors.append(f"seed {seed} eval {eval_seed}: motion lengths differ")
+    normalized_configs = {
+        policy: _normalized_config(config)
+        for policy, config in configs.items()
+        if config is not None
+    }
+    if normalized_configs:
+        reference_policy = sorted(normalized_configs)[0]
+        reference_config = normalized_configs[reference_policy]
+        for policy, config in sorted(normalized_configs.items()):
+            if config != reference_config:
+                errors.append(
+                    f"{policy}: config differs from {reference_policy} beyond "
+                    "source, name, and training seed"
+                )
+
+    for eval_seed in EVALUATION_SEEDS:
+        report_cells = {
+            (source, seed): reports.get((source, seed, eval_seed))
+            for source in SOURCES
+            for seed in TRAINING_SEEDS
+        }
+        available = {
+            policy: report
+            for policy, report in report_cells.items()
+            if report is not None
+        }
+        if not available:
+            continue
+        reference_policy = sorted(available)[0]
+        reference_report = available[reference_policy]
+        reference_starts = [
+            row["start_step"] for row in reference_report["rollouts"]
+        ]
+        reference_motion_steps = reference_report.get("motion_steps")
+        for policy, report in sorted(available.items()):
+            starts = [row["start_step"] for row in report["rollouts"]]
+            if starts != reference_starts:
+                errors.append(
+                    f"{policy} eval {eval_seed}: phase starts differ from "
+                    f"{reference_policy}"
+                )
+            if report.get("motion_steps") != reference_motion_steps:
+                errors.append(
+                    f"{policy} eval {eval_seed}: motion length differs from "
+                    f"{reference_policy}"
+                )
 
     if errors:
         return {

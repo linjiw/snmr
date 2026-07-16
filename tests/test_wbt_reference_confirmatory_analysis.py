@@ -64,3 +64,40 @@ def test_hierarchical_effects_fail_joint_margin():
 
     assert not result["noninferior"]
     assert not result["checks"]["joint_rmse_noninferiority"]
+
+
+def test_normalized_config_allows_only_registered_matrix_differences():
+    config = {
+        "training": {"name": "gmr_seed0", "seed": 0, "num_envs": 1024},
+        "command": {
+            "setup_terms": {
+                "motion_command": {
+                    "params": {
+                        "motion_config": {"motion_file": "/tmp/gmr.npz"}
+                    }
+                }
+            }
+        },
+        "reward": {"weight": 1.0},
+    }
+    other = {
+        **config,
+        "training": {"name": "snmr_seed2", "seed": 2, "num_envs": 1024},
+        "command": {
+            "setup_terms": {
+                "motion_command": {
+                    "params": {
+                        "motion_config": {"motion_file": "/tmp/snmr.npz"}
+                    }
+                }
+            }
+        },
+    }
+
+    assert confirmatory._normalized_config(config) == (
+        confirmatory._normalized_config(other)
+    )
+    other["reward"] = {"weight": 2.0}
+    assert confirmatory._normalized_config(config) != (
+        confirmatory._normalized_config(other)
+    )
