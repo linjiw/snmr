@@ -58,6 +58,87 @@ def test_preview_is_clipped_per_motion_and_uses_latent_deltas(
     assert torch.equal(observed, expected)
 
 
+def test_explicit_preview_gathers_future_joint_pos_clipped(tmp_path, monkeypatch):
+    command, _ = _fake_command(tmp_path)
+    joint_pos = torch.arange(7 * 2, dtype=torch.float32).reshape(7, 2)
+    command.motion.joint_pos = joint_pos
+    monkeypatch.setattr(wbt_latent, "_motion_command", lambda env: command)
+
+    observed = wbt_latent.motion_command_with_explicit_preview(object())
+
+    # env 0: t=2 in clip [0,4) -> offsets +10/+25 clip to frame 3
+    # env 1: t=5 in clip [4,7) -> offsets clip to frame 6
+    expected = torch.cat(
+        [command.command, joint_pos[[3, 6]], joint_pos[[3, 6]]], dim=-1
+    )
+    assert observed.shape == (2, 6)
+    assert torch.equal(observed, expected)
+
+
+def test_latent_preview_command_has_no_explicit_command(tmp_path, monkeypatch):
+    command, latent = _fake_command(tmp_path)
+    monkeypatch.setattr(wbt_latent, "_motion_command", lambda env: command)
+
+    observed = wbt_latent.latent_preview_command(object())
+
+    z0 = latent[[2, 5]]
+    z_end = latent[[3, 6]]
+    expected = torch.cat([z0, z_end - z0, z_end - z0], dim=-1)
+    # 3 latent blocks only — must NOT contain the 2-wide explicit command.
+    assert observed.shape == (2, 9)
+    assert torch.equal(observed, expected)
+
+
+def test_multi_motion_latent_concatenates_in_glob_order(tmp_path, monkeypatch):
+    z_a = np.arange(4 * 3, dtype=np.float32).reshape(4, 3)
+    z_b = np.arange(100, 100 + 3 * 3, dtype=np.float32).reshape(3, 3)
+    np.savez(tmp_path / "a_clip.npz", latent_z=z_a)
+    np.savez(tmp_path / "b_clip.npz", latent_z=z_b)
+    motion = SimpleNamespace(
+        time_step_total=7,
+        motion_start_idx=torch.tensor([0, 4]),
+        motion_end_idx=torch.tensor([4, 7]),
+    )
+    command = SimpleNamespace(
+        motion=motion,
+        motion_cfg=SimpleNamespace(motion_file="", motion_dir=str(tmp_path)),
+        device="cpu",
+        time_steps=torch.tensor([2, 5]),
+        motion_ids=torch.tensor([0, 1]),
+        command=torch.tensor([[1.0, 2.0], [3.0, 4.0]]),
+    )
+    monkeypatch.setattr(wbt_latent, "_motion_command", lambda env: command)
+
+    observed = wbt_latent.snmr_latent(object())
+
+    expected_full = torch.from_numpy(np.concatenate([z_a, z_b]))
+    assert torch.equal(motion.latent_z, expected_full)
+    assert torch.equal(observed, expected_full[[2, 5]])
+
+
+def test_multi_motion_latent_rejects_length_mismatch(tmp_path, monkeypatch):
+    import pytest
+
+    np.savez(tmp_path / "a_clip.npz", latent_z=np.zeros((5, 3), dtype=np.float32))
+    motion = SimpleNamespace(
+        time_step_total=4,
+        motion_start_idx=torch.tensor([0]),
+        motion_end_idx=torch.tensor([4]),
+    )
+    command = SimpleNamespace(
+        motion=motion,
+        motion_cfg=SimpleNamespace(motion_file="", motion_dir=str(tmp_path)),
+        device="cpu",
+        time_steps=torch.tensor([0]),
+        motion_ids=torch.tensor([0]),
+        command=torch.tensor([[1.0]]),
+    )
+    monkeypatch.setattr(wbt_latent, "_motion_command", lambda env: command)
+
+    with pytest.raises(ValueError, match="latent_z frames"):
+        wbt_latent.snmr_latent(object())
+
+
 def test_attach_latent_preserves_reference_fields(tmp_path):
     from scripts.attach_latent_to_wbt import build_augmented_reference
 

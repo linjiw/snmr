@@ -46,44 +46,81 @@ def _motion_command(env):
     return _get_motion_command_and_assert_type(env)
 
 
-def _ensure_latent_loaded(motion_command):
-    """Load and cache ``latent_z`` for the single-motion WBT path."""
-    import torch
-
-    motion = motion_command.motion
-    if hasattr(motion, "latent_z"):
-        return motion.latent_z
-    if motion_command.motion_cfg.motion_dir:
-        raise ValueError(
-            "lazy latent loading currently supports motion_file only; "
-            "call patch() before environment setup for MultiMotionLoader"
-        )
-
-    motion_file = motion_command.motion_cfg.motion_file
+def _load_latent_npz(motion_file: str) -> np.ndarray:
     with np.load(motion_file, allow_pickle=False) as data:
         if "latent_z" not in data.files:
             raise ValueError(f"WBT motion file has no latent_z field: {motion_file}")
         latent_np = np.asarray(data["latent_z"], dtype=np.float32)
     if latent_np.ndim != 2:
         raise ValueError(f"latent_z must have shape (T,d), got {latent_np.shape}")
+    if not np.isfinite(latent_np).all():
+        raise ValueError(f"latent_z contains nonfinite values: {motion_file}")
+    return latent_np
+
+
+def _load_multi_motion_latent(motion_command) -> np.ndarray:
+    """Concatenate per-clip latents in MultiMotionLoader's sorted-glob order.
+
+    MultiMotionLoader may silently skip incompatible files, so every clip's latent length is
+    validated against the loader's recorded per-motion boundaries; any mismatch fails loudly
+    rather than silently misaligning latents with frames.
+    """
+    import glob
+    import os
+
+    motion = motion_command.motion
+    files = []
+    for directory in str(motion_command.motion_cfg.motion_dir).split(","):
+        files.extend(
+            sorted(glob.glob(os.path.join(os.path.expanduser(directory.strip()), "*.npz")))
+        )
+    starts = motion.motion_start_idx.tolist()
+    ends = motion.motion_end_idx.tolist()
+    if len(files) != len(starts):
+        raise ValueError(
+            f"motion_dir has {len(files)} npz files but the loader kept "
+            f"{len(starts)} motions; latent alignment would be ambiguous "
+            "(remove incompatible files from the directory)"
+        )
+    parts = []
+    for motion_file, start, end in zip(files, starts, ends):
+        latent_np = _load_latent_npz(motion_file)
+        if latent_np.shape[0] != end - start:
+            raise ValueError(
+                f"latent_z frames {latent_np.shape[0]} != clip frames "
+                f"{end - start}: {motion_file}"
+            )
+        parts.append(latent_np)
+    return np.concatenate(parts, axis=0)
+
+
+def _ensure_latent_loaded(motion_command):
+    """Load and cache ``latent_z`` for single- and multi-motion WBT paths."""
+    import torch
+
+    motion = motion_command.motion
+    if hasattr(motion, "latent_z"):
+        return motion.latent_z
+
+    if motion_command.motion_cfg.motion_dir:
+        latent_np = _load_multi_motion_latent(motion_command)
+    else:
+        latent_np = _load_latent_npz(motion_command.motion_cfg.motion_file)
     if latent_np.shape[0] != motion.time_step_total:
         raise ValueError(
             f"latent_z frames {latent_np.shape[0]} != motion frames "
             f"{motion.time_step_total}"
         )
-    if not np.isfinite(latent_np).all():
-        raise ValueError("latent_z contains nonfinite values")
     motion.latent_z = torch.as_tensor(
         latent_np, dtype=torch.float32, device=motion_command.device
     )
     return motion.latent_z
 
 
-def _latent_at_offsets(motion_command, offsets: tuple[int, ...]):
-    """Gather per-environment latents without crossing a clip boundary."""
+def _gather_at_offsets(motion_command, values, offsets: tuple[int, ...]):
+    """Gather rows of a per-frame (T, d) tensor without crossing a clip boundary."""
     import torch
 
-    latent = _ensure_latent_loaded(motion_command)
     current = motion_command.time_steps
     end = (
         motion_command.motion.motion_end_idx[motion_command.motion_ids] - 1
@@ -91,8 +128,15 @@ def _latent_at_offsets(motion_command, offsets: tuple[int, ...]):
     gathered = []
     for offset in offsets:
         index = torch.minimum(current + offset, end)
-        gathered.append(latent[index])
+        gathered.append(values[index])
     return gathered
+
+
+def _latent_at_offsets(motion_command, offsets: tuple[int, ...]):
+    """Gather per-environment latents without crossing a clip boundary."""
+    return _gather_at_offsets(
+        motion_command, _ensure_latent_loaded(motion_command), offsets
+    )
 
 
 def snmr_latent(env):
@@ -123,6 +167,25 @@ def motion_command_with_latent_preview(env):
     return _cat(
         (motion_command.command, z0, z_short - z0, z_long - z0)
     )
+
+
+def motion_command_with_explicit_preview(env):
+    """Explicit GMR command augmented with future reference joint positions.
+
+    Attribution control for the latent preview arms: same +0.2 s/+0.5 s horizons, but the
+    preview is the raw robot-space ``joint_pos`` target rather than the SNMR latent. Positions
+    only (no velocities), matching GMT-style target-frame content.
+    """
+    motion_command = _motion_command(env)
+    _, pos_short, pos_long = _gather_at_offsets(
+        motion_command, motion_command.motion.joint_pos, PREVIEW_OFFSETS
+    )
+    return _cat((motion_command.command, pos_short, pos_long))
+
+
+def latent_preview_command(env):
+    """Latent-only command: ``[z_t, deltas]`` with NO explicit joint command (arm L1)."""
+    return snmr_latent_tangent_preview(env)
 
 
 def _cat(values):
