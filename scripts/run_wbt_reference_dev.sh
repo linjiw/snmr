@@ -9,6 +9,10 @@ SNMR_REF="$MAIN/runs/wbt_validation/snmr/walk1_subject5_mj.npz"
 GMR_REF="$MAIN/runs/wbt_validation/gmr/walk1_subject5_mj.npz"
 GMR_REPORT="$MAIN/runs/wbt_horizon_calibration/reports/horizon_gmr_walk1_seed0_to8000_iter8000_eval404.json"
 ANALYZER="$MAIN/scripts/analyze_wbt_reference_dev.py"
+ANALYZER_LIBS=(
+  "$MAIN/scripts/analyze_wbt_horizon.py"
+  "$MAIN/scripts/analyze_wbt_latent_pilot.py"
+)
 OUT="$MAIN/runs/wbt_reference_dev"
 TRAIN_NAME=reference_dev_snmr_walk1_seed0_to8000
 EVAL_NAME="${TRAIN_NAME}_eval404"
@@ -33,16 +37,22 @@ if [[ -e "$OUT" ]]; then
   test ! -e "$OUT/COMPLETE"
   cmp "$0" "$OUT/protocol.sh"
   cmp "$ANALYZER" "$OUT/analyze_wbt_reference_dev.py"
+  for LIB in "${ANALYZER_LIBS[@]}"; do
+    cmp "$LIB" "$OUT/$(basename "$LIB")"
+  done
   test "$(cat "$OUT/holosoma_revision.txt")" = "$HOLOSOMA_REV"
 else
   mkdir -p "$OUT/reports"
   cp "$0" "$OUT/protocol.sh"
   cp "$ANALYZER" "$OUT/analyze_wbt_reference_dev.py"
+  for LIB in "${ANALYZER_LIBS[@]}"; do
+    cp "$LIB" "$OUT/"
+  done
   git -C "$MAIN" rev-parse HEAD > "$OUT/snmr_revision.txt"
   git -C "$HOLOSOMA" rev-parse HEAD > "$OUT/holosoma_revision.txt"
   git -C "$HOLOSOMA" status --porcelain > "$OUT/holosoma_status.txt"
   sha256sum "$SNMR_REF" "$GMR_REF" "$GMR_REPORT" > "$OUT/input_sha256.txt"
-  sha256sum "$OUT/protocol.sh" "$OUT/analyze_wbt_reference_dev.py" \
+  sha256sum "$OUT/protocol.sh" "$OUT"/analyze_*.py \
     > "$OUT/code_sha256.txt"
   cat > "$OUT/protocol.txt" <<'EOF'
 question=Can a from-scratch 8k WBT policy track the frozen SNMR walk1 reference well enough for a confirmatory source comparison?
@@ -121,7 +131,7 @@ if [[ ! -f "$REPORT" ]]; then
 fi
 
 cd "$MAIN"
-"$PY" "$OUT/analyze_wbt_reference_dev.py" \
+PYTHONPATH="$OUT" "$PY" "$OUT/analyze_wbt_reference_dev.py" \
   --run-dir "$RUN_DIR" \
   --checkpoint "$CHECKPOINT" \
   --report "$REPORT" \
