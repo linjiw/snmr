@@ -1,0 +1,108 @@
+{
+  "passed": true,
+  "protocol_errors": [],
+  "interpretation": "descriptive aligned-reference context; no policy outcome or promotion decision is computed",
+  "artifacts": {
+    "gmr": {
+      "path": "/home/ec2-user/work/retarget/snmr/runs/wbt_validation/gmr/walk1_subject5_mj.npz",
+      "sha256": "3b06c53a10f9933a5a715789f65f982772592f6864edea75773818d852ec01df"
+    },
+    "snmr": {
+      "path": "/home/ec2-user/work/retarget/snmr/runs/wbt_validation/snmr/walk1_subject5_mj.npz",
+      "sha256": "2b847f97b7cf3cf6aebef9ff8a80a4231729b01ffc2d61ff8ba928fb4d617c66"
+    }
+  },
+  "schema": {
+    "frames": 13066,
+    "fps": 50.0,
+    "joint_count": 29,
+    "body_count": 51,
+    "foot_body_names": [
+      "left_ankle_roll_link",
+      "right_ankle_roll_link"
+    ]
+  },
+  "aligned_errors": {
+    "root_position_error_m": {
+      "mean": 0.008107269084777094,
+      "median": 0.006697043410614599,
+      "p95": 0.01976841117983067,
+      "max": 0.04284474880549356
+    },
+    "root_rotation_error_rad": {
+      "mean": 0.030039232239075217,
+      "median": 0.02735732222000902,
+      "p95": 0.058845150304842976,
+      "max": 0.23104607952813971
+    },
+    "dof_absolute_error_rad": {
+      "mean": 0.05087348718837349,
+      "median": 0.04884106029820967,
+      "p95": 0.07231537267035865,
+      "max": 0.14707036645248164
+    },
+    "body_mpjpe_m": {
+      "mean": 0.033396342726550045,
+      "median": 0.03195202305452782,
+      "p95": 0.04956191617040906,
+      "max": 0.08476244332338521
+    },
+    "body_rotation_error_rad": {
+      "mean": 0.11119853646351129,
+      "median": 0.10587616446954545,
+      "p95": 0.1621690543157796,
+      "max": 0.5101044687475982
+    },
+    "joint_velocity_absolute_error": {
+      "mean": 0.3640716337849398,
+      "median": 0.33778210001892894,
+      "p95": 0.6573160189726366,
+      "max": 3.0768925235055704
+    },
+    "body_linear_velocity_error_ms": {
+      "mean": 0.2744650267343454,
+      "median": 0.25272294236449594,
+      "p95": 0.5098915246715375,
+      "max": 1.3105826577569684
+    },
+    "body_angular_velocity_error_rads": {
+      "mean": 0.9675860123165653,
+      "median": 0.8885290120761773,
+      "p95": 1.8252161644044784,
+      "max": 5.491189780144388
+    }
+  },
+  "gmr_height_mask_context": {
+    "definition": "per-foot clip-minimum height hysteresis, enter 0.03 m, exit 0.05 m",
+    "gmr": {
+      "stance_speed_ms": 0.1225757354438793,
+      "slide_fraction_gt_0_3_ms": 0.08936385055536857,
+      "floating_mean_m": 0.0,
+      "floating_fraction_gt_0_03_m": 0.0,
+      "contact_prevalence": 0.4547681004132864,
+      "contact_samples": 11884,
+      "per_foot_stance_speed_ms": [
+        0.1331377938185327,
+        0.10734788181434508
+      ]
+    },
+    "snmr": {
+      "stance_speed_ms": 0.43173014890990064,
+      "slide_fraction_gt_0_3_ms": 0.5719454729047458,
+      "floating_mean_m": 0.002724918293645664,
+      "floating_fraction_gt_0_03_m": 0.00429148434870414,
+      "contact_prevalence": 0.4547681004132864,
+      "contact_samples": 11884,
+      "per_foot_stance_speed_ms": [
+        0.44434822319550366,
+        0.4135380331790445
+      ]
+    }
+  },
+  "decoded_height_mask_context": {
+    "gmr_prevalence": 0.4547681004132864,
+    "snmr_prevalence": 0.007729986223786928,
+    "agreement": 0.5498239706107454,
+    "intersection_over_union": 0.01350104821802935
+  }
+}

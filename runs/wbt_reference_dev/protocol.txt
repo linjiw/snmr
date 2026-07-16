@@ -1,0 +1,15 @@
+question=Can a from-scratch 8k WBT policy track the frozen SNMR walk1 reference well enough for a confirmatory source comparison?
+source=SNMR decoded reference
+clip=walk1_subject5
+training_seed=0
+evaluation_seed=404
+iterations=8000
+save_interval=2000
+num_envs=1024
+rollouts=100
+horizon_steps=500
+horizon_s=10.0
+promotion_rule=SNMR completion >= 0.70
+next_if_pass=from-scratch GMR vs SNMR, train seeds 0/1/2, eval seeds 404/405
+next_if_fail=stop confirmatory source comparison and diagnose SNMR reference failures
+gmr_context=existing 8k continuation policy at 0.88 completion; context only, not matched inference
