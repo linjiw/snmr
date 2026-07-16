@@ -53,6 +53,33 @@ def test_select_horizon_stops_when_8000_fails():
     assert wbt._select_horizon(summaries) is None
 
 
+def test_checkpoint_config_matches_resolved_robot_action_dimension():
+    symbolic = {
+        "algo": {
+            "config": {
+                "module_dict": {
+                    "actor": {"output_dim": ["robot_action_dim"]},
+                }
+            }
+        },
+        "training": {"seed": 0},
+    }
+    resolved = {
+        "algo": {
+            "config": {
+                "module_dict": {
+                    "actor": {"output_dim": [29]},
+                }
+            }
+        },
+        "training": {"seed": 0},
+    }
+
+    assert wbt._checkpoint_config_matches(resolved, symbolic)
+    resolved["algo"]["config"]["module_dict"]["actor"]["output_dim"] = [28]
+    assert not wbt._checkpoint_config_matches(resolved, symbolic)
+
+
 def test_validate_report_rejects_missing_summary_without_crashing(tmp_path):
     motion_steps = 700
     starts = (

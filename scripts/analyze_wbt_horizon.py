@@ -210,6 +210,32 @@ def _load_checkpoint(path: pathlib.Path) -> dict[str, Any]:
     return checkpoint
 
 
+def _checkpoint_config_matches(
+    checkpoint_config: Any,
+    run_config: dict[str, Any],
+    *,
+    robot_action_dim: int = 29,
+) -> bool:
+    """Compare config serializations while resolving Holosoma's action-dim token."""
+    if not isinstance(checkpoint_config, dict):
+        return False
+    checkpoint_normalized = copy.deepcopy(checkpoint_config)
+    run_normalized = copy.deepcopy(run_config)
+    for config in (checkpoint_normalized, run_normalized):
+        actor_output_dim = _get(
+            config,
+            "algo",
+            "config",
+            "module_dict",
+            "actor",
+            "output_dim",
+        )
+        if actor_output_dim in (["robot_action_dim"], [robot_action_dim]):
+            module_dict = _get(config, "algo", "config", "module_dict")
+            module_dict["actor"]["output_dim"] = ["<ROBOT_ACTION_DIM>"]
+    return checkpoint_normalized == run_normalized
+
+
 def _normalized_config(config: dict[str, Any]) -> dict[str, Any]:
     normalized = copy.deepcopy(config)
     training = normalized.get("training", {})
@@ -390,7 +416,7 @@ def _validate_checkpoint(
             f"expected {expected_iteration}"
         )
     checkpoint_config = checkpoint.get("experiment_config")
-    if checkpoint_config != training_config:
+    if not _checkpoint_config_matches(checkpoint_config, training_config):
         errors.append("checkpoint experiment_config differs from run config")
     for key in (
         "actor_model_state_dict",

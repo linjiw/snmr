@@ -18,6 +18,7 @@ if str(SCRIPTS) not in sys.path:
 
 from analyze_wbt_horizon import (  # noqa: E402
     REQUIRED_TAGS,
+    _checkpoint_config_matches,
     _get,
     _load_checkpoint,
     _load_config,
@@ -202,7 +203,7 @@ def _validate_training(
         return config, [*errors, str(exc)]
     if checkpoint.get("iter") != 7999 or checkpoint.get("iteration") != 7999:
         errors.append("checkpoint is not iteration 7999")
-    if checkpoint.get("experiment_config") != config:
+    if not _checkpoint_config_matches(checkpoint.get("experiment_config"), config):
         errors.append("checkpoint experiment_config differs from run config")
     for key in (
         "actor_model_state_dict",
