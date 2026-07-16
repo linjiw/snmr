@@ -7,6 +7,7 @@ import argparse
 import json
 import math
 import pathlib
+import subprocess
 from typing import Any
 
 import torch
@@ -47,6 +48,13 @@ EXPECTED_CONFIG = {
     "diag_every": 5000,
     "seed": 0,
 }
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
+SCIENTIFIC_PATHS = (
+    "scripts/train_phase1.py",
+    "scripts/audit_contact_masks.py",
+    "scripts/eval_footlock.py",
+    "snmr",
+)
 
 
 def _read_json(path: pathlib.Path) -> dict[str, Any]:
@@ -93,6 +101,43 @@ def compare_checkpoint_backbone(
         "new_keys": new_keys,
         "expected_new_keys": expected_new,
     }
+
+
+def validate_artifact_revision(
+    launch_revision: str,
+    artifact_git: dict[str, Any],
+) -> list[str]:
+    """Allow clean descendant commits only when all scientific source paths are unchanged."""
+    errors = []
+    artifact_revision = artifact_git.get("sha")
+    if artifact_git.get("dirty") is not False:
+        errors.append("artifact revision is dirty")
+    if not isinstance(artifact_revision, str):
+        return [*errors, "artifact revision is missing"]
+    ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", launch_revision, artifact_revision],
+        cwd=REPO_ROOT,
+        check=False,
+    )
+    if ancestor.returncode != 0:
+        errors.append("artifact revision is not a descendant of the launch revision")
+        return errors
+    scientific_diff = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--quiet",
+            launch_revision,
+            artifact_revision,
+            "--",
+            *SCIENTIFIC_PATHS,
+        ],
+        cwd=REPO_ROOT,
+        check=False,
+    )
+    if scientific_diff.returncode != 0:
+        errors.append("scientific source paths changed after launch")
+    return errors
 
 
 def analyze(root: pathlib.Path) -> dict[str, Any]:
@@ -172,8 +217,10 @@ def analyze(root: pathlib.Path) -> dict[str, Any]:
     if mask_artifact.get("sha256") != checkpoint_sha:
         errors.append("mask audit did not use the trained M3 checkpoint")
     mask_git = mask_audit.get("git", {})
-    if mask_git.get("sha") != launch_revision or mask_git.get("dirty") is not False:
-        errors.append("mask audit did not use the clean launch revision")
+    errors.extend(
+        f"mask audit: {error}"
+        for error in validate_artifact_revision(launch_revision, mask_git)
+    )
 
     protocol = projection.get("protocol", {})
     if protocol.get("num_windows") != 42:
@@ -192,11 +239,10 @@ def analyze(root: pathlib.Path) -> dict[str, Any]:
     if projection_mask.get("sha256") != checkpoint_sha:
         errors.append("projection did not use the trained M3 checkpoint")
     projection_git = projection.get("provenance", {}).get("git", {})
-    if (
-        projection_git.get("sha") != launch_revision
-        or projection_git.get("dirty") is not False
-    ):
-        errors.append("projection did not use the clean launch revision")
+    errors.extend(
+        f"projection: {error}"
+        for error in validate_artifact_revision(launch_revision, projection_git)
+    )
 
     raw = projection.get("summary", {}).get("raw", {})
     projected = projection.get("summary", {}).get("windowed", {})
@@ -243,6 +289,11 @@ def analyze(root: pathlib.Path) -> dict[str, Any]:
         "verdict": verdict,
         "errors": errors,
         "launch_revision": launch_revision,
+        "artifact_revisions": {
+            "training": manifest.get("git", {}).get("sha"),
+            "mask_audit": mask_git.get("sha"),
+            "projection": projection_git.get("sha"),
+        },
         "checkpoint_sha256": checkpoint_sha,
         "backbone_integrity": backbone,
         "mask_quality": {

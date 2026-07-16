@@ -42,3 +42,31 @@ def test_compare_checkpoint_backbone_rejects_changed_inherited_tensor():
 
     assert not result["passed"]
     assert result["changed_inherited_keys"] == ["encoder.weight"]
+
+
+def test_validate_artifact_revision_accepts_clean_launch_revision(monkeypatch):
+    class Result:
+        returncode = 0
+
+    monkeypatch.setattr(m3.subprocess, "run", lambda *args, **kwargs: Result())
+
+    errors = m3.validate_artifact_revision(
+        "launch",
+        {"sha": "artifact", "dirty": False},
+    )
+
+    assert errors == []
+
+
+def test_validate_artifact_revision_rejects_dirty_artifact(monkeypatch):
+    class Result:
+        returncode = 0
+
+    monkeypatch.setattr(m3.subprocess, "run", lambda *args, **kwargs: Result())
+
+    errors = m3.validate_artifact_revision(
+        "launch",
+        {"sha": "artifact", "dirty": True},
+    )
+
+    assert errors == ["artifact revision is dirty"]
