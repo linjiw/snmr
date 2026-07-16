@@ -1,0 +1,1325 @@
+{
+  "created_at": "2026-07-16T20:00:01.443721+00:00",
+  "command": [
+    "/home/ec2-user/work/retarget/.venv-snmr/bin/python",
+    "scripts/audit_m1b_support.py"
+  ],
+  "git": {
+    "available": true,
+    "sha": "dbba976738ab8517f677ffb32b0babe9b03e107f",
+    "dirty": false,
+    "tracked_dirty": false,
+    "tracked_diff_sha256": null,
+    "untracked_paths": 0
+  },
+  "runtime": {
+    "python": "3.10.20",
+    "torch": "2.5.1+cu124",
+    "device": "cpu",
+    "cuda_available": false,
+    "cuda_device": null
+  },
+  "artifacts": {
+    "checkpoint": {
+      "path": "/home/ec2-user/work/retarget/snmr/runs/phase1_g1_large/ckpt_100k_final.pt",
+      "sha256": "df9b56ac16669a5c9fb35428e04941fd1a03579bd514f590d37ea134023e97cc"
+    },
+    "auditor": {
+      "path": "/home/ec2-user/work/retarget/snmr/scripts/audit_m1b_support.py",
+      "sha256": "1a943a54cbdc543c186647cdcc42c3d1735c3054a671d3c4cbf6d31d67da16a4"
+    },
+    "evaluator": {
+      "path": "/home/ec2-user/work/retarget/snmr/scripts/eval_footlock.py",
+      "sha256": "84c7453cc53188f94c5a0126cb2d48bb269a505c6f6290c68bcc45610bbc3238"
+    }
+  },
+  "protocol": {
+    "robot": "unitree_g1",
+    "clips": [
+      "walk1_subject5",
+      "dance2_subject4",
+      "fight1_subject3",
+      "run2_subject1",
+      "jumps1_subject2",
+      "sprint1_subject4",
+      "aiming2_subject3"
+    ],
+    "window": 192,
+    "windows_per_clip_max": 6,
+    "mask": "decoded-foot height hysteresis enter=0.03 exit=0.05 relative to per-foot minimum from consecutive full-clip decoded tiles",
+    "oracle": "teacher-height hysteresis enter=0.03 exit=0.05, clip-local ground",
+    "smoke_selection": "first support-bearing window in frozen clip/window order",
+    "projection_invoked": false
+  },
+  "aggregate": {
+    "true_positive": 15,
+    "false_positive": 43,
+    "false_negative": 1416,
+    "true_negative": 14654,
+    "precision": 0.25862068965517243,
+    "recall": 0.010482180293501049,
+    "f1": 0.020147750167897917,
+    "iou": 0.0101763907734057,
+    "candidate_prevalence": 0.0035962301587301585,
+    "oracle_prevalence": 0.08872767857142858,
+    "candidate_samples": 58,
+    "oracle_samples": 1431,
+    "samples": 16128,
+    "windows": 42,
+    "support_bearing_windows": 8,
+    "zero_support_windows": 34
+  },
+  "per_clip": {
+    "walk1_subject5": {
+      "true_positive": 5,
+      "false_positive": 2,
+      "false_negative": 1105,
+      "true_negative": 1192,
+      "precision": 0.7142857142857143,
+      "recall": 0.0045045045045045045,
+      "f1": 0.008952551477170995,
+      "iou": 0.0044964028776978415,
+      "candidate_prevalence": 0.0030381944444444445,
+      "oracle_prevalence": 0.4817708333333333,
+      "candidate_samples": 7,
+      "oracle_samples": 1110,
+      "samples": 2304,
+      "windows": 6,
+      "support_bearing_windows": 2
+    },
+    "dance2_subject4": {
+      "true_positive": 6,
+      "false_positive": 35,
+      "false_negative": 1,
+      "true_negative": 2262,
+      "precision": 0.14634146341463414,
+      "recall": 0.8571428571428571,
+      "f1": 0.25,
+      "iou": 0.14285714285714285,
+      "candidate_prevalence": 0.017795138888888888,
+      "oracle_prevalence": 0.0030381944444444445,
+      "candidate_samples": 41,
+      "oracle_samples": 7,
+      "samples": 2304,
+      "windows": 6,
+      "support_bearing_windows": 4
+    },
+    "fight1_subject3": {
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 0,
+      "true_negative": 2301,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0013020833333333333,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 3,
+      "oracle_samples": 0,
+      "samples": 2304,
+      "windows": 6,
+      "support_bearing_windows": 1
+    },
+    "run2_subject1": {
+      "true_positive": 4,
+      "false_positive": 3,
+      "false_negative": 53,
+      "true_negative": 2244,
+      "precision": 0.5714285714285714,
+      "recall": 0.07017543859649122,
+      "f1": 0.125,
+      "iou": 0.06666666666666667,
+      "candidate_prevalence": 0.0030381944444444445,
+      "oracle_prevalence": 0.024739583333333332,
+      "candidate_samples": 7,
+      "oracle_samples": 57,
+      "samples": 2304,
+      "windows": 6,
+      "support_bearing_windows": 1
+    },
+    "jumps1_subject2": {
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 82,
+      "true_negative": 2222,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.035590277777777776,
+      "candidate_samples": 0,
+      "oracle_samples": 82,
+      "samples": 2304,
+      "windows": 6,
+      "support_bearing_windows": 0
+    },
+    "sprint1_subject4": {
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 118,
+      "true_negative": 2186,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.051215277777777776,
+      "candidate_samples": 0,
+      "oracle_samples": 118,
+      "samples": 2304,
+      "windows": 6,
+      "support_bearing_windows": 0
+    },
+    "aiming2_subject3": {
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 57,
+      "true_negative": 2247,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.024739583333333332,
+      "candidate_samples": 0,
+      "oracle_samples": 57,
+      "samples": 2304,
+      "windows": 6,
+      "support_bearing_windows": 0
+    }
+  },
+  "per_window": [
+    {
+      "clip": "walk1_subject5",
+      "start": 0,
+      "end": 192,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 139,
+      "true_negative": 245,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.3619791666666667,
+      "candidate_samples": 0,
+      "oracle_samples": 139,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.05094614997506142,
+        "right_ankle_roll_link": 0.06902600079774857
+      }
+    },
+    {
+      "clip": "walk1_subject5",
+      "start": 1529,
+      "end": 1721,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 146,
+      "true_negative": 238,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.3802083333333333,
+      "candidate_samples": 0,
+      "oracle_samples": 146,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.03953614458441734,
+        "right_ankle_roll_link": 0.04408736526966095
+      }
+    },
+    {
+      "clip": "walk1_subject5",
+      "start": 3059,
+      "end": 3251,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 153,
+      "true_negative": 231,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.3984375,
+      "candidate_samples": 0,
+      "oracle_samples": 153,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.04631337895989418,
+        "right_ankle_roll_link": 0.045944832265377045
+      }
+    },
+    {
+      "clip": "walk1_subject5",
+      "start": 4588,
+      "end": 4780,
+      "true_positive": 1,
+      "false_positive": 2,
+      "false_negative": 154,
+      "true_negative": 227,
+      "precision": 0.3333333333333333,
+      "recall": 0.0064516129032258064,
+      "f1": 0.012658227848101266,
+      "iou": 0.006369426751592357,
+      "candidate_prevalence": 0.0078125,
+      "oracle_prevalence": 0.4036458333333333,
+      "candidate_samples": 3,
+      "oracle_samples": 155,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 3,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.02592919021844864,
+        "right_ankle_roll_link": 0.049658603966236115
+      }
+    },
+    {
+      "clip": "walk1_subject5",
+      "start": 6118,
+      "end": 6310,
+      "true_positive": 4,
+      "false_positive": 0,
+      "false_negative": 210,
+      "true_negative": 170,
+      "precision": 1.0,
+      "recall": 0.018691588785046728,
+      "f1": 0.03669724770642201,
+      "iou": 0.018691588785046728,
+      "candidate_prevalence": 0.010416666666666666,
+      "oracle_prevalence": 0.5572916666666666,
+      "candidate_samples": 4,
+      "oracle_samples": 214,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 4,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.028417566791176796,
+        "right_ankle_roll_link": 0.05859275907278061
+      }
+    },
+    {
+      "clip": "walk1_subject5",
+      "start": 7648,
+      "end": 7840,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 303,
+      "true_negative": 81,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.7890625,
+      "candidate_samples": 0,
+      "oracle_samples": 303,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.048378344625234604,
+        "right_ankle_roll_link": 0.06911322474479675
+      }
+    },
+    {
+      "clip": "dance2_subject4",
+      "start": 0,
+      "end": 192,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.12520498037338257,
+        "right_ankle_roll_link": 0.058614812791347504
+      }
+    },
+    {
+      "clip": "dance2_subject4",
+      "start": 1315,
+      "end": 1507,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "true_negative": 382,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.005208333333333333,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 2,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 2
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.11097249388694763,
+        "right_ankle_roll_link": 0.02824629843235016
+      }
+    },
+    {
+      "clip": "dance2_subject4",
+      "start": 2631,
+      "end": 2823,
+      "true_positive": 6,
+      "false_positive": 21,
+      "false_negative": 1,
+      "true_negative": 356,
+      "precision": 0.2222222222222222,
+      "recall": 0.8571428571428571,
+      "f1": 0.35294117647058826,
+      "iou": 0.21428571428571427,
+      "candidate_prevalence": 0.0703125,
+      "oracle_prevalence": 0.018229166666666668,
+      "candidate_samples": 27,
+      "oracle_samples": 7,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 27
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.0878366231918335,
+        "right_ankle_roll_link": 0.017240269109606743
+      }
+    },
+    {
+      "clip": "dance2_subject4",
+      "start": 3947,
+      "end": 4139,
+      "true_positive": 0,
+      "false_positive": 6,
+      "false_negative": 0,
+      "true_negative": 378,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.015625,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 6,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 6
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.10030778497457504,
+        "right_ankle_roll_link": 0.023034920915961266
+      }
+    },
+    {
+      "clip": "dance2_subject4",
+      "start": 5263,
+      "end": 5455,
+      "true_positive": 0,
+      "false_positive": 6,
+      "false_negative": 0,
+      "true_negative": 378,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.015625,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 6,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 6
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.102599136531353,
+        "right_ankle_roll_link": 0.01747957430779934
+      }
+    },
+    {
+      "clip": "dance2_subject4",
+      "start": 6579,
+      "end": 6771,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.13315583765506744,
+        "right_ankle_roll_link": 0.06741530448198318
+      }
+    },
+    {
+      "clip": "fight1_subject3",
+      "start": 0,
+      "end": 192,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.08223257958889008,
+        "right_ankle_roll_link": 0.16695739328861237
+      }
+    },
+    {
+      "clip": "fight1_subject3",
+      "start": 1431,
+      "end": 1623,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 0,
+      "true_negative": 381,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0078125,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 3,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 3,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.029300915077328682,
+        "right_ankle_roll_link": 0.14408111572265625
+      }
+    },
+    {
+      "clip": "fight1_subject3",
+      "start": 2862,
+      "end": 3054,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.09019143879413605,
+        "right_ankle_roll_link": 0.2021912783384323
+      }
+    },
+    {
+      "clip": "fight1_subject3",
+      "start": 4293,
+      "end": 4485,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.044932566583156586,
+        "right_ankle_roll_link": 0.12691083550453186
+      }
+    },
+    {
+      "clip": "fight1_subject3",
+      "start": 5724,
+      "end": 5916,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.04993992671370506,
+        "right_ankle_roll_link": 0.17273588478565216
+      }
+    },
+    {
+      "clip": "fight1_subject3",
+      "start": 7155,
+      "end": 7347,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.07682134211063385,
+        "right_ankle_roll_link": 0.16599583625793457
+      }
+    },
+    {
+      "clip": "run2_subject1",
+      "start": 0,
+      "end": 192,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.18426699936389923,
+        "right_ankle_roll_link": 0.06826303899288177
+      }
+    },
+    {
+      "clip": "run2_subject1",
+      "start": 1430,
+      "end": 1622,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 4,
+      "true_negative": 380,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.010416666666666666,
+      "candidate_samples": 0,
+      "oracle_samples": 4,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.15477286279201508,
+        "right_ankle_roll_link": 0.055982597172260284
+      }
+    },
+    {
+      "clip": "run2_subject1",
+      "start": 2861,
+      "end": 3053,
+      "true_positive": 4,
+      "false_positive": 3,
+      "false_negative": 16,
+      "true_negative": 361,
+      "precision": 0.5714285714285714,
+      "recall": 0.2,
+      "f1": 0.29629629629629634,
+      "iou": 0.17391304347826086,
+      "candidate_prevalence": 0.018229166666666668,
+      "oracle_prevalence": 0.052083333333333336,
+      "candidate_samples": 7,
+      "oracle_samples": 20,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 7
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.13958896696567535,
+        "right_ankle_roll_link": 0.00564243458211422
+      }
+    },
+    {
+      "clip": "run2_subject1",
+      "start": 4291,
+      "end": 4483,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 23,
+      "true_negative": 361,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.059895833333333336,
+      "candidate_samples": 0,
+      "oracle_samples": 23,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.14277608692646027,
+        "right_ankle_roll_link": 0.064363494515419
+      }
+    },
+    {
+      "clip": "run2_subject1",
+      "start": 5722,
+      "end": 5914,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 3,
+      "true_negative": 381,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0078125,
+      "candidate_samples": 0,
+      "oracle_samples": 3,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.11691857874393463,
+        "right_ankle_roll_link": 0.05018391087651253
+      }
+    },
+    {
+      "clip": "run2_subject1",
+      "start": 7153,
+      "end": 7345,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 7,
+      "true_negative": 377,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.018229166666666668,
+      "candidate_samples": 0,
+      "oracle_samples": 7,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.1727789044380188,
+        "right_ankle_roll_link": 0.04894977807998657
+      }
+    },
+    {
+      "clip": "jumps1_subject2",
+      "start": 0,
+      "end": 192,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.2724120020866394,
+        "right_ankle_roll_link": 0.19636264443397522
+      }
+    },
+    {
+      "clip": "jumps1_subject2",
+      "start": 1428,
+      "end": 1620,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.26965200901031494,
+        "right_ankle_roll_link": 0.17320524156093597
+      }
+    },
+    {
+      "clip": "jumps1_subject2",
+      "start": 2856,
+      "end": 3048,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.24850866198539734,
+        "right_ankle_roll_link": 0.19073593616485596
+      }
+    },
+    {
+      "clip": "jumps1_subject2",
+      "start": 4285,
+      "end": 4477,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.23077745735645294,
+        "right_ankle_roll_link": 0.13188180327415466
+      }
+    },
+    {
+      "clip": "jumps1_subject2",
+      "start": 5713,
+      "end": 5905,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.33953070640563965,
+        "right_ankle_roll_link": 0.20243701338768005
+      }
+    },
+    {
+      "clip": "jumps1_subject2",
+      "start": 7142,
+      "end": 7334,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 82,
+      "true_negative": 302,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.21354166666666666,
+      "candidate_samples": 0,
+      "oracle_samples": 82,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.18839608132839203,
+        "right_ankle_roll_link": 0.06079462170600891
+      }
+    },
+    {
+      "clip": "sprint1_subject4",
+      "start": 0,
+      "end": 192,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.08901336044073105,
+        "right_ankle_roll_link": 0.0906369686126709
+      }
+    },
+    {
+      "clip": "sprint1_subject4",
+      "start": 1600,
+      "end": 1792,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.09958106279373169,
+        "right_ankle_roll_link": 0.09876054525375366
+      }
+    },
+    {
+      "clip": "sprint1_subject4",
+      "start": 3200,
+      "end": 3392,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 103,
+      "true_negative": 281,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.2682291666666667,
+      "candidate_samples": 0,
+      "oracle_samples": 103,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.03404734656214714,
+        "right_ankle_roll_link": 0.07626551389694214
+      }
+    },
+    {
+      "clip": "sprint1_subject4",
+      "start": 4801,
+      "end": 4993,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 7,
+      "true_negative": 377,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.018229166666666668,
+      "candidate_samples": 0,
+      "oracle_samples": 7,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.058173663914203644,
+        "right_ankle_roll_link": 0.05884645879268646
+      }
+    },
+    {
+      "clip": "sprint1_subject4",
+      "start": 6401,
+      "end": 6593,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 3,
+      "true_negative": 381,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0078125,
+      "candidate_samples": 0,
+      "oracle_samples": 3,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.09504326432943344,
+        "right_ankle_roll_link": 0.08208751678466797
+      }
+    },
+    {
+      "clip": "sprint1_subject4",
+      "start": 8002,
+      "end": 8194,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 5,
+      "true_negative": 379,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.013020833333333334,
+      "candidate_samples": 0,
+      "oracle_samples": 5,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.07850611954927444,
+        "right_ankle_roll_link": 0.08237825334072113
+      }
+    },
+    {
+      "clip": "aiming2_subject3",
+      "start": 0,
+      "end": 192,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.11279512941837311,
+        "right_ankle_roll_link": 0.09782896935939789
+      }
+    },
+    {
+      "clip": "aiming2_subject3",
+      "start": 1796,
+      "end": 1988,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 7,
+      "true_negative": 377,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.018229166666666668,
+      "candidate_samples": 0,
+      "oracle_samples": 7,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.040305331349372864,
+        "right_ankle_roll_link": 0.031085485592484474
+      }
+    },
+    {
+      "clip": "aiming2_subject3",
+      "start": 3592,
+      "end": 3784,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.11319593340158463,
+        "right_ankle_roll_link": 0.08060869574546814
+      }
+    },
+    {
+      "clip": "aiming2_subject3",
+      "start": 5388,
+      "end": 5580,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.08157209306955338,
+        "right_ankle_roll_link": 0.06886744499206543
+      }
+    },
+    {
+      "clip": "aiming2_subject3",
+      "start": 7184,
+      "end": 7376,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 50,
+      "true_negative": 334,
+      "precision": null,
+      "recall": 0.0,
+      "f1": null,
+      "iou": 0.0,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.13020833333333334,
+      "candidate_samples": 0,
+      "oracle_samples": 50,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.06008908897638321,
+        "right_ankle_roll_link": 0.032068684697151184
+      }
+    },
+    {
+      "clip": "aiming2_subject3",
+      "start": 8980,
+      "end": 9172,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 384,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "iou": null,
+      "candidate_prevalence": 0.0,
+      "oracle_prevalence": 0.0,
+      "candidate_samples": 0,
+      "oracle_samples": 0,
+      "samples": 384,
+      "per_foot_candidate_samples": {
+        "left_ankle_roll_link": 0,
+        "right_ankle_roll_link": 0
+      },
+      "decoded_window_min_minus_clip_ground_m": {
+        "left_ankle_roll_link": 0.12768866121768951,
+        "right_ankle_roll_link": 0.10211828351020813
+      }
+    }
+  ],
+  "decoded_clip_ground_m": {
+    "walk1_subject5": {
+      "left_ankle_roll_link": -0.006697077304124832,
+      "right_ankle_roll_link": -0.032089900225400925
+    },
+    "dance2_subject4": {
+      "left_ankle_roll_link": -0.07217521220445633,
+      "right_ankle_roll_link": -0.009852128103375435
+    },
+    "fight1_subject3": {
+      "left_ankle_roll_link": -0.0498824417591095,
+      "right_ankle_roll_link": -0.1535969376564026
+    },
+    "run2_subject1": {
+      "left_ankle_roll_link": -0.14104357361793518,
+      "right_ankle_roll_link": -0.03529676795005798
+    },
+    "jumps1_subject2": {
+      "left_ankle_roll_link": -0.20583835244178772,
+      "right_ankle_roll_link": -0.1511801928281784
+    },
+    "sprint1_subject4": {
+      "left_ankle_roll_link": -0.04742711782455444,
+      "right_ankle_roll_link": -0.048208314925432205
+    },
+    "aiming2_subject3": {
+      "left_ankle_roll_link": -0.06303797662258148,
+      "right_ankle_roll_link": -0.052076250314712524
+    }
+  },
+  "smoke_window": {
+    "selection_rule": "first support-bearing window in frozen clip/window order",
+    "clip": "walk1_subject5",
+    "start": 4588,
+    "end": 4780,
+    "candidate_samples": 3
+  },
+  "decision": "ready_for_support_bearing_smoke"
+}
