@@ -40,6 +40,7 @@ from snmr.experiment import (  # noqa: E402
     capture_rng_state,
     dataset_fingerprint,
     restore_rng_state,
+    sha256_file,
 )
 from snmr.human import (  # noqa: E402
     LAFAN1_BODY_NAMES,
@@ -241,6 +242,70 @@ def objective_manifest(args: argparse.Namespace) -> dict:
     }
 
 
+def load_initial_checkpoint(
+    model: SNMR,
+    checkpoint_path: str | pathlib.Path,
+    device: str,
+) -> tuple[dict, dict]:
+    """Load an initialization checkpoint, allowing only a newly added contact head."""
+    path = pathlib.Path(checkpoint_path).resolve()
+    state = torch.load(path, map_location=device, weights_only=False)
+    if "model" not in state:
+        raise ValueError(f"initialization checkpoint has no model state: {path}")
+    source_keys = set(state["model"])
+    contact_keys = {
+        name for name in model.state_dict() if name.startswith("decoder.contact_head.")
+    }
+    expected_missing = contact_keys - source_keys
+    incompatible = model.load_state_dict(state["model"], strict=False)
+    missing = set(incompatible.missing_keys)
+    unexpected = set(incompatible.unexpected_keys)
+    if missing != expected_missing or unexpected:
+        raise ValueError(
+            "initialization checkpoint is incompatible outside a newly added contact head: "
+            f"missing={sorted(missing)} expected_missing={sorted(expected_missing)} "
+            f"unexpected={sorted(unexpected)}"
+        )
+    provenance = {
+        "path": str(path),
+        "sha256": sha256_file(path),
+        "source_step": state.get("step"),
+        "source_config": state.get("config"),
+        "new_parameter_keys": sorted(expected_missing),
+    }
+    return state, provenance
+
+
+def configure_trainable_parameters(
+    model: SNMR,
+    *,
+    contact_head_only: bool,
+) -> tuple[list[torch.nn.Parameter], list[str]]:
+    """Freeze the backbone when the registered M3 contact-head arm requests it."""
+    trainable = []
+    names = []
+    for name, parameter in model.named_parameters():
+        parameter.requires_grad_(not contact_head_only or name.startswith("decoder.contact_head."))
+        if parameter.requires_grad:
+            trainable.append(parameter)
+            names.append(name)
+    if not trainable:
+        raise ValueError("training configuration selected no trainable parameters")
+    if contact_head_only and model.decoder.contact_head is None:
+        raise ValueError("contact-head-only training requires an enabled contact head")
+    return trainable, names
+
+
+def set_model_training_mode(model: SNMR, *, contact_head_only: bool) -> None:
+    """Use deterministic frozen features while leaving the contact head trainable."""
+    if contact_head_only:
+        model.eval()
+        assert model.decoder.contact_head is not None
+        model.decoder.contact_head.train()
+    else:
+        model.train()
+
+
 def append_jsonl(path: pathlib.Path, record: dict) -> None:
     with path.open("a") as handle:
         handle.write(json.dumps(record) + "\n")
@@ -316,9 +381,40 @@ def main() -> None:
                     help="Gate 6: add sinusoidal positional encoding to the temporal transformer "
                          "(the default module is content-only attention with no order signal)")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument(
+        "--init_ckpt",
+        default=None,
+        help="initialize model weights from a checkpoint without restoring optimizer state",
+    )
+    ap.add_argument(
+        "--train_contact_head_only",
+        action="store_true",
+        help="freeze the initialized backbone and optimize only decoder.contact_head",
+    )
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     args = ap.parse_args()
+
+    if args.train_contact_head_only:
+        if args.init_ckpt is None:
+            ap.error("--train_contact_head_only requires --init_ckpt")
+        if args.contact_bce_weight <= 0:
+            ap.error("--train_contact_head_only requires --contact_bce_weight > 0")
+        incompatible_objectives = {
+            "contact_weight": args.contact_weight,
+            "foot_vel_weight": args.foot_vel_weight,
+            "edge_velocity_weight": args.edge_velocity_weight,
+            "stance_velocity_weight": args.stance_velocity_weight,
+            "penetration_weight": args.penetration_weight,
+            "teacher_velocity_weight": args.teacher_velocity_weight,
+        }
+        active = {name: value for name, value in incompatible_objectives.items() if value}
+        if args.edge_contact or args.phase_balanced_velocity or active:
+            ap.error(
+                "--train_contact_head_only only supports the contact BCE objective; "
+                f"incompatible settings: edge_contact={args.edge_contact}, "
+                f"phase_balanced_velocity={args.phase_balanced_velocity}, active={active}"
+            )
 
     torch.manual_seed(args.seed)
     random.seed(args.seed)
@@ -350,10 +446,33 @@ def main() -> None:
                    ))
     ).to(args.device)
 
+    initialization = None
+    if args.init_ckpt is not None:
+        init_state, initialization = load_initial_checkpoint(
+            model, args.init_ckpt, args.device
+        )
+        if "xy_scale" in init_state:
+            initialized_xy_scale = float(init_state["xy_scale"])
+            if not np.isclose(xy_scale, initialized_xy_scale, atol=1e-8):
+                raise ValueError(
+                    "initialization checkpoint xy_scale does not match the current dataset: "
+                    f"{initialized_xy_scale} vs {xy_scale}"
+                )
+            xy_scale = initialized_xy_scale
+        print(
+            f"initialized from {initialization['path']} "
+            f"(step {initialization['source_step']}, "
+            f"{len(initialization['new_parameter_keys'])} new parameters)"
+        )
+
     # foot-contact loss support: teacher contact masks + foot body indices (G1 by default)
     foot_names = FOOT_BODIES.get(args.robot)
     foot_idx = [rk.body_index(n) for n in foot_names] if foot_names else None
-    opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
+    trainable_parameters, trainable_parameter_names = configure_trainable_parameters(
+        model,
+        contact_head_only=args.train_contact_head_only,
+    )
+    opt = torch.optim.AdamW(trainable_parameters, lr=args.lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.steps, eta_min=args.min_lr)
 
     start_step = 0
@@ -367,6 +486,7 @@ def main() -> None:
         if "rng_state" in state:
             restore_rng_state(state["rng_state"])
         print(f"resumed from step {start_step}")
+    set_model_training_mode(model, contact_head_only=args.train_contact_head_only)
 
     split_paths = split_pair_paths(pairs_dir)
     split_paths["robot_assets"] = [robot_mjcf(args.robot)]
@@ -392,6 +512,9 @@ def main() -> None:
             "planned_effective_robot_exposures": {args.robot: args.steps},
             "starting_step": start_step,
             "historical_exposures_reconstructable": True,
+            "initialization": initialization,
+            "trainable_parameter_names": trainable_parameter_names,
+            "frozen_backbone_eval_mode": args.train_contact_head_only,
         },
         objectives=objective_manifest(args),
         resume=args.resume,
@@ -532,7 +655,7 @@ def main() -> None:
             append_jsonl(diagnostics_path, diagnostic)
 
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        torch.nn.utils.clip_grad_norm_(trainable_parameters, 1.0)
         opt.step()
         sched.step()
         running.append(float(loss.detach()))
@@ -543,6 +666,7 @@ def main() -> None:
 
         if (step + 1) % args.eval_every == 0:
             mpjpe, dof_err = evaluate(model, rk, skel, static, val_clips, args.window, xy_scale)
+            set_model_training_mode(model, contact_head_only=args.train_contact_head_only)
             rec = {
                 "step": step + 1,
                 "train_loss": float(np.mean(running)),
@@ -567,6 +691,8 @@ def main() -> None:
                  "sched": sched.state_dict(), "step": step + 1,
                  "xy_scale": xy_scale, "config": vars(args),
                  "robot_exposures": robot_exposures,
+                 "initialization": initialization,
+                 "trainable_parameter_names": trainable_parameter_names,
                  "rng_state": capture_rng_state()},
                 ckpt_path,
             )

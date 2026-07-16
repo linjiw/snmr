@@ -126,6 +126,34 @@ def decoded_clip_ground_height(
     return torch.cat(heights, dim=0).min(dim=0).values
 
 
+def projection_decision(result: dict, raw: dict) -> dict[str, bool]:
+    """Apply the frozen Gate-1b coprimary endpoints and physical guards."""
+    decision = {
+        "teacher_height_speed_le_0.08": (
+            result["teacher_height_stance_speed_ms"] <= 0.08
+        ),
+        "source_contact_speed_le_0.10": (
+            result["source_contact_stance_speed_ms"] <= 0.10
+        ),
+        "mpjpe_delta_le_0.005": result["mpjpe_m"] <= raw["mpjpe_m"] + 0.005,
+        "absolute_mpjpe_le_0.04": result["mpjpe_m"] <= 0.04,
+        "dof_jerk_le_1.2x": result["dof_jerk"] <= 1.2 * raw["dof_jerk"],
+        "zero_limit_violations": result["limit_violation_fraction"] == 0.0,
+        "penetration_mean_guard": (
+            result["penetration_mean_m"] <= raw["penetration_mean_m"] + 0.002
+        ),
+        "penetration_fraction_guard": (
+            result["penetration_fraction"] <= raw["penetration_fraction"] + 0.02
+        ),
+    }
+    decision["all_relative_guards_pass"] = all(
+        value
+        for key, value in decision.items()
+        if key != "absolute_mpjpe_le_0.04"
+    )
+    return decision
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt", default=str(ROOT / "runs/phase1_g1_large/ckpt_100k_final.pt"))
@@ -509,27 +537,7 @@ def main() -> None:
     raw = aggregates["raw"]
     decisions = {}
     for variant in variants[1:]:
-        result = aggregates[variant]
-        decisions[variant] = {
-            "teacher_height_speed_le_0.08": (
-                result["teacher_height_stance_speed_ms"] <= 0.08
-            ),
-            "mpjpe_delta_le_0.005": result["mpjpe_m"] <= raw["mpjpe_m"] + 0.005,
-            "absolute_mpjpe_le_0.04": result["mpjpe_m"] <= 0.04,
-            "dof_jerk_le_1.2x": result["dof_jerk"] <= 1.2 * raw["dof_jerk"],
-            "zero_limit_violations": result["limit_violation_fraction"] == 0.0,
-            "penetration_mean_guard": (
-                result["penetration_mean_m"] <= raw["penetration_mean_m"] + 0.002
-            ),
-            "penetration_fraction_guard": (
-                result["penetration_fraction"] <= raw["penetration_fraction"] + 0.02
-            ),
-        }
-        decisions[variant]["all_relative_guards_pass"] = all(
-            value
-            for key, value in decisions[variant].items()
-            if key != "absolute_mpjpe_le_0.04"
-        )
+        decisions[variant] = projection_decision(aggregates[variant], raw)
 
     out = {
         "ckpt": args.ckpt,

@@ -49,3 +49,24 @@ def test_decoded_clip_ground_rejects_mismatched_clip_lengths():
             [0],
             window=2,
         )
+
+
+def test_projection_decision_requires_both_speed_coprimaries():
+    raw = {
+        "mpjpe_m": 0.03,
+        "dof_jerk": 10.0,
+        "penetration_mean_m": 0.0,
+        "penetration_fraction": 0.0,
+    }
+    result = {
+        **raw,
+        "teacher_height_stance_speed_ms": 0.07,
+        "source_contact_stance_speed_ms": 0.11,
+        "limit_violation_fraction": 0.0,
+    }
+
+    decision = eval_footlock.projection_decision(result, raw)
+
+    assert decision["teacher_height_speed_le_0.08"]
+    assert not decision["source_contact_speed_le_0.10"]
+    assert not decision["all_relative_guards_pass"]
