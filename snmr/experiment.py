@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import itertools
 import json
 import os
 import pathlib
@@ -18,6 +19,24 @@ import torch
 
 
 MANIFEST_SCHEMA_VERSION = 1
+
+
+def balanced_combination_schedule(
+    items: Sequence[str],
+    items_per_step: int,
+    *,
+    seed: int,
+) -> tuple[tuple[str, ...], ...]:
+    """Return a deterministic cycle where every item has equal exposure."""
+    if not items:
+        raise ValueError("items must not be empty")
+    if len(set(items)) != len(items):
+        raise ValueError("items must be unique")
+    if not 1 <= items_per_step <= len(items):
+        raise ValueError("items_per_step must be between one and the item count")
+    schedule = list(itertools.combinations(items, items_per_step))
+    random.Random(seed).shuffle(schedule)
+    return tuple(schedule)
 
 
 def utc_now() -> str:

@@ -150,6 +150,8 @@ class SNMRConfig:
     # The original module has NO order signal (pure content attention over frames) — E08's
     # "no_temporal wins" verdict only refutes that variant, not order-aware temporal modeling.
     predict_contact: bool = False    # N6: per-foot contact head on the decoder root pathway
+    decoder_adapter_rank: int = 0
+    adapter_names: tuple[str, ...] = ()
 
 
 # --------------------------------------------------------------------------------------
@@ -225,6 +227,19 @@ class EmbodimentEncoder(nn.Module):
         return h.max(dim=-2).values
 
 
+class DecoderResidualAdapter(nn.Module):
+    """Small node-shared bottleneck residual for one trained target robot."""
+
+    def __init__(self, hidden_dim: int, rank: int):
+        super().__init__()
+        self.down = nn.Linear(hidden_dim, rank, bias=False)
+        self.up = nn.Linear(rank, hidden_dim, bias=False)
+        nn.init.zeros_(self.up.weight)
+
+    def forward(self, h: torch.Tensor) -> torch.Tensor:
+        return h + self.up(F.elu(self.down(h)))
+
+
 class MotionDecoder(nn.Module):
     """Dec(skeleton, embodiment_code, z) -> robot qpos.
 
@@ -257,6 +272,18 @@ class MotionDecoder(nn.Module):
                           nn.Linear(cfg.dec_hidden // 2, 1))
             if cfg.predict_contact else None
         )
+        if cfg.decoder_adapter_rank < 0:
+            raise ValueError("decoder_adapter_rank must be nonnegative")
+        if cfg.decoder_adapter_rank > 0 and not cfg.adapter_names:
+            raise ValueError("adapter_names are required when decoder_adapter_rank is positive")
+        if cfg.decoder_adapter_rank == 0 and cfg.adapter_names:
+            raise ValueError("adapter_names require a positive decoder_adapter_rank")
+        if len(set(cfg.adapter_names)) != len(cfg.adapter_names):
+            raise ValueError("adapter_names must be unique")
+        self.adapters = nn.ModuleDict({
+            name: DecoderResidualAdapter(cfg.dec_hidden, cfg.decoder_adapter_rank)
+            for name in cfg.adapter_names
+        })
 
     def forward(
         self,
@@ -265,6 +292,7 @@ class MotionDecoder(nn.Module):
         adj: torch.Tensor,             # (N, N)
         embodiment_code: torch.Tensor,  # (embodiment_dim,)
         robot_graph,
+        adapter_name: str | None = None,
     ) -> dict[str, torch.Tensor]:
         T = z.shape[0]
         N = static_features.shape[0]
@@ -278,6 +306,10 @@ class MotionDecoder(nn.Module):
             h_att = F.elu(layer(h, adj))
             h = adaln(h + h_att, cond)
             h = F.elu(reinj(torch.cat([h, base], dim=-1)))
+        if adapter_name is not None:
+            if adapter_name not in self.adapters:
+                raise KeyError(f"unknown decoder adapter {adapter_name!r}")
+            h = self.adapters[adapter_name](h)
 
         # angles for every node, then gather dof-bearing bodies in dof order
         node_angle = torch.tanh(self.angle_head(h).squeeze(-1))  # (T, N) in [-1, 1]
@@ -309,11 +341,24 @@ class SNMR(nn.Module):
     def encode(self, node_features, static_features, adj) -> torch.Tensor:
         return self.encoder(node_features, static_features, adj)
 
-    def decode(self, z, target_kin: RobotKinematics) -> dict[str, torch.Tensor]:
+    def decode(
+        self,
+        z,
+        target_kin: RobotKinematics,
+        *,
+        adapter_name: str | None = None,
+    ) -> dict[str, torch.Tensor]:
         static = robot_node_static_features(target_kin.graph)
         adj = _adjacency(SkeletonGraph.from_robot_graph(target_kin.graph))
         code = self.embodiment_encoder(static)
-        return self.decoder(z, static, adj, code, target_kin.graph)
+        return self.decoder(
+            z,
+            static,
+            adj,
+            code,
+            target_kin.graph,
+            adapter_name=adapter_name,
+        )
 
     def retarget_human_to_robot(
         self,
@@ -322,6 +367,8 @@ class SNMR(nn.Module):
         human_skel: SkeletonGraph,
         human_static: torch.Tensor,
         target_kin: RobotKinematics,
+        *,
+        adapter_name: str | None = None,
     ) -> dict[str, torch.Tensor]:
         """The Phase-1 production path: human world kinematics -> shared latent -> robot qpos.
 
@@ -336,10 +383,15 @@ class SNMR(nn.Module):
         feats = human_pose_features(human_pos, human_quat)
         adj = _adjacency(human_skel)
         z = self.encode(feats, human_static, adj)
-        return self.decode(z, target_kin)
+        return self.decode(z, target_kin, adapter_name=adapter_name)
 
     def retarget_robot_to_robot(
-        self, source_kin: RobotKinematics, motion, target_kin: RobotKinematics
+        self,
+        source_kin: RobotKinematics,
+        motion,
+        target_kin: RobotKinematics,
+        *,
+        adapter_name: str | None = None,
     ) -> dict[str, torch.Tensor]:
         """Encode a robot motion and decode it onto ``target_kin`` (autoencoding if same robot).
 
@@ -350,7 +402,7 @@ class SNMR(nn.Module):
         static = robot_node_static_features(source_kin.graph)
         adj = _adjacency(SkeletonGraph.from_robot_graph(source_kin.graph))
         z = self.encode(node_features, static, adj)
-        return self.decode(z, target_kin)
+        return self.decode(z, target_kin, adapter_name=adapter_name)
 
 
 def _adjacency(skel: SkeletonGraph) -> torch.Tensor:

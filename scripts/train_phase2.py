@@ -51,6 +51,7 @@ from snmr.diagnostics import (  # noqa: E402
 )
 from snmr.experiment import (  # noqa: E402
     RunManifest,
+    balanced_combination_schedule,
     capture_rng_state,
     dataset_fingerprint,
     restore_rng_state,
@@ -273,8 +274,10 @@ def evaluate_robot(model, ctx: RobotContext, skel, h_static, clips: dict, window
             teacher, (anchor_pos, anchor_quat), q = window_teacher(entry, ctx.name, int(s), e, ctx.xy_scale)
             feats = human_pose_features(entry["human_pos"][int(s):e], entry["human_quat"][int(s):e])
             z = model.encode(feats, h_static, _HUMAN_ADJ)
+            adapter_name = ctx.name if ctx.name in model.decoder.adapters else None
             pred = model.decoder(z, ctx.static, ctx.adj,
-                                 model.embodiment_encoder(ctx.static), ctx.kin.graph)
+                                 model.embodiment_encoder(ctx.static), ctx.kin.graph,
+                                 adapter_name=adapter_name)
             wp, wq = local_root_to_world(anchor_pos, anchor_quat, pred["root_pos"], pred["root_quat"])
             bp_p, _ = ctx.kin.forward_kinematics(wp, wq, pred["dof_pos"])
             bp_t, _ = ctx.kin.forward_kinematics(q[:, 0:3], q[:, 3:7], q[:, 7:])
@@ -298,6 +301,12 @@ def main() -> None:
     ap.add_argument("--steps", type=int, default=100000)
     ap.add_argument("--window", type=int, default=64)
     ap.add_argument("--robots_per_step", type=int, default=2)
+    ap.add_argument(
+        "--robot_sampling",
+        choices=["random", "balanced_combinations"],
+        default="random",
+        help="balanced_combinations cycles through every robot subset without using the data RNG",
+    )
     ap.add_argument("--lr", type=float, default=3e-4)  # Phase-1 lesson: 8e-4 destabilizes this size
     ap.add_argument("--min_lr", type=float, default=1e-5)
     ap.add_argument("--latent_weight", type=float, default=1.0)
@@ -327,6 +336,12 @@ def main() -> None:
     ap.add_argument("--latent_dim", type=int, default=128)
     ap.add_argument("--enc_hidden", type=int, default=256)
     ap.add_argument("--dec_hidden", type=int, default=256)
+    ap.add_argument(
+        "--decoder_adapter_rank",
+        type=int,
+        default=0,
+        help="rank of a zero-initialized per-training-robot decoder residual; 0 disables adapters",
+    )
     ap.add_argument("--eval_every", type=int, default=4000)
     ap.add_argument("--ckpt_every", type=int, default=10000)
     ap.add_argument("--diag_every", type=int, default=1000,
@@ -360,13 +375,23 @@ def main() -> None:
 
     model = SNMR(SNMRConfig(latent_dim=args.latent_dim, enc_hidden=args.enc_hidden,
                             dec_hidden=args.dec_hidden,
+                            decoder_adapter_rank=args.decoder_adapter_rank,
+                            adapter_names=(
+                                tuple(train_robots)
+                                if args.decoder_adapter_rank > 0
+                                else ()
+                            ),
                             predict_contact=(
                                 args.contact_weight > 0
                                 or args.contact_bce_weight > 0
                                 or args.edge_velocity_weight > 0
                             ))).to(args.device)
     n_params = sum(p.numel() for p in model.parameters())
-    print(f"model params: {n_params/1e6:.2f}M")
+    adapter_params = sum(p.numel() for p in model.decoder.adapters.parameters())
+    print(
+        f"model params: {n_params/1e6:.2f}M "
+        f"({adapter_params/1e3:.1f}k robot-specific adapter)"
+    )
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.steps, eta_min=args.min_lr)
 
@@ -394,7 +419,22 @@ def main() -> None:
     }
     exposures_known_from_step = 0 if start_step == 0 or saved_exposures else start_step
     robots_per_step = min(args.robots_per_step, len(train_robots))
-    planned_exposure = args.steps * robots_per_step / len(train_robots)
+    balanced_schedule = None
+    if args.robot_sampling == "balanced_combinations":
+        balanced_schedule = balanced_combination_schedule(
+            train_robots,
+            robots_per_step,
+            seed=args.seed,
+        )
+        if args.steps % len(balanced_schedule) != 0:
+            raise SystemExit(
+                "balanced_combinations requires --steps to be a multiple of "
+                f"the {len(balanced_schedule)}-step combination cycle"
+            )
+    if balanced_schedule is not None:
+        planned_exposure = args.steps * robots_per_step // len(train_robots)
+    else:
+        planned_exposure = args.steps * robots_per_step / len(train_robots)
     manifest = RunManifest.start(
         out / "manifest.json",
         trainer="scripts/train_phase2.py",
@@ -412,6 +452,19 @@ def main() -> None:
             },
             "planned_optimizer_steps": args.steps,
             "robots_per_step": robots_per_step,
+            "robot_sampling": {
+                "strategy": args.robot_sampling,
+                "cycle": (
+                    [list(group) for group in balanced_schedule]
+                    if balanced_schedule is not None
+                    else None
+                ),
+            },
+            "model_parameters": {
+                "total": n_params,
+                "robot_specific": adapter_params,
+                "robot_specific_fraction": adapter_params / n_params,
+            },
             "planned_effective_robot_exposures": {
                 robot: planned_exposure for robot in train_robots
             },
@@ -437,7 +490,10 @@ def main() -> None:
         s = 0 if T <= args.window else random.randint(0, T - args.window)
         e = min(s + args.window, T)
 
-        robots_k = random.sample(train_robots, min(args.robots_per_step, len(train_robots)))
+        if balanced_schedule is None:
+            robots_k = random.sample(train_robots, robots_per_step)
+        else:
+            robots_k = list(balanced_schedule[step % len(balanced_schedule)])
 
         feats = human_pose_features(entry["human_pos"][s:e], entry["human_quat"][s:e])
         z_h = model.encode(feats, h_static, _HUMAN_ADJ)
@@ -479,7 +535,10 @@ def main() -> None:
                     feats_src = robot_pose_features(src_ctx.kin, motion_src)
                 z_src = model.encode(feats_src, src_ctx.static, src_ctx.adj)
             pred = model.decoder(z_src, ctx.static, ctx.adj,
-                                 model.embodiment_encoder(ctx.static), ctx.kin.graph)
+                                 model.embodiment_encoder(ctx.static), ctx.kin.graph,
+                                 adapter_name=(
+                                     robot if robot in model.decoder.adapters else None
+                                 ))
             terms = collect_loss_terms(pred, ctx.kin, teacher=teacher)
             weights = {name: DEFAULT_LOSS_WEIGHTS.get(name, 1.0) for name in terms}
             legacy_mask = None

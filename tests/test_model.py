@@ -1,5 +1,6 @@
 """Model forward/backward, output validity, and losses."""
 
+import pytest
 import torch
 
 from snmr import losses
@@ -96,3 +97,45 @@ def test_task_loss_decreases_with_fk_targets(g1_mjcf):
     targets = {pelvis: ref_pos[:, pelvis, :]}
     loss = losses.task_loss(pred, rk, targets, {pelvis: 1.0})
     assert torch.isfinite(loss) and loss.item() >= 0
+
+
+def test_decoder_adapter_is_zero_initialized_and_robot_specific(g1_mjcf):
+    rk = RobotKinematics(g1_mjcf)
+    model = SNMR(SNMRConfig(
+        latent_dim=32,
+        enc_hidden=64,
+        dec_hidden=64,
+        decoder_adapter_rank=4,
+        adapter_names=("g1", "other"),
+    ))
+    motion = _short_motion(rk)
+    node_features = robot_pose_features(rk, motion)
+    static = robot_node_static_features(rk.graph)
+    adj = _adjacency(SkeletonGraph.from_robot_graph(rk.graph))
+    z = model.encode(node_features, static, adj)
+
+    shared = model.decode(z, rk)
+    adapted = model.decode(z, rk, adapter_name="g1")
+    for key in shared:
+        assert torch.equal(shared[key], adapted[key])
+
+    loss = adapted["root_pos"].square().mean() + adapted["dof_pos"].square().mean()
+    loss.backward()
+    assert model.decoder.adapters["g1"].up.weight.grad is not None
+    assert model.decoder.adapters["g1"].up.weight.grad.abs().sum() > 0
+    assert model.decoder.adapters["other"].up.weight.grad is None
+
+
+def test_decoder_adapter_rejects_unknown_name(g1_mjcf):
+    rk = RobotKinematics(g1_mjcf)
+    model = SNMR(SNMRConfig(
+        latent_dim=32,
+        enc_hidden=64,
+        dec_hidden=64,
+        decoder_adapter_rank=4,
+        adapter_names=("g1",),
+    ))
+    z = torch.zeros(2, 32)
+
+    with pytest.raises(KeyError, match="unknown decoder adapter"):
+        model.decode(z, rk, adapter_name="missing")
