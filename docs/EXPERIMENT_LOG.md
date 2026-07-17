@@ -767,3 +767,28 @@ Gate 1b: the binding constraint is the deployable contact signal, not the correc
 (projection, DLS lock, latent descent, or guided flow all agree). No alpha/threshold tuning
 beyond the registered grid; project CLOSED at F2 with F3 never armed. Main-line priorities
 unchanged.
+
+### E45 - Latent-flow guidance post-mortem - **FAILURE IS STRUCTURAL: DIRAC TRANSPORT + ILL-CONDITIONED GRADIENT, NOT TUNING**
+`runs/latent_flow/guidance_diagnostics.json` (`scripts/diagnose_latent_flow_guidance.py`,
+3 clips x 2 windows, frozen F1 checkpoint, descriptive). Three probes separate the E44 hypotheses:
+
+- **H1 scale — confirmed:** at E44 settings the clamped push is median `0.15%` of the velocity
+  norm (grad-to-velocity ratio 0.0015; clamp saturation 0.0 — raw gradients are simply tiny,
+  median norm 0.17 against velocity norms ~100). E44's guidance was ~600x below parity.
+- **H2 contraction — confirmed:** perturbations injected at u=0.2/0.5/0.8 retain only
+  9%/29%/67% of their magnitude at the endpoint; endpoint diversity across 8 noise draws is
+  0.4% of ||z_h||. The z_h-target flow learned a near-Dirac, contractive transport that
+  actively annihilates early guidance — expected, since its training target was literally
+  deterministic (z1 = cond).
+- **Decisive third finding:** norm-matched guidance (push rescaled to rho*|v|, rho up to 1.0)
+  does NOT rescue it — rho=1 makes skate WORSE (0.074 -> 0.275 m/s) while degrading MPJPE,
+  and the guidance displacement direction is ~orthogonal to the Adam z-descent displacement
+  (mean cos 0.05). The instantaneous decoder+FK cost gradient is not a productive descent
+  direction in this regression latent; Adam only wins through iterative adaptive rescaling.
+
+Verdict: the F2 failure is structural, not a hyperparameter miss. Two necessary conditions for
+SafeFlow-style guidance were both absent in v1: (a) a *genuinely multimodal* conditional
+distribution (ours collapsed to Dirac after the F0 z_r fallback — there is no distribution to
+steer within), and (b) a *noise-regularized latent* whose decoder behaves smoothly off the
+data manifold (ours is a raw regression latent; SafeFlow guides in a KL-bottlenecked VAE
+latent). Any v2 must change the representation/supervision, not the sampler constants.
