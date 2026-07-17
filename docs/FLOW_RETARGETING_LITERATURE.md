@@ -93,3 +93,74 @@ not carry physics, whatever the literature says about how to get it in.
   norm-scheduled, manifold-projected guidance (findings 5, 6, 8) or as source-point/control
   optimization (finding 9). Sampler-side stochasticity (finding 7) is a quality knob, never a
   diversity source.
+
+---
+
+# Round 2 (2026-07-17, second deep-research pass): SSL motion latents, MSE failure, supervision
+
+106 agents; the four legs that returned zero verified claims in round 1. All claims below
+survived 3-vote adversarial verification against primary PDFs unless marked.
+
+## Q1 — What verifiably structures a motion latent
+
+11. **Physics-teacher distillation through a variational bottleneck (PULSE, ICLR'24 spotlight,
+    arXiv:2310.04582).** Physically-valid latents come from online-DAgger distillation of a
+    near-perfect physics-based imitator's ACTIONS (executed in simulation) through a VAE
+    bottleneck with a *jointly learned proprioception-conditioned prior*. The learned prior is
+    quantitatively essential (VR-tracking success 93.4% full → 45.6% no learnable prior →
+    18.1% no residual prior-action), and "training with RL objectives alone is not sufficient
+    to form a good latent space." No kinematic reconstruction loss anywhere. [merged 2-0/3-0/3-0]
+    → *Our latent was never going to carry physics: its supervision signal (IK qpos MSE)
+    contains none. Physical validity comes from simulator-executed supervision — exactly the
+    calibrated-WBT-teacher prerequisite of main-line A5.*
+12. **Masked+noised denoising pretext (MotionBERT, ICCV'23, arXiv:2210.06551).** Corruption is
+    the separately-ablated ACTIVE ingredient (stepwise 39.2 → 38.8 vanilla pretrain → 38.1
+    +noise → 37.4 +mask mm MPJPE; adding more clean data alone *worsened* it). Beats identical
+    architecture from scratch on all three downstream tasks. [merged 3-0×3] Caveat: downstream
+    metrics are pose/action accuracy, not physics/contact.
+13. **Co-trained contact auxiliary heads (HuMoR, CVPR'21/ICCV'21, arXiv:2105.04668).** CVAE
+    decoder jointly predicts per-joint contact probabilities (BCE) plus a contact-weighted
+    velocity loss `L_vel = Σ_j c_j‖v_j‖²`, reaching 97% contact accuracy. [merged 3-0×3]
+    → Two local notes: (a) this is the CO-TRAINED pattern — our failed M3 was a frozen-backbone
+    RETROFIT, a different intervention; (b) HuMoR's L_vel is structurally our failed E10
+    EDGE-style loss, but it sits inside a *generative* CVAE, not an MSE regressor — consistent
+    with the E10 lesson that the loss family alone doesn't transfer.
+14. **The VQ / masked-token line (T2M-GPT arXiv:2301.06052, MoMask arXiv:2312.00063) reports
+    ZERO physics or contact metrics** — FID/R-Precision only. [merged 3-0×4] Deprioritized.
+
+## Q2 — Conditional-mean failure and generative heads (our C5 diagnosis, now verified)
+
+15. **MSE = MLE under a unimodal isotropic Gaussian; it provably interpolates across modes
+    regardless of capacity** (BeT arXiv:2206.11251; IBC arXiv:2109.00137 expressiveness
+    theorem), and neural-animation foot skating is explicitly attributed to "a regressive
+    model converging to the mean pose" (ACM IMX'23). [merged 2-1/3-0×3] → The C5 skate
+    signature is a literature-documented failure mode of our exact training setup.
+16. **Swapping to a generative head fixes the averaging artifact, with big effects:** IBC
+    83.3% vs 6.7% (explicit MSE) on real-robot insertion; Diffusion Policy +46.9% average
+    over LSTM-GMM/IBC/BeT with clean per-rollout mode commitment. [merged 3-0×5] Caveat: all
+    verified head-swap evidence is manipulation-domain; none reports foot-contact metrics.
+
+## Q4 — Latent vs output space
+
+17. **MLD's own ablation (arXiv:2212.04048): a diffusion head on an *unregularized* AE latent
+    collapses (FID 0.473 → 5.033)** — the decisive, mechanistic confirmation of our E43/E44
+    frozen-regression-latent failure from the original latent-diffusion literature. The
+    MLD-vs-MDM latent-vs-output comparison itself is confounded (architecture, steps, VAE)
+    and physics-metric-free. [merged 3-0×2]
+
+## Q3 — Physics-repaired supervision: STILL unverified after two rounds
+
+18. No PhysCap/SimPoE/UHC-cleaning/RobotMDM/self-distillation claim survived either pass.
+    Closest verified adjacency: PULSE's supervision is simulator-executed actions (valid by
+    construction). [low] → Main-line A5 remains supported by our own Gate-1b oracle result +
+    PULSE adjacency, not by direct verified pipeline literature. Treat as first-principles
+    territory; our W1/E47 probe machinery is the in-house prototype.
+
+## Round-2 synthesis for the roadmap
+
+Every verified thread converges on the same design for any future generative retargeter:
+**output-space (or freshly co-trained latent) generative head + co-trained contact/velocity
+auxiliaries + masked-denoising encoder pretext + simulator-executed supervision targets** —
+and E47 adds our own constraint that the multimodality must enter at the teacher level.
+Registered consequence: the v3 §2 bounded SSL arm is now UNLOCKED (findings 12–13 are the
+verified triggers it required).

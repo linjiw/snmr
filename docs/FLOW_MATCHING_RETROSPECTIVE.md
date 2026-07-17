@@ -1,9 +1,10 @@
-# Flow-Matching Side Project: Retrospective and Critique (E43–E45)
+# Flow-Matching Side Project: Retrospective and Critique (E43–E47)
 
-Written 2026-07-17, after closing the v1 side project at gate F2 and running the E45
-post-mortem. Companion to `docs/FLOW_RETARGETING_SIDE_PROJECT.md` (frozen v1 protocol) and the
-literature review in `docs/FLOW_RETARGETING_LITERATURE.md`. The v2 protocol (if any) lives in
-`docs/FLOW_RETARGETING_V2_PROTOCOL.md`.
+Written 2026-07-17 after closing v1 at gate F2 and the E45 post-mortem; §6 extends it same-day
+with the v2/v3 entry-gate results (E46/E47) and the round-2 verified literature. Companions:
+`docs/FLOW_RETARGETING_SIDE_PROJECT.md` (v1), `docs/FLOW_RETARGETING_V2_PROTOCOL.md` and
+`docs/FLOW_RETARGETING_V3_PROTOCOL.md` (both closed at entry), and
+`docs/FLOW_RETARGETING_LITERATURE.md` (two verified deep-research rounds).
 
 ## 1. What we built
 
@@ -101,3 +102,42 @@ Q3. With (Q1) and (Q2) in place, does flow + guidance then beat Adam z-descent, 
     on a good latent all we need? (The v1 control says: always run both.)
 Q4. Does a physics-pretext latent finally yield a deployable contact signal — the single
     upstream blocker every corrector shares?
+
+## 6. How the open questions resolved (E46/E47 + round-2 research, same day)
+
+**Q1 — NO, three ways.** Decoder-only noise finetune (V0): fidelity fine, descent transfer nil
+(0.224 vs 0.221 m/s). Encoder-joint (W0): same (0.219). The substrate hypothesis is dead in
+every variant; substrate geometry never was the binding constraint here.
+
+**Q2 — NO, and this is the deepest finding of the whole line (E47).** Jittered oracle-mask
+projections around one decoded window nearly coincide: config-jitter diversity/edit ratio
+0.29 (solver converges to one fixed point), anchor-jitter 0.74 but with absolute dof diversity
+0.0019 rad — 5× below the preregistered floor, on edits that are themselves only ~0.0026 rad.
+Manufacturability also fails (3/21 windows; the oracle mask has empty support on 18/21 at
+64-frame scale — E41's ~9% support problem again). *Locally corrected retargeting solutions
+around a single IK teacher are near-unique.* The Dirac conditional is a property of the DATA
+GENERATING PROCESS, not of our model, our latent, or our correction machinery. Genuine
+multimodality must enter at the teacher level (multiple IK configs, RL/simulator repair with
+behaviorally distinct strategies) — which is main-line Track A5.
+
+**Q3 — mooted by Q2** (nothing non-degenerate to model). The corrector-formulation insight
+(OC-Flow/D-Flow ≻ per-step nudging) stands and transfers to any future steering problem.
+
+**Q4 — open; now running as E48 with verified backing.** Round 2 verified the two triggers the
+v3 §2 arm required: masked+noised denoising pretexts structure motion latents (MotionBERT —
+corruption is the ablated active ingredient), and CO-TRAINED contact heads carry contact into
+the latent (HuMoR, 97% contact accuracy) — a different intervention from our failed
+frozen-backbone M3 retrofit. Also verified: our C5 conditional-mean diagnosis is
+literature-standard (MSE = unimodal-Gaussian MLE, provably interpolates modes; animation foot
+skate explicitly attributed to regression-to-the-mean; IBC/Diffusion-Policy head swaps fix it
+with large effects), and MLD's own ablation (unregularized-AE latent: FID 0.473 → 5.033) is
+the mechanistic twin of our E43/E44 failure. Physics-repaired-supervision literature remains
+UNVERIFIED after two targeted rounds — main-line A5 proceeds on our own oracle-pass evidence
+plus PULSE adjacency (physically-valid latents from simulator-executed supervision), largely
+first-principles.
+
+**Net for the paper:** the side project contributes (a) a five-family corrector convergence on
+the deployable-contact-signal bottleneck, (b) a theory-verified account of why generative
+retrofits on regression latents fail (Dirac + covariance-preconditioning + brittle substrate),
+(c) the E47 local-uniqueness result reframing "add a generative head" as "fix the teacher",
+and (d) the E48 representation study feeding the latent-analysis section.

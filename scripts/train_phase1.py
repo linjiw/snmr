@@ -184,11 +184,48 @@ def factorized_contact_mask(
     )
 
 
+def corrupt_input_features(
+    feats: torch.Tensor,
+    joint_mask_prob: float,
+    frame_mask_prob: float,
+    noise_std: float,
+) -> torch.Tensor:
+    """E48 masked-denoise pretext on encoder input features (MotionBERT pattern).
+
+    Operates on the (T, J, F) *feature* tensor — zeroing a node's features reads as "joint
+    unobserved this frame" under the root-relative parameterization (zeroing raw world
+    positions would instead teleport the joint to the origin). Frame masks zero every joint of
+    a frame; the temporal transformer must then inpaint from context. The distillation target
+    stays CLEAN — the encoder learns to reconstruct motion structure it cannot see.
+    """
+    out = feats
+    if noise_std > 0:
+        out = out + noise_std * torch.randn_like(out)
+    if joint_mask_prob > 0:
+        keep = (torch.rand(out.shape[:2], device=out.device) >= joint_mask_prob)
+        out = out * keep.unsqueeze(-1).to(out.dtype)
+    if frame_mask_prob > 0:
+        keep_f = (torch.rand(out.shape[0], device=out.device) >= frame_mask_prob)
+        out = out * keep_f.view(-1, 1, 1).to(out.dtype)
+    return out
+
+
 def objective_manifest(args: argparse.Namespace) -> dict:
     return {
         "distill": {
             "weight": 1.0,
             "semantics": "configuration-space root position, root rotation, and DOF MSE",
+        },
+        "input_corruption_pretext": {
+            "joint_mask_prob": args.input_mask_prob,
+            "frame_mask_prob": args.input_frame_mask_prob,
+            "noise_std": args.input_noise_std,
+            "active": (
+                args.input_mask_prob > 0
+                or args.input_frame_mask_prob > 0
+                or args.input_noise_std > 0
+            ),
+            "semantics": "E48 masked-denoise encoder pretext; clean distillation target",
         },
         "limits": {"weight": 0.1, "semantics": "squared joint-limit excess"},
         "smooth": {"weight": 0.01, "semantics": "frame-difference acceleration and jerk"},
@@ -375,6 +412,13 @@ def main() -> None:
     )
     ap.add_argument("--diag_every", type=int, default=1000,
                     help="loss/gradient diagnostic interval; 0 disables")
+    ap.add_argument("--input_mask_prob", type=float, default=0.0,
+                    help="E48 masked-denoise pretext: per (frame, joint) probability of "
+                         "zeroing the node's dynamic features during training")
+    ap.add_argument("--input_frame_mask_prob", type=float, default=0.0,
+                    help="E48: per-frame probability of masking every joint's features")
+    ap.add_argument("--input_noise_std", type=float, default=0.0,
+                    help="E48: Gaussian noise std added to dynamic input features")
     ap.add_argument("--no_temporal", action="store_true",
                     help="ablation: disable the temporal transformer over frame latents")
     ap.add_argument("--temporal_positional", action="store_true",
@@ -530,7 +574,25 @@ def main() -> None:
         clip = random.choice(train_clips)
         hp, hq, teacher, (anchor_pos, anchor_quat), q = sample_window(clip, args.window, xy_scale)
         opt.zero_grad()
-        pred = model.retarget_human_to_robot(hp, hq, skel, static, rk)
+        corruption_active = (
+            args.input_mask_prob > 0
+            or args.input_frame_mask_prob > 0
+            or args.input_noise_std > 0
+        )
+        if corruption_active:
+            from snmr.human import human_pose_features
+            from snmr.model import _adjacency as _adj_fn
+
+            feats = corrupt_input_features(
+                human_pose_features(hp, hq),
+                args.input_mask_prob,
+                args.input_frame_mask_prob,
+                args.input_noise_std,
+            )
+            z_train = model.encode(feats, static, _adj_fn(skel))
+            pred = model.decode(z_train, rk)
+        else:
+            pred = model.retarget_human_to_robot(hp, hq, skel, static, rk)
         terms = collect_loss_terms(pred, rk, teacher=teacher)
         weights = {name: DEFAULT_LOSS_WEIGHTS.get(name, 1.0) for name in terms}
         diagnostic_step = (

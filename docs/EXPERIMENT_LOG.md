@@ -857,3 +857,25 @@ simulator repair producing behaviorally distinct strategies) — exactly main-li
 physics-repaired supervision, which needs the calibrated WBT teacher first. The flow/
 generative side line is closed in full and hands its machinery (multi-solution probe,
 guard-checked variant generation, output-space plan) to A5.
+
+### E48 - REGISTERED (pre-results): SSL representation arm (v3 §2, unlocked by round-2 findings)
+Round-2 deep research verified the two triggers the v3 §2 bounded arm required: masked+noised
+denoising pretexts structure motion latents with the corruption as the ablated active
+ingredient (MotionBERT, arXiv:2210.06551), and CO-TRAINED contact heads carry contact into the
+latent (HuMoR, arXiv:2105.04668) — distinct from our failed frozen-backbone M3 retrofit.
+Full round-2 synthesis in `docs/FLOW_RETARGETING_LITERATURE.md`.
+
+Design (matched G1-specialist arms, large config, seed 0, 30k steps each, identical data/LR):
+  A control      plain distill (the baseline objective)
+  B denoise      input corruption: joint-mask 0.15, frame-mask 0.05, feature-noise 0.01
+                 (clean distillation target; `corrupt_input_features` in train_phase1.py)
+  C denoise+bce  B + co-trained contact head (contact_bce_weight 0.5, teacher_height labels)
+
+Readouts (E38 protocol, held-out-clip rotation, teacher-height oracle labels):
+  PRIMARY   z-linear contact probe aggregate F1 per arm. Yardsticks: E38 phase-2 z 0.044;
+            source-height deployable baseline 0.127. Arm C's decoder contact-head F1 also
+            reported (M2's C1-head F1 was 0.87 on train-robot data — the head can be good
+            while z stays uninformative; the question is whether co-training moves Z).
+  GUARD     val MPJPE within +0.3 cm of arm A at 30k (pretext must not cost fidelity).
+Exploratory, not a gate: informs the paper's latent-analysis section and whether a z-linear
+contact readout could ever become a deployable mask candidate. No claim without replication.
