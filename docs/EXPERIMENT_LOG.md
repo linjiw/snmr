@@ -720,3 +720,50 @@ Decision: no M3 replication, no additional threshold/label/solver tuning, and no
 correct constraints are sufficient; deployable mask precision/density remains unresolved.
 Proceed to physics-repaired supervision only after calibrated WBT provides a competent simulator
 teacher.
+
+### E43 - Latent-flow side project registered; F0 target viability - **z_r TARGET NOT VIABLE; FALLBACK TO z_h**
+Side project (SafeFlow-inspired physics-guided rectified flow in the frozen SNMR latent space)
+registered in `docs/FLOW_RETARGETING_SIDE_PROJECT.md` with preregistered gates F0-F3 and an
+NFE-matched z-descent null control. Code: `snmr/flow.py`, `scripts/train_latent_flow.py`,
+`scripts/eval_latent_flow.py`, `tests/test_flow_retarget.py` (10 tests; full suite 194 passing).
+
+F0 (`runs/latent_flow/f0_viability.json`, CPU, frozen `phase1_g1_large/ckpt_100k_final.pt`,
+7 val clips x 6 windows of 64): decoding the frozen encoder's TEACHER-ROBOT latent z_r gives
+MPJPE `50.06 cm` vs raw `3.48 cm` — far above the 3 cm viability bar. The Phase-1 G1 encoder was
+never trained to make robot encodings decodable (no L_z on this checkpoint, and even Phase-2's
+L_z only aligns latents; `zr_decode_prob` remains deferred). Decision per protocol: the flow
+target degrades to `z1 = z_h` (identity transport + guidance mechanism).
+
+The z-descent control at deployable soft-decoded cost (25 iters, lr 3e-3, trust 10) already
+moves stance speed 0.400 -> 0.221 m/s (teacher-height mask) at +0.15 cm MPJPE with all
+non-speed guards passing — a real bar for F2 to beat.
+
+F1 training run `runs/latent_flow/f1_zh` (20k steps, z_h target) launched 2026-07-17; F1/F2
+evaluation pending. This project does not alter main-line priorities (M1b/M3 closed Gate 1b;
+B1 confirmatory matrix remains next).
+
+### E44 - Latent-flow F1/F2 - **F1 PASSES; F2 FAILS; SIDE PROJECT CLOSED PER STOP RULE**
+`runs/latent_flow/f1_zh` (20k steps, z_h target, CFM 0.0035) and
+`runs/latent_flow/f2_screen.json` (7 val clips x 6 windows of 64, NFE 25, frozen Gate-1b guards).
+
+F1 PASS: unguided flow samples decode to MPJPE `3.49 cm` vs raw `3.48 cm` (≤ raw + 0.5 cm) —
+the flow reproduces the deterministic decode with no fidelity loss. Generative-head viability
+is established, but only as an identity transport (F0 forced z1 = z_h).
+
+F2 FAIL, and informatively so. Across the full preregistered grid (alpha_end ∈ {1,3,10} x
+{soft_decoded, source_gated, teacher_height}):
+- Guidance is nearly inert: best cell (a10, ORACLE teacher-height mask) moves teacher-height
+  stance speed only `0.400 -> 0.339 m/s` (endpoint ≤ 0.08); deployable cells move ≤ 0.012 m/s.
+  MPJPE/jerk/penetration guards all pass — the edits are tiny, not destructive.
+- The NFE-matched z-descent control (Adam on z, deployable soft-decoded cost, trust region)
+  reaches `0.221 m/s` at +0.15 cm MPJPE — 5x the guided-flow improvement — but still misses
+  both speed endpoints by ~2.5x. No cell passes; control also fails.
+
+Reading: (1) clamped raw cost-gradients through the frozen decoder+FK are weak in latent space;
+adaptive (Adam-normalized) descent extracts more, so SafeFlow-style velocity steering does not
+transfer to this 128-d regression latent at preregistered strengths. (2) Even unconstrained
+latent descent under a deployable soft stance signal plateaus near 0.22 m/s — consistent with
+Gate 1b: the binding constraint is the deployable contact signal, not the corrector class
+(projection, DLS lock, latent descent, or guided flow all agree). No alpha/threshold tuning
+beyond the registered grid; project CLOSED at F2 with F3 never armed. Main-line priorities
+unchanged.

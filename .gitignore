@@ -38,3 +38,6 @@ runs/wbt_reference_confirmatory/*.eval.log
 runs/gate1b/m3_*/*.log
 runs/gate1b/m3_*/*.jsonl
 runs/sharing_cost_screen/**/*.log
+
+# latent-flow side project raw stdout logs (regenerable)
+runs/latent_flow/*.log
