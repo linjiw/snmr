@@ -821,3 +821,39 @@ physics-repaired supervision of SNMR itself (Track A5; the calibrated WBT teache
 prerequisite), and (b) if a generative retargeter is ever revisited, it must be trained
 end-to-end with a noise-regularized (VAE-style) latent and genuinely multi-solution targets —
 not retrofitted onto a frozen regression model. Total v2 cost: ~35 GPU-minutes.
+
+### E47 - Flow v3 entry gates W0/W1 - **BOTH FAIL; THE RETARGETING CONDITIONAL IS LOCALLY NEAR-DETERMINISTIC**
+Protocol `docs/FLOW_RETARGETING_V3_PROTOCOL.md` (registered before results; W0 training and W1
+probe launched at registration time).
+
+- **W0 encoder-joint noise substrate** (`runs/latent_flow/w0_joint_sigma0.1`,
+  `w0b_joint_descent.json`): W0a fidelity guard PASS (2.23 vs 2.18 cm baseline; joint training
+  even improves raw eval MPJPE 3.48 -> 3.27 cm). **W0b descent gate FAIL**: 0.219 m/s vs
+  required <= 0.166 — statistically identical to the frozen (0.221) and decoder-only (0.224)
+  substrates. The noise-regularized-substrate hypothesis is now dead in ALL variants
+  (frozen / decoder-only / encoder-joint). Substrate geometry is not what limits latent
+  correction.
+- **W1 multi-solution premise probe** (`w1_diversity_probe.json` config-jitter;
+  `w1_anchor_jitter_probe.json` anchor-jitter via new `anchor_offset_xy` parameter on
+  `windowed_contact_projection`, default-path unchanged, projection tests pass):
+  - **W1a manufacturability FAIL**: only 3/21 windows (14%, vs required 60%) yield >=3
+    guard-accepted variants. Dominant cause: the teacher-height oracle mask has empty support
+    on 18/21 eval windows (the E41 ~9% frame-support problem resurfacing at 64-frame scale) —
+    windows without stance samples auto-reject.
+  - **W1b diversity FAIL on the absolute floor**: among accepted variants, anchor jitter
+    raises diversity/edit ratio to 0.74 (config jitter 0.29 — solver jitter mostly converges
+    to one fixed point; anchor jitter genuinely moves foot placements), but ABSOLUTE dof
+    diversity is 0.0019 rad, 5x below the preregistered 0.01 rad floor. Caveat recorded: the
+    mean-over-(frames x dofs) metric dilutes stance-leg-local edits; but the edit scale itself
+    is only ~0.0026 rad — the physically-corrected solution set around one decoded motion is
+    nearly a point.
+
+Verdict: **v3 closes at entry, per stop rule.** The deeper finding upgrades E44-E46: the
+failure of generative modeling here is not machinery, substrate, or even the one-teacher
+dataset per se — *locally corrected* retargeting solutions around a single teacher are
+near-unique (correction is a contraction, in dof space as in latent space). Genuine
+multimodality would have to enter at the TEACHER level (multiple IK configurations, RL/
+simulator repair producing behaviorally distinct strategies) — exactly main-line Track A5
+physics-repaired supervision, which needs the calibrated WBT teacher first. The flow/
+generative side line is closed in full and hands its machinery (multi-solution probe,
+guard-checked variant generation, output-space plan) to A5.

@@ -182,11 +182,16 @@ def windowed_contact_projection(
     contact_mask: torch.Tensor,
     *,
     config: WindowedProjectionConfig | None = None,
+    anchor_offset_xy: torch.Tensor | None = None,
 ) -> WindowedProjectionResult:
     """Jointly project one motion window onto fixed stance anchors.
 
     The caller supplies a non-circular contact mask, normally inferred from source motion or a
     teacher signal. The optimizer never thresholds the candidate output being corrected.
+
+    ``anchor_offset_xy`` (F, 2) optionally displaces every stance anchor of foot f by a world
+    xy offset — used by the multi-solution diversity probe to request *different but equally
+    planted* foot placements. Default ``None`` preserves the frozen Gate-1b behavior exactly.
     """
     cfg = config or WindowedProjectionConfig()
     _validate_inputs(
@@ -204,6 +209,11 @@ def windowed_contact_projection(
         extend=cfg.extend,
     )
     foot_indices = [kin.body_index(name) for name in foot_body_names]
+    if anchor_offset_xy is not None and anchor_offset_xy.shape != (len(foot_indices), 2):
+        raise ValueError(
+            f"anchor_offset_xy must be (F, 2) = ({len(foot_indices)}, 2), "
+            f"got {tuple(anchor_offset_xy.shape)}"
+        )
     with torch.no_grad():
         body_pos, _ = kin.forward_kinematics(root_pos, root_quat, dof_pos)
         original_feet = body_pos[:, foot_indices]
@@ -212,6 +222,9 @@ def windowed_contact_projection(
             mask,
             min_stance_frames=cfg.min_stance_frames,
         )
+        if anchor_offset_xy is not None:
+            targets = targets.clone()
+            targets[..., :2] += anchor_offset_xy.to(targets.dtype).unsqueeze(0) * active.unsqueeze(-1)
 
     base_diagnostics: dict[str, Any] = {
         "method": "windowed_lbfgs",

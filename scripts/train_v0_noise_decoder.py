@@ -133,6 +133,8 @@ def main() -> None:
                     help="fraction of steps trained on noisy z (protocol-frozen at 0.5)")
     ap.add_argument("--zr_decode_prob", type=float, default=0.0,
                     help="V1: probability of decoding from the teacher-robot encoding z_r")
+    ap.add_argument("--train_encoder", action="store_true",
+                    help="W0: finetune the encoder jointly instead of freezing it")
     ap.add_argument("--steps", type=int, default=20000)
     ap.add_argument("--window", type=int, default=64)
     ap.add_argument("--lr", type=float, default=1e-4)
@@ -155,14 +157,18 @@ def main() -> None:
     model, state = load_model(args.ckpt, args.device)
     base_config = dict(state.get("config", {}))
     xy_scale = float(state["xy_scale"])
-    # freeze the encoder; finetune decoder + embodiment encoder
+    # V0/V1: freeze the encoder, finetune decoder + embodiment encoder.
+    # W0 (--train_encoder): finetune everything jointly — noise then regularizes the latent
+    # geometry itself rather than just teaching the decoder to tolerate a fixed geometry.
+    trainable_modules = [model.decoder, model.embodiment_encoder]
+    if args.train_encoder:
+        trainable_modules.append(model.encoder)
     for p in model.encoder.parameters():
-        p.requires_grad_(False)
-    trainable = [p for m in (model.decoder, model.embodiment_encoder)
-                 for p in m.parameters()]
+        p.requires_grad_(args.train_encoder)
+    trainable = [p for m in trainable_modules for p in m.parameters()]
     for p in trainable:
         p.requires_grad_(True)
-    model.encoder.eval()
+    (model.encoder.train if args.train_encoder else model.encoder.eval)()
     model.decoder.train()
     model.embodiment_encoder.train()
 
@@ -215,7 +221,7 @@ def main() -> None:
             "starting_step": start_step,
             "initialization": {"path": str(pathlib.Path(args.ckpt).resolve()),
                                "sha256": sha256_file(args.ckpt)},
-            "frozen_modules": ["encoder"],
+            "frozen_modules": [] if args.train_encoder else ["encoder"],
             "baseline_clean_mpjpe_m": baseline_mpjpe,
             "latent_std_mean": float(latent_std.mean()),
         },
@@ -244,7 +250,7 @@ def main() -> None:
         clip = random.choice(train_clips)
         hp, hq, q, teacher, (ap_, aq_) = window_slices(clip, args.window, xy_scale)
         opt.zero_grad()
-        with torch.no_grad():
+        with torch.enable_grad() if args.train_encoder else torch.no_grad():
             if args.zr_decode_prob > 0 and random.random() < args.zr_decode_prob:
                 motion = RobotMotion(q[:, 0:3], q[:, 3:7], q[:, 7:], fps=clip["fps"])
                 z = model.encode(
@@ -268,6 +274,8 @@ def main() -> None:
         if (step + 1) % args.eval_every == 0:
             mpjpe = evaluate_clean(model, ctx, h_static, h_adj, val_clips,
                                    args.window, xy_scale)
+            if args.train_encoder:
+                model.encoder.train()
             model.decoder.train()
             model.embodiment_encoder.train()
             rec = {"step": step + 1, "train_loss": float(np.mean(running)),
