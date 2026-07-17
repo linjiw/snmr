@@ -879,3 +879,46 @@ Readouts (E38 protocol, held-out-clip rotation, teacher-height oracle labels):
   GUARD     val MPJPE within +0.3 cm of arm A at 30k (pretext must not cost fidelity).
 Exploratory, not a gate: informs the paper's latent-analysis section and whether a z-linear
 contact readout could ever become a deployable mask candidate. No claim without replication.
+
+E48 AMENDMENT (pre-readout, 2026-07-17): the first arm chain used the trainer's default
+lr 1e-3, which is known-bad for the large config (cf. `runs/phase1_g1_large_lr8e4_diverged`;
+the reference checkpoint used 3e-4) — arm A reached only ~33 cm val MPJPE at 24k, an invalid
+control. Chain killed before any probe was run; artifacts removed; relaunched identically
+with --lr 3e-4 for all three arms. No other change to the registered design.
+
+E48 AMENDMENT 2 (post-30k-readout, pre-verdict): arm results motivate one attribution arm D
+(contact BCE 0.5 WITHOUT input corruption, otherwise identical) — B/C readouts suggest the
+corruption and BCE ingredients have separable fidelity costs and possibly separable z-F1
+contributions; D completes the 2x2. Registered before running D or writing the E48 verdict.
+
+### E48 - SSL representation 2x2 - **CO-TRAINED CONTACT BCE STRUCTURES z (11x control, 2x deployable baseline); FIDELITY GUARD FAILS AT 30k**
+Arms (matched large config, lr 3e-4, 30k steps, seed 0; `runs/e48_ssl/`):
+
+| arm | 30k val MPJPE | z-linear contact F1 | z-context F1 |
+|---|---|---|---|
+| A control (distill only)      | 7.15 cm  | 0.023 | 0.043 |
+| B denoise (mask 0.15/0.05 + noise 0.01) | 9.36 cm | 0.099 | 0.109 |
+| C denoise + contact BCE 0.5   | 11.15 cm | 0.174 | 0.160 |
+| D contact BCE 0.5 only        | 10.30 cm | **0.257** | 0.207 |
+
+Yardsticks: source-height deployable mask F1 0.127; E38 phase-2 z probe 0.044.
+
+Findings (exploratory, single seed):
+1. **Co-trained contact BCE is the dominant ingredient**: D reaches z-linear F1 0.257 — 11x
+   the matched control and 2.0x the deployable source-height baseline. First observed z
+   representation that BEATS the deployable mask signal. Replicates HuMoR's verified
+   co-training pattern and confirms the M3 lesson from the other side: the same BCE loss that
+   failed as a frozen-backbone retrofit structures the latent when trained jointly.
+2. **Input corruption alone helps z (4x control) but DILUTES BCE when combined** (C 0.174 < D
+   0.257) — at this scale the two verified pretexts are not additive.
+3. **The registered fidelity guard (≤ A + 0.3 cm) FAILS in all aux arms** (+2.2 to +4.0 cm at
+   30k). Cannot distinguish slower convergence from a real fidelity price without longer runs
+   (control trajectory: 7.15 cm at 30k on a schedule that reaches ~2.2 cm at 100k).
+
+Verdict: representation claim only — no deployable-mask claim (F1 0.257 is far below mask
+precision needs, cf. M2's head F1 0.87 still failing as a mask via density), no fidelity-safe
+recipe yet, single seed. Feeds the paper's latent-analysis section as the constructive
+counterpart to E38 ("contact is absent from z under pure distillation, and co-trained contact
+supervision is sufficient to put it there"). A full-budget (100k) D-arm replication with seed
+variation is the registered follow-up IF the latent-analysis section needs it; otherwise this
+closes the side-project program with a positive representation result.
