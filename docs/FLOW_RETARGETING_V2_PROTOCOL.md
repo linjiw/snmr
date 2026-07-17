@@ -1,8 +1,11 @@
 # Flow Retargeting v2: Investigation Goals and Preregistered Protocol
 
 Drafted 2026-07-17 from the E43–E45 post-mortem (`docs/FLOW_MATCHING_RETROSPECTIVE.md`) and the
-verified literature pass (`docs/FLOW_RETARGETING_LITERATURE.md`). Status: REGISTERED, NOT
-STARTED. Side-project rules from v1 carry over: no GPU while a main-line job runs, stop rules
+verified literature pass (`docs/FLOW_RETARGETING_LITERATURE.md`).
+**Status: CLOSED AT ENTRY GATES (E46, same day). V0b FAIL (descent transfer 0.224 vs required
+≤0.166 m/s — noise-regularizing the decoder does not help latent correction at all); V1a/V1b
+FAIL (z_r decodability 50→19 cm, still 6× off the 3 cm bar, at a 0.93 cm clean-fidelity cost).
+V2/V3/V4 never armed per the registered dependency order. See EXPERIMENT_LOG E46.** Side-project rules from v1 carry over: no GPU while a main-line job runs, stop rules
 fire at gates, no post-hoc threshold tuning. Main-line priorities (B1 confirmatory WBT matrix,
 sharing-cost screen, B-multi calibration) remain ahead of everything here.
 
@@ -51,8 +54,11 @@ row* (0.221 m/s teacher-height), not just raw.
 ### V0 — noise-regularized substrate (cheapest decisive experiment; CPU eval, ~1 GPU-day train)
 
 Finetune ONLY the decoder (+ embodiment encoder) of `phase1_g1_large` for 20k steps with
-Gaussian latent augmentation: `z' = z_h + σ·ε`, σ ∈ {0.1, 0.3} (relative to per-dim latent
-std), distill loss unchanged against the same teacher. Two checks:
+Gaussian latent augmentation: `z' = z_h + σ·ε·std(z)`, σ ∈ {0.1, 0.3} (ε ∼ N(0, I), per-dim
+latent std estimated once from training windows and stored in the checkpoint), applied to a
+random 50% of steps (the other 50% train on clean z, protecting the V0a guard); distill loss
+unchanged against the same teacher. Amendment 2026-07-17, pre-data: the 50/50 clean/noisy
+mixture and the per-dim-std normalization are fixed here before any V0 training. Two checks:
 
 - **V0a fidelity guard:** clean-z MPJPE within +0.2 cm of the un-finetuned decoder. (If noise
   training costs clean accuracy, record the Pareto and pick σ=0.1.)

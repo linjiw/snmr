@@ -792,3 +792,32 @@ distribution (ours collapsed to Dirac after the F0 z_r fallback — there is no 
 steer within), and (b) a *noise-regularized latent* whose decoder behaves smoothly off the
 data manifold (ours is a raw regression latent; SafeFlow guides in a KL-bottlenecked VAE
 latent). Any v2 must change the representation/supervision, not the sampler constants.
+
+### E46 - Flow v2 gates V0/V1 - **BOTH FAIL; DECODER-ONLY INTERVENTIONS INSUFFICIENT; V2 CLOSES AT ENTRY**
+Protocol `docs/FLOW_RETARGETING_V2_PROTOCOL.md` (registered this morning, incl. the pre-data
+50/50 noise-mixture amendment). Trainer `scripts/train_v0_noise_decoder.py` (frozen encoder;
+decoder+embodiment finetune, 20k steps, lr 1e-4, latent noise z + sigma*eps*std(z) on 50% of
+steps; --zr_decode_prob adds the Phase-2-deferred robot-encoding decode arm).
+
+- **V0 sigma=0.1** (`runs/latent_flow/v0_sigma0.1`): V0a fidelity guard PASS (clean 2.29 vs
+  baseline 2.18 cm). **V0b descent-transfer gate FAIL** (`v0b_sigma0.1_descent.json`): z-descent
+  on the noise-finetuned decoder reaches 0.224 m/s teacher-height stance speed vs the v1 frozen
+  decoder's 0.221 — no transfer at all (gate required <=0.166). sigma=0.3 fails V0a outright
+  (2.49 cm). The "substrate brittleness is binding" hypothesis is dead at this decoder scale:
+  noise-robust decoding neither helps nor hurts latent descent.
+- **V1 zr_decode_prob=0.5 + sigma=0.1** (`runs/latent_flow/v1_zr_decode`): z_r decodability
+  improves 50.06 -> 19.07 cm (`v1a_zr_decodability.json`) — the decoder CAN partially learn to
+  answer from robot encodings — but misses the 3 cm V1a bar by 6x, and clean-z fidelity
+  regresses 2.18 -> 3.11 cm, failing the +0.3 cm V1b guard. The human/robot latent gap is too
+  large for a decoder-only bridge; closing it requires touching the ENCODER (joint L_z +
+  zr-decode training), i.e. a different SNMR, not a bolt-on.
+
+Verdict: per the registered dependency order (V3 runs only after V0 or V1 passes), **flow v2
+closes at its entry gates**. Combined with E44/E45, the inference-time latent-correction line
+is now closed end-to-end: frozen-latent guidance (structurally inert), adaptive descent
+(insufficient), noise-regularized substrate (no transfer), and decoder-side conditional
+de-degeneration (too costly). The surviving levers are upstream and main-line: (a)
+physics-repaired supervision of SNMR itself (Track A5; the calibrated WBT teacher is a
+prerequisite), and (b) if a generative retargeter is ever revisited, it must be trained
+end-to-end with a noise-regularized (VAE-style) latent and genuinely multi-solution targets —
+not retrofitted onto a frozen regression model. Total v2 cost: ~35 GPU-minutes.
