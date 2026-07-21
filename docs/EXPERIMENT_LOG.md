@@ -922,3 +922,28 @@ counterpart to E38 ("contact is absent from z under pure distillation, and co-tr
 supervision is sufficient to put it there"). A full-budget (100k) D-arm replication with seed
 variation is the registered follow-up IF the latent-analysis section needs it; otherwise this
 closes the side-project program with a positive representation result.
+
+### E48-100k - Full-budget A/D replication - **CONTACT STRUCTURE SURVIVES (D z-F1 0.227, 1.8x deployable baseline); FIDELITY PRICE IS REAL (~1.5 cm at BCE 0.5)**
+`runs/e48_ssl_100k/` (A control + D bce_only, 100k steps, lr 3e-4, seed 0; frozen driver with
+provenance; probes via the E38 protocol).
+
+| arm | 100k val MPJPE | z-linear F1 | z-ctx F1 | (30k reference) |
+|---|---|---|---|---|
+| A control | 2.18 cm | 0.088 | 0.107 | 0.023 |
+| D BCE 0.5 | 3.68 cm | 0.227 | 0.253 | 0.257 |
+
+- **Fidelity: the +1.5 cm gap at 100k is a real price, not convergence lag** (A reproduces the
+  reference 2.18 cm exactly; D converges to 3.68 and is flat from ~60k). The registered +0.3 cm
+  guard fails at weight 0.5 even at full budget → any Stage-2/3 use of the BCE head registers
+  weight 0.25 (the E30-attributed C1 weight) as the default.
+- **Representation: the E48 claim replicates at full budget.** D's z-linear F1 0.227 ≈ the 30k
+  0.257 (stable, not a transient), still 1.8x the deployable source-height baseline (0.127) and
+  2.6x the control at matched budget (0.088). Interesting secondary: A's own z picks up contact
+  F1 0.023→0.088 between 30k and 100k — pure distillation slowly absorbs *some* contact
+  structure, but co-training reaches 2.6x that endpoint immediately and holds it.
+- Per-clip: D's z beats the source mask decisively on dynamic clips (sprint/aiming/run) and
+  stays weaker on quasi-static walk — same pattern as 30k.
+
+Verdict: co-trained contact BCE structures z durably; the cost knob is the weight. Feeds
+Stage 2 of `docs/RESEARCH_PROPOSAL_RETARGET_TO_TRACKING.md` (span-mask arm + BCE 0.25 at full
+budget) and the paper's latent-analysis section.

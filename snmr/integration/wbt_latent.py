@@ -36,6 +36,10 @@ import numpy as np
 
 SNMR_LATENT_DIM = int(os.environ.get("SNMR_LATENT_DIM", "128"))
 PREVIEW_OFFSETS = (0, 10, 25)  # current, +0.2 s, +0.5 s at the 50 Hz WBT policy rate
+# E49 act-through-latent: a short causal window of the raw SNMR latent trajectory, fed as its own
+# actor-obs group to a co-trained MLPEncoder (holosoma type=MLPEncoder). Offsets in 50 Hz steps:
+# current, +0.1 s, +0.2 s, +0.5 s. UniTracker's tracking optimum was ~5 future frames.
+WINDOW_OFFSETS = (0, 5, 10, 25)
 
 
 def _motion_command(env):
@@ -151,6 +155,17 @@ def snmr_latent_tangent_preview(env):
         _motion_command(env), PREVIEW_OFFSETS
     )
     return _cat((z0, z_short - z0, z_long - z0))
+
+
+def snmr_latent_window(env):
+    """Raw SNMR latent at WINDOW_OFFSETS, concatenated: ``[z_t, z_{t+0.1s}, z_{t+0.2s}, z_{t+0.5s}]``.
+
+    Unlike :func:`snmr_latent_tangent_preview` (tangent deltas), this returns the absolute latent
+    at each offset — the input the E49 co-trained MLPEncoder learns a causal readout over. Width =
+    ``len(WINDOW_OFFSETS) * SNMR_LATENT_DIM``. Future indices clip at the clip end (no boundary
+    crossing), matching the other preview funcs.
+    """
+    return _cat(_latent_at_offsets(_motion_command(env), WINDOW_OFFSETS))
 
 
 def motion_command_with_current_latent(env):

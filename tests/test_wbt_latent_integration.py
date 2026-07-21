@@ -58,6 +58,26 @@ def test_preview_is_clipped_per_motion_and_uses_latent_deltas(
     assert torch.equal(observed, expected)
 
 
+def test_latent_window_gathers_absolute_latents_clipped(tmp_path, monkeypatch):
+    command, latent = _fake_command(tmp_path)
+    monkeypatch.setattr(wbt_latent, "_motion_command", lambda env: command)
+
+    observed = wbt_latent.snmr_latent_window(object())
+
+    # WINDOW_OFFSETS=(0,5,10,25); env0 t=2 end 3, env1 t=5 end 6 -> all future offsets clip to end.
+    idx0 = [min(2 + o, 3) for o in wbt_latent.WINDOW_OFFSETS]
+    idx1 = [min(5 + o, 6) for o in wbt_latent.WINDOW_OFFSETS]
+    expected = torch.stack(
+        [
+            torch.cat([latent[i] for i in idx0]),
+            torch.cat([latent[i] for i in idx1]),
+        ]
+    )
+    width = len(wbt_latent.WINDOW_OFFSETS) * latent.shape[1]
+    assert observed.shape == (2, width)
+    assert torch.equal(observed, expected)
+
+
 def test_explicit_preview_gathers_future_joint_pos_clipped(tmp_path, monkeypatch):
     command, _ = _fake_command(tmp_path)
     joint_pos = torch.arange(7 * 2, dtype=torch.float32).reshape(7, 2)
