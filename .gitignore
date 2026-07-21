@@ -45,3 +45,6 @@ runs/latent_flow/*.log
 # E48 SSL arm raw stdout logs (regenerable)
 runs/e48_ssl_*.log
 runs/e48_ssl/probe_*.log
+
+# E48-100k raw stdout logs (regenerable)
+runs/e48_ssl_100k/*.log

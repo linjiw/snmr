@@ -1,0 +1,126 @@
+{
+  "passed": true,
+  "verdict": "promote_confirmatory_matrix",
+  "protocol_errors": [],
+  "interpretation": "one-clip, one-training-seed development gate; the GMR policy is a continued calibration run and is context only, not a matched source comparison",
+  "protocol": {
+    "clip": "walk1_subject5",
+    "training_seed": 0,
+    "evaluation_seed": 404,
+    "training_iterations": 8000,
+    "num_envs": 1024,
+    "completion_floor": 0.7
+  },
+  "artifacts": {
+    "run_dir": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260716_213551-reference_dev_snmr_walk1_seed0_to8000-locomotion",
+    "checkpoint": {
+      "path": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260716_213551-reference_dev_snmr_walk1_seed0_to8000-locomotion/model_07999.pt",
+      "sha256": "327fa6ad105353aad111d4a5397e3bb379c6005626dd5eaab6d2470f435930cb"
+    },
+    "snmr_reference": {
+      "path": "/home/ec2-user/work/retarget/snmr/runs/wbt_validation/snmr/walk1_subject5_mj.npz",
+      "sha256": "2b847f97b7cf3cf6aebef9ff8a80a4231729b01ffc2d61ff8ba928fb4d617c66"
+    },
+    "gmr_context_report": {
+      "path": "/home/ec2-user/work/retarget/snmr/runs/wbt_horizon_calibration/reports/horizon_gmr_walk1_seed0_to8000_iter8000_eval404.json",
+      "sha256": "c1229f6860f52cf64d6daa776da3d07b6a3bdb0c3ac30929d588f6c046d150d3"
+    },
+    "gmr_reference": {
+      "path": "/home/ec2-user/work/retarget/snmr/runs/wbt_validation/gmr/walk1_subject5_mj.npz",
+      "sha256": "3b06c53a10f9933a5a715789f65f982772592f6864edea75773818d852ec01df"
+    }
+  },
+  "training_scalars": {
+    "Train/mean_reward": {
+      "events": 8000,
+      "final_100_mean": 9.198040804862977
+    },
+    "Train/mean_episode_length": {
+      "events": 8000,
+      "final_100_mean": 571.7466998291015
+    },
+    "Env/motion/error_ref_pos": {
+      "events": 8000,
+      "final_100_mean": 1.8413240122795105
+    },
+    "Env/motion/error_joint_pos": {
+      "events": 8000,
+      "final_100_mean": 1.3866860640048981
+    },
+    "Loss/Value": {
+      "events": 8000,
+      "final_100_mean": 0.012343306820839643
+    },
+    "Loss/Surrogate": {
+      "events": 8000,
+      "final_100_mean": -0.020665163910016417
+    },
+    "Train/num_samples": {
+      "events": 8000,
+      "final_100_mean": 195391488.0
+    }
+  },
+  "snmr": {
+    "completion": 0.86,
+    "survival_s": 8.8968,
+    "root_position_error_m": 1.117812182849366,
+    "root_orientation_error_rad": 0.11952090845013462,
+    "root_linear_velocity_error_mps": 0.6619229275192946,
+    "root_angular_velocity_error_radps": 1.1642133271897455,
+    "body_position_error_m": 0.4679458030462038,
+    "body_orientation_error_rad": 0.597938215205352,
+    "body_linear_velocity_error_mps": 0.9056524742155863,
+    "body_angular_velocity_error_radps": 2.177461800665163,
+    "joint_position_error_l2_rad": 1.3471441249718157,
+    "joint_velocity_error_l2_radps": 7.816337711158927,
+    "joint_position_rmse_rad": 0.2501583834207114,
+    "torque_rms_nm": 8.738485536033624,
+    "mechanical_power_abs_w": 177.6035722254976,
+    "joint_limit_violation_rad": 0.00241793882075267,
+    "undesired_contact_count": 0.0703642535515718
+  },
+  "gmr_context": {
+    "completion": 0.88,
+    "survival_s": 8.952800000000002,
+    "root_position_error_m": 1.0698357358084243,
+    "root_orientation_error_rad": 0.11342158043641697,
+    "root_linear_velocity_error_mps": 0.6027957488945713,
+    "root_angular_velocity_error_radps": 0.9866188924978794,
+    "body_position_error_m": 0.4666885315056522,
+    "body_orientation_error_rad": 0.5851497851066803,
+    "body_linear_velocity_error_mps": 0.8694846152173235,
+    "body_angular_velocity_error_radps": 2.0784715235918925,
+    "joint_position_error_l2_rad": 1.3695091965711845,
+    "joint_velocity_error_l2_radps": 7.680106907690405,
+    "joint_position_rmse_rad": 0.25431147297521284,
+    "torque_rms_nm": 8.810784852896937,
+    "mechanical_power_abs_w": 174.36659499387,
+    "joint_limit_violation_rad": 0.0015216873778627787,
+    "undesired_contact_count": 0.06005193044970316
+  },
+  "snmr_minus_gmr_context": {
+    "completion": -0.020000000000000018,
+    "survival_s": -0.05600000000000094,
+    "root_position_error_m": 0.04797644704094162,
+    "root_orientation_error_rad": 0.006099328013717653,
+    "root_linear_velocity_error_mps": 0.059127178624723276,
+    "root_angular_velocity_error_radps": 0.1775944346918661,
+    "body_position_error_m": 0.0012572715405516077,
+    "body_orientation_error_rad": 0.0127884300986717,
+    "body_linear_velocity_error_mps": 0.0361678589982628,
+    "body_angular_velocity_error_radps": 0.09899027707327068,
+    "joint_position_error_l2_rad": -0.022365071599368846,
+    "joint_velocity_error_l2_radps": 0.13623080346852223,
+    "joint_position_rmse_rad": -0.0041530895545014435,
+    "torque_rms_nm": -0.07229931686331348,
+    "mechanical_power_abs_w": 3.2369772316276055,
+    "joint_limit_violation_rad": 0.0008962514428898912,
+    "undesired_contact_count": 0.010312323101868644
+  },
+  "decision": {
+    "completion_floor": 0.7,
+    "completion_rate": 0.86,
+    "completion_floor_passed": true,
+    "promote_confirmatory_matrix": true
+  }
+}

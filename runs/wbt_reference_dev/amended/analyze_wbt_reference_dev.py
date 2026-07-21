@@ -59,7 +59,7 @@ def _validate_training(
 ) -> tuple[dict[str, Any], list[str]]:
     errors = []
     try:
-        config = _load_config(run_dir / "holosoma_config.yaml")
+        config = _load_config(run_dir)
         scalars = _load_scalars(run_dir)
     except (OSError, RuntimeError, ValueError) as exc:
         return {}, [str(exc)]

@@ -1,0 +1,5 @@
+SNMR completion: 86.0%
+SNMR survival: 8.8968s
+SNMR joint RMSE: 0.250158rad
+verdict: promote_confirmatory_matrix
+one-clip, one-training-seed development gate; the GMR policy is a continued calibration run and is context only, not a matched source comparison
