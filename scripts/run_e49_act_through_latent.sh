@@ -93,3 +93,31 @@ case "$STAGE" in
   *)
     echo "unknown E49_STAGE=$STAGE (use smoke_enc | window_mlp | window_enc)" >&2; exit 2 ;;
 esac
+
+# --- eval (full arms only): 100 phase-stratified 10-s rollouts, matched to Phase-1/B1 ---
+if [[ "$STAGE" == window_mlp || "$STAGE" == window_enc ]]; then
+  TRAIN_NAME="e49_${STAGE}_walk1_seed0_to8000"
+  RUN_DIR=$(ls -1dt "$HOLOSOMA"/logs/WholeBodyTracking/*-"$TRAIN_NAME"-locomotion 2>/dev/null | head -1)
+  test -n "$RUN_DIR"
+  CHECKPOINT=$(ls -1 "$RUN_DIR"/model_*.pt | sort -V | tail -1)
+  test -f "$CHECKPOINT"
+  EVAL_NAME="${TRAIN_NAME}_eval${EVALUATION_SEED}"
+  REPORT="$OUT/reports/$EVAL_NAME.json"
+  echo "=== $EVAL_NAME start $(date -u +%FT%TZ) ===" | tee -a "$OUT/driver.log"
+  cd "$HOLOSOMA"
+  "$PYTHON" src/holosoma/holosoma/eval_agent.py \
+    --checkpoint "$CHECKPOINT" \
+    --wbt-metrics.config.enabled \
+    --wbt-metrics.config.output-path "$REPORT" \
+    --wbt-metrics.config.horizon-s "$HORIZON_S" \
+    --training.headless True \
+    --training.num-envs "$NUM_ROLLOUTS" \
+    --training.seed "$EVALUATION_SEED" \
+    --training.max-eval-steps "$HORIZON_STEPS" \
+    --training.export-onnx False \
+    --simulator.config.sim.max-episode-length-s 100000.0 \
+    >> "$OUT/$EVAL_NAME.eval.log" 2>&1
+  test -f "$REPORT"
+  sha256sum "$CHECKPOINT" "$REPORT" >> "$OUT/input_sha256.txt"
+  echo "=== $EVAL_NAME complete $(date -u +%FT%TZ) ===" | tee -a "$OUT/driver.log"
+fi
