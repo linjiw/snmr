@@ -1,0 +1,17 @@
+question=Is SNMR-reference WBT non-inferior to GMR-reference WBT on calibrated walk1 tracking?
+sources=gmr,snmr
+clip=walk1_subject5
+training_seeds=0,1,2
+evaluation_seeds=404,405
+iterations=8000 from scratch for every policy
+save_interval=2000
+num_envs=1024
+rollouts_per_cell=100
+horizon_steps=500
+horizon_s=10.0
+completion_noninferiority_margin=-0.05
+joint_rmse_relative_noninferiority_margin=+0.10
+gmr_assay_completion_floor=0.50
+bootstrap=10000 paired hierarchical replicates over training seeds, evaluation seeds, and phase windows
+decision=both noninferiority confidence bounds and GMR assay floor must pass
+scope=single-clip confirmatory result; evaluation seeds are rollout variability, not trained-policy replicates

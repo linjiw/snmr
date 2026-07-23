@@ -1,0 +1,165 @@
+{
+  "passed": true,
+  "verdict": "noninferiority_not_established",
+  "interpretation": "single-clip confirmatory source comparison across three independently trained policies per source; evaluation seeds are rollout variability, not additional trained policies",
+  "protocol_errors": [],
+  "protocol": {
+    "sources": [
+      "gmr",
+      "snmr"
+    ],
+    "training_seeds": [
+      0,
+      1,
+      2
+    ],
+    "evaluation_seeds": [
+      404,
+      405
+    ],
+    "training_iterations": 8000,
+    "num_envs": 1024,
+    "rollouts_per_cell": 100,
+    "completion_margin": -0.05,
+    "joint_rmse_relative_margin": 0.1,
+    "gmr_completion_floor": 0.5,
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": 20260716
+  },
+  "references": {
+    "gmr": {
+      "path": "/home/ec2-user/work/retarget/snmr/runs/wbt_validation/gmr/walk1_subject5_mj.npz",
+      "sha256": "3b06c53a10f9933a5a715789f65f982772592f6864edea75773818d852ec01df"
+    },
+    "snmr": {
+      "path": "/home/ec2-user/work/retarget/snmr/runs/wbt_validation/snmr/walk1_subject5_mj.npz",
+      "sha256": "2b847f97b7cf3cf6aebef9ff8a80a4231729b01ffc2d61ff8ba928fb4d617c66"
+    }
+  },
+  "checkpoints": {
+    "gmr_seed0": {
+      "path": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260721_230736-reference_confirm_gmr_walk1_seed0_to8000-locomotion/model_07999.pt",
+      "sha256": "cffb274b619b0b979697acc877a9b7f71ecad58713d8662dc96c00627957d939"
+    },
+    "gmr_seed1": {
+      "path": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260722_054310-reference_confirm_gmr_walk1_seed1_to8000-locomotion/model_07999.pt",
+      "sha256": "798e8555eb550373362c5dca609fd5f5d5d9da954c221aa4571b0342e40bac55"
+    },
+    "gmr_seed2": {
+      "path": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260722_075623-reference_confirm_gmr_walk1_seed2_to8000-locomotion/model_07999.pt",
+      "sha256": "bb24a8d56050393eafc5f4af07219bb6996124a443bf82e132b3b1cd5693520a"
+    },
+    "snmr_seed0": {
+      "path": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260722_100121-reference_confirm_snmr_walk1_seed0_to8000-locomotion/model_07999.pt",
+      "sha256": "4d96f806526006e4a0b408f0106a319c8db5547f3e1a052b6921694e4ef52d41"
+    },
+    "snmr_seed1": {
+      "path": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260722_120645-reference_confirm_snmr_walk1_seed1_to8000-locomotion/model_07999.pt",
+      "sha256": "537c1a7193018125779a9c65ab0f0f350e05e1edf7f27a06386a8d80b20ee179"
+    },
+    "snmr_seed2": {
+      "path": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260722_141231-reference_confirm_snmr_walk1_seed2_to8000-locomotion/model_07999.pt",
+      "sha256": "be605c732d0f49b609f07b29d3f35c9521f9f8414f4fd65dba4f83c35514b8de"
+    }
+  },
+  "source_means": {
+    "gmr": {
+      "completion": 0.8666666666666667,
+      "survival_s": 8.903166666666667,
+      "root_position_error_m": 1.0967146771051137,
+      "root_orientation_error_rad": 0.11240907835440624,
+      "root_linear_velocity_error_mps": 0.6184449955883681,
+      "root_angular_velocity_error_radps": 1.0358709867010814,
+      "body_position_error_m": 0.46921936911948553,
+      "body_orientation_error_rad": 0.5938270164748924,
+      "body_linear_velocity_error_mps": 0.878907623087316,
+      "body_angular_velocity_error_radps": 2.120393248197944,
+      "joint_position_error_l2_rad": 1.3536730383595157,
+      "joint_velocity_error_l2_radps": 7.919753101203284,
+      "joint_position_rmse_rad": 0.25137077215052395,
+      "torque_rms_nm": 8.86285262514562,
+      "mechanical_power_abs_w": 185.41910705734077,
+      "joint_limit_violation_rad": 0.001851460449646926,
+      "undesired_contact_count": 0.05748136514036197
+    },
+    "snmr": {
+      "completion": 0.8666666666666667,
+      "survival_s": 8.845666666666666,
+      "root_position_error_m": 1.1376716679142218,
+      "root_orientation_error_rad": 0.12397779101878809,
+      "root_linear_velocity_error_mps": 0.6627193186707175,
+      "root_angular_velocity_error_radps": 1.1853050717139122,
+      "body_position_error_m": 0.47230862032274623,
+      "body_orientation_error_rad": 0.6025896597608495,
+      "body_linear_velocity_error_mps": 0.9127173254898086,
+      "body_angular_velocity_error_radps": 2.190042991941968,
+      "joint_position_error_l2_rad": 1.3581253109056581,
+      "joint_velocity_error_l2_radps": 7.846157002116986,
+      "joint_position_rmse_rad": 0.2521975383791155,
+      "torque_rms_nm": 8.758322873253393,
+      "mechanical_power_abs_w": 175.2254263315717,
+      "joint_limit_violation_rad": 0.0014145102812142785,
+      "undesired_contact_count": 0.07142525842865642
+    }
+  },
+  "per_training_seed": {
+    "0": {
+      "gmr": {
+        "completion": 0.9,
+        "survival_s": 9.1067,
+        "joint_position_rmse_rad": 0.26258927477896354
+      },
+      "snmr": {
+        "completion": 0.85,
+        "survival_s": 8.7569,
+        "joint_position_rmse_rad": 0.25462002032597925
+      }
+    },
+    "1": {
+      "gmr": {
+        "completion": 0.85,
+        "survival_s": 8.8232,
+        "joint_position_rmse_rad": 0.24026248742793965
+      },
+      "snmr": {
+        "completion": 0.84,
+        "survival_s": 8.597100000000001,
+        "joint_position_rmse_rad": 0.25283555530403373
+      }
+    },
+    "2": {
+      "gmr": {
+        "completion": 0.85,
+        "survival_s": 8.7796,
+        "joint_position_rmse_rad": 0.25126055424466864
+      },
+      "snmr": {
+        "completion": 0.91,
+        "survival_s": 9.183,
+        "joint_position_rmse_rad": 0.24913703950733346
+      }
+    }
+  },
+  "primary": {
+    "gmr_completion": 0.8666666666666667,
+    "snmr_completion": 0.8666666666666667,
+    "completion_difference": 0.0,
+    "completion_difference_ci95": [
+      -0.05833333333333335,
+      0.06166666666666665
+    ],
+    "gmr_joint_rmse_rad": 0.25137077215052395,
+    "snmr_joint_rmse_rad": 0.2521975383791155,
+    "joint_rmse_relative_effect": 0.003289030866709064,
+    "joint_rmse_relative_effect_ci95": [
+      -0.0306851354077512,
+      0.04887959889648483
+    ],
+    "checks": {
+      "gmr_completion_floor": true,
+      "completion_noninferiority": false,
+      "joint_rmse_noninferiority": true
+    },
+    "noninferior": false
+  }
+}

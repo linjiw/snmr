@@ -1,0 +1,4 @@
+completion: 86.7% -> 86.7%; delta=+0.0%, CI=[-0.05833333333333335, 0.06166666666666665]
+joint RMSE effect=+0.33%, CI=[-0.0306851354077512, 0.04887959889648483]
+verdict: noninferiority_not_established
+single-clip confirmatory source comparison across three independently trained policies per source; evaluation seeds are rollout variability, not additional trained policies

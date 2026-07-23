@@ -947,3 +947,36 @@ provenance; probes via the E38 protocol).
 Verdict: co-trained contact BCE structures z durably; the cost knob is the weight. Feeds
 Stage 2 of `docs/RESEARCH_PROPOSAL_RETARGET_TO_TRACKING.md` (span-mask arm + BCE 0.25 at full
 budget) and the paper's latent-analysis section.
+
+### B1-confirmatory - GMR-vs-SNMR source matrix (C6) - **POINT-EQUAL COMPLETION (86.7% = 86.7%); FORMAL NONINFERIORITY MISSED BY 0.8pp OF CI WIDTH**
+`runs/wbt_reference_confirmatory/` (frozen driver, 6 policies = {gmr,snmr} x seeds {0,1,2},
+8k iters each, eval seeds {404,405} x 100 rollouts; holosoma 9fb2b57; ran 2026-07-21 23:07 ->
+2026-07-22 16:18, ~17 h).
+
+Provenance note: the 2026-07-22 first analyzer pass returned `invalid_confirmatory_artifacts`
+— an analyzer path bug (`_load_config(row.run_dir / "holosoma_config.yaml")` double-appended
+the filename; `_load_config` already joins it). Fixed 2026-07-23 (scripts + run-dir copy kept
+identical for the driver's `cmp` guard) and re-run on the untouched artifacts. No training or
+evaluation was re-executed.
+
+| | completion | survival_s | joint RMSE (rad) |
+|---|---|---|---|
+| GMR (mean over 3 seeds x 2 evals) | 0.867 | 8.90 | 0.2514 |
+| SNMR | 0.867 | 8.85 | 0.2522 |
+
+Hierarchical bootstrap (10k replicates, seed 20260716):
+- completion delta +0.0pp, CI95 [-5.8pp, +6.2pp] — margin was -5.0pp -> **check FAILS by 0.83pp**
+- joint RMSE relative effect +0.33%, CI95 [-3.1%, +4.9%] vs 10% margin -> **PASSES**
+- GMR completion floor (>=0.50): PASSES (0.867)
+- per-seed completion: GMR {0.90, 0.85, 0.85} / SNMR {0.85, 0.84, 0.91} — seed variance
+  (~±3pp) dominates any source effect.
+
+Verdict: `noninferiority_not_established` under the preregistered margin — a POWER result,
+not a quality gap. Point estimates are identical on the primary endpoint and SNMR seed 2 is
+the best single policy in the matrix (0.91). Honest reading for C6: "SNMR references train
+tracking policies indistinguishable from GMR references on single-clip walk (point-equal
+completion, RMSE noninferior); the -5pp completion margin was underpowered at 3 seeds x 200
+rollouts (CI half-width 6pp)." Options if a formal PASS is wanted: (a) widen margin with
+justification (seed-level SD alone is ~3pp), (b) add training seeds (dominant variance term
+is between-policy, so more rollouts alone will NOT shrink the CI), (c) report as-is with the
+CI — recommended: (c) for the paper, (b) only if a reviewer demands the binary.
