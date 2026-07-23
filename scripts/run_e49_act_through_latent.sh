@@ -32,6 +32,8 @@ STAGE="${E49_STAGE:-smoke_enc}"   # smoke_enc | window_mlp | window_enc
 WINDOW_FUNC=snmr.integration.wbt_latent:snmr_latent_window
 PREVIEW_FUNC=snmr.integration.wbt_latent:motion_command_with_latent_preview  # critic (privileged), as in L1
 
+export PYTHONPATH="$MAIN"
+
 test "$(git -C "$HOLOSOMA" rev-parse HEAD)" = "$HOLOSOMA_REV"
 test -z "$(git -C "$HOLOSOMA" status --porcelain --untracked-files=no)"
 test -f "$REFERENCE"
@@ -67,8 +69,7 @@ case "$STAGE" in
       --algo.config.module-dict.actor.type MLPEncoder \
       --algo.config.module-dict.actor.layer-config.encoder-input-name actor_obs \
       --algo.config.module-dict.actor.layer-config.encoder-hidden-dims '[256]' \
-      --algo.config.module-dict.actor.layer-config.encoder-output-dim 64 \
-      --algo.config.module-dict.actor.layer-config.module-input-name '[]'
+      --algo.config.module-dict.actor.layer-config.encoder-output-dim 64
     echo "smoke_enc finished; inspect $OUT/e49_smoke_enc.train.log for an 'Actor Module' with an encoder submodule and finite loss." | tee -a "$OUT/driver.log"
     ;;
 
@@ -87,8 +88,7 @@ case "$STAGE" in
       --algo.config.module-dict.actor.type MLPEncoder \
       --algo.config.module-dict.actor.layer-config.encoder-input-name actor_obs \
       --algo.config.module-dict.actor.layer-config.encoder-hidden-dims '[256]' \
-      --algo.config.module-dict.actor.layer-config.encoder-output-dim 64 \
-      --algo.config.module-dict.actor.layer-config.module-input-name '[]'
+      --algo.config.module-dict.actor.layer-config.encoder-output-dim 64
     ;;
   *)
     echo "unknown E49_STAGE=$STAGE (use smoke_enc | window_mlp | window_enc)" >&2; exit 2 ;;
