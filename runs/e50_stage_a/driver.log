@@ -1,0 +1,7 @@
+=== E50-A gmr eval start 2026-07-24T06:57:27Z ===
+=== E50-A gmr export start 2026-07-24T06:58:28Z ===
+=== E50-A gmr done 2026-07-24T06:58:34Z ===
+=== E50-A snmr eval start 2026-07-24T06:58:34Z ===
+=== E50-A snmr export start 2026-07-24T06:59:47Z ===
+=== E50-A snmr done 2026-07-24T06:59:53Z ===
+E50 Stage A complete; gates in /home/ec2-user/work/retarget/snmr/runs/e50_stage_a/{gmr,snmr}/stage_a_metrics.json

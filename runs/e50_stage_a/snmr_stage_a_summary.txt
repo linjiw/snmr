@@ -1,0 +1,21 @@
+{
+  "recording": "runs/e50_stage_a/snmr_walk1_recording.npz",
+  "reference": "runs/wbt_validation/snmr/walk1_subject5_mj.npz",
+  "num_envs": 100,
+  "num_completed": 91,
+  "num_accepted": 0,
+  "contact_frames": 51832,
+  "stance_speed_sim_ms": 0.0999472834892391,
+  "stance_speed_teacher_ms": 0.6340844863236209,
+  "stance_speed_ratio": 0.15762455263450256,
+  "mpjpe_mean_m": 0.09886025776953625,
+  "mpjpe_p95_m": 0.11802186131434403,
+  "penetration_fraction_mean": 0.0,
+  "reference_frame_coverage": 0.0,
+  "gates": {
+    "H-A(i)_speed_ratio_le_0.5": true,
+    "H-A(ii)_penetration_approx_0": true,
+    "H-A(iii)_mpjpe_le_gate": false,
+    "coverage_ge_0.8_report_only": false
+  }
+}

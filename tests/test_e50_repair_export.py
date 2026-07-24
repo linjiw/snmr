@@ -113,7 +113,8 @@ def test_export_static_pose_passes_gates(kin, tmp_path):
 
 
 def test_export_absorbs_spawn_offset_and_yaw(kin, tmp_path):
-    """A constant spawn xy offset + yaw (holosoma's re-anchoring) must NOT count as error."""
+    """Global xy offset + yaw (free under holosoma's continuous per-step re-anchoring of the
+    command to the robot's current xy+yaw) must NOT count as heading-local MPJPE error."""
     frames, envs = 60, 1
     rec_path = _make_recording(kin, tmp_path, frames, envs)
     with np.load(rec_path, allow_pickle=False) as data:
@@ -142,11 +143,11 @@ def test_export_absorbs_spawn_offset_and_yaw(kin, tmp_path):
 def test_export_rejects_high_error_env(kin, tmp_path):
     frames, envs = 80, 2
     rec_path = _make_recording(kin, tmp_path, frames, envs)
-    # corrupt env 1 with a growing drift (a constant offset would be absorbed by the
-    # per-segment SE(2) spawn re-anchoring): 0 -> 40 cm over the clip, ~20 cm mean MPJPE
+    # corrupt env 1's POSTURE (root xy drift is free under heading-local MPJPE by design):
+    # 30 cm root-height error is fully visible to the metric
     with np.load(rec_path, allow_pickle=False) as data:
         rec = {k: np.asarray(data[k]) for k in data.files}
-    rec["root_pos"][:, 1, 0] += np.linspace(0.0, 0.40, frames, dtype=np.float32)
+    rec["root_pos"][:, 1, 2] += 0.30
     np.savez_compressed(rec_path, **rec)
 
     ref_path = tmp_path / "reference.npz"

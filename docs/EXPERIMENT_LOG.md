@@ -1010,3 +1010,46 @@ registered, this is an *informative* null that STRENGTHENS Stage-3 (residual-to-
 command latent co-trained under the control loss via custom-PPO; the only remaining mechanism
 by which retargeting knowledge can enter the command path). No hyperparameter fishing: one
 architecture, one seed, closed.
+
+### E50-A - Physics-repaired teacher, laundering premise - **PHYSICS GATES PASS (skate 3.1-6.3x below teacher, zero penetration); FIDELITY GATE FAILS AT 8k-POLICY QUALITY (9.7 cm heading-local MPJPE vs 5 cm gate) -> CAUTION-FLAG PATH**
+`runs/e50_stage_a/` (protocol `docs/E50_PHYSICS_REPAIRED_TEACHER_PROTOCOL.md`; best B1
+policies — GMR seed0 0.90, SNMR seed2 0.91 — rolled out on walk1, 100 phase-stratified 10-s
+rollouts each, eval seed 404, holosoma 9fb2b57, MuJoCo-Warp).
+
+**Recorder debugging (4 invalid runs archived as `runs/e50_stage_a_invalid_v{1,2,3}` + one
+crash, each with INVALID.txt):** true contact forces on the Warp backend require (a) an
+explicit `mjw.rne_postconstraint` call (cfrc_ext is sensor-gated, never populated in the
+step graph), (b) reading the FORCE half `[..., 3:6]` of the (torque,force) spatial vector —
+holosoma's `create_force_view` slices `[..., :3]`, the torque half, so holosoma's own
+`contact_forces`/undesired-contact penalty reads torques (upstream bug, noted, clone not
+edited), (c) indexing by RAW MuJoCo body id (sim.body_names drops `world` -> off-by-one),
+and (d) matching runtime-prefixed names (`robot_left_ankle_roll_link`). Export metric fix:
+fidelity must be HEADING-LOCAL MPJPE (holosoma's command re-anchors to the robot's current
+xy+yaw every step, wbt.py:845-877, so world xy drift is free by design; world-frame MPJPE
+read 1.17 m of pure spawn/drift offset).
+
+| readout (91/100 completed each) | GMR | SNMR | gate |
+|---|---|---|---|
+| stance speed, rollout [m/s] (sim force mask) | 0.117 | 0.100 | — |
+| stance speed, teacher ref, same mask [m/s] | 0.358 | 0.634 | — |
+| ratio | 0.33 | 0.16 | ≤0.5 **PASS** |
+| penetration fraction | 0.000 | 0.000 | ≈0 **PASS** |
+| heading-local MPJPE mean / p95 [m] | 0.097 / 0.114 | 0.099 / 0.118 | ≤0.05 **FAIL** |
+
+(Caveat: teacher stance speeds under the SIMULATOR mask are not comparable to E24's
+reference-mask numbers; the shared-mask comparison is the preregistered apples-to-apples.)
+
+Error is FLAT in time (dof RMSE 0.24 rad at t=5 and t=475; settle-skip irrelevant) — the
+9.7 cm is the intrinsic fidelity of an 8k-iter walk policy (B1's 0.25 rad), not a transient,
+so "use only low-error segments" cannot rescue H-A(iii); no env passes the 5 cm gate
+(min per-env 7.9 cm).
+
+Verdict per protocol: **caution-flag path, not kill.** The laundering premise holds for
+physics (H-A(i)+(ii): rollouts are dramatically cleaner than the references —
+SNMR 0.63->0.10 m/s stance speed with zero penetration), and the fidelity price at this
+policy quality is now QUANTIFIED (~9.7 cm / 0.24 rad) — the same realism-vs-fidelity dial
+ReActor tunes with its force penalty. Stage B is gated on reducing that price first:
+the registered next lever is a longer-horizon tracking policy (16k+ iters, or eval-time
+termination tightening) re-scored by this same pipeline; if the price does not shrink with
+policy quality, physics-repair via rollout laundering caps out at the tracker's fidelity
+and the honest conclusion feeds the C5/C6 story as a bounded negative.

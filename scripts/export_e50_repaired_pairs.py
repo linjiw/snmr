@@ -34,7 +34,7 @@ if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
 from snmr import paths  # noqa: E402
-from snmr.metrics import compute_metrics, contact_motion_metrics  # noqa: E402
+from snmr.metrics import contact_motion_metrics  # noqa: E402
 from snmr.robot_model import RobotKinematics  # noqa: E402
 
 CONTACT_FORCE_THRESHOLD_N = 1.0  # holosoma undesired-contact convention
@@ -45,46 +45,28 @@ def _xyzw_to_wxyz(quat: np.ndarray) -> np.ndarray:
     return quat[..., [3, 0, 1, 2]]
 
 
-def _yaw_wxyz(quat: np.ndarray) -> float:
-    w, x, y, z = quat
-    return float(np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z)))
+def _heading_local_body_pos(
+    kin, root_pos: torch.Tensor, root_quat_wxyz: torch.Tensor, dof_pos: torch.Tensor
+) -> torch.Tensor:
+    """FK body positions expressed in the per-frame root heading frame (T, B, 3).
 
-
-def _se2_align_reference(
-    ref_root_pos: np.ndarray,
-    ref_root_quat_wxyz: np.ndarray,
-    sim_root_pos0: np.ndarray,
-    sim_root_quat0_wxyz: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Re-anchor the reference into the rollout's frame (WBT tracks a spawn-anchored motion).
-
-    holosoma's MotionCommand re-anchors the reference to the robot's spawn xy + yaw
-    (managers/command/terms/wbt.py:845-877, z kept absolute), so world-frame comparison is
-    meaningless across envs. Mirror it once per segment: rotate the reference about its first
-    frame's root by the yaw difference, then translate xy so the first root positions coincide.
-    Drift *within* the segment stays visible as error.
+    holosoma's MotionCommand continuously re-anchors the reference to the robot's CURRENT
+    xy + yaw (managers/command/terms/wbt.py:845-877), so the policy only ever tracks
+    relative pose and global xy drift is free by design. Fidelity of a rollout to its
+    reference must therefore be measured heading-locally: subtract the root xy, rotate by
+    -yaw. Height stays absolute (the tracker does control absolute z).
     """
-    dyaw = _yaw_wxyz(sim_root_quat0_wxyz) - _yaw_wxyz(ref_root_quat_wxyz[0])
-    c, s = np.cos(dyaw), np.sin(dyaw)
-    rot = np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
-    pos = (ref_root_pos - ref_root_pos[0]) @ rot.T + ref_root_pos[0]
-    pos[:, :2] += sim_root_pos0[:2] - ref_root_pos[0, :2]
-    q_dyaw = np.array([np.cos(dyaw / 2), 0.0, 0.0, np.sin(dyaw / 2)])
-    w1, x1, y1, z1 = q_dyaw
-    w2 = ref_root_quat_wxyz[:, 0]
-    x2 = ref_root_quat_wxyz[:, 1]
-    y2 = ref_root_quat_wxyz[:, 2]
-    z2 = ref_root_quat_wxyz[:, 3]
-    quat = np.stack(
-        [
-            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
-            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
-            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
-            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
-        ],
-        axis=1,
-    )
-    return pos, quat
+    body_pos, _ = kin.forward_kinematics(root_pos, root_quat_wxyz, dof_pos)
+    w, x, y, z = root_quat_wxyz.unbind(-1)
+    yaw = torch.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
+    c, s = torch.cos(-yaw), torch.sin(-yaw)
+    rel = body_pos - torch.cat(
+        [root_pos[:, :2], torch.zeros_like(root_pos[:, :1])], dim=-1
+    ).unsqueeze(1)
+    out = rel.clone()
+    out[..., 0] = c[:, None] * rel[..., 0] - s[:, None] * rel[..., 1]
+    out[..., 1] = s[:, None] * rel[..., 0] + c[:, None] * rel[..., 1]
+    return out
 
 
 def load_recording(path: pathlib.Path) -> dict:
@@ -156,47 +138,45 @@ def main() -> None:
             rec["feet_contact_force"][sl, env][:, foot_col] > CONTACT_FORCE_THRESHOLD_N
         )
 
-        aligned_pos, aligned_quat = _se2_align_reference(
-            ref_root_pos[steps],
-            ref_root_quat_wxyz[steps],
-            root_pos[0].numpy(),
-            root_quat[0].numpy(),
-        )
         reference = (
-            torch.from_numpy(aligned_pos).double(),
-            torch.from_numpy(aligned_quat).double(),
+            torch.from_numpy(ref_root_pos[steps]).double(),
+            torch.from_numpy(ref_root_quat_wxyz[steps]).double(),
             torch.from_numpy(ref_dof[steps]).double(),
         )
-        m = compute_metrics(
-            kin, root_pos, root_quat, dof_pos, fps,
-            foot_body_names=foot_names, reference=reference, contact_mask=contact,
-        )
-        # teacher stance speed on the same frames, same simulator mask (H-A(i) comparison)
+        # fidelity: heading-local MPJPE (what the WBT reward actually controls — the command
+        # re-anchors to current robot xy+yaw every step, so world xy drift is free by design)
+        local_sim = _heading_local_body_pos(kin, root_pos, root_quat, dof_pos)
+        local_ref = _heading_local_body_pos(kin, *reference)
+        mpjpe = float((local_sim - local_ref).norm(dim=-1).mean())
+
+        # physical metrics in the world frame (frame-invariant): stance speed on the simulator
+        # contact mask for sim and teacher alike (H-A(i)), penetration from foot heights
         foot_idx = [kin.body_index(n) for n in foot_names]
+        sim_body, _ = kin.forward_kinematics(root_pos, root_quat, dof_pos)
         teacher_body, _ = kin.forward_kinematics(*reference)
+        cm_sim = contact_motion_metrics(sim_body[:, foot_idx, :], fps, contact)
         cm_teacher = contact_motion_metrics(teacher_body[:, foot_idx, :], fps, contact)
-        cm_sim = contact_motion_metrics(
-            kin.forward_kinematics(root_pos, root_quat, dof_pos)[0][:, foot_idx, :], fps, contact
-        )
+        foot_z = sim_body[:, foot_idx, 2]
+        penetration_fraction = float((foot_z < -0.01).any(dim=-1).float().mean())
         n_contact = int(contact.sum())
         if n_contact:  # stance_speed_ms is None for contact-free segments
             agg["sim"]["speed_num"] += cm_sim["stance_speed_ms"] * n_contact
             agg["teacher"]["speed_num"] += cm_teacher["stance_speed_ms"] * n_contact
             for key in agg:
                 agg[key]["frames"] += n_contact
-        mpjpes.append(m.mpjpe_m)
-        penetrations.append(m.penetration_fraction)
+        mpjpes.append(mpjpe)
+        penetrations.append(penetration_fraction)
 
         row = {
             "env_id": env,
             "frames": int(steps.shape[0]),
             "ref_start": int(steps[0]),
             "ref_end": int(steps[-1]),
-            "mpjpe_m": m.mpjpe_m,
+            "mpjpe_m": mpjpe,
             "stance_speed_sim_ms": cm_sim["stance_speed_ms"],
             "stance_speed_teacher_ms": cm_teacher["stance_speed_ms"],
-            "penetration_fraction": m.penetration_fraction,
-            "mpjpe_gate_pass": bool(m.mpjpe_m <= args.mpjpe_gate_m),
+            "penetration_fraction": penetration_fraction,
+            "mpjpe_gate_pass": bool(mpjpe <= args.mpjpe_gate_m),
         }
         per_env_rows.append(row)
         if row["mpjpe_gate_pass"]:
