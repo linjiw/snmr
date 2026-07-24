@@ -45,6 +45,48 @@ def _xyzw_to_wxyz(quat: np.ndarray) -> np.ndarray:
     return quat[..., [3, 0, 1, 2]]
 
 
+def _yaw_wxyz(quat: np.ndarray) -> float:
+    w, x, y, z = quat
+    return float(np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z)))
+
+
+def _se2_align_reference(
+    ref_root_pos: np.ndarray,
+    ref_root_quat_wxyz: np.ndarray,
+    sim_root_pos0: np.ndarray,
+    sim_root_quat0_wxyz: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Re-anchor the reference into the rollout's frame (WBT tracks a spawn-anchored motion).
+
+    holosoma's MotionCommand re-anchors the reference to the robot's spawn xy + yaw
+    (managers/command/terms/wbt.py:845-877, z kept absolute), so world-frame comparison is
+    meaningless across envs. Mirror it once per segment: rotate the reference about its first
+    frame's root by the yaw difference, then translate xy so the first root positions coincide.
+    Drift *within* the segment stays visible as error.
+    """
+    dyaw = _yaw_wxyz(sim_root_quat0_wxyz) - _yaw_wxyz(ref_root_quat_wxyz[0])
+    c, s = np.cos(dyaw), np.sin(dyaw)
+    rot = np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
+    pos = (ref_root_pos - ref_root_pos[0]) @ rot.T + ref_root_pos[0]
+    pos[:, :2] += sim_root_pos0[:2] - ref_root_pos[0, :2]
+    q_dyaw = np.array([np.cos(dyaw / 2), 0.0, 0.0, np.sin(dyaw / 2)])
+    w1, x1, y1, z1 = q_dyaw
+    w2 = ref_root_quat_wxyz[:, 0]
+    x2 = ref_root_quat_wxyz[:, 1]
+    y2 = ref_root_quat_wxyz[:, 2]
+    z2 = ref_root_quat_wxyz[:, 3]
+    quat = np.stack(
+        [
+            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
+            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+        ],
+        axis=1,
+    )
+    return pos, quat
+
+
 def load_recording(path: pathlib.Path) -> dict:
     with np.load(path, allow_pickle=False) as data:
         rec = {k: np.asarray(data[k]) for k in data.files if k != "_metadata_json"}
@@ -114,9 +156,15 @@ def main() -> None:
             rec["feet_contact_force"][sl, env][:, foot_col] > CONTACT_FORCE_THRESHOLD_N
         )
 
+        aligned_pos, aligned_quat = _se2_align_reference(
+            ref_root_pos[steps],
+            ref_root_quat_wxyz[steps],
+            root_pos[0].numpy(),
+            root_quat[0].numpy(),
+        )
         reference = (
-            torch.from_numpy(ref_root_pos[steps]).double(),
-            torch.from_numpy(ref_root_quat_wxyz[steps]).double(),
+            torch.from_numpy(aligned_pos).double(),
+            torch.from_numpy(aligned_quat).double(),
             torch.from_numpy(ref_dof[steps]).double(),
         )
         m = compute_metrics(

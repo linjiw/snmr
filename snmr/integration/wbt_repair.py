@@ -93,6 +93,23 @@ class RepairRecordingCallback(RLEvalCallback):
         ):
             self._buffers[name] = []
 
+    def _foot_contact_force(self, sim) -> "torch.Tensor":
+        """True per-foot contact-force norm, (num_envs, F).
+
+        On the Warp backend ``cfrc_ext`` is only populated when a sensor requires
+        ``rne_postconstraint`` (mujoco_warp sensor.py gates it), and holosoma's
+        ``create_force_view`` slices ``[..., :3]`` — the *torque* half of MuJoCo's
+        (torque, force) spatial vector. Run the kernel explicitly and read the force half.
+        Falls back to ``sim.contact_forces`` on other backends.
+        """
+        backend = getattr(sim, "backend", None)
+        if backend is not None and hasattr(backend, "mjw_model"):
+            import mujoco_warp as mjw
+
+            mjw.rne_postconstraint(backend.mjw_model, backend.mjw_data)
+            return backend.cfrc_t[:, self._foot_indices, 3:6].norm(dim=-1)
+        return sim.contact_forces[:, self._foot_indices, :].norm(dim=-1)
+
     def on_post_eval_env_step(self, actor_state: dict) -> dict:
         env = self._get_env()
         sim = env.simulator

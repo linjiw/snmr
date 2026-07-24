@@ -112,13 +112,41 @@ def test_export_static_pose_passes_gates(kin, tmp_path):
     assert abs(seg["env0_root_quat_wxyz"][0, 0] - 1.0) < 1e-6
 
 
+def test_export_absorbs_spawn_offset_and_yaw(kin, tmp_path):
+    """A constant spawn xy offset + yaw (holosoma's re-anchoring) must NOT count as error."""
+    frames, envs = 60, 1
+    rec_path = _make_recording(kin, tmp_path, frames, envs)
+    with np.load(rec_path, allow_pickle=False) as data:
+        rec = {k: np.asarray(data[k]) for k in data.files}
+    rec["root_pos"][:, 0, :2] += np.array([3.0, -2.0], dtype=np.float32)
+    yaw = 0.7
+    # xyzw for yaw rotation about z
+    rec["root_quat_xyzw"][:, 0] = np.array(
+        [0.0, 0.0, np.sin(yaw / 2), np.cos(yaw / 2)], dtype=np.float32
+    )
+    np.savez_compressed(rec_path, **rec)
+
+    ref_path = tmp_path / "reference.npz"
+    np.savez_compressed(ref_path, **_make_reference(kin, frames))
+    out = tmp_path / "out"
+    subprocess.run(
+        [sys.executable, str(SCRIPT), "--recording", str(rec_path),
+         "--reference", str(ref_path), "--out", str(out)],
+        check=True, capture_output=True, text=True,
+    )
+    metrics = json.loads((out / "stage_a_metrics.json").read_text())
+    assert metrics["num_accepted"] == 1
+    assert metrics["mpjpe_mean_m"] < 0.02
+
+
 def test_export_rejects_high_error_env(kin, tmp_path):
     frames, envs = 80, 2
     rec_path = _make_recording(kin, tmp_path, frames, envs)
-    # corrupt env 1: root shifted 30 cm -> MPJPE >> 5 cm gate
+    # corrupt env 1 with a growing drift (a constant offset would be absorbed by the
+    # per-segment SE(2) spawn re-anchoring): 0 -> 40 cm over the clip, ~20 cm mean MPJPE
     with np.load(rec_path, allow_pickle=False) as data:
         rec = {k: np.asarray(data[k]) for k in data.files}
-    rec["root_pos"][:, 1, 0] += 0.30
+    rec["root_pos"][:, 1, 0] += np.linspace(0.0, 0.40, frames, dtype=np.float32)
     np.savez_compressed(rec_path, **rec)
 
     ref_path = tmp_path / "reference.npz"
