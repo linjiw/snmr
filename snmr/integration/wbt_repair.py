@@ -65,10 +65,19 @@ class RepairRecordingCallback(RLEvalCallback):
         sim = env.simulator
         keyword = os.environ.get("SNMR_E50_FOOT_KEYWORD", FOOT_BODY_KEYWORD)
         body_names = list(getattr(sim, "body_names", []))
-        self._foot_indices = [i for i, n in enumerate(body_names) if keyword in n]
-        if not self._foot_indices:
+        # contact registers on the collision sub-bodies (ankle_roll_sphere_*), so group ALL
+        # bodies containing the keyword stem by side and sum per side; report canonical names
+        stem = keyword.replace("_link", "")
+        self._foot_groups = []
+        foot_canonical = []
+        for side in ("left", "right"):
+            group = [i for i, n in enumerate(body_names) if stem in n and n.startswith(side)]
+            if group:
+                self._foot_groups.append(group)
+                foot_canonical.append(f"{side}_{keyword}")
+        if not self._foot_groups:
             raise RuntimeError(
-                f"RepairRecordingCallback: no body matching {keyword!r} in {body_names}"
+                f"RepairRecordingCallback: no body matching {stem!r} in {body_names}"
             )
         motion_command = env.command_manager.get_state("motion_command")
         self._metadata = {
@@ -76,7 +85,8 @@ class RepairRecordingCallback(RLEvalCallback):
             "num_envs": int(env.num_envs),
             "dof_names": list(getattr(sim, "dof_names", [])),
             "body_names": body_names,
-            "foot_body_names": [body_names[i] for i in self._foot_indices],
+            "foot_body_names": foot_canonical,
+            "foot_body_groups": [[body_names[i] for i in g] for g in self._foot_groups],
             "motion_file": str(motion_command.motion_cfg.motion_file),
             "motion_steps": int(motion_command.motion.time_step_total),
         }
@@ -94,12 +104,13 @@ class RepairRecordingCallback(RLEvalCallback):
             self._buffers[name] = []
 
     def _foot_contact_force(self, sim) -> "torch.Tensor":
-        """True per-foot contact-force norm, (num_envs, F).
+        """True per-foot-side contact-force norm, (num_envs, n_sides).
 
         On the Warp backend ``cfrc_ext`` is only populated when a sensor requires
         ``rne_postconstraint`` (mujoco_warp sensor.py gates it), and holosoma's
-        ``create_force_view`` slices ``[..., :3]`` — the *torque* half of MuJoCo's
-        (torque, force) spatial vector. Run the kernel explicitly and read the force half.
+        ``create_force_view`` slices ``[..., :3]`` — the *torque* half of the
+        (torque, force) spatial vector. Run the kernel explicitly, take the force half,
+        and sum vectors over each side's collision sub-bodies before taking the norm.
         Falls back to ``sim.contact_forces`` on other backends.
         """
         backend = getattr(sim, "backend", None)
@@ -107,8 +118,12 @@ class RepairRecordingCallback(RLEvalCallback):
             import mujoco_warp as mjw
 
             mjw.rne_postconstraint(backend.mjw_model, backend.mjw_data)
-            return backend.cfrc_t[:, self._foot_indices, 3:6].norm(dim=-1)
-        return sim.contact_forces[:, self._foot_indices, :].norm(dim=-1)
+            per_body = backend.cfrc_t[..., 3:6]
+        else:
+            per_body = sim.contact_forces
+        return torch.stack(
+            [per_body[:, g, :].sum(dim=1).norm(dim=-1) for g in self._foot_groups], dim=-1
+        )
 
     def on_post_eval_env_step(self, actor_state: dict) -> dict:
         env = self._get_env()
@@ -127,8 +142,7 @@ class RepairRecordingCallback(RLEvalCallback):
         if dones is None:
             raise RuntimeError("RepairRecordingCallback requires dones in actor_state")
         self._buffers["dones"].append(self._np(torch.as_tensor(dones).bool()))
-        force = sim.contact_forces[:, self._foot_indices, :]
-        self._buffers["feet_contact_force"].append(self._np(force.norm(dim=-1)))
+        self._buffers["feet_contact_force"].append(self._np(self._foot_contact_force(sim)))
         self._step_count += 1
         return actor_state
 
