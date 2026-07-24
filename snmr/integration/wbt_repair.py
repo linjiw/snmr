@@ -61,23 +61,33 @@ class RepairRecordingCallback(RLEvalCallback):
         return tensor.detach().cpu().numpy().copy()
 
     def on_pre_evaluate_policy(self) -> None:
+        import mujoco
+
         env = self._get_env()
         sim = env.simulator
         keyword = os.environ.get("SNMR_E50_FOOT_KEYWORD", FOOT_BODY_KEYWORD)
         body_names = list(getattr(sim, "body_names", []))
-        # contact registers on the collision sub-bodies (ankle_roll_sphere_*), so group ALL
+        # cfrc_ext / contact accumulators are indexed by RAW MuJoCo body id (world included),
+        # NOT by sim.body_names (which drops world, mujoco.py:439) — resolve against the model.
+        model = sim.root_model
+        model_body_names = [
+            mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_BODY, i) or "" for i in range(model.nbody)
+        ]
+        # contact may register on collision sub-bodies (e.g. ankle_roll_sphere_*): group ALL
         # bodies containing the keyword stem by side and sum per side; report canonical names
         stem = keyword.replace("_link", "")
         self._foot_groups = []
         foot_canonical = []
         for side in ("left", "right"):
-            group = [i for i, n in enumerate(body_names) if stem in n and n.startswith(side)]
+            group = [
+                i for i, n in enumerate(model_body_names) if stem in n and n.startswith(side)
+            ]
             if group:
                 self._foot_groups.append(group)
                 foot_canonical.append(f"{side}_{keyword}")
         if not self._foot_groups:
             raise RuntimeError(
-                f"RepairRecordingCallback: no body matching {stem!r} in {body_names}"
+                f"RepairRecordingCallback: no body matching {stem!r} in {model_body_names}"
             )
         motion_command = env.command_manager.get_state("motion_command")
         self._metadata = {
@@ -86,7 +96,7 @@ class RepairRecordingCallback(RLEvalCallback):
             "dof_names": list(getattr(sim, "dof_names", [])),
             "body_names": body_names,
             "foot_body_names": foot_canonical,
-            "foot_body_groups": [[body_names[i] for i in g] for g in self._foot_groups],
+            "foot_body_groups": [[model_body_names[i] for i in g] for g in self._foot_groups],
             "motion_file": str(motion_command.motion_cfg.motion_file),
             "motion_steps": int(motion_command.motion.time_step_total),
         }
