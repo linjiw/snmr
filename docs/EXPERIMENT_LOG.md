@@ -980,3 +980,33 @@ rollouts (CI half-width 6pp)." Options if a formal PASS is wanted: (a) widen mar
 justification (seed-level SD alone is ~3pp), (b) add training seeds (dominant variance term
 is between-policy, so more rollouts alone will NOT shrink the CI), (c) report as-is with the
 CI — recommended: (c) for the paper, (b) only if a reviewer demands the binary.
+
+### E49 - Act-through-latent config-only readout - **INFORMATIVE NULL: RAW WINDOW+MLP 0.74 vs L1 0.72 (+2pp, within ±5pp); CONFIG-ONLY LINE CLOSED, STAGE-3 STRENGTHENED**
+`runs/e49_act_through_latent/` (protocol `docs/E49_ACT_THROUGH_LATENT_PROTOCOL.md`; frozen
+driver, holosoma 9fb2b57; ran 2026-07-23 21:43 -> 07-24 06:07, 8k iters @1024 envs + 100
+phase-stratified 10-s rollouts, eval seed 404).
+
+**Stage-0 (construction smoke): `e49_window_enc` DROPPED per preregistered stop rule.** The
+failure is in the pinned clone, not tyro: (a) `PPOActorEncoder.__init__` (ppo_modules.py:130)
+omits the `history_length` arg its parent requires -> TypeError at setup; (b)
+`module_input_name=()` would crash `torch.cat([])`, and adding a NEW latent obs group is a new
+dict key tyro CLI overrides cannot express. Encoder/bottleneck question deferred to Stage-3
+custom-PPO route as registered. Driver fixes (commit 5406834): `export PYTHONPATH=$MAIN`;
+removed invalid `module-input-name '[]'` flags.
+
+**Primary readout (`e49_window_mlp`, raw [z_t, z+0.1s, z+0.2s, z+0.5s] -> plain MLP actor):**
+
+| arm | completion | survival_s | joint RMSE (rad) |
+|---|---|---|---|
+| explicit command (baseline, prior) | 0.88 | — | — |
+| l1_frozen tangent+MLP (prior) | 0.72 | — | — |
+| **e49_window_mlp** | **0.74** | 7.90 | 0.268 |
+
+Verdict per preregistered rules: best_e49 = 0.74 < l1_frozen+5pp (0.77) and < 0.80 floor; and
+within ±5pp of L1 -> **NULL / STOP config-only line**. Neither a raw window nor (per Stage-0's
+drop) a learnable readout of the *offline* SNMR latent closes the gap to the explicit command:
+the binding limit is the offline/non-causal latent itself, not the readout capacity. As
+registered, this is an *informative* null that STRENGTHENS Stage-3 (residual-to-prior CVAE
+command latent co-trained under the control loss via custom-PPO; the only remaining mechanism
+by which retargeting knowledge can enter the command path). No hyperparameter fishing: one
+architecture, one seed, closed.

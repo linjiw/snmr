@@ -1,0 +1,18 @@
+=== e49_smoke_enc (stage=smoke_enc, envs=64, iters=20) start 2026-07-23T21:27:57Z ===
+=== e49_smoke_enc (stage=smoke_enc, envs=64, iters=20) start 2026-07-23T21:30:42Z ===
+=== e49_smoke_enc (stage=smoke_enc, envs=64, iters=20) start 2026-07-23T21:31:40Z ===
+=== STAGE-0 VERDICT 2026-07-23: e49_window_enc DROPPED per preregistered stop rule ===
+Construction smoke failed inside the pinned holosoma clone, not in tyro/config:
+ 1. PPOActorEncoder.__init__ (ppo_modules.py:130) calls PPOActor.__init__ without the
+    required history_length arg (signature drift in the pinned rev) -> TypeError on setup.
+ 2. Even patched, layer_config.module_input_name=() would crash at torch.cat([]) in
+    _get_input; a non-empty value must name obs groups, and adding a NEW latent obs group
+    (protocol section 3 design) is a new dict key, which tyro CLI overrides cannot add.
+Wiring cannot be expressed config-only against the pinned clone -> drop window_enc, defer
+encoder/bottleneck question to Stage-3 custom-PPO route. window_mlp proceeds (L1 mechanism;
+smoke run proved snmr_latent_window resolves and env constructs once PYTHONPATH exported).
+Driver fixes applied: export PYTHONPATH=$MAIN; removed invalid module-input-name '[]' flags.
+=== e49_window_mlp_walk1_seed0_to8000 (stage=window_mlp, envs=1024, iters=8000) start 2026-07-23T21:43:42Z ===
+=== e49_window_mlp_walk1_seed0_to8000 train exit 0 2026-07-24T06:06:32Z ===
+=== e49_window_mlp_walk1_seed0_to8000_eval404 start 2026-07-24T06:06:32Z ===
+=== e49_window_mlp_walk1_seed0_to8000_eval404 complete 2026-07-24T06:07:09Z ===

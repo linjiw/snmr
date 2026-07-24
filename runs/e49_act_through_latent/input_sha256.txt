@@ -1,0 +1,2 @@
+89f70f7860de614d8a9ee03ac18a3d531c778b5fa8555d81c47714048346062d  /home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260723_214348-e49_window_mlp_walk1_seed0_to8000-locomotion/model_07999.pt
+1193f45a0057c9015cc4d6cfc27eb1d93c03d0061c4a1a6cf044e890ac621706  /home/ec2-user/work/retarget/snmr/runs/e49_act_through_latent/reports/e49_window_mlp_walk1_seed0_to8000_eval404.json
