@@ -78,9 +78,11 @@ class RepairRecordingCallback(RLEvalCallback):
         stem = keyword.replace("_link", "")
         self._foot_groups = []
         foot_canonical = []
+        # runtime scene composition may prefix names (e.g. robot_left_ankle_roll_link):
+        # match side as a substring, not a prefix
         for side in ("left", "right"):
             group = [
-                i for i, n in enumerate(model_body_names) if stem in n and n.startswith(side)
+                i for i, n in enumerate(model_body_names) if stem in n and side in n
             ]
             if group:
                 self._foot_groups.append(group)
