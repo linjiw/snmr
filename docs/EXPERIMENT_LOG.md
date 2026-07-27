@@ -1146,3 +1146,25 @@ quantified at a calibrated tracker (~6–7 cm heading-local), **arm A (0.98 comp
 better contact) is the standard recipe and the E52 DAgger teacher** — for a command-
 interface teacher, completion and contact quality dominate a sub-cm MPJPE edge.
 Remaining fidelity levers (history 1→10, future lookahead, 4096 envs) deferred behind E52.
+
+### E52 v1 - Act-through-latent DAgger CVAE, first run - **PRIOR-PATH COLLAPSE (0.001 completion) BUT POSTERIOR-PATH DIAGNOSTIC = 0.84 / 0.138 rad: THE RECIPE WORKS, THE DEPLOYMENT PATH WAS OUT-OF-DISTRIBUTION; v2 FIX LAUNCHED**
+`runs/e52_act_through_latent_v1/` (arm A' trained 2000 rounds @1024 envs, ~35 min; arm B
+killed mid-train, same defect; SUPERSEDED.txt has the full note).
+
+Arm A' converged cleanly in training (l_action 46 -> 0.75, KL ~2.0) but the preregistered
+prior-path eval (z = mu_prior) collapsed: 0.001 completion, 1.65 s survival. **Diagnostic
+that saves the experiment:** re-evaluating the SAME student with posterior z (privileged
+residual added) gives **0.84 completion / 8.91 s / 0.138 rad** — within 3pp of the L1->
+explicit band on its first try. So the CVAE learns a working command latent; the failure is
+purely a prior/posterior PATH MISMATCH: v1 collected DAgger rollouts along the posterior
+path, so states visited under prior-driven control were never labeled, and the KL alone
+(beta 0.1, residual norm ~2.0 = ~6 sigma) did not pull the prior onto the working manifold.
+This is the exact failure ControlVAE pre-empts by sampling ~40% of collection latents from
+the PRIOR (§7 of the design doc's source pass); UniTracker's single-frame-posterior design
+sidesteps it structurally.
+
+v2 fixes (train_e52_dagger.py, committed): (1) DAgger collection acts along the PRIOR path
+(z = mu_p + sigma*eps_episodic) so the teacher labels prior-visited states; (2) 50% of
+action-loss samples decode prior z instead of posterior z (ControlVAE precedent), forcing
+the prior to carry the command. Both arms relaunched (same budget, same gates: promote iff
+>=0.85 completion; A'-B isolates the SNMR-prior transfer claim).
