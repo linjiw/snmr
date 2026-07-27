@@ -94,6 +94,7 @@ def main() -> None:
     rounds = int(os.environ.get("E52_ROUNDS", "2000"))
     beta_kl = float(os.environ.get("E52_BETA_KL", "0.1"))
     alpha_smooth = float(os.environ.get("E52_ALPHA_SMOOTH", "0.005"))
+    eval_only = os.environ.get("E52_EVAL_ONLY", "") == "1"
     steps_per_round, epochs, minibatch = 24, 5, 4096
     out.mkdir(parents=True, exist_ok=True)
 
@@ -142,6 +143,11 @@ def main() -> None:
     student = Student(proprio_dim, critic_dim, num_act, arm == "a_prior_snmr").to(device)
     opt = torch.optim.Adam(student.parameters(), lr=3e-4)
 
+    if eval_only:
+        saved = torch.load(out / f"{arm}_student.pt", map_location=device)
+        student.load_state_dict(saved["student"])
+        rounds = 0
+
     def split_obs(obs_dict):
         full = actor_norm(obs_dict["actor_obs"], update=False)
         priv = critic_norm(obs_dict["critic_obs"], update=False)
@@ -164,7 +170,11 @@ def main() -> None:
                 a_teacher = teacher.act_inference({"actor_obs": full})
                 mu_p = student.mu_prior(proprio, zwin)
                 mu_q = mu_p + student.mu_residual(proprio, zwin, priv)
-                a_student = student.act(proprio, mu_q + SIGMA * eps)
+                # v2: collect along the DEPLOYMENT path (prior z + episodic noise) so the
+                # teacher labels the states a prior-driven student actually visits. v1
+                # collected with posterior z; the prior path was out-of-distribution and
+                # collapsed at eval (0.1% completion) while the posterior path hit 0.84.
+                a_student = student.act(proprio, mu_p + SIGMA * eps)
                 mix = (torch.rand(n_envs, 1, device=device) < p_teacher).float()
                 actions = mix * a_teacher + (1 - mix) * a_student
                 for k, v in (("proprio", proprio), ("zwin", zwin), ("priv", priv),
@@ -190,7 +200,12 @@ def main() -> None:
                 mu_p = student.mu_prior(proprio, zwin)
                 mu_res = student.mu_residual(proprio, zwin, priv)
                 mu_q = mu_p + mu_res
-                z = mu_q + SIGMA * torch.randn_like(mu_q)
+                # v2: half the samples use PRIOR z in the action loss (ControlVAE trains on
+                # ~40% prior-sampled latents) — forces the prior itself to carry the command
+                # so the deployment path (z = mu_p) is in-distribution for the decoder.
+                use_prior = (torch.rand(mu_q.shape[0], 1, device=device) < 0.5).float()
+                mu_z = use_prior * mu_p + (1 - use_prior) * mu_q
+                z = mu_z + SIGMA * torch.randn_like(mu_z)
                 a = student.act(proprio, z)
                 l_act = (a - data["a_teacher"][idx]).square().sum(-1).mean()
                 l_kl = mu_res.square().sum(-1).mean() / (2 * SIGMA**2)
@@ -215,7 +230,8 @@ def main() -> None:
                            "z_cmd_dim": Z_CMD_DIM, "offsets": Z_OFFSETS, "rounds": rounds}},
                out / f"{arm}_student.pt")
 
-    # --- deployment-path eval: z = mu_prior, phase-stratified, wbt_metrics convention ---
+    # --- deployment-path eval: z = mu_prior (or posterior, diagnostic), phase-stratified ---
+    eval_z = os.environ.get("E52_EVAL_Z", "prior")  # prior | posterior
     student.eval()
     env.set_is_evaluating()
     motion_steps = int(motion_command.motion.time_step_total)
@@ -228,8 +244,12 @@ def main() -> None:
     rmse_sum = torch.zeros(n_envs, device=device)
     with torch.no_grad():
         for step in range(HORIZON_STEPS):
-            _, proprio, _ = split_obs(obs_dict)
-            actions = student.act(proprio, student.mu_prior(proprio, z_window()))
+            _, proprio, priv = split_obs(obs_dict)
+            zwin = z_window()
+            z_cmd = student.mu_prior(proprio, zwin)
+            if eval_z == "posterior":
+                z_cmd = z_cmd + student.mu_residual(proprio, zwin, priv)
+            actions = student.act(proprio, z_cmd)
             obs_dict, _, dones, _ = env.step({"actions": actions})
             rmse = env.log_dict["eval/error_joint_pos_rmse"]
             rmse_sum[active] += torch.as_tensor(rmse, device=device)[active]
@@ -240,6 +260,7 @@ def main() -> None:
                 completed = active.clone()
     report = {
         "arm": arm,
+        "eval_z": eval_z,
         "num_rollouts": n_envs,
         "completion_rate": float(completed.float().mean()),
         "mean_survival_s": float(survival.mean() * env.dt),
@@ -247,7 +268,8 @@ def main() -> None:
         "teacher_ckpt": str(teacher_ckpt),
         "rounds": rounds, "beta_kl": beta_kl,
     }
-    (out / f"{arm}_eval.json").write_text(json.dumps(report, indent=2) + "\n")
+    suffix = "" if eval_z == "prior" else f"_{eval_z}"
+    (out / f"{arm}_eval{suffix}.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report), flush=True)
     close_simulation_app(sim_app)
 

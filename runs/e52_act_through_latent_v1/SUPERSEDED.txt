@@ -1,0 +1,8 @@
+v1 superseded 2026-07-27: DAgger collected rollouts along the POSTERIOR path (privileged z)
+while eval deploys the PRIOR path -> prior-driven visitation was out-of-distribution and
+prior eval collapsed (0.1% completion, survival 1.6s). DIAGNOSTIC (kept, decisive): the same
+v1 arm-A' student evaluated WITH posterior z reaches 0.84 completion / 0.138 rad RMSE
+(a_prior_snmr_eval_posterior.json) — the CVAE recipe works; the failure is purely
+prior/posterior path mismatch. v2 fixes: (1) collect along prior path (z = mu_p + sigma*eps,
+episodic), (2) 50% of action-loss samples use prior z (ControlVAE ~40% precedent). Arm B v1
+killed mid-train (same defect). Superseded by runs/e52_act_through_latent (v2).
