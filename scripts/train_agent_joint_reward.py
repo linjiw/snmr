@@ -17,9 +17,13 @@ import os
 
 import tyro
 
-from holosoma.config_types.reward import RewardTermCfg
-from holosoma.train_agent import AnnotatedExperimentConfig, train
-from holosoma.utils.tyro_utils import TYRO_CONIFG
+from snmr.integration import wbt_bodyfix
+
+wbt_bodyfix.patch()
+
+from holosoma.config_types.reward import RewardTermCfg  # noqa: E402
+from holosoma.train_agent import AnnotatedExperimentConfig, train  # noqa: E402
+from holosoma.utils.tyro_utils import TYRO_CONIFG  # noqa: E402
 
 
 def main() -> None:

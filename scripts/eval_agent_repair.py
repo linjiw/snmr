@@ -7,8 +7,9 @@ resolves the recording callback ``_target_`` via getattr, so the stock
 holosoma's eval main. Run inside .venv-wbt with PYTHONPATH including the snmr repo root.
 """
 
-from snmr.integration import wbt_repair
+from snmr.integration import wbt_bodyfix, wbt_repair
 
+wbt_bodyfix.patch()
 wbt_repair.patch()
 
 from holosoma import eval_agent  # noqa: E402

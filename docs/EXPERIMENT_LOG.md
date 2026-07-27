@@ -1053,3 +1053,50 @@ the registered next lever is a longer-horizon tracking policy (16k+ iters, or ev
 termination tightening) re-scored by this same pipeline; if the price does not shrink with
 policy quality, physics-repair via rollout laundering caps out at the tracker's fidelity
 and the honest conclusion feeds the C5/C6 story as a bounded negative.
+
+### DEFECT-1 - World-body off-by-one kills the primary WBT tracking reward on MuJoCo-Warp - **CONFIRMED + FIXED (monkeypatch); ALL MJWARP WBT RUNS TRAINED WITHOUT A BODY-POSITION GRADIENT**
+Found by the external-calibration literature pass (2026-07-27), verified in source + TB logs.
+
+**Mechanism (pinned holosoma 9fb2b57):** `simulator/mujoco/mujoco.py:436-446` sets
+`num_bodies = model.nbody` (33, world INCLUDED) but `_body_list = body_names` excludes world
+(32). `_rigid_body_pos/rot/vel/ang_vel` are filled zero-copy from raw `mjw_data.xpos` (index
+0 = world). `MotionCommand.setup` (wbt.py:582-585) resolves `tracked_body_indexes` /
+`ref_body_index` against the 32-list and applies them to the 33-wide sim tensors
+(wbt.py:966-1015) -> every sim-side body read shifted one body rootward; tracked slot 0
+(pelvis) reads the WORLD body (always at origin). Reference side is name-mapped correctly,
+so reward/termination compared ref[i] vs sim[i-1].
+
+**Evidence (confirmatory GMR seed0 TB):** `RawEpisode/raw_rew_motion_relative_body_position_
+error_exp` min 0.0 / final 0.0 over 8k iters (exp(-~640m²/0.09) underflows to exact 0.0);
+`Env/motion/error_body_pos` FLAT at 6.75-6.82 m (unlearnable); orientation term alive (1.46;
+quat error bounded by pi, cannot underflow). Isaac backends build both lists robot-only ->
+unaffected; this is why upstream (WBT officially IsaacSim-only) never saw it.
+
+**Consequences for our results:**
+- ALL local MJWARP WBT policies (B1 dev, 6-policy confirmatory matrix, E49 arms, E50-A
+  rollout sources, E51-A v1) trained as body-ORIENTATION+velocity trackers with no
+  body-position term and a corrupted pelvis-position termination signal.
+- The GMR-vs-SNMR **comparison** stands (both sources trained under the identical defect;
+  point-equal completion unaffected as a paired readout), but ABSOLUTE fidelity numbers
+  (0.24 rad joint RMSE, 9.7 cm heading-local MPJPE) are "BeyondMimic minus its main reward"
+  and must not be cited as our stack's capability. E50-A's fidelity-gate FAIL is provisional.
+- E51-A v1 killed mid-flight (was measuring "does a joint term compensate for a dead body
+  term"); archived `runs/e51_joint_reward_invalid_v1/`.
+- External calibration (mjlab 187-run nightly, same backend, byte-identical reward config,
+  harder single clip): 97.9% completion / 3.0 cm re-anchored MPKPE at 4096x6000 — our
+  post-fix target band. YAHMP (MuJoCo-Warp) exonerates the backend itself.
+
+**Fix:** `snmr/integration/wbt_bodyfix.py` — wraps `MotionCommand.setup`, computes
+`offset = sim_tensor_width - len(_body_list)` (1 on MuJoCo, 0 on Isaac*), overrides the 8
+sim-side properties (`robot_body_*_w`, `robot_ref_*_w`) with offset-corrected indices.
+Reward/termination/critic-obs all read through these properties. Smoke-verified:
+`error_body_pos` 6.78 m -> 0.12-0.14 m from iteration 0. Wired into
+`train_agent_joint_reward.py` + `eval_agent_repair.py`. Pinned clone untouched.
+(`robot_root_*` uses root_states -> correct; locomotion feet_indices + UndesiredContacts
+contact_forces are ALSO world-indexed on mjwarp — documented, not fixed here: inert-penalty /
+not-our-task; wbt_repair.py already resolves raw ids itself.)
+
+**E51 v2 launched** (`runs/e51_bodyfix/`, `scripts/run_e51_bodyfix.sh`): arm R = bodyfix-only
+re-baseline (the confound-free control every prior number needs), arm A = bodyfix +
+joint_pos reward w1.0 σ0.5; both GMR walk1 seed0 8k + 100-rollout eval + repair-recording +
+heading-local export. E51 v1 gates re-read against arm R, not the corrupt baseline.
