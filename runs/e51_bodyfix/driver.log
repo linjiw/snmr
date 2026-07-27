@@ -1,0 +1,7 @@
+=== e51v2_bodyfix_baseline_seed0 (joint_w=0.0) train start 2026-07-27T06:16:20Z ===
+=== e51v2_bodyfix_baseline_seed0 eval start 2026-07-27T12:35:33Z ===
+=== e51v2_bodyfix_baseline_seed0 done 2026-07-27T12:36:35Z ===
+=== e51v2_bodyfix_jointrew_seed0 (joint_w=1.0) train start 2026-07-27T12:36:35Z ===
+=== e51v2_bodyfix_jointrew_seed0 eval start 2026-07-27T16:27:17Z ===
+=== e51v2_bodyfix_jointrew_seed0 done 2026-07-27T16:27:43Z ===
+E51v2 complete

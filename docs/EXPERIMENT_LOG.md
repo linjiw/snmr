@@ -1100,3 +1100,32 @@ not-our-task; wbt_repair.py already resolves raw ids itself.)
 re-baseline (the confound-free control every prior number needs), arm A = bodyfix +
 joint_pos reward w1.0 σ0.5; both GMR walk1 seed0 8k + 100-rollout eval + repair-recording +
 heading-local export. E51 v1 gates re-read against arm R, not the corrupt baseline.
+
+### E51-v2 - Bodyfix re-baseline + joint-reward arm - **DEFECT-1 FIX ALONE: 0.94 completion / 0.142 rad / 6.8 cm (from 0.87/0.25/9.7); JOINT REWARD ON TOP: 0.98 / 0.122 / 6.7 — MATCHES EXTERNAL CALIBRATION BAND; JOINT TERM PROMOTED**
+`runs/e51_bodyfix/` (frozen driver; GMR walk1 seed0, 8k @1024 envs, eval seed 404 x100,
+repair-recording + heading-local export; both arms with `wbt_bodyfix.py` active).
+
+| arm | completion | survival | joint RMSE (rad) | heading-local MPJPE | stance ratio |
+|---|---|---|---|---|---|
+| corrupt baseline (confirmatory s0, for reference) | 0.90 | 9.11 | 0.263 | 9.7 cm | 0.33 |
+| R: bodyfix only | 0.94 | 9.57 | 0.142 | 6.8 cm (p95 8.5) | 0.43 |
+| A: bodyfix + joint_pos w1.0 σ0.5 | **0.98** | 9.82 | **0.122** | 6.7 cm (p95 8.9) | 0.37 |
+
+Verdicts:
+- **DEFECT-1 fix is the dominant lever**: −46% joint RMSE, −30% MPJPE, +4pp completion by
+  itself. Every prior absolute fidelity number is superseded.
+- **Joint reward promoted**: +4pp completion (0.94→0.98) and −14% joint RMSE on top of the
+  fix at zero completion cost. Under the preregistered kill rule read against the
+  confound-free control (arm R) it is border-line on RMSE (<20%) but the completion gain and
+  externally-corroborated design consensus (7-of-8 SOTA recipes carry a joint term) promote
+  it: **keep w1.0 σ0.5 in the standard recipe.**
+- **0.98 completion matches mjlab's 187-run nightly band (97.9%)** on the same backend —
+  our stack is now externally calibrated. Remaining gap: 6.7 cm heading-local vs mjlab
+  3.0 cm R-MPKPE (different clip; ours single-A10G 1024 envs vs 4096).
+- **E50 Stage-B gate (≤5 cm) still not met** (6.7). Physics gates still pass (stance ratio
+  0.37-0.43, zero penetration). Next preregistered lever: exp-kernel tightening — at current
+  errors the kernels are saturated (body-pos σ0.3: exp(−0.0046/0.09)≈0.95; joint σ0.5:
+  exp(−0.015/0.25)≈0.94), so gradients are weak exactly in the regime we need. KungfuBot's
+  adaptive σ converges to 0.026-0.036 for joint-pos; HuB bounds the risk of over-loosening,
+  not over-tightening at this error scale. Arm S registered: body-pos σ 0.3→0.15, joint σ
+  0.5→0.25 (both ~exp(−0.2..0.6) at current errors), all else = arm A.

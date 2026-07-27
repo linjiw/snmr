@@ -1,0 +1,4 @@
+3205c9d293774f869e60a8f9b1a0f17bd10942e9e248a845062016f0aa22338d  /home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260727_061626-e51v2_bodyfix_baseline_seed0-locomotion/model_07999.pt
+0cf1d93768c97d795498e92439e74eef51ab18e7183a0cc787c6cee4c14a56a4  /home/ec2-user/work/retarget/snmr/runs/e51_bodyfix/reports/e51v2_bodyfix_baseline_seed0_eval404.json
+de8688cdeeda777f142f285046ea76d072534d7967367f1e759b89ee62002280  /home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260727_123641-e51v2_bodyfix_jointrew_seed0-locomotion/model_07999.pt
+5b59f6d3baca02a8caf8f11a83f44a821f3aa899f44ddda87785d2095b8d31f7  /home/ec2-user/work/retarget/snmr/runs/e51_bodyfix/reports/e51v2_bodyfix_jointrew_seed0_eval404.json

@@ -1,0 +1,21 @@
+{
+  "recording": "/home/ec2-user/work/retarget/snmr/runs/e51_bodyfix/e51v2_bodyfix_jointrew_seed0_recording.npz",
+  "reference": "/home/ec2-user/work/retarget/snmr/runs/wbt_validation/gmr/walk1_subject5_mj.npz",
+  "num_envs": 100,
+  "num_completed": 98,
+  "num_accepted": 1,
+  "contact_frames": 58847,
+  "stance_speed_sim_ms": 0.138273821861007,
+  "stance_speed_teacher_ms": 0.37214185302898767,
+  "stance_speed_ratio": 0.37156213614660616,
+  "mpjpe_mean_m": 0.06662499268876536,
+  "mpjpe_p95_m": 0.0888783458875303,
+  "penetration_fraction_mean": 0.0,
+  "reference_frame_coverage": 0.03635389560691872,
+  "gates": {
+    "H-A(i)_speed_ratio_le_0.5": true,
+    "H-A(ii)_penetration_approx_0": true,
+    "H-A(iii)_mpjpe_le_gate": false,
+    "coverage_ge_0.8_report_only": false
+  }
+}
