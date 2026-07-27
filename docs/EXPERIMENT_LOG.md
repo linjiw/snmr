@@ -1129,3 +1129,20 @@ Verdicts:
   adaptive σ converges to 0.026-0.036 for joint-pos; HuB bounds the risk of over-loosening,
   not over-tightening at this error scale. Arm S registered: body-pos σ 0.3→0.15, joint σ
   0.5→0.25 (both ~exp(−0.2..0.6) at current errors), all else = arm A.
+
+### E51-v2 arm S - Reward-kernel tightening - **MARGINAL: 6.16 cm (from 6.7), joint RMSE 0.111 (best yet), completion 0.96; ≤5cm GATE STILL NOT MET -> E50 Stage B proceeds on CAUTION-FLAG PATH; ARM A REMAINS STANDARD RECIPE**
+`runs/e51_bodyfix/` arm S (body-pos σ 0.3→0.15, rel-ori 0.4→0.2, joint σ0.25, else = arm A).
+
+| arm | completion | joint RMSE | heading-local MPJPE | stance ratio |
+|---|---|---|---|---|
+| A (σ default) | 0.98 | 0.122 | 6.7 cm | 0.37 |
+| S (σ tight) | 0.96 | **0.111** | **6.16 cm** (p95 7.68) | 0.50 |
+
+Verdict: tightening buys −8% MPJPE and −9% RMSE at −2pp completion and a worse stance ratio
+(0.50 vs 0.37 — tighter pose kernels trade against contact quality). The ≤5 cm Stage-B
+unlock is NOT met; the remaining ~1.2–1.7 cm is not accessible by σ at this budget.
+Decision per protocol: **E50 Stage B proceeds on the caution-flag path** with the price
+quantified at a calibrated tracker (~6–7 cm heading-local), **arm A (0.98 completion,
+better contact) is the standard recipe and the E52 DAgger teacher** — for a command-
+interface teacher, completion and contact quality dominate a sub-cm MPJPE edge.
+Remaining fidelity levers (history 1→10, future lookahead, 4096 envs) deferred behind E52.

@@ -5,3 +5,5 @@
 === e51v2_bodyfix_jointrew_seed0 eval start 2026-07-27T16:27:17Z ===
 === e51v2_bodyfix_jointrew_seed0 done 2026-07-27T16:27:43Z ===
 E51v2 complete
+=== e51v2_sigma_tight_seed0 (arm S: body σ0.3->0.15, rel-ori σ0.4->0.2, joint σ0.25) train start 2026-07-27T16:36:07Z ===
+=== arm S done 2026-07-27T18:50:56Z ===
