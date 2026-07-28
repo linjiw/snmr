@@ -15,31 +15,33 @@ PY=/home/ec2-user/work/retarget/.venv-wbt/bin/python
 HOLOSOMA_REV=9fb2b57470e3863dadb9d98719504a7a5d67a9d7
 TEACHER="$HOLOSOMA/logs/WholeBodyTracking/20260727_123641-e51v2_bodyfix_jointrew_seed0-locomotion/model_07999.pt"
 REFERENCE_Z="$MAIN/runs/wbt_latent_gmr/walk1_subject5_mj_z.npz"
-OUT="$MAIN/runs/e52_v3"
+OUT="$MAIN/runs/e52_v3_seeds"
 
 export PYTHONPATH="$MAIN"
 test "$(git -C "$HOLOSOMA" rev-parse HEAD)" = "$HOLOSOMA_REV"
 test -f "$TEACHER"
 test -f "$REFERENCE_Z"
-mkdir -p "$OUT"
+mkdir -p "$OUT/seed1" "$OUT/seed2"
 git -C "$MAIN" rev-parse HEAD > "$OUT/snmr_revision.txt"
 cp "$0" "$OUT/protocol.sh"
 sha256sum "$TEACHER" "$REFERENCE_Z" >> "$OUT/input_sha256.txt"
 
+for SEED in 1 2; do
 for ARM in c_prior_explicit d_prior_explicit_snmr; do
   echo "=== E52 $ARM start $(date -u +%FT%TZ) ===" | tee -a "$OUT/driver.log"
   cd "$HOLOSOMA"
-  E52_ARM="$ARM" E52_TEACHER_CKPT="$TEACHER" E52_OUT="$OUT" E52_ROUNDS=2000 \
+  E52_ARM="$ARM" E52_TEACHER_CKPT="$TEACHER" E52_OUT="$OUT/seed$SEED" E52_ROUNDS=2000 \
     nice -n 15 "$PY" "$MAIN/scripts/train_e52_dagger.py" \
     exp:g1-29dof-wbt simulator:mjwarp logger:disabled \
-    --training.num-envs 1024 --training.seed 0 \
+    --training.num-envs 1024 --training.seed "$SEED" \
     --randomization.ignore-unsupported True \
     --command.setup-terms.motion-command.params.motion-config.motion-file "$REFERENCE_Z" \
-    --training.name "e52_${ARM}" --training.headless True \
-    >> "$OUT/${ARM}.train.log" 2>&1
-  test -f "$OUT/${ARM}_eval.json"
-  echo "=== E52 $ARM done $(date -u +%FT%TZ): $(cat "$OUT/${ARM}_eval.json" | tr -d '\n') ===" \
+    --training.name "e52_${ARM}_seed${SEED}" --training.headless True \
+    >> "$OUT/seed$SEED/${ARM}.train.log" 2>&1
+  test -f "$OUT/seed$SEED/${ARM}_eval.json"
+  echo "=== E52 $ARM seed$SEED done $(date -u +%FT%TZ): $(cat "$OUT/seed$SEED/${ARM}_eval.json" | tr -d '\n') ===" \
     | tee -a "$OUT/driver.log"
+done
 done
 
 date -u +%FT%TZ > "$OUT/COMPLETE"
