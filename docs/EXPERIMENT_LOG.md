@@ -1304,3 +1304,20 @@ NOTE vs earlier numbers: 3.66 cm here vs the historical "2.18 cm" (sparse eval a
 this benchmark uses denser windows + bootstrap; 3.66 [3.46,3.86] supersedes 2.18 for public
 claims (site KPI updated). Published: docs/site/benchmark.html (per-clip dumbbells,
 per-robot bars, downstream trackability section with scope note).
+
+### E55 Stage-0 - OmniRetarget dataset feasibility - **DOWNLOADED + SCHEMA VERIFIED: near-drop-in as a second teacher; human side is position-only (53 joints) -> skeleton-agnostic encoder test comes free**
+`/home/ec2-user/work/retarget/data/omniretarget/` (robot-terrain subset, 145 clips, 0.5 h;
+robot-object 3 h + robot-object-terrain 0.5 h not yet pulled; MIT license).
+
+Schema per clip: `qpos (T, 36)` = floating base [qw,qx,qy,qz,x,y,z] + 29 G1 joints (quat-
+first vs our pos-first — trivial reorder), `fps` (30), and — crucially —
+`human_joints (T, 53, 3)`: the PAIRED human keypoints. So OmniRetarget-as-second-teacher
+needs only: (a) qpos reorder, (b) a 53-joint human skeleton definition + adjacency for the
+GAT encoder. The encoder is skeleton-agnostic BY DESIGN (per-node features + adjacency,
+global pool) — consuming a different human skeleton than LAFAN1's is exactly the
+architecture claim, previously untested. Caveat: positions only, no joint rotations →
+either drop the quat features for this source (encoder already handles heterogeneous node
+features) or lift rotations via a cheap fit. LAFAN1 subset NOT included upstream
+(licensing) — no overlap risk with our existing pairs; terrain/object clips are motion
+categories GMR cannot produce (interaction-preserving), giving the two-teacher conditional
+REAL multimodality (the E47 precondition for any E56-C flow decoder).
