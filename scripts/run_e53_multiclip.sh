@@ -25,21 +25,26 @@ cp "$0" "$OUT/protocol.sh"
 # --- Stage 0: multi-clip explicit teacher (bodyfix + joint reward) ---------------------
 TEACHER_NAME=e53_teacher_multi8_seed0
 if [[ ! -f "$OUT/TEACHER_DONE" ]]; then
-  echo "=== E53 Stage-0 teacher start $(date -u +%FT%TZ) ===" | tee -a "$OUT/driver.log"
-  cd "$HOLOSOMA"
-  E51_JOINT_POS_WEIGHT=1.0 E51_JOINT_POS_SIGMA=0.5 nice -n 15 "$PY" \
-    "$MAIN/scripts/train_agent_joint_reward.py" \
-    exp:g1-29dof-wbt simulator:mjwarp logger:disabled \
-    --training.num-envs 1024 --training.seed 0 \
-    --algo.config.num-learning-iterations 8000 --algo.config.save-interval 2000 \
-    --randomization.ignore-unsupported True \
-    --command.setup-terms.motion-command.params.motion-config.motion-file "" \
-    --command.setup-terms.motion-command.params.motion-config.motion-dir "$MOTION_DIR" \
-    --training.name "$TEACHER_NAME" >> "$OUT/$TEACHER_NAME.train.log" 2>&1
-  RUN_DIR=$(ls -1dt "$HOLOSOMA"/logs/WholeBodyTracking/*-"$TEACHER_NAME"-locomotion | head -1)
-  TEACHER_CKPT="$RUN_DIR/model_07999.pt"
-  test -f "$TEACHER_CKPT"
-  echo "$TEACHER_CKPT" > "$OUT/teacher_ckpt.txt"
+  # train only if no completed checkpoint is recorded (idempotent resume: the first launch
+  # trained to 8k but died in the eval step; do not retrain)
+  if [[ ! -s "$OUT/teacher_ckpt.txt" || ! -f "$(cat "$OUT/teacher_ckpt.txt")" ]]; then
+    echo "=== E53 Stage-0 teacher start $(date -u +%FT%TZ) ===" | tee -a "$OUT/driver.log"
+    cd "$HOLOSOMA"
+    E51_JOINT_POS_WEIGHT=1.0 E51_JOINT_POS_SIGMA=0.5 nice -n 15 "$PY" \
+      "$MAIN/scripts/train_agent_joint_reward.py" \
+      exp:g1-29dof-wbt simulator:mjwarp logger:disabled \
+      --training.num-envs 1024 --training.seed 0 \
+      --algo.config.num-learning-iterations 8000 --algo.config.save-interval 2000 \
+      --randomization.ignore-unsupported True \
+      --command.setup-terms.motion-command.params.motion-config.motion-file "" \
+      --command.setup-terms.motion-command.params.motion-config.motion-dir "$MOTION_DIR" \
+      --training.name "$TEACHER_NAME" >> "$OUT/$TEACHER_NAME.train.log" 2>&1
+    RUN_DIR=$(ls -1dt "$HOLOSOMA"/logs/WholeBodyTracking/*-"$TEACHER_NAME"-locomotion | head -1)
+    TEACHER_CKPT="$RUN_DIR/model_07999.pt"
+    test -f "$TEACHER_CKPT"
+    echo "$TEACHER_CKPT" > "$OUT/teacher_ckpt.txt"
+  fi
+  TEACHER_CKPT=$(cat "$OUT/teacher_ckpt.txt")
   # teacher eval: per-clip (wbt_metrics fixed starts require exactly one motion)
   for CLIP_NPZ in "$MOTION_DIR"/*_mj_z.npz; do
     CLIP=$(basename "$CLIP_NPZ" _mj_z.npz)
