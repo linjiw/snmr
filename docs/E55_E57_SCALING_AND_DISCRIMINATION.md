@@ -100,3 +100,24 @@ C is free analysis. All post-DEFECT-1 recipe (arm A). Queue: after E53 completes
 E53 (16k teacher + students + per-clip evals, in flight) → E52-L1R (FLAG-1 integrity re-run)
 → E57-A → E57-B → E56-B → E56-A → E55-A (needs pair regeneration first, CPU-parallel).
 CPU-side now: E55 Stage-0 feasibility (OmniRetarget schema, 100STYLE retarget path).
+
+## Addendum (2026-07-28, scaling-law literature via research agent)
+
+Verified findings that re-order E56:
+- **SONIC (2511.07820)**: humanoid motion tracking scales 1.2M -> 42M params monotonically
+  (MPJPE 27.7 -> 23.8 mm) — but on 100M+ frames. Scale helps WITH data.
+- **MolGPS (2404.11568, NeurIPS'24)**: message-passing GNNs are MORE parameter- and
+  data-efficient than graph transformers at small width/depth — direct evidence for our
+  regime (1.5M params).
+- **"Neural Scaling Laws on Graphs" (2402.02054)**: model-scaling COLLAPSE from overfitting
+  at ~10^7 params on small graph datasets — a warning for E56 at 2.5M frames.
+- **ScaMo (2412.14559, CVPR'25)**: motion scaling laws only fit from 44M params on 30M
+  frames — our regime is below the scaling-law-visible range.
+- **No motion-retargeting scaling law exists** — running E56-B as a small scaling sweep
+  (0.4M/1.5M/6M at fixed data) is itself a small novel contribution.
+
+**Revised E56 ordering:** E56-B (GAT scaling sweep, expect the 2402.02054 collapse pattern
+at 6M unless E55 data lands first) BEFORE E56-A (transformer — now expected to LOSE at this
+scale per MolGPS; run it as a confirmatory data-efficiency comparison, not as an upgrade
+bet). E56-C (flow) unblocked by the E55-A terrain multimodality finding but sequenced after
+E55-A training verdict.
