@@ -1,0 +1,155 @@
+{
+ "g1_per_clip": [
+  {
+   "clip": "walk1",
+   "mpjpe_cm": 3.41,
+   "skate_snmr": 0.371,
+   "skate_teacher": 0.054,
+   "pen_snmr": 0.0,
+   "pen_teacher": 0.0,
+   "jerk_snmr": 516,
+   "jerk_teacher": 379
+  },
+  {
+   "clip": "dance2",
+   "mpjpe_cm": 3.58,
+   "skate_snmr": 0.362,
+   "skate_teacher": 0.061,
+   "pen_snmr": 0.0,
+   "pen_teacher": 0.0,
+   "jerk_snmr": 1032,
+   "jerk_teacher": 866
+  },
+  {
+   "clip": "fight1",
+   "mpjpe_cm": 3.84,
+   "skate_snmr": 0.276,
+   "skate_teacher": 0.055,
+   "pen_snmr": 0.0104,
+   "pen_teacher": 0.0,
+   "jerk_snmr": 814,
+   "jerk_teacher": 815
+  },
+  {
+   "clip": "run2",
+   "mpjpe_cm": 3.26,
+   "skate_snmr": 0.36,
+   "skate_teacher": 0.049,
+   "pen_snmr": 0.0052,
+   "pen_teacher": 0.0,
+   "jerk_snmr": 912,
+   "jerk_teacher": 850
+  },
+  {
+   "clip": "jumps1",
+   "mpjpe_cm": 3.91,
+   "skate_snmr": 0.2,
+   "skate_teacher": 0.063,
+   "pen_snmr": 0.0399,
+   "pen_teacher": 0.0122,
+   "jerk_snmr": 429,
+   "jerk_teacher": 439
+  },
+  {
+   "clip": "sprint1",
+   "mpjpe_cm": 3.53,
+   "skate_snmr": 0.218,
+   "skate_teacher": 0.039,
+   "pen_snmr": 0.0009,
+   "pen_teacher": 0.0,
+   "jerk_snmr": 670,
+   "jerk_teacher": 652
+  },
+  {
+   "clip": "aiming2",
+   "mpjpe_cm": 4.07,
+   "skate_snmr": 0.238,
+   "skate_teacher": 0.041,
+   "pen_snmr": 0.0095,
+   "pen_teacher": 0.0,
+   "jerk_snmr": 478,
+   "jerk_teacher": 344
+  }
+ ],
+ "g1_summary": {
+  "mpjpe_mean_cm": 3.66,
+  "mpjpe_ci_cm": [
+   3.46,
+   3.86
+  ],
+  "throughput_fps": 671,
+  "limit_viol": 0.0
+ },
+ "robots": [
+  {
+   "robot": "Unitree G1 (29 DoF)",
+   "mpjpe_cm": 6.04,
+   "skate_snmr": 0.44,
+   "skate_teacher": 0.052,
+   "pen_snmr": 0.058,
+   "pen_teacher": 0.0017,
+   "fps": 312
+  },
+  {
+   "robot": "Booster T1 (29 DoF)",
+   "mpjpe_cm": 5.11,
+   "skate_snmr": 0.423,
+   "skate_teacher": 0.038,
+   "pen_snmr": 0.1854,
+   "pen_teacher": 0.0,
+   "fps": 1151
+  },
+  {
+   "robot": "Fourier N1 (23 DoF)",
+   "mpjpe_cm": 4.86,
+   "skate_snmr": 0.39,
+   "skate_teacher": 0.046,
+   "pen_snmr": 0.0334,
+   "pen_teacher": 0.0,
+   "fps": 1314
+  },
+  {
+   "robot": "EngineAI PM01 (23 DoF)",
+   "mpjpe_cm": 5.02,
+   "skate_snmr": 0.428,
+   "skate_teacher": 0.044,
+   "pen_snmr": 0.0314,
+   "pen_teacher": 0.0,
+   "fps": 1213
+  },
+  {
+   "robot": "Stanford ToddlerBot (30 DoF)",
+   "mpjpe_cm": 2.92,
+   "skate_snmr": 0.221,
+   "skate_teacher": 0.047,
+   "pen_snmr": 0.0461,
+   "pen_teacher": 0.0,
+   "fps": 1167
+  }
+ ],
+ "downstream": {
+  "gmr_completion": 0.8666666666666667,
+  "snmr_completion": 0.8666666666666667,
+  "delta_ci": [
+   -0.05833333333333335,
+   0.06166666666666665
+  ],
+  "rmse_effect": 0.003289030866709064,
+  "rmse_ci": [
+   -0.0306851354077512,
+   0.04887959889648483
+  ]
+ },
+ "e51_baseline": {
+  "stance_ratio": 0.43,
+  "sim": 0.127,
+  "teacher": 0.296,
+  "mpjpe_cm": 6.8
+ },
+ "e51_jointrew": {
+  "stance_ratio": 0.37,
+  "sim": 0.138,
+  "teacher": 0.372,
+  "mpjpe_cm": 6.7
+ }
+}

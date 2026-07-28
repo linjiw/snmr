@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SNMR — Retargeting Benchmark</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfb; --page: #f9f9f7; --node: #fcfcfb;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #6b6963;
+    --grid: #e1e0d9; --axisline: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+    --good: #087508; --crit: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1: #1a1a19; --page: #0d0d0d; --node: #232322;
+      --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+      --grid: #2c2c2a; --axisline: #383835; --border: rgba(255,255,255,0.20);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --good: #0ca30c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d; --node: #232322;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+    --grid: #2c2c2a; --axisline: #383835; --border: rgba(255,255,255,0.20);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --good: #0ca30c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink-1); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px 96px; }
+  nav.mini { position: sticky; top: 0; z-index: 5; background: var(--page); border-bottom: 1px solid var(--border); margin: 0 -24px; padding: 10px 24px; display: flex; gap: 18px; font-size: 13.5px; }
+  nav.mini a { color: var(--ink-2); text-decoration: none; }
+  nav.mini a:hover { color: var(--ink-1); }
+  .toggle { position: fixed; top: 8px; right: 16px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: var(--surface-1); color: var(--ink-2); border-radius: 999px; padding: 5px 12px; z-index: 6; }
+  header { padding: 56px 0 8px; }
+  h1 { font-size: 30px; margin: 0 0 10px; letter-spacing: -0.01em; }
+  h2 { font-size: 24px; margin: 0 0 6px; padding-bottom: 8px; border-bottom: 1px solid var(--grid); }
+  h3 { font-size: 17px; margin: 28px 0 8px; }
+  section { margin-top: 64px; }
+  p.lede { color: var(--ink-2); margin: 0 0 16px; max-width: 46em; }
+  figure { margin: 20px 0 0; }
+  figcaption { font-size: 13px; color: var(--ink-3); margin-top: 10px; max-width: 46em; }
+  svg text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  table.data { border-collapse: collapse; width: 100%; font-size: 13.5px; margin-top: 12px; }
+  table.data th { text-align: left; color: var(--ink-2); font-weight: 600; padding: 8px 8px; border-bottom: 1px solid var(--axisline); }
+  table.data td { padding: 6px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  table.data td.best { font-weight: 650; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); margin: 14px 0 4px; }
+  .legend .key { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .note { font-size: 13.5px; color: var(--ink-2); background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-top: 14px; max-width: 46em; }
+  .tooltip { position: fixed; pointer-events: none; z-index: 10; display: none; background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; color: var(--ink-1); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+  footer { margin-top: 72px; font-size: 13px; color: var(--ink-3); border-top: 1px solid var(--grid); padding-top: 20px; }
+  a { color: var(--s1); }
+  code { font-size: 0.92em; background: var(--surface-1); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+  @media (max-width: 700px) { .tablescroll { overflow-x: auto; margin: 0 -24px; padding: 0 24px; } }
+</style>
+</head>
+<body>
+<button class="toggle" id="themeToggle" aria-label="Toggle color theme">◐ theme</button>
+<div class="wrap">
+<nav class="mini" aria-label="Sections">
+  <a href="index.html">← Project</a><a href="#kinematic">Kinematic quality</a><a href="#perclip">Per-clip</a><a href="#robots">Per-robot</a><a href="#downstream">Downstream RL</a>
+</nav>
+
+<header>
+  <h1>Retargeting Benchmark</h1>
+  <p class="lede">Evaluation in the style of the GMR and OmniRetarget papers: kinematic quality
+  metrics (foot skating, penetration, jerk, joint limits) plus downstream RL trackability —
+  with the teacher's own metric values always shown, because the teacher is not artifact-free
+  either. All numbers regenerated from checkpoints on 2026-07-28; per-clip
+  bootstrap CIs over 7 held-out LAFAN1 clips.</p>
+</header>
+
+<!-- ================= kinematic quality table ================= -->
+<section id="kinematic">
+  <h2>Kinematic quality — G1 specialist checkpoint</h2>
+  <p class="lede">OmniRetarget-Table-II layout: each metric for SNMR beside the GMR teacher it
+  was distilled from. SNMR wins where its structure helps (joint limits by construction,
+  fewer sudden jumps) and inherits + amplifies the teacher's contact weaknesses — foot skate
+  is the honest gap, and the reason for the physics-repair line (E50/E51).</p>
+  <div class="tablescroll">
+  <table class="data" id="kinTable">
+    <thead><tr><th>Metric</th><th>SNMR (student)</th><th>GMR (teacher)</th><th>reading</th></tr></thead>
+    <tbody>
+      <tr><td>MPJPE vs teacher (cm) ↓</td><td>3.66&nbsp;&nbsp;CI [3.46, 3.86]</td><td>— (is the reference)</td><td>fidelity of the distillation</td></tr>
+      <tr><td>Foot skate (m/s) ↓</td><td>0.289</td><td class="best">0.052</td><td>the known gap; dof-caused (E24)</td></tr>
+      <tr><td>Penetration fraction ↓</td><td>0.0094</td><td class="best">0.0017</td><td>frames with any foot &gt; 1 cm below ground</td></tr>
+      <tr><td>Joint-limit violations ↓</td><td class="best">0.000</td><td class="best">0.000</td><td>SNMR: by construction (tanh); GMR: hard QP constraint</td></tr>
+      <tr><td>Joint jumps ↓</td><td class="best">0.0050</td><td>0.0067</td><td>the GMR paper's own failure mode ("Dance 5")</td></tr>
+      <tr><td>DoF jerk (rad/s³) ↓</td><td>693</td><td class="best">618</td><td>smoothness proxy for RL-consumability</td></tr>
+      <tr><td>Throughput (frames/s) ↑</td><td class="best">671 (CPU)</td><td>~160 (CPU)</td><td>one net, no per-frame optimization</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><strong>Why the teacher column matters.</strong> OmniRetarget and ReActor
+  both report baselines' artifacts; the GMR paper shows every retargeter has them (PHC: 60 cm
+  penetrations; GMR itself: waist-roll jumps on Dance 5). Scoring the student against a
+  perfect-zero column would be dishonest — the teacher's 0.052 m/s skate is the distillation
+  floor, not zero.</div>
+</section>
+
+<!-- ================= per-clip ================= -->
+<section id="perclip">
+  <h2>Per-clip breakdown (G1, 7 held-out clips)</h2>
+  <p class="lede">The GMR paper's key finding is that aggregate tables hide the failures —
+  per-motion breakdowns reveal them. Ours: MPJPE is stable across categories (3.3–4.1 cm);
+  skate is worst on locomotion clips (walk/run/dance) where stance phases dominate; jumps1
+  is the penetration outlier for both student and teacher (landing frames).</p>
+  <div class="legend">
+    <span class="key"><span class="swatch" style="background:var(--s1)"></span>SNMR MPJPE (cm)</span>
+    <span class="key"><span class="swatch" style="background:var(--s2)"></span>SNMR foot skate (m/s)</span>
+    <span class="key"><span class="swatch" style="background:var(--ink-3)"></span>teacher foot skate (m/s)</span>
+  </div>
+  <figure>
+    <svg id="clipChart" viewBox="0 0 900 420" role="img" aria-label="Per-clip MPJPE and foot skate" style="width:100%;height:auto"></svg>
+    <figcaption>Per-clip metrics, held-out LAFAN1 (G1 specialist checkpoint, 6 windows × 192
+    frames per clip). Left bars: distillation fidelity. Right dumbbells: student vs teacher
+    stance-foot speed — the vertical gap is what E50-style physics repair must close, and the
+    teacher dot is the floor kinematic distillation could at best reach. Hover for values.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= per-robot ================= -->
+<section id="robots">
+  <h2>One network, five embodiments (shared checkpoint)</h2>
+  <p class="lede">The multi-embodiment claim, quantified. A single shared-latent network
+  (z=128, AdaLN embodiment conditioning) serves all five robots; the sharing cost vs the G1
+  specialist is ~2.4 cm (6.04 vs 3.66). No per-robot IK configs, no per-robot tuning —
+  and inference stays real-time on CPU for every embodiment.</p>
+  <figure>
+    <svg id="robotChart" viewBox="0 0 900 340" role="img" aria-label="Per-robot MPJPE" style="width:100%;height:auto"></svg>
+    <figcaption>Held-out MPJPE per robot for the one shared network. ToddlerBot (the scale
+    outlier at 0.34 m root height) is the best-served robot — the latent transfers content,
+    not scale. Sharing cost vs the G1 specialist checkpoint: 6.04 vs 3.66 cm (both CI'd over
+    the same 7 clips).</figcaption>
+  </figure>
+  <div class="tablescroll">
+  <table class="data" id="robotTable">
+    <thead><tr><th>Robot</th><th>MPJPE (cm) ↓</th><th>Skate (m/s) ↓</th><th>Teacher skate</th><th>Pen. frac ↓</th><th>Teacher pen.</th><th>CPU fps ↑</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ================= downstream ================= -->
+<section id="downstream">
+  <h2>Downstream RL trackability (the GMR-paper question)</h2>
+  <p class="lede">"Retargeting Matters" evaluates retargeters by what RL can learn from their
+  output. Same protocol here: matched tracking policies (3 seeds per source × 2 eval seeds ×
+  100 rollouts), identical hyperparameters, on the same walk1 clip.</p>
+  <figure>
+    <svg id="dsChart" viewBox="0 0 900 200" role="img" aria-label="Downstream completion by reference source" style="width:100%;height:auto"></svg>
+    <figcaption>10-s completion of tracking policies trained on GMR references vs SNMR
+    references: 86.7% vs 86.7% — point-equal. Joint-RMSE relative effect +0.33%
+    (CI [−3.1%, +4.9%]; noninferior at the 10% margin). The completion CI half-width (±6pp
+    at 3 seeds) exceeds the preregistered −5pp margin, so formal noninferiority was not
+    established — a power statement, not a quality gap; per-seed spread (±3pp) dominates
+    any source effect.</figcaption>
+  </figure>
+  <div class="note"><strong>Scope, honestly.</strong> Single clip (walk1), single robot (G1),
+  simulation only, both sources trained under the identical stack. The claim this supports:
+  <em>neural retargeting through a shared latent does not degrade downstream trackability
+  relative to its IK teacher</em> — not that it improves it. Multi-clip trackability is
+  running now (E53).</div>
+</section>
+
+<!-- ================= method notes ================= -->
+<section id="protocol">
+  <h2>Protocol notes</h2>
+  <table class="data">
+    <tbody>
+      <tr><td>Held-out clips</td><td>walk1, dance2, fight1, run2, jumps1, sprint1, aiming2 (never trained on; fixed split since Phase 1)</td></tr>
+      <tr><td>Foot skate</td><td>mean XY stance-foot speed, contact = height+velocity heuristic on the reference (holosoma thresholds); non-circular masks reported in the repo</td></tr>
+      <tr><td>Penetration</td><td>fraction of frames with any foot body &gt; 1 cm below z=0 (OmniRetarget tolerance)</td></tr>
+      <tr><td>CIs</td><td>bootstrap over per-clip means, 2000 resamples</td></tr>
+      <tr><td>Same-code scoring</td><td>student and teacher scored by the identical metric implementation (<code>snmr/metrics.py</code>)</td></tr>
+      <tr><td>Downstream</td><td>BeyondMimic-style tracker (holosoma, MuJoCo-Warp), phase-stratified 10-s rollouts, completion = no termination</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  SNMR retargeting benchmark · regenerated 2026-07-28 from
+  <code>runs/bench_g1_v2.json</code> / <code>runs/bench_all5_v2.json</code> ·
+  <a href="index.html">project page</a> · <a href="https://github.com/linjiw/snmr">code</a>
+</footer>
+</div>
+<div class="tooltip" id="tip"></div>
+
+<script>
+const urlTheme = new URLSearchParams(location.search).get('theme');
+if (urlTheme === 'dark' || urlTheme === 'light') document.documentElement.dataset.theme = urlTheme;
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const cur = document.documentElement.dataset.theme;
+  const osDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const effective = cur || (osDark ? 'dark' : 'light');
+  document.documentElement.dataset.theme = effective === 'dark' ? 'light' : 'dark';
+  drawAll();
+});
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const tip = document.getElementById('tip');
+function showTip(e, html) { tip.innerHTML = html; tip.style.display = 'block';
+  tip.style.left = Math.min(e.clientX + 14, innerWidth - 230) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; }
+function hideTip() { tip.style.display = 'none'; }
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent) { const n = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; }
+function roundBarH(svg, x0, y, w, h, fill) {  // horizontal, rounded data end
+  return el('path', { d: `M ${x0} ${y} H ${x0 + w - 4} Q ${x0 + w} ${y} ${x0 + w} ${y + 4} V ${y + h - 4} Q ${x0 + w} ${y + h} ${x0 + w - 4} ${y + h} H ${x0} Z`, fill }, svg);
+}
+function roundBarV(svg, x, yTop, w, h, fill) {  // vertical column, rounded cap
+  return el('path', { d: `M ${x} ${yTop + h} V ${yTop + 4} Q ${x} ${yTop} ${x + 4} ${yTop} H ${x + w - 4} Q ${x + w} ${yTop} ${x + w} ${yTop + 4} V ${yTop + h} Z`, fill }, svg);
+}
+
+let D = null;
+async function load() {
+  D = await (await fetch('bench_data.json')).json();
+  drawAll();
+  fillRobotTable();
+}
+
+// -------- per-clip: paired columns (MPJPE) + dumbbells (skate) ----------
+function drawClips() {
+  const svg = document.getElementById('clipChart');
+  svg.querySelectorAll(':scope > *').forEach(n => n.remove());
+  const rows = D.g1_per_clip;
+  const W = 900, left = 60, right = 20, topH = 190, gap = 60, botTop = topH + gap, botH = 150;
+  const n = rows.length, band = (W - left - right) / n;
+
+  // ---- top: MPJPE columns
+  el('text', { x: left, y: 16, 'font-size': 13, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = 'Distillation fidelity — MPJPE vs teacher (cm)';
+  const maxM = 5;
+  const yM = v => 30 + (topH - 30) * (1 - v / maxM);
+  for (const g of [0, 2.5, 5]) {
+    el('line', { x1: left, y1: yM(g), x2: W - right, y2: yM(g), stroke: css('--grid') }, svg);
+    el('text', { x: left - 8, y: yM(g) + 4, 'text-anchor': 'end', 'font-size': 11.5, fill: css('--ink-3') }, svg).textContent = g;
+  }
+  rows.forEach((r, i) => {
+    const cx = left + i * band + band / 2, w = 30;
+    const h = yM(0) - yM(r.mpjpe_cm);
+    roundBarV(svg, cx - w / 2, yM(r.mpjpe_cm), w, h, css('--s1'))
+      .addEventListener('mousemove', e => showTip(e, `<strong>${r.clip}</strong><br>MPJPE ${r.mpjpe_cm} cm`));
+    el('text', { x: cx, y: yM(r.mpjpe_cm) - 6, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = r.mpjpe_cm.toFixed(1);
+  });
+
+  // ---- bottom: skate dumbbells
+  el('text', { x: left, y: botTop - 8, 'font-size': 13, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = 'Physical plausibility — stance-foot speed (m/s): student • vs teacher •';
+  const maxS = 0.45;
+  const yS = v => botTop + 10 + (botH - 10) * (1 - v / maxS);
+  for (const g of [0, 0.2, 0.4]) {
+    el('line', { x1: left, y1: yS(g), x2: W - right, y2: yS(g), stroke: css('--grid') }, svg);
+    el('text', { x: left - 8, y: yS(g) + 4, 'text-anchor': 'end', 'font-size': 11.5, fill: css('--ink-3') }, svg).textContent = g.toFixed(1);
+  }
+  rows.forEach((r, i) => {
+    const cx = left + i * band + band / 2;
+    el('line', { x1: cx, y1: yS(r.skate_snmr), x2: cx, y2: yS(r.skate_teacher), stroke: css('--axisline'), 'stroke-width': 2 }, svg);
+    const dotT = el('circle', { cx, cy: yS(r.skate_teacher), r: 5.5, fill: css('--ink-3'), stroke: css('--page'), 'stroke-width': 2 }, svg);
+    const dotS = el('circle', { cx, cy: yS(r.skate_snmr), r: 5.5, fill: css('--s2'), stroke: css('--page'), 'stroke-width': 2 }, svg);
+    for (const d of [dotS, dotT]) d.addEventListener('mousemove', e =>
+      showTip(e, `<strong>${r.clip}</strong><br>student ${r.skate_snmr} m/s · teacher ${r.skate_teacher} m/s`));
+    el('text', { x: cx, y: botTop + botH + 22, 'text-anchor': 'middle', 'font-size': 12.5, fill: css('--ink-1') }, svg).textContent = r.clip;
+  });
+  svg.setAttribute('viewBox', `0 0 900 ${botTop + botH + 34}`);
+  svg.addEventListener('mouseleave', hideTip);
+}
+
+// -------- per-robot MPJPE bars ----------
+function drawRobots() {
+  const svg = document.getElementById('robotChart');
+  svg.querySelectorAll(':scope > *').forEach(n => n.remove());
+  const rows = [...D.robots].sort((a, b) => a.mpjpe_cm - b.mpjpe_cm);
+  const left = 250, right = 90, top = 16, rowH = 48, barH = 20, maxM = 7;
+  const x = v => left + (v / maxM) * (900 - left - right);
+  for (const g of [0, 2, 4, 6]) {
+    el('line', { x1: x(g), y1: top - 6, x2: x(g), y2: top + rows.length * rowH, stroke: css('--grid') }, svg);
+    el('text', { x: x(g), y: top + rows.length * rowH + 18, 'text-anchor': 'middle', 'font-size': 11.5, fill: css('--ink-3') }, svg).textContent = g;
+  }
+  el('text', { x: x(3.5), y: top + rows.length * rowH + 36, 'text-anchor': 'middle', 'font-size': 12, fill: css('--ink-2') }, svg).textContent = 'held-out MPJPE (cm) — one shared network, lower is better';
+  rows.forEach((r, i) => {
+    const y = top + i * rowH + (rowH - barH) / 2;
+    roundBarH(svg, x(0), y, x(r.mpjpe_cm) - x(0), barH, css('--s1'))
+      .addEventListener('mousemove', e => showTip(e, `<strong>${r.robot}</strong><br>MPJPE ${r.mpjpe_cm} cm · ${r.fps} fps CPU`));
+    el('text', { x: left - 12, y: y + barH / 2 + 4.5, 'text-anchor': 'end', 'font-size': 13, fill: css('--ink-1') }, svg).textContent = r.robot;
+    el('text', { x: x(r.mpjpe_cm) + 8, y: y + barH / 2 + 4.5, 'font-size': 13, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = r.mpjpe_cm.toFixed(2);
+  });
+  svg.setAttribute('viewBox', `0 0 900 ${top + rows.length * rowH + 46}`);
+  svg.addEventListener('mouseleave', hideTip);
+}
+
+// -------- downstream completion ----------
+function drawDS() {
+  const svg = document.getElementById('dsChart');
+  svg.querySelectorAll(':scope > *').forEach(n => n.remove());
+  const rows = [
+    { label: 'GMR references (IK teacher)', v: D.downstream.gmr_completion, c: '--ink-3' },
+    { label: 'SNMR references (neural student)', v: D.downstream.snmr_completion, c: '--s1' },
+  ];
+  const left = 290, right = 80, top = 14, rowH = 54, barH = 22;
+  const x = v => left + v * (900 - left - right);
+  for (const g of [0, 0.5, 1.0]) {
+    el('line', { x1: x(g), y1: top - 6, x2: x(g), y2: top + rows.length * rowH, stroke: css('--grid') }, svg);
+    el('text', { x: x(g), y: top + rows.length * rowH + 18, 'text-anchor': 'middle', 'font-size': 11.5, fill: css('--ink-3') }, svg).textContent = g.toFixed(1);
+  }
+  el('text', { x: x(0.5), y: top + rows.length * rowH + 36, 'text-anchor': 'middle', 'font-size': 12, fill: css('--ink-2') }, svg).textContent = '10-s completion of matched tracking policies (3 seeds × 2 eval seeds × 100 rollouts)';
+  rows.forEach((r, i) => {
+    const y = top + i * rowH + (rowH - barH) / 2;
+    roundBarH(svg, x(0), y, x(r.v) - x(0), barH, css(r.c))
+      .addEventListener('mousemove', e => showTip(e, `<strong>${r.label}</strong><br>completion ${(r.v * 100).toFixed(1)}%`));
+    el('text', { x: left - 12, y: y + barH / 2 + 4.5, 'text-anchor': 'end', 'font-size': 13, fill: css('--ink-1') }, svg).textContent = r.label;
+    el('text', { x: x(r.v) + 8, y: y + barH / 2 + 4.5, 'font-size': 13, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = (r.v * 100).toFixed(1) + '%';
+  });
+  svg.setAttribute('viewBox', `0 0 900 ${top + rows.length * rowH + 46}`);
+  svg.addEventListener('mouseleave', hideTip);
+}
+
+function fillRobotTable() {
+  const tb = document.querySelector('#robotTable tbody');
+  tb.innerHTML = '';
+  for (const r of D.robots) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.robot}</td><td>${r.mpjpe_cm.toFixed(2)}</td><td>${r.skate_snmr.toFixed(3)}</td><td>${r.skate_teacher.toFixed(3)}</td><td>${r.pen_snmr.toFixed(4)}</td><td>${r.pen_teacher.toFixed(4)}</td><td>${r.fps}</td>`;
+    tb.appendChild(tr);
+  }
+}
+function drawAll() { if (D) { drawClips(); drawRobots(); drawDS(); } }
+load();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawAll);
+</script>
+</body>
+</html>
