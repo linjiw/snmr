@@ -160,6 +160,8 @@ def main() -> None:
     if eval_only:
         saved = torch.load(out / f"{arm}_student.pt", map_location=device)
         student.load_state_dict(saved["student"])
+        z_mean = saved["z_mean"].to(device)
+        z_std = saved["z_std"].to(device)
         rounds = 0
 
     def split_obs(obs_dict):
@@ -241,6 +243,11 @@ def main() -> None:
                out / f"{arm}_student.pt")
 
     # --- deployment-path eval: z = mu_prior (or posterior, diagnostic), phase-stratified ---
+    if motion_command.motion.num_motions > 1:
+        print("multi-motion training run: skipping inline eval (evaluate per-clip via "
+              "E52_EVAL_ONLY=1 with motion_file=<clip>)", flush=True)
+        close_simulation_app(sim_app)
+        return
     eval_z = os.environ.get("E52_EVAL_Z", "prior")  # prior | posterior
     student.eval()
     env.set_is_evaluating()
