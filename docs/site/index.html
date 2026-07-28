@@ -129,9 +129,10 @@
 <header class="hero">
   <h1 style="text-wrap:balance">One Latent to Retarget and Command</h1>
   <p class="sub">SNMR distills a classical IK retargeter into one skeleton-agnostic network with a
-  shared motion latent — then makes that latent <em>load-bearing for control</em>: a co-trained
-  64-d code that is the tracking policy's <strong>only</strong> motion command on a simulated
-  Unitree&nbsp;G1.</p>
+  shared motion latent — then shows the act-through-latent idea carries control: a co-trained
+  64-d command code (<code>z_cmd</code>) is the tracking policy's <strong>only</strong> motion
+  input on a simulated Unitree&nbsp;G1. The frozen retargeting latent feeds the command prior,
+  where its additive value is so far null on single-clip walk (an honest open thread).</p>
   <div class="badges">
     <span class="badge">5 humanoid embodiments, one network</span>
     <span class="badge">MuJoCo-Warp RL tracking</span>
@@ -143,8 +144,8 @@
 <!-- ============================ KPI ROW ============================ -->
 <section>
   <div class="kpis">
-    <div class="kpi hero-kpi"><div class="eyebrow">HEADLINE RESULT</div><div class="v">0.952</div><div class="l">10-s completion with a 64-d latent as the policy's <strong>only</strong> motion command (3 seeds, ±0.002)</div><div class="d">explicit-command teacher 0.98 · frozen-latent interface 0.72</div></div>
-    <div class="kpi"><div class="v">3.66 cm</div><div class="l">retargeting MPJPE, held-out clips (G1) — <a href="benchmark.html">full benchmark</a></div><div class="d">CI [3.46, 3.86] · joint limits by construction</div></div>
+    <div class="kpi hero-kpi"><div class="eyebrow">HEADLINE RESULT</div><div class="v">0.952</div><div class="l">10-s completion with a 64-d latent as the policy's <strong>only</strong> motion command (3 seeds, ±0.002)</div><div class="d">explicit-command teacher 0.98 · frozen-latent baseline 0.72–0.77</div></div>
+    <div class="kpi"><div class="v">3.66 cm</div><div class="l">retargeting MPJPE, held-out clips (G1 specialist) — <a href="benchmark.html">full benchmark</a></div><div class="d">CI [3.46, 3.86] · shared 5-robot net: 2.9–6.0 cm · limits by construction</div></div>
     <div class="kpi"><div class="v">0.98</div><div class="l">explicit tracker after our stack fixes</div><div class="d">from 0.90 — matches external calibration</div></div>
   </div>
 </section>
@@ -216,8 +217,8 @@
     <!-- distillation note -->
     <rect x="192" y="160" width="272" height="64" rx="10" fill="var(--node)" stroke="var(--border)" stroke-dasharray="none"/>
     <text x="328" y="184" font-size="12.5" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Supervision: GMR (per-frame IK teacher)</text>
-    <text x="328" y="202" font-size="12" text-anchor="middle" fill="var(--ink-2)">+ co-trained contact head (auxiliary BCE)</text>
-    <text x="328" y="217" font-size="12" text-anchor="middle" fill="var(--ink-2)">77 clips × 5 robots, 2.5M paired frames</text>
+    <text x="328" y="202" font-size="12" text-anchor="middle" fill="var(--ink-2)">+ optional contact head (BCE; ~1.5 cm fidelity price)</text>
+    <text x="328" y="217" font-size="12" text-anchor="middle" fill="var(--ink-2)">77 clips × 5 robots, 2.48M paired frames</text>
     <line x1="328" y1="160" x2="315" y2="136" stroke="var(--ink-3)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arr)"/>
 
     <!-- z tap down to stage 2 -->
@@ -284,9 +285,11 @@
   deployed) with supervised updates against teacher labels.</p>
 
   <div class="card"><h4>1 · A frozen latent is ignored; RL alone collapses.</h4>
-  <p>Concatenating frozen z beside the explicit command: the policy ignores it (our E36–39;
-  independently replicated by UniTracker's ablation). Training the latent by RL from scratch:
-  0.72 completion. The latent must be <strong>co-trained under the control objective by
+  <p>Concatenating frozen z beside the explicit command is null-to-harmful (our E36:
+  −10pp; the vanishing-influence mechanism independently replicated by UniTracker's ablation).
+  A frozen latent as the <em>sole</em> command tops out at 0.72 (our E37, replicated 0.72–0.77
+  across 3 seeds); RL-from-scratch through a latent collapses in the literature (UniTracker,
+  BFM). The latent must be <strong>co-trained under the control objective by
   distillation</strong> — pure DAgger, no RL gradient mixed in.</p></div>
 
   <div class="card"><h4>2 · The posterior must be a residual on the prior; train on the path you deploy.</h4>
@@ -299,8 +302,7 @@
   <div class="card"><h4>3 · The prior needs the goal.</h4>
   <p>A prior over proprioception alone (or proprioception + frozen z) cannot anticipate the motion —
   0.02–0.05 completion. Conditioning the prior on the deployable reference window lifts it to
-  <strong>0.944</strong>; adding the SNMR z stream gives <strong>0.952 with 4× lower seed
-  variance</strong>. The information bottleneck stays honest: the goal enters only the prior, never
+  <strong>0.944</strong>; adding the SNMR z stream gives 0.952; its completion gain is null across seeds, though D's seed variance was 4× tighter (n=3, suggestive only). The information bottleneck stays honest: the goal enters only the prior, never
   the decoder.</p></div>
 
   <figure>
@@ -361,14 +363,14 @@
 <section id="results">
   <h2>Results</h2>
   <p class="lede">All numbers: 10-second phase-stratified rollouts on the walk1 clip (Unitree G1,
-  MuJoCo-Warp), 1,024 rollouts per evaluation, deterministic deployment path. Multi-clip and
+  MuJoCo-Warp), 1,024 rollouts per evaluation for the latent arms (100 for teacher/L1 reference policies), deterministic deployment path. Multi-clip and
   cross-embodiment stages are running now.</p>
 
   <h3>Completion by command interface</h3>
   <div class="legend">
     <span class="key"><span class="swatch" style="background:var(--s1)"></span>explicit command (upper bound)</span>
     <span class="key"><span class="swatch" style="background:var(--s3)"></span>latent-only command (ours)</span>
-    <span class="key"><span class="swatch" style="background:var(--s2)"></span>frozen-latent prior art</span>
+    <span class="key"><span class="swatch" style="background:var(--s2)"></span>frozen-latent baseline (ours)</span>
   </div>
   <figure>
     <svg id="barChart" viewBox="0 0 900 300" role="img" aria-labelledby="figBarsTitle" style="width:100%;height:auto">
@@ -385,7 +387,7 @@
         <tr><td>Explicit command (teacher)</td><td>—</td><td>0.980</td><td>0.122</td><td>1</td></tr>
         <tr><td>D: latent-only, + SNMR z</td><td>proprio + goal + z</td><td>0.952 ± 0.002</td><td>0.127</td><td>3</td></tr>
         <tr><td>C: latent-only</td><td>proprio + goal</td><td>0.944 ± 0.008</td><td>0.128</td><td>3</td></tr>
-        <tr><td>L1: frozen latent (prior art)</td><td>—</td><td>0.720</td><td>—</td><td>1</td></tr>
+        <tr><td>L1: frozen latent (ours, E37)</td><td>—</td><td>0.72–0.77</td><td>—</td><td>3</td></tr>
       </tbody>
     </table>
   </details>
@@ -413,11 +415,18 @@
     </table>
   </details>
 
+  <h3>Trackability parity (GMR-paper protocol)</h3>
+  <p class="lede">Matched tracking policies trained on SNMR references vs the IK teacher's:
+  <strong>86.7% = 86.7%</strong> completion (point-equal; 3 seeds per source × 2 eval seeds ×
+  100 rollouts), joint RMSE noninferior (+0.33%, CI [−3.1%, +4.9%]). Formal noninferiority on
+  completion was not established — the ±6pp CI exceeds the preregistered −5pp margin at this
+  seed count; a power statement, not a quality gap. <a href="benchmark.html#downstream">Details</a>.</p>
+
   <h3>Physics-repaired references (ReActor-inspired)</h3>
   <div class="kpis">
-    <div class="kpi"><div class="v">3–6×</div><div class="l">less foot-skate in policy rollouts than in the kinematic references they tracked</div></div>
+    <div class="kpi"><div class="v">2–3×</div><div class="l">less foot-skate in rollouts than in the references they tracked (post-fix tracker; 3–6× on pre-fix policies)</div></div>
     <div class="kpi"><div class="v">0.000</div><div class="l">ground-penetration fraction in rollouts (a simulator property — we don't claim it)</div></div>
-    <div class="kpi"><div class="v">6.2 cm</div><div class="l">current fidelity price of the repair (heading-local MPJPE)</div></div>
+    <div class="kpi"><div class="v">6.2 cm</div><div class="l">fidelity price of the repair (heading-local MPJPE, same post-fix tracker)</div></div>
   </div>
   <p class="lede" style="margin-top:16px">The simulated rollout of a competent tracker is a
   physically consistent version of its reference. We record those rollouts (with true contact
@@ -433,7 +442,7 @@
   <table class="data">
     <thead><tr><th>Claim tested</th><th>Verdict</th><th>What it forced</th></tr></thead>
     <tbody>
-      <tr><td>Frozen z concatenated beside the explicit command helps tracking</td><td>Null (replicated)</td><td>co-training under the control objective</td></tr>
+      <tr><td>Frozen z concatenated beside the explicit command helps tracking</td><td>Null-to-harmful (E36 −10pp; mechanism replicated by UniTracker)</td><td>co-training under the control objective</td></tr>
       <tr><td>Inference-time correction can fix retargeting foot-skate</td><td>Closed, theory-grade (5 corrector families)</td><td>physics-repaired supervision instead</td></tr>
       <tr><td>Proprio-only prior can carry a deployed latent command</td><td>Failed (0.05)</td><td>goal-conditioned prior</td></tr>
       <tr><td>SNMR z adds completion on single-clip walk</td><td>Null across seeds (+0.8pp, straddles 0)</td><td>the additive claim moves to multi-clip / cross-embodiment</td></tr>
@@ -488,7 +497,7 @@ const barData = [
   { label: 'Explicit command (teacher)', v: 0.980, sd: null, c: '--s1', note: 'the upper bound the student distills from' },
   { label: 'D: latent-only + SNMR z (ours)', v: 0.952, sd: 0.002, c: '--s3', note: '3 seeds · joint RMSE 0.127 rad' },
   { label: 'C: latent-only (ours)', v: 0.944, sd: 0.008, c: '--s3', note: '3 seeds · joint RMSE 0.128 rad' },
-  { label: 'L1: frozen latent (prior art)', v: 0.720, sd: null, c: '--s2', note: 'tangent-preview frozen z, E39' },
+  { label: 'L1: frozen latent (ours, E37/E39)', v: 0.720, sd: null, c: '--s2', note: 'replicated 0.72\u20130.77 across 3 seeds' },
 ];
 function drawBars() {
   const svg = document.getElementById('barChart');
