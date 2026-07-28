@@ -1321,3 +1321,33 @@ features) or lift rotations via a cheap fit. LAFAN1 subset NOT included upstream
 (licensing) — no overlap risk with our existing pairs; terrain/object clips are motion
 categories GMR cannot produce (interaction-preserving), giving the two-teacher conditional
 REAL multimodality (the E47 precondition for any E56-C flow decoder).
+
+### E55-B - OmniRetarget coverage probe (GPU-side, beside E53) - **VERDICT: THE GAP IS DATA-SIDE. OmniRetarget poses are 2x more novel than held-out LAFAN1, yet the frozen decoder manifold already expresses them at 0.05-0.067 rad inversion residual (floor 0.029) — representation NOT the bottleneck; add the clips.**
+`runs/e55b_omni_coverage.json` (scripts/probe_omni_coverage.py; 60 clips x 40 frames per
+subset; per-frame latent inversion, 300 Adam steps on z through the frozen G1 decoder;
+novelty = NN joint-RMSE to a 30.8k-pose training bank).
+
+| set | novelty (rad, mean/p95) | inversion RMSE (rad, mean/p95) |
+|---|---|---|
+| LAFAN1 held-out (floor) | 0.129 / — | 0.029 / 0.069 |
+| robot-terrain | 0.283 / 0.401 | 0.050 / 0.078 |
+| robot-object-terrain | 0.269 / 0.384 | 0.052 / 0.088 |
+| robot-object | 0.262 / 0.331 | 0.067 / 0.100 |
+
+Readings:
+1. **Novelty confirms the data argument**: OmniRetarget poses sit ~2.1x farther from our
+   training manifold than held-out LAFAN1 does (0.26-0.28 vs 0.13 rad) — these clips add
+   genuinely new pose territory (climbing crouches, box-carry arm configurations).
+2. **The decoder can already express them**: 0.05-0.067 rad (~3-4 deg/joint) inversion
+   residual vs the 0.029 floor — a 1.7-2.3x penalty, NOT a wall. Weak-to-moderate
+   novelty-inversion correlation (0.21-0.42) = difficulty tracks distance smoothly; no
+   cliff = no missing mode in the representation.
+3. **Attribution for "interaction-rich motions": (a) DATA first** — retrain with
+   OmniRetarget as second teacher (E55-A arm); representation change not yet justified.
+   The open question that stays: interaction *timing/phase* (contact schedules) may still
+   need windowed/conditioned latents even when static poses fit — E53's per-clip tracking
+   numbers on jumps/fight will speak to that.
+Dataset motion-statistics side-by-side (10-clip samples): omni terrain clips are aerial-
+phase heavy (both-feet-off 62% of frames vs 18% ours - note: height-threshold proxy at
+z>0.12m, climbing inflates it), slower joints (p95 1.4 vs 3.7 rad/s), higher feet (p95
+0.76 vs 0.45 m). Complementary, not redundant.

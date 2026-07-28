@@ -1,0 +1,35 @@
+{
+  "lafan1_heldout": {
+    "n": 160,
+    "inversion_rmse_rad_mean": 0.02857709303498268,
+    "inversion_rmse_rad_p95": 0.06887684762477875,
+    "novelty_rad_mean": 0.1285637617111206
+  },
+  "robot-object-terrain": {
+    "n": 2400,
+    "clips": 60,
+    "inversion_rmse_rad_mean": 0.05199670046567917,
+    "inversion_rmse_rad_p95": 0.0877600610256195,
+    "novelty_rad_mean": 0.2685643434524536,
+    "novelty_rad_p95": 0.38354939222335815,
+    "corr_novelty_inversion": 0.29668723741932407
+  },
+  "robot-object": {
+    "n": 2400,
+    "clips": 60,
+    "inversion_rmse_rad_mean": 0.06658721715211868,
+    "inversion_rmse_rad_p95": 0.09988746047019958,
+    "novelty_rad_mean": 0.26231080293655396,
+    "novelty_rad_p95": 0.33087238669395447,
+    "corr_novelty_inversion": 0.4160117841622085
+  },
+  "robot-terrain": {
+    "n": 2400,
+    "clips": 60,
+    "inversion_rmse_rad_mean": 0.049911241978406906,
+    "inversion_rmse_rad_p95": 0.07755500823259354,
+    "novelty_rad_mean": 0.2827205955982208,
+    "novelty_rad_p95": 0.4008631706237793,
+    "corr_novelty_inversion": 0.20847294882088024
+  }
+}
