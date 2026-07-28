@@ -40,19 +40,25 @@ if [[ ! -f "$OUT/TEACHER_DONE" ]]; then
   TEACHER_CKPT="$RUN_DIR/model_07999.pt"
   test -f "$TEACHER_CKPT"
   echo "$TEACHER_CKPT" > "$OUT/teacher_ckpt.txt"
-  # teacher eval (standard 100-rollout, wbt_metrics)
-  "$PY" "$MAIN/scripts/eval_agent_repair.py" \
-    --checkpoint "$TEACHER_CKPT" \
-    --wbt-metrics.config.enabled \
-    --wbt-metrics.config.output-path "$OUT/reports/${TEACHER_NAME}_eval${EVAL_SEED}.json" \
-    --wbt-metrics.config.horizon-s 10.0 \
-    --training.headless True --training.num-envs 100 --training.seed "$EVAL_SEED" \
-    --training.max-eval-steps 500 --training.export-onnx False \
-    --simulator.config.sim.max-episode-length-s 100000.0 \
-    >> "$OUT/$TEACHER_NAME.eval.log" 2>&1
-  test -f "$OUT/reports/${TEACHER_NAME}_eval${EVAL_SEED}.json"
-  COMPLETION=$(jq -r .completion_rate "$OUT/reports/${TEACHER_NAME}_eval${EVAL_SEED}.json")
-  echo "=== E53 teacher done: completion=$COMPLETION ===" | tee -a "$OUT/driver.log"
+  # teacher eval: per-clip (wbt_metrics fixed starts require exactly one motion)
+  for CLIP_NPZ in "$MOTION_DIR"/*_mj_z.npz; do
+    CLIP=$(basename "$CLIP_NPZ" _mj_z.npz)
+    "$PY" "$MAIN/scripts/eval_agent_repair.py" \
+      --checkpoint "$TEACHER_CKPT" \
+      --wbt-metrics.config.enabled \
+      --wbt-metrics.config.output-path "$OUT/reports/${TEACHER_NAME}_${CLIP}_eval${EVAL_SEED}.json" \
+      --wbt-metrics.config.horizon-s 10.0 \
+      --command.setup-terms.motion-command.params.motion-config.motion-dir "" \
+      --command.setup-terms.motion-command.params.motion-config.motion-file "$CLIP_NPZ" \
+      --training.headless True --training.num-envs 100 --training.seed "$EVAL_SEED" \
+      --training.max-eval-steps 500 --training.export-onnx False \
+      --simulator.config.sim.max-episode-length-s 100000.0 \
+      >> "$OUT/$TEACHER_NAME.eval.log" 2>&1
+    test -f "$OUT/reports/${TEACHER_NAME}_${CLIP}_eval${EVAL_SEED}.json"
+  done
+  COMPLETION=$(jq -s '[.[].completion_rate] | add/length' \
+    "$OUT/reports/${TEACHER_NAME}"_*_eval${EVAL_SEED}.json)
+  echo "=== E53 teacher done: mean per-clip completion=$COMPLETION ===" | tee -a "$OUT/driver.log"
   # gate: proceed iff >= 0.6 (protocol §3)
   awk "BEGIN{exit !($COMPLETION >= 0.6)}" || {
     echo "TEACHER GATE FAILED ($COMPLETION < 0.6) — stopping per protocol" | tee -a "$OUT/driver.log"
@@ -84,6 +90,7 @@ for ARM in c_prior_explicit d_prior_explicit_snmr; do
       exp:g1-29dof-wbt simulator:mjwarp logger:disabled \
       --training.num-envs 100 --training.seed "$EVAL_SEED" \
       --randomization.ignore-unsupported True \
+      --command.setup-terms.motion-command.params.motion-config.motion-dir "" \
       --command.setup-terms.motion-command.params.motion-config.motion-file "$CLIP_NPZ" \
       --training.name "e53_${ARM}_eval_${CLIP}" --training.headless True \
       >> "$OUT/${ARM}.eval.log" 2>&1
