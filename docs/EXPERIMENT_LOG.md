@@ -1195,3 +1195,32 @@ never sees the goal — the reference reaches the actor only through the 64-d z 
 Gates: promote iff C or D >= 0.85; D - C = SNMR-latent additive value; if C passes and D~C,
 act-through-latent works but frozen z adds nothing on single-clip walk (H4: value expected
 at multi-clip/cross-embodiment scale, not here).
+
+### E52 v3 - Goal-conditioned prior - **PROMOTED: ACT-THROUGH-LATENT WORKS (C 0.935, D 0.955 vs 0.85 gate); SNMR LATENT ADDITIVE +2pp; STUDENT RMSE 0.126 ~ TEACHER 0.122 THROUGH A 64-D BOTTLENECK**
+`runs/e52_v3/` (arms C/D, 2000 DAgger rounds @1024 envs each, prior-path collection,
+posterior-z action loss, deterministic mu_prior deploy, 1024 phase-stratified 10-s rollouts).
+
+| arm (prior inputs) | completion | survival | joint RMSE |
+|---|---|---|---|
+| explicit teacher (reference bar) | 0.98 | — | 0.122 |
+| L1 frozen tangent (E39, prior art) | 0.72 | — | — |
+| C: [proprio, explicit cmd] | 0.935 | 9.44 | 0.128 |
+| **D: [proprio, cmd, proj(z_snmr@0,+5)]** | **0.955** | **9.61** | **0.126** |
+
+Verdicts (preregistered gates):
+1. **PROMOTE — act-through-latent closes E39's gap.** The latent-only command deficit
+   (0.72 vs 0.88 explicit at Phase-1) is gone: a co-trained CVAE whose 64-d z is the actor's
+   ONLY motion command reaches within 2.5pp of its explicit teacher at matched RMSE. The
+   v1-v3 arc localizes the load-bearing piece: the PRIOR must be goal-conditioned
+   (UniTracker parity); path-consistent DAgger collection is secondary (20x but
+   insufficient); prior-z action-loss mixing is harmful.
+2. **SNMR latent is additive on single-clip walk: D - C = +2.0pp completion, +0.17s
+   survival, -0.002 rad** (single seed, 1024 rollouts each; directionally consistent across
+   all three metrics but small — treat as suggestive until multi-seed). H4 predicted ~null
+   here; even a small positive is above expectation.
+3. Chain of custody for the paper: explicit teacher 0.98 -> latent student 0.955 with the
+   reference visible ONLY to the prior (deployable input) and never to the decoder — C1
+   architecture intact, so the z-bottleneck claim is clean.
+
+Next per design doc: multi-seed replication of C/D (the +2pp needs CIs), then multi-clip
+(H4's real test), then cross-embodiment command (the flagship: one z stream, two robots).
