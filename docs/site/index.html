@@ -7,30 +7,35 @@
 <style>
   :root {
     color-scheme: light;
-    --surface-1: #fcfcfb; --page: #f9f9f7;
-    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #898781;
+    --surface-1: #fcfcfb; --page: #f9f9f7; --node: #fcfcfb;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #6b6963;
     --grid: #e1e0d9; --axisline: #c3c2b7; --border: rgba(11,11,11,0.10);
     --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
-    --good: #0ca30c; --crit: #d03b3b;
+    --good: #087508; --crit: #d03b3b;
     --wash1: rgba(42,120,214,0.10); --wash2: rgba(235,104,52,0.10); --wash3: rgba(27,175,122,0.10);
+    --seq-1: #173f6f; --seq-2: #1f5fa8; --seq-3: #2a78d6; --seq-4: #4a8ce0;
   }
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
       color-scheme: dark;
-      --surface-1: #1a1a19; --page: #0d0d0d;
+      --surface-1: #1a1a19; --page: #0d0d0d; --node: #232322;
       --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
-      --grid: #2c2c2a; --axisline: #383835; --border: rgba(255,255,255,0.10);
+      --grid: #2c2c2a; --axisline: #383835; --border: rgba(255,255,255,0.20);
       --s1: #3987e5; --s2: #d95926; --s3: #199e70;
-      --wash1: rgba(57,135,229,0.14); --wash2: rgba(217,89,38,0.14); --wash3: rgba(25,158,112,0.14);
+      --good: #0ca30c;
+      --wash1: rgba(57,135,229,0.18); --wash2: rgba(217,89,38,0.18); --wash3: rgba(25,158,112,0.18);
+      --seq-1: #bcd7f7; --seq-2: #93bdf1; --seq-3: #6da7ec; --seq-4: #3987e5;
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --surface-1: #1a1a19; --page: #0d0d0d;
+    --surface-1: #1a1a19; --page: #0d0d0d; --node: #232322;
     --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
-    --grid: #2c2c2a; --axisline: #383835; --border: rgba(255,255,255,0.10);
+    --grid: #2c2c2a; --axisline: #383835; --border: rgba(255,255,255,0.20);
     --s1: #3987e5; --s2: #d95926; --s3: #199e70;
-    --wash1: rgba(57,135,229,0.14); --wash2: rgba(217,89,38,0.14); --wash3: rgba(25,158,112,0.14);
+    --good: #0ca30c;
+    --wash1: rgba(57,135,229,0.18); --wash2: rgba(217,89,38,0.18); --wash3: rgba(25,158,112,0.18);
+    --seq-1: #bcd7f7; --seq-2: #93bdf1; --seq-3: #6da7ec; --seq-4: #3987e5;
   }
   * { box-sizing: border-box; }
   body {
@@ -51,8 +56,26 @@
     border: 1px solid var(--border); background: var(--surface-1); color: var(--ink-2);
     border-radius: 999px; padding: 5px 12px;
   }
-  section { margin-top: 56px; }
-  h2 { font-size: 24px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  section { margin-top: 72px; }
+  h2 { font-size: 28px; margin: 0 0 6px; letter-spacing: -0.01em; padding-bottom: 8px; border-bottom: 1px solid var(--grid); }
+  nav.mini {
+    position: sticky; top: 0; z-index: 5; background: var(--page);
+    border-bottom: 1px solid var(--border); margin: 0 -24px; padding: 10px 24px;
+    display: flex; gap: 18px; font-size: 13.5px;
+  }
+  nav.mini a { color: var(--ink-2); text-decoration: none; }
+  nav.mini a:hover { color: var(--ink-1); }
+  .figscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .figscroll svg { min-width: 760px; width: 100%; height: auto; display: block; }
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 27px; }
+    .figscroll { margin: 0 -24px; padding: 0 24px; }
+    .figscroll + figcaption::before, figure .figscroll ~ figcaption::before { content: "scroll the diagram sideways to explore → "; color: var(--ink-3); }
+    table.data thead { display: none; }
+    table.data tr { display: block; border-bottom: 1px solid var(--grid); padding: 10px 0; }
+    table.data td { display: block; border: 0; padding: 2px 0; }
+    table.data td:nth-child(2) { color: var(--ink-2); font-weight: 600; }
+  }
   h3 { font-size: 17px; margin: 28px 0 8px; }
   p.lede { color: var(--ink-2); margin: 0 0 20px; max-width: 46em; }
   .card {
@@ -66,14 +89,22 @@
   svg text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
   .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 20px; }
   .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
-  .kpi .v { font-size: 40px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1; }
+  .kpi .v { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
   .kpi .l { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
-  .kpi .d { font-size: 13px; color: var(--good); margin-top: 2px; }
+  .kpi .d { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+  .kpi .eyebrow { font-size: 11px; letter-spacing: 0.08em; color: var(--ink-3); font-weight: 650; margin-bottom: 4px; }
+  .kpi.hero-kpi { grid-column: span 2; }
+  .kpi.hero-kpi .v { font-size: 56px; font-weight: 650; }
+  @media (max-width: 520px) { .kpi.hero-kpi { grid-column: span 1; } }
   table.data { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 12px; }
   table.data th { text-align: left; color: var(--ink-2); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--axisline); }
   table.data td { padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
   details { margin-top: 12px; }
-  details summary { cursor: pointer; font-size: 14px; color: var(--ink-2); }
+  details summary {
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--ink-2); padding: 5px 12px;
+    border: 1px solid var(--border); border-radius: 999px; background: var(--surface-1);
+  }
   .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); margin: 14px 0 4px; }
   .legend .key { display: inline-flex; align-items: center; gap: 7px; }
   .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
@@ -91,9 +122,12 @@
 <body>
 <button class="toggle" id="themeToggle" aria-label="Toggle color theme">◐ theme</button>
 <div class="wrap">
+<nav class="mini" aria-label="Sections">
+  <a href="#framework">Framework</a><a href="#integration">RL integration</a><a href="#results">Results</a><a href="#ledger">Negative results</a>
+</nav>
 
 <header class="hero">
-  <h1>One Latent to Retarget <span style="white-space:nowrap">and Command</span></h1>
+  <h1 style="text-wrap:balance">One Latent to Retarget and Command</h1>
   <p class="sub">SNMR distills a classical IK retargeter into one skeleton-agnostic network with a
   shared motion latent — then makes that latent <em>load-bearing for control</em>: a co-trained
   64-d code that is the tracking policy's <strong>only</strong> motion command on a simulated
@@ -109,8 +143,7 @@
 <!-- ============================ KPI ROW ============================ -->
 <section>
   <div class="kpis">
-    <div class="kpi"><div class="v">0.952</div><div class="l">10-s completion, latent-only command (D, 3 seeds)</div><div class="d">teacher 0.98 · frozen-latent prior art 0.72</div></div>
-    <div class="kpi"><div class="v">64-d</div><div class="l">the entire motion command channel</div><div class="d">vs 58-d explicit joint targets + obs</div></div>
+    <div class="kpi hero-kpi"><div class="eyebrow">HEADLINE RESULT</div><div class="v">0.952</div><div class="l">10-s completion with a 64-d latent as the policy's <strong>only</strong> motion command (3 seeds, ±0.002)</div><div class="d">explicit-command teacher 0.98 · frozen-latent interface 0.72</div></div>
     <div class="kpi"><div class="v">2.18 cm</div><div class="l">retargeting MPJPE, held-out clips (G1)</div><div class="d">joint limits satisfied by construction</div></div>
     <div class="kpi"><div class="v">0.98</div><div class="l">explicit tracker after our stack fixes</div><div class="d">from 0.90 — matches external calibration</div></div>
   </div>
@@ -127,7 +160,8 @@
   inside the physics simulator.</p>
 
   <figure>
-  <svg viewBox="0 0 900 562" role="img" aria-labelledby="figArchTitle" style="width:100%;height:auto">
+  <div class="figscroll">
+  <svg viewBox="0 0 900 562" role="img" aria-labelledby="figArchTitle">
     <title id="figArchTitle">SNMR architecture: retargeting network feeding the act-through-latent tracking stack</title>
     <defs>
       <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -143,12 +177,12 @@
     <text x="28" y="36" font-size="13" font-weight="700" fill="var(--ink-2)" letter-spacing="0.06em">STAGE 1 — NEURAL RETARGETING (distilled from a classical IK teacher)</text>
 
     <!-- human motion -->
-    <rect x="28" y="60" width="150" height="72" rx="10" fill="var(--surface-1)" stroke="var(--border)"/>
+    <rect x="28" y="60" width="150" height="72" rx="10" fill="var(--node)" stroke="var(--border)"/>
     <text x="103" y="90" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Human motion</text>
     <text x="103" y="110" font-size="12" text-anchor="middle" fill="var(--ink-2)">LAFAN1 mocap, 30 fps</text>
 
     <!-- encoder -->
-    <rect x="222" y="60" width="160" height="72" rx="10" fill="var(--surface-1)" stroke="var(--s1)" stroke-width="1.5"/>
+    <rect x="222" y="60" width="160" height="72" rx="10" fill="var(--node)" stroke="var(--s1)" stroke-width="1.5"/>
     <text x="302" y="86" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">GAT encoder</text>
     <text x="302" y="104" font-size="12" text-anchor="middle" fill="var(--ink-2)">graph attention over the</text>
     <text x="302" y="119" font-size="12" text-anchor="middle" fill="var(--ink-2)">skeleton · max-pool</text>
@@ -159,17 +193,17 @@
     <text x="486" y="110" font-size="11" text-anchor="middle" fill="#fff" opacity="0.9">shared motion latent</text>
 
     <!-- decoder -->
-    <rect x="590" y="60" width="170" height="72" rx="10" fill="var(--surface-1)" stroke="var(--s1)" stroke-width="1.5"/>
+    <rect x="590" y="60" width="170" height="72" rx="10" fill="var(--node)" stroke="var(--s1)" stroke-width="1.5"/>
     <text x="675" y="84" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">GAT decoder</text>
     <text x="675" y="102" font-size="12" text-anchor="middle" fill="var(--ink-2)">AdaLN embodiment code</text>
     <text x="675" y="117" font-size="12" text-anchor="middle" fill="var(--ink-2)">tanh ⇒ joint limits built-in</text>
 
     <!-- robots -->
-    <rect x="796" y="52" width="88" height="26" rx="7" fill="var(--surface-1)" stroke="var(--border)"/>
+    <rect x="796" y="52" width="88" height="26" rx="7" fill="var(--node)" stroke="var(--border)"/>
     <text x="840" y="69" font-size="11" text-anchor="middle" fill="var(--ink-1)">Unitree G1</text>
-    <rect x="796" y="84" width="88" height="26" rx="7" fill="var(--surface-1)" stroke="var(--border)"/>
+    <rect x="796" y="84" width="88" height="26" rx="7" fill="var(--node)" stroke="var(--border)"/>
     <text x="840" y="101" font-size="11" text-anchor="middle" fill="var(--ink-1)">Booster T1</text>
-    <rect x="796" y="116" width="88" height="26" rx="7" fill="var(--surface-1)" stroke="var(--border)"/>
+    <rect x="796" y="116" width="88" height="26" rx="7" fill="var(--node)" stroke="var(--border)"/>
     <text x="840" y="133" font-size="11" text-anchor="middle" fill="var(--ink-1)">+ 3 more</text>
 
     <line x1="178" y1="96" x2="216" y2="96" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
@@ -180,11 +214,11 @@
     <line x1="760" y1="112" x2="790" y2="128" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
 
     <!-- distillation note -->
-    <rect x="222" y="160" width="324" height="64" rx="10" fill="var(--surface-1)" stroke="var(--border)" stroke-dasharray="none"/>
-    <text x="384" y="184" font-size="12.5" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Supervision: GMR (per-frame IK teacher)</text>
-    <text x="384" y="202" font-size="12" text-anchor="middle" fill="var(--ink-2)">+ co-trained contact head (auxiliary BCE)</text>
-    <text x="384" y="217" font-size="12" text-anchor="middle" fill="var(--ink-2)">77 clips × 5 robots, 2.5M paired frames</text>
-    <line x1="384" y1="160" x2="384" y2="136" stroke="var(--ink-3)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+    <rect x="192" y="160" width="272" height="64" rx="10" fill="var(--node)" stroke="var(--border)" stroke-dasharray="none"/>
+    <text x="328" y="184" font-size="12.5" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Supervision: GMR (per-frame IK teacher)</text>
+    <text x="328" y="202" font-size="12" text-anchor="middle" fill="var(--ink-2)">+ co-trained contact head (auxiliary BCE)</text>
+    <text x="328" y="217" font-size="12" text-anchor="middle" fill="var(--ink-2)">77 clips × 5 robots, 2.5M paired frames</text>
+    <line x1="328" y1="160" x2="315" y2="136" stroke="var(--ink-3)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arr)"/>
 
     <!-- z tap down to stage 2 -->
     <path d="M 486 126 L 486 300" stroke="var(--s1)" stroke-width="2.5" marker-end="url(#arrB)"/>
@@ -195,7 +229,7 @@
     <text x="28" y="336" font-size="13" font-weight="700" fill="var(--ink-2)" letter-spacing="0.06em">STAGE 2 — ACT-THROUGH-LATENT TRACKING (CVAE + DAgger, inside MuJoCo-Warp)</text>
 
     <!-- prior -->
-    <rect x="28" y="360" width="196" height="88" rx="10" fill="var(--surface-1)" stroke="var(--s3)" stroke-width="1.5"/>
+    <rect x="28" y="360" width="196" height="88" rx="10" fill="var(--node)" stroke="var(--s3)" stroke-width="1.5"/>
     <text x="126" y="384" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Prior ρ (deployable)</text>
     <text x="126" y="402" font-size="12" text-anchor="middle" fill="var(--ink-2)">proprioception</text>
     <text x="126" y="417" font-size="12" text-anchor="middle" fill="var(--ink-2)">+ reference goal window</text>
@@ -207,14 +241,14 @@
     <text x="332" y="418" font-size="11" text-anchor="middle" fill="#fff" opacity="0.9">the ONLY command</text>
 
     <!-- decoder policy -->
-    <rect x="440" y="360" width="180" height="88" rx="10" fill="var(--surface-1)" stroke="var(--s3)" stroke-width="1.5"/>
+    <rect x="440" y="360" width="180" height="88" rx="10" fill="var(--node)" stroke="var(--s3)" stroke-width="1.5"/>
     <text x="530" y="386" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Decoder policy</text>
     <text x="530" y="404" font-size="12" text-anchor="middle" fill="var(--ink-2)">MLP(proprio, z_cmd)</text>
     <text x="530" y="419" font-size="12" text-anchor="middle" fill="var(--ink-2)">→ PD targets, 50 Hz</text>
     <text x="530" y="434" font-size="12" text-anchor="middle" fill="var(--ink-2)">never sees the reference</text>
 
     <!-- sim -->
-    <rect x="664" y="360" width="220" height="88" rx="10" fill="var(--surface-1)" stroke="var(--border)"/>
+    <rect x="664" y="360" width="220" height="88" rx="10" fill="var(--node)" stroke="var(--border)"/>
     <text x="774" y="386" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Physics (MuJoCo-Warp)</text>
     <text x="774" y="404" font-size="12" text-anchor="middle" fill="var(--ink-2)">1,024 parallel G1 environments</text>
     <text x="774" y="419" font-size="12" text-anchor="middle" fill="var(--ink-2)">contacts · limits · gravity</text>
@@ -226,13 +260,14 @@
 
     <!-- proprio feedback loop -->
     <path d="M 774 448 L 774 500 L 126 500 L 126 448" fill="none" stroke="var(--ink-3)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arr)"/>
-    <text x="450" y="492" font-size="12" text-anchor="middle" fill="var(--ink-2)">simulated state → proprioception (closed loop)</text>
+    <text x="450" y="492" font-size="12" text-anchor="middle" fill="var(--ink-2)" paint-order="stroke fill" stroke="var(--surface-1)" stroke-width="5">simulated state → proprioception (closed loop)</text>
 
     <!-- teacher -->
-    <rect x="248" y="516" width="392" height="32" rx="8" fill="var(--surface-1)" stroke="var(--s2)" stroke-width="1.4"/>
+    <rect x="248" y="516" width="392" height="32" rx="8" fill="var(--node)" stroke="var(--s2)" stroke-width="1.4"/>
     <text x="444" y="537" font-size="12.5" text-anchor="middle" fill="var(--ink-1)">DAgger labels from a frozen explicit-command RL teacher (0.98)</text>
-    <line x1="590" y1="516" x2="560" y2="452" stroke="var(--s2)" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+    <line x1="252" y1="516" x2="180" y2="452" stroke="var(--s2)" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr)"/>
   </svg>
+  </div>
   <figcaption>Fig. 1 — The two-stage framework. The retargeting latent <code>z</code> (blue) is trained
   once by distillation and frozen; the command latent <code>z_cmd</code> (green) is co-trained under the
   control objective. The tracking policy's decoder receives <em>no explicit reference</em> — motion
@@ -269,7 +304,8 @@
   the decoder.</p></div>
 
   <figure>
-  <svg viewBox="0 0 900 346" role="img" aria-labelledby="figLoopTitle" style="width:100%;height:auto">
+  <div class="figscroll">
+  <svg viewBox="0 0 900 346" role="img" aria-labelledby="figLoopTitle">
     <title id="figLoopTitle">DAgger training loop: collect along prior path, label with teacher, update CVAE</title>
     <defs>
       <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -308,11 +344,12 @@
     <text x="450" y="190" font-size="12" text-anchor="middle" fill="var(--ink-2)">updated prior/posterior/decoder → next round's rollouts</text>
 
     <!-- deployment strip -->
-    <rect x="28" y="232" width="844" height="88" rx="10" fill="var(--surface-1)" stroke="var(--border)"/>
+    <rect x="28" y="232" width="844" height="88" rx="10" fill="var(--node)" stroke="var(--border)"/>
     <text x="48" y="258" font-size="13" font-weight="700" fill="var(--ink-2)" letter-spacing="0.05em">AT DEPLOYMENT</text>
     <text x="48" y="282" font-size="13" fill="var(--ink-1)">z_cmd = μ_prior (deterministic) → decoder(proprio, z_cmd) → PD targets.</text>
     <text x="48" y="302" font-size="13" fill="var(--ink-1)">No teacher, no posterior, no explicit reference to the actor — the 64-d latent is the entire motion interface.</text>
   </svg>
+  </div>
   <figcaption>Fig. 2 — The DAgger round. Green: rollouts collected on the deployment (prior) path.
   Orange: the frozen teacher supplies labels. Blue: the supervised CVAE update. The dashed return
   edge is what makes it DAgger rather than behavior cloning — the student's own mistakes enter the
@@ -339,7 +376,7 @@
     </svg>
     <figcaption>Fig. 3 — A 64-d co-trained latent command recovers 97% of the explicit teacher's
     completion (0.952 vs 0.98) where the frozen-latent interface managed 0.72. C and D are means of
-    3 seeds (±1 sd whiskers); teacher and L1 are single reference policies. Hover for exact values.</figcaption>
+    3 seeds (±1 sd in labels); teacher and L1 are single reference policies. Exact values in the table below.</figcaption>
   </figure>
   <details><summary>Table view</summary>
     <table class="data">
@@ -474,8 +511,8 @@ function drawBars() {
       fill: color, cursor: 'default',
     }, svg).addEventListener('mousemove', e =>
       showTip(e, `<strong>${d.label}</strong><br>completion ${d.v.toFixed(3)}${d.sd ? ' ± ' + d.sd.toFixed(3) : ''}<br><span class="t">${d.note}</span>`));
-    // sd whisker
-    if (d.sd) {
+    // sd whisker (only when visually resolvable)
+    if (d.sd && d.sd >= 0.01) {
       const cy = y + barH / 2;
       el('line', { x1: x(d.v - d.sd), y1: cy, x2: x(d.v + d.sd), y2: cy, stroke: css('--ink-1'), 'stroke-width': 1.5 }, svg);
       el('line', { x1: x(d.v - d.sd), y1: cy - 5, x2: x(d.v - d.sd), y2: cy + 5, stroke: css('--ink-1'), 'stroke-width': 1.5 }, svg);
@@ -483,7 +520,7 @@ function drawBars() {
     }
     // labels: text tokens, never series color
     el('text', { x: left - 12, y: y + barH / 2 + 4.5, 'text-anchor': 'end', 'font-size': 13.5, fill: css('--ink-1') }, svg).textContent = d.label;
-    el('text', { x: x(d.v + (d.sd || 0)) + 8, y: y + barH / 2 + 4.5, 'font-size': 13.5, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = d.v.toFixed(3);
+    el('text', { x: x(d.v + (d.sd || 0)) + 8, y: y + barH / 2 + 4.5, 'font-size': 13.5, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = d.v.toFixed(3) + (d.sd ? ' ±' + d.sd.toFixed(3) : '');
   });
   svg.setAttribute('viewBox', `0 0 900 ${top + barData.length * rowH + 36}`);
   svg.addEventListener('mouseleave', hideTip);
@@ -508,16 +545,13 @@ function drawLadder() {
   }
   el('line', { x1: x(0), y1: top - 6, x2: x(0), y2: top + ladder.length * rowH, stroke: css('--axisline'), 'stroke-width': 1 }, svg);
   el('text', { x: x(0.15), y: top + ladder.length * rowH + 38, 'text-anchor': 'middle', 'font-size': 12, fill: css('--ink-2') }, svg).textContent = 'joint tracking RMSE (rad) — lower is better';
-  const seq = ['#86b6ef', '#5598e7', '#2a78d6', '#1c5cab']; // sequential blue, ordinal-safe from step 250
-  const seqDark = ['#6da7ec', '#3987e5', '#256abf', '#184f95'];
-  const dark = document.documentElement.dataset.theme === 'dark' ||
-    (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  const seq = [css('--seq-1'), css('--seq-2'), css('--seq-3'), css('--seq-4')];
   ladder.forEach((d, i) => {
     const y = top + i * rowH + (rowH - barH) / 2;
     const w = x(d.v) - x(0);
     el('path', {
       d: `M ${x(0)} ${y} H ${x(0) + w - 4} Q ${x(0) + w} ${y} ${x(0) + w} ${y + 4} V ${y + barH - 4} Q ${x(0) + w} ${y + barH} ${x(0) + w - 4} ${y + barH} H ${x(0)} Z`,
-      fill: (dark ? seqDark : seq)[i],
+      fill: seq[i],
     }, svg).addEventListener('mousemove', e =>
       showTip(e, `<strong>${d.label}</strong><br>joint RMSE ${d.v.toFixed(3)} rad<br><span class="t">${d.note}</span>`));
     el('text', { x: left - 12, y: y + barH / 2 + 4.5, 'text-anchor': 'end', 'font-size': 13.5, fill: css('--ink-1') }, svg).textContent = d.label;
