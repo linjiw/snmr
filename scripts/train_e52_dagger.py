@@ -62,25 +62,37 @@ def mlp(sizes, out_dim):
 
 
 class Student(torch.nn.Module):
-    def __init__(self, proprio_dim, priv_dim, num_act, use_snmr_prior: bool):
+    """prior_goal in {"snmr", "none", "explicit", "explicit+snmr"} — what the PRIOR sees
+    besides proprio. v3: the explicit 58-dim motion command as deployable goal (UniTracker
+    parity); "+snmr" adds the projected frozen z window (additive H2 arm). The decoder NEVER
+    sees the goal (C1) — the reference reaches the actor only through the z bottleneck."""
+
+    def __init__(self, proprio_dim, priv_dim, num_act, prior_goal: str, cmd_dim: int):
         super().__init__()
-        self.use_snmr_prior = use_snmr_prior
+        self.prior_goal = prior_goal
         self.z_proj = mlp([Z_SNMR_DIM * len(Z_OFFSETS), 256], Z_CMD_DIM)
-        prior_in = proprio_dim + (Z_CMD_DIM if use_snmr_prior else 0)
+        goal_dim = {"none": 0, "snmr": Z_CMD_DIM, "explicit": cmd_dim,
+                    "explicit+snmr": cmd_dim + Z_CMD_DIM}[prior_goal]
+        prior_in = proprio_dim + goal_dim
         self.prior = mlp([prior_in, 512, 256], Z_CMD_DIM)
         self.posterior = mlp([prior_in + priv_dim, 512, 256], Z_CMD_DIM)  # residual head (C2)
         self.decoder = mlp([proprio_dim + Z_CMD_DIM, 512, 256, 128], num_act)
 
-    def prior_input(self, proprio, z_snmr_window):
-        if self.use_snmr_prior:
-            return torch.cat([proprio, self.z_proj(z_snmr_window)], -1)
-        return proprio
+    def prior_input(self, proprio, z_snmr_window, cmd):
+        parts = [proprio]
+        if "explicit" in self.prior_goal:
+            parts.append(cmd)
+        if "snmr" in self.prior_goal:
+            parts.append(self.z_proj(z_snmr_window))
+        return torch.cat(parts, -1) if len(parts) > 1 else proprio
 
-    def mu_prior(self, proprio, z_snmr_window):
-        return self.prior(self.prior_input(proprio, z_snmr_window))
+    def mu_prior(self, proprio, z_snmr_window, cmd):
+        return self.prior(self.prior_input(proprio, z_snmr_window, cmd))
 
-    def mu_residual(self, proprio, z_snmr_window, priv):
-        return self.posterior(torch.cat([self.prior_input(proprio, z_snmr_window), priv], -1))
+    def mu_residual(self, proprio, z_snmr_window, cmd, priv):
+        return self.posterior(
+            torch.cat([self.prior_input(proprio, z_snmr_window, cmd), priv], -1)
+        )
 
     def act(self, proprio, z_cmd):
         return self.decoder(torch.cat([proprio, z_cmd], -1))
@@ -88,7 +100,9 @@ class Student(torch.nn.Module):
 
 def main() -> None:
     arm = os.environ["E52_ARM"]
-    assert arm in ("a_prior_snmr", "b_prior_proprio"), arm
+    ARM_GOALS = {"a_prior_snmr": "snmr", "b_prior_proprio": "none",
+                 "c_prior_explicit": "explicit", "d_prior_explicit_snmr": "explicit+snmr"}
+    assert arm in ARM_GOALS, arm
     teacher_ckpt = pathlib.Path(os.environ["E52_TEACHER_CKPT"])
     out = pathlib.Path(os.environ["E52_OUT"])
     rounds = int(os.environ.get("E52_ROUNDS", "2000"))
@@ -140,7 +154,7 @@ def main() -> None:
         zs = wbt_latent._latent_at_offsets(motion_command, Z_OFFSETS)
         return torch.cat([(z - z_mean) / z_std for z in zs], -1)
 
-    student = Student(proprio_dim, critic_dim, num_act, arm == "a_prior_snmr").to(device)
+    student = Student(proprio_dim, critic_dim, num_act, ARM_GOALS[arm], MOTION_CMD_DIM).to(device)
     opt = torch.optim.Adam(student.parameters(), lr=3e-4)
 
     if eval_only:
@@ -151,7 +165,7 @@ def main() -> None:
     def split_obs(obs_dict):
         full = actor_norm(obs_dict["actor_obs"], update=False)
         priv = critic_norm(obs_dict["critic_obs"], update=False)
-        return full, full[:, MOTION_CMD_DIM:], priv
+        return full, full[:, MOTION_CMD_DIM:], full[:, :MOTION_CMD_DIM], priv
 
     n_envs = env.num_envs
     eps = torch.randn(n_envs, Z_CMD_DIM, device=device)  # episodic noise (C8)
@@ -161,25 +175,22 @@ def main() -> None:
     log_path = out / f"{arm}_train_log.jsonl"
 
     for rnd in range(rounds):
-        buf = {k: [] for k in ("proprio", "zwin", "priv", "a_teacher", "prev_mu", "prev_valid")}
+        buf = {k: [] for k in ("proprio", "zwin", "cmd", "priv", "a_teacher", "prev_mu", "prev_valid")}
         p_teacher = max(0.0, 1.0 - rnd / 200.0)  # short Ross-style mixing schedule
         with torch.no_grad():
             for _ in range(steps_per_round):
-                full, proprio, priv = split_obs(obs_dict)
+                full, proprio, cmd, priv = split_obs(obs_dict)
                 zwin = z_window()
                 a_teacher = teacher.act_inference({"actor_obs": full})
-                mu_p = student.mu_prior(proprio, zwin)
-                mu_q = mu_p + student.mu_residual(proprio, zwin, priv)
-                # v2: collect along the DEPLOYMENT path (prior z + episodic noise) so the
-                # teacher labels the states a prior-driven student actually visits. v1
-                # collected with posterior z; the prior path was out-of-distribution and
-                # collapsed at eval (0.1% completion) while the posterior path hit 0.84.
+                mu_p = student.mu_prior(proprio, zwin, cmd)
+                mu_q = mu_p + student.mu_residual(proprio, zwin, cmd, priv)
+                # collect along the DEPLOYMENT path (prior z + episodic noise): true DAgger.
                 a_student = student.act(proprio, mu_p + SIGMA * eps)
                 mix = (torch.rand(n_envs, 1, device=device) < p_teacher).float()
                 actions = mix * a_teacher + (1 - mix) * a_student
-                for k, v in (("proprio", proprio), ("zwin", zwin), ("priv", priv),
-                             ("a_teacher", a_teacher), ("prev_mu", prev_mu_post),
-                             ("prev_valid", prev_valid)):
+                for k, v in (("proprio", proprio), ("zwin", zwin), ("cmd", cmd),
+                             ("priv", priv), ("a_teacher", a_teacher),
+                             ("prev_mu", prev_mu_post), ("prev_valid", prev_valid)):
                     buf[k].append(v.clone())
                 prev_mu_post = mu_q
                 prev_valid = torch.ones(n_envs, device=device)
@@ -196,16 +207,15 @@ def main() -> None:
             perm = torch.randperm(n, device=device)
             for i in range(0, n, minibatch):
                 idx = perm[i:i + minibatch]
-                proprio, zwin, priv = data["proprio"][idx], data["zwin"][idx], data["priv"][idx]
-                mu_p = student.mu_prior(proprio, zwin)
-                mu_res = student.mu_residual(proprio, zwin, priv)
+                proprio, zwin, cmd, priv = (data["proprio"][idx], data["zwin"][idx],
+                                            data["cmd"][idx], data["priv"][idx])
+                mu_p = student.mu_prior(proprio, zwin, cmd)
+                mu_res = student.mu_residual(proprio, zwin, cmd, priv)
                 mu_q = mu_p + mu_res
-                # v2: half the samples use PRIOR z in the action loss (ControlVAE trains on
-                # ~40% prior-sampled latents) — forces the prior itself to carry the command
-                # so the deployment path (z = mu_p) is in-distribution for the decoder.
-                use_prior = (torch.rand(mu_q.shape[0], 1, device=device) < 0.5).float()
-                mu_z = use_prior * mu_p + (1 - use_prior) * mu_q
-                z = mu_z + SIGMA * torch.randn_like(mu_z)
+                # v3: action loss on posterior z only (v2's 50% prior-z mix degraded the
+                # posterior 0.84->0.42 without rescuing the prior); with a goal-conditioned
+                # prior the residual is small and the KL closes the gap (UniTracker).
+                z = mu_q + SIGMA * torch.randn_like(mu_q)
                 a = student.act(proprio, z)
                 l_act = (a - data["a_teacher"][idx]).square().sum(-1).mean()
                 l_kl = mu_res.square().sum(-1).mean() / (2 * SIGMA**2)
@@ -244,11 +254,11 @@ def main() -> None:
     rmse_sum = torch.zeros(n_envs, device=device)
     with torch.no_grad():
         for step in range(HORIZON_STEPS):
-            _, proprio, priv = split_obs(obs_dict)
+            _, proprio, cmd, priv = split_obs(obs_dict)
             zwin = z_window()
-            z_cmd = student.mu_prior(proprio, zwin)
+            z_cmd = student.mu_prior(proprio, zwin, cmd)
             if eval_z == "posterior":
-                z_cmd = z_cmd + student.mu_residual(proprio, zwin, priv)
+                z_cmd = z_cmd + student.mu_residual(proprio, zwin, cmd, priv)
             actions = student.act(proprio, z_cmd)
             obs_dict, _, dones, _ = env.step({"actions": actions})
             rmse = env.log_dict["eval/error_joint_pos_rmse"]

@@ -1,0 +1,11 @@
+{
+  "arm": "a_prior_snmr",
+  "eval_z": "posterior",
+  "num_rollouts": 100,
+  "completion_rate": 0.41999998688697815,
+  "mean_survival_s": 6.59119987487793,
+  "joint_rmse_rad": 0.16566821932792664,
+  "teacher_ckpt": "logs/WholeBodyTracking/20260727_123641-e51v2_bodyfix_jointrew_seed0-locomotion/model_07999.pt",
+  "rounds": 0,
+  "beta_kl": 0.1
+}

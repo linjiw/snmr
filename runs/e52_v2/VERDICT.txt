@@ -1,0 +1,10 @@
+E52 v2 verdict (2026-07-28): prior-path still fails at scale — A' (snmr prior) 0.021,
+B (proprio-only prior) 0.049 completion; and the 50% prior-z action-loss mix DEGRADED the
+posterior path (A' posterior diagnostic: 0.84 in v1 -> 0.42 in v2). Diagnosis: neither prior
+carries the GOAL — proprio-only and frozen-z priors cannot tell the decoder where the
+reference is going; the posterior could (via privileged explicit reference), so v1's
+posterior worked. UniTracker's deployable prior is GOAL-CONDITIONED (deployable reference
+window). v3: prior sees the deployable 58-dim explicit motion command (arm C), or
+explicit+snmr (arm D, additive H2 claim); action loss back on posterior z only; prior-path
+collection kept. Note arm B v2 log contaminated by v1 zombie process (rounds interleaved) —
+eval json is v2's own (overwritten after zombie died 21:48; v2 B finished 00:12).

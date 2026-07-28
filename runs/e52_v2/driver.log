@@ -1,0 +1,7 @@
+=== E52 a_prior_snmr start 2026-07-27T20:00:58Z ===
+=== E52 b_prior_proprio done 2026-07-27T21:48:35Z: {  "arm": "b_prior_proprio",  "num_rollouts": 1024,  "completion_rate": 0.0,  "mean_survival_s": 1.66748046875,  "joint_rmse_rad": 0.18148866295814514,  "teacher_ckpt": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260727_123641-e51v2_bodyfix_jointrew_seed0-locomotion/model_07999.pt",  "rounds": 2000,  "beta_kl": 0.1} ===
+E52 arms complete
+=== E52 a_prior_snmr done 2026-07-27T22:18:39Z: {  "arm": "a_prior_snmr",  "eval_z": "prior",  "num_rollouts": 1024,  "completion_rate": 0.0205078125,  "mean_survival_s": 2.932265520095825,  "joint_rmse_rad": 0.18585079908370972,  "teacher_ckpt": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260727_123641-e51v2_bodyfix_jointrew_seed0-locomotion/model_07999.pt",  "rounds": 2000,  "beta_kl": 0.1} ===
+=== E52 b_prior_proprio start 2026-07-27T22:18:39Z ===
+=== E52 b_prior_proprio done 2026-07-28T00:12:18Z: {  "arm": "b_prior_proprio",  "eval_z": "prior",  "num_rollouts": 1024,  "completion_rate": 0.048828125,  "mean_survival_s": 3.3110742568969727,  "joint_rmse_rad": 0.1861574798822403,  "teacher_ckpt": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260727_123641-e51v2_bodyfix_jointrew_seed0-locomotion/model_07999.pt",  "rounds": 2000,  "beta_kl": 0.1} ===
+E52 arms complete
