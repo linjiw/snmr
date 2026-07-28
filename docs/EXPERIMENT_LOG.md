@@ -1224,3 +1224,26 @@ Verdicts (preregistered gates):
 
 Next per design doc: multi-seed replication of C/D (the +2pp needs CIs), then multi-clip
 (H4's real test), then cross-embodiment command (the flagship: one z stream, two robots).
+
+### E52 multi-seed replication (seeds 0-2) - **ACT-THROUGH-LATENT REPLICATES ROBUSTLY (C 0.944±0.008, D 0.952±0.002); THE +2pp SNMR-ADDITIVE DELTA DOES NOT REPLICATE (paired D-C: +2.1/+0.5/-0.2pp, mean +0.8pp) — H4 NULL ON SINGLE-CLIP, AS PREREGISTERED**
+`runs/e52_v3_seeds/` (seeds 1-2 x arms C/D, same recipe/budget as v3 seed 0; 1024 rollouts each).
+
+| seed | C completion | D completion | D-C |
+|---|---|---|---|
+| 0 | 0.935 | 0.955 | +2.1pp |
+| 1 | 0.945 | 0.950 | +0.5pp |
+| 2 | 0.953 | 0.951 | -0.2pp |
+| **mean** | **0.944±0.008** | **0.952±0.002** | **+0.8pp** |
+
+Verdicts:
+1. **The headline claim REPLICATES with tight variance:** a 64-d co-trained latent as the
+   actor's only motion command reaches 0.94-0.95 completion vs teacher 0.98 across three
+   seeds (RMSE 0.127-0.128 vs teacher 0.122). Robust, promoted, paper-ready.
+2. **The single-clip SNMR-additive claim is a null:** seed-0's +2.1pp was seed noise
+   (paired deltas straddle zero). Honest read per the preregistered E53 framing: on
+   single-clip walk the explicit command already saturates the goal channel — exactly what
+   H4 predicted. Curious secondary: D's across-seed variance is 4x tighter than C's
+   (0.002 vs 0.008) — the z window may act as a stabilizer; worth one line, not a claim.
+3. Claim ordering for the paper: act-through-latent (replicated) >> latent-additive-on-
+   -single-clip (null). The additive question now rides on E53 (multi-clip) and E54
+   (cross-embodiment, where explicit commands are dimensionally unshareable).
