@@ -1351,3 +1351,26 @@ Dataset motion-statistics side-by-side (10-clip samples): omni terrain clips are
 phase heavy (both-feet-off 62% of frames vs 18% ours - note: height-threshold proxy at
 z>0.12m, climbing inflates it), slower joints (p95 1.4 vs 3.7 rad/s), higher feet (p95
 0.76 vs 0.45 m). Complementary, not redundant.
+
+### E55-A data prep - OmniRetarget -> SNMR pair conversion - **424 paired clips / 97k frames (0.9 h) converted; skeleton topology INFERRED per clip (MST over bone-length variance, all <2mm std); TERRAIN SUBSET IS NATURALLY MULTIMODAL (same human, 2-4 different robot trajectories per clip via z-scale variants)**
+`scripts/convert_omni_pairs.py` -> `/home/ec2-user/work/retarget/data/pairs_omni/unitree_g1/`
+(312 robot-object originals @52 human joints + 112 robot-terrain variants @53 joints; 33
+robot-terrain clips + all robot-object-terrain ship WITHOUT paired human -> unusable as
+pairs, skipped).
+
+Key design decisions:
+1. **Skeleton-agnostic ingestion**: topology inferred per source via MST over temporal
+   bone-length variance (rigid bones = ~0 std; verified <2mm on all 424 clips). Two
+   different human skeletons (52-joint OMOMO, 53-joint in-house mocap) now coexist with
+   LAFAN1's 24 joints in the training pool — the encoder's skeleton-agnosticism claim
+   gets its first real test in E55-A training.
+2. **Synthetic orientations** (encoder wants quats; source has positions only): per-joint
+   frames from bone directions, flagged `human_quat_synthetic=True`; E55-A carries a
+   drop-rot-features ablation arm to price this.
+3. **Found: real conditional multimodality in-distribution.** 29 terrain clips carry the
+   IDENTICAL human motion with 2-4 DIFFERENT robot trajectories (z-scale terrain variants;
+   verified human_joints byte-identical across climb_00 z0.8/z0.9). Together with
+   GMR-vs-OmniRetarget disagreement on overlapping styles, the two-teacher data now has
+   verifiable one-to-many structure — the E47 Dirac objection to flow/generative decoders
+   is REMOVED for this data (E56-C unblocked once E55-A lands).
+4. Object trajectories preserved (`object_pose` 7D) for future interaction-conditioning.
