@@ -23,7 +23,7 @@ git -C "$MAIN" rev-parse HEAD > "$OUT/snmr_revision.txt"
 cp "$0" "$OUT/protocol.sh"
 
 # --- Stage 0: multi-clip explicit teacher (bodyfix + joint reward) ---------------------
-TEACHER_NAME=e53_teacher_multi8_seed0
+TEACHER_NAME=e53_teacher_multi8_16k_seed0
 if [[ ! -f "$OUT/TEACHER_DONE" ]]; then
   # train only if no completed checkpoint is recorded (idempotent resume: the first launch
   # trained to 8k but died in the eval step; do not retrain)
@@ -34,13 +34,13 @@ if [[ ! -f "$OUT/TEACHER_DONE" ]]; then
       "$MAIN/scripts/train_agent_joint_reward.py" \
       exp:g1-29dof-wbt simulator:mjwarp logger:disabled \
       --training.num-envs 1024 --training.seed 0 \
-      --algo.config.num-learning-iterations 8000 --algo.config.save-interval 2000 \
+      --algo.config.num-learning-iterations 16000 --algo.config.save-interval 4000 \
       --randomization.ignore-unsupported True \
       --command.setup-terms.motion-command.params.motion-config.motion-file "" \
       --command.setup-terms.motion-command.params.motion-config.motion-dir "$MOTION_DIR" \
       --training.name "$TEACHER_NAME" >> "$OUT/$TEACHER_NAME.train.log" 2>&1
     RUN_DIR=$(ls -1dt "$HOLOSOMA"/logs/WholeBodyTracking/*-"$TEACHER_NAME"-locomotion | head -1)
-    TEACHER_CKPT="$RUN_DIR/model_07999.pt"
+    TEACHER_CKPT="$RUN_DIR/model_15999.pt"
     test -f "$TEACHER_CKPT"
     echo "$TEACHER_CKPT" > "$OUT/teacher_ckpt.txt"
   fi

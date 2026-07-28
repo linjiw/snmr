@@ -1247,3 +1247,26 @@ Verdicts:
 3. Claim ordering for the paper: act-through-latent (replicated) >> latent-additive-on-
    -single-clip (null). The additive question now rides on E53 (multi-clip) and E54
    (cross-embodiment, where explicit commands are dimensionally unshareable).
+
+### E53 Stage-0 - Multi-clip teacher, 8k budget - **GATE FAILED (mean per-clip completion 0.378 < 0.6); PREREGISTERED RESPONSE: 16k BUDGET**
+`runs/e53_multiclip/` teacher (8-clip motion_dir, E51 arm-A recipe, 8k @1024 envs; per-clip
+100-rollout evals).
+
+| clip | completion | | clip | completion |
+|---|---|---|---|---|
+| walk1 | 0.81 | | run1 | 0.34 |
+| push1 | 0.57 | | jumps1 | 0.19 |
+| walk3 | 0.49 | | fight1 | 0.11 |
+| sprint1 | 0.43 | | dance1 | 0.08 |
+
+Mean 0.378. Reading: the budget, not the recipe — walk1 held 0.81 (vs 0.98 single-clip),
+and difficulty ordering (walk > push > run > jumps/fight/dance) matches motion dynamics;
+8k iters across 8 heterogeneous clips is ~1/8 the per-clip interaction of the single-clip
+runs. Literature check: GMT/BeyondMimic-class multi-clip recipes run 20k+ iters at 4096
+envs. Per protocol §3 the response is budget iteration BEFORE touching the recipe:
+16k teacher relaunched (e53_teacher_multi8_16k_seed0, ~7.5h). If 16k still < 0.6, next
+lever is envs 1024→2048 (memory-checked) before any recipe change.
+
+Infra note: two driver defects found+fixed on the way (wbt_metrics requires exactly one
+motion → per-clip eval loops; idempotent teacher resume to avoid retraining after eval-step
+failures).
