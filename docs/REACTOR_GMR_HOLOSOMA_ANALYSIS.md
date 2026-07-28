@@ -92,8 +92,9 @@ innovations (physics-generated references; reference/policy co-adaptation).
   **no longer a contribution**.
 - **AdaMorph (2601.07284) is the most dangerous competitor**, not ReActor: single
   embodiment-aware transformer, "morphology-agnostic latent intent space," AdaLN prompts,
-  **12 humanoids, claims zero-shot to unseen robots** — the claim our LORO currently fails at
-  5.2×. Our moat against it is latent *analysis* + latent-as-command, not retargeting quality.
+  **12 humanoids; zero-shot claim is to unseen MOTIONS, not unseen robots** (verified against
+  their abstract 2026-07-28 — our earlier reading overstated it; their claim does NOT cover
+  our failed LORO setting, which remains open for everyone). Our moat against it is latent *analysis* + latent-as-command, not retargeting quality.
 - **Bilevel ancestry:** Zhao et al. CoRL 2024 (2410.01968) already alternated policy/reference
   optimization with a latent motion model; KungfuBot's bilevel adapts tolerance, not geometry;
   PhyGile (2603.19305) is the nearest concurrent (generation-side). ReActor is plausibly first

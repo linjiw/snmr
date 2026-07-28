@@ -57,7 +57,7 @@ Three candidate upgrades, with the evidence we already hold:
 3. **Flow-matching / diffusion decoder: NOT until multimodality exists.** We hold
    theory-grade negative evidence (E43–E47): the retargeting conditional from a SINGLE
    deterministic IK teacher is locally near-Dirac — a generative decoder has nothing to
-   model, and guidance is provably annihilated. The fix is upstream: **E55's two-teacher
+   model, and guidance vanishes in the Dirac limit (corollary OURS, from Feng ICML'25's covariance-preconditioning identity — their paper has no deterministic-limit theorem). The fix is upstream: **E55's two-teacher
    data (GMR + OmniRetarget) creates real conditional multimodality**, after which a flow
    decoder becomes a live hypothesis (E56-C, gated on E55 source-2 landing). This ordering
    converts our own negative result into the experiment design.
@@ -121,3 +121,46 @@ at 6M unless E55 data lands first) BEFORE E56-A (transformer — now expected to
 scale per MolGPS; run it as a confirmatory data-efficiency comparison, not as an upgrade
 bet). E56-C (flow) unblocked by the E55-A terrain multimodality finding but sequenced after
 E55-A training verdict.
+
+## Addendum 2 (2026-07-28, model-variants literature + local data audit — full report in agent log)
+
+**Local audit findings (verified on disk):**
+- Two-teacher multimodality QUANTIFIED: identical-human/different-robot siblings are
+  bit-identical on the human side (max abs diff 0.0) with robot DoF divergence mean 0.077
+  rad (max-joint 1.36) — **12-40x above E47's 0.0019 rad multimodality floor**, and
+  leg-dominated (0.110 vs 0.076 rad arms) = lands on our foot-skate axis.
+- BUT the multimodality is **latent-variable-explained** (terrain z-scale / object pose =
+  hidden variable h; p(robot|human) multimodal, p(robot|human,h) near-Dirac again).
+  Conditioning and generation are CONFOUNDED explanations — E56-D separates them.
+- v1 E55-A pilot pool was missing ALL rot/trans siblings (the richest 197 pairs) +
+  z_scale 1.0 → killed at <4k steps, full pool converted (1,938 clips / 365k frames /
+  3.38 h), v2 relaunched.
+- Skeleton compatibility is the REVERSE of assumed: 53-joint mocap names overlap LAFAN
+  21/22; 52-joint OMOMO overlaps SMPL-H only 3/52.
+
+**E56-D (NEW, promoted to first — teacher-conditioned decoder):** 2-way teacher embedding
+concat to embodiment code feeding AdaLN (broadcast per-frame, Kobus'17: feature > prefix
+token), dropped to null with p=0.5 (HOVER Bernoulli(0.5) precedent). Eval: decode under
+each code + null. **This is the instrument that decides whether the 0.077 rad divergence
+is explainable (conditioning suffices → E56-C dead again, publishable negative) or
+residual (generative head justified).** Cost ~4h. Kill: per-teacher-code MPJPE not >=10%
+better than pooled no-code on omni clips AND null-code not between the two.
+
+**E56-C narrowed to MeanFlow (2505.13447), output-space head:** at a Dirac conditional the
+MeanFlow bootstrap term vanishes IDENTICALLY and the model becomes noise-independent
+regression (derivation ours from their Eqs. 3+12) — downside bounded at our current
+baseline, the property that makes it safe post-E43-47. Gates: (i) NFE=1 matches baseline
+within +0.3cm (implementation check); (ii) resampling reproduces >=50% of the 0.077 rad
+spread (else close the generative line permanently). ACT's ablation (35.3%->2% human data,
+no effect deterministic data) is the closest published prediction. Alternative if GPU
+tight: 2-head relaxed-WTA decoder (eps=0.05, WINDOW-level assignment per Seo'20 — per-frame
+WTA would thrash mid-clip).
+
+**Two-teacher theory:** pool, don't compose (RRR 2302.11552: mixtures unreachable by score
+composition; products select the intersection = wrong target). Averaging destroys
+complementarity (CA-MKD: -1.67%; Fukuda'17 switched training). Teacher-ID conditioning
+w/ dropout = genuine literature gap (zero hits) — E56-D is novel.
+
+**Doc corrections applied:** Feng attribution (Dirac corollary is ours), AdaMorph zero-shot
+scope (unseen MOTIONS not robots — LORO setting remains open for everyone). Cite SAME/NSM/
+DeepPhase/LMP by DOI (no arXiv IDs exist).
