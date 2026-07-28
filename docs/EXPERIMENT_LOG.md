@@ -1168,3 +1168,30 @@ v2 fixes (train_e52_dagger.py, committed): (1) DAgger collection acts along the 
 action-loss samples decode prior z instead of posterior z (ControlVAE precedent), forcing
 the prior to carry the command. Both arms relaunched (same budget, same gates: promote iff
 >=0.85 completion; A'-B isolates the SNMR-prior transfer claim).
+
+### E52 v2 - Prior-path collection + prior-z action mix - **STILL COLLAPSED (A' 0.021, B 0.049); PRIOR-Z MIX DEGRADED THE POSTERIOR (0.84->0.42); DIAGNOSIS: THE PRIOR LACKS THE GOAL -> v3 GOAL-CONDITIONED PRIOR**
+`runs/e52_v2/` (both arms 2000 rounds @1024 envs; arm-B train log contaminated by a v1
+zombie process — see VERDICT.txt; eval jsons are v2's own).
+
+| path | v1 | v2 |
+|---|---|---|
+| A' prior (deploy) | 0.001 | 0.021 |
+| B prior (deploy) | (killed) | 0.049 |
+| A' posterior (diagnostic) | **0.84** | 0.42 |
+
+Reading: prior-path DAgger collection helped 20x but absolute level stays dead, and the
+50% prior-z action-loss mix actively hurt the posterior. The consistent explanation across
+v1+v2: **neither a proprio-only nor a frozen-z prior carries the GOAL.** The posterior works
+because its privileged input includes the explicit reference — it knows where the motion is
+going; the prior does not, so prior-driven control cannot anticipate. UniTracker's deployable
+prior is goal-conditioned on the deployable reference window — the one structural piece we
+had not replicated. (PULSE's proprio-only prior is an exploration center for downstream RL,
+never the deployed command — mis-transferred design.)
+
+v3 (launched): arm C prior = [proprio, explicit 58-dim cmd]; arm D = [proprio, cmd,
+proj(z_snmr)] — the H2 claim becomes ADDITIVE (does z help beyond the explicit goal?);
+action loss back on posterior z only; prior-path collection kept. C1 preserved: the decoder
+never sees the goal — the reference reaches the actor only through the 64-d z bottleneck.
+Gates: promote iff C or D >= 0.85; D - C = SNMR-latent additive value; if C passes and D~C,
+act-through-latent works but frozen z adds nothing on single-clip walk (H4: value expected
+at multi-clip/cross-embodiment scale, not here).
