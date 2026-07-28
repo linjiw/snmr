@@ -1270,3 +1270,37 @@ lever is envs 1024→2048 (memory-checked) before any recipe change.
 Infra note: two driver defects found+fixed on the way (wbt_metrics requires exactly one
 motion → per-clip eval loops; idempotent teacher resume to avoid retraining after eval-step
 failures).
+
+### BENCH-v2 - Regenerated retargeting benchmark (GMR/OmniRetarget-style) - **G1 specialist 3.66 cm CI [3.46, 3.86] over 7 held-out clips; shared all-5 network 2.92-6.04 cm; skate gap confirmed as the honest weakness (0.29 vs teacher 0.05 m/s)**
+`runs/bench_g1_v2.{json,md}` + `runs/bench_all5_v2.{json,md}` (scripts/benchmark.py, CPU,
+2000-resample bootstrap CIs over per-clip means; same-code scoring of student and teacher).
+
+Method notes adopted from the two papers (saved in /home/ec2-user/work/retarget/papers/):
+- **OmniRetarget Table II layout**: every metric shown beside the teacher/baseline's own
+  value (their per-task penetration/skating/contact-preservation table); their honest-
+  concession pattern ("GMR achieves the highest contact preservation ... however, this
+  outcome largely reflects its keypoint-matching objective").
+- **GMR paper protocol**: Q1-Q3 framing; per-motion success tables (aggregate tables hide
+  failures — their Dance-1/Dance-5 outliers); three eval regimes (sim / sim-dr / sim2sim);
+  E_g-mpbpe / E_mpbpe / E_mpjpe metric family; artifact taxonomy (penetration, self-
+  intersection, sudden joint jumps) tied to per-motion failures; user study for "look".
+
+Our numbers (all per-clip bootstrap over the 7 held-out clips):
+| | G1 specialist | all-5 shared (G1 row) |
+|---|---|---|
+| MPJPE | 3.66 cm [3.46, 3.86] | 6.04 cm |
+| foot skate | 0.289 vs teacher 0.052 m/s | 0.440 vs 0.052 |
+| penetration frac | 0.0094 vs 0.0017 | 0.0580 vs 0.0017 |
+| joint jumps | 0.0050 vs 0.0067 (student BETTER) | — |
+| limit violations | 0 (by construction) vs 0 (hard QP) | 0 |
+| throughput | 671 fps CPU vs GMR ~160 | 312-1314 fps across robots |
+
+Per-clip: MPJPE stable 3.3-4.1 cm across categories; skate worst on locomotion clips
+(walk/dance/run 0.36-0.37) where stance dominates; jumps1 the penetration outlier for BOTH
+student (0.040) and teacher (0.012) — landing frames. Toddy again best-served robot
+(2.92 cm; scale outlier → latent transfers content, not scale).
+
+NOTE vs earlier numbers: 3.66 cm here vs the historical "2.18 cm" (sparse eval at G1 gate):
+this benchmark uses denser windows + bootstrap; 3.66 [3.46,3.86] supersedes 2.18 for public
+claims (site KPI updated). Published: docs/site/benchmark.html (per-clip dumbbells,
+per-robot bars, downstream trackability section with scope note).
