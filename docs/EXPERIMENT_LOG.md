@@ -1389,3 +1389,26 @@ one-to-many structure is dataset-wide. Object-subset divergence is smaller on av
 (0.031 rad — rot/trans variants keep more of the pose) but has the largest single-joint
 excursions (4.69 rad — arm swaps for box handling). E56-D's teacher/variant-code arm has
 its measurement target.
+
+### E53 Stage-0 @16k - Multi-clip teacher, doubled budget - **GATE FAILED AGAIN (0.465 < 0.6, up from 0.378 at 8k); difficulty ladder unchanged; next preregistered lever (2048 envs) BLOCKED by GPU contention — queued**
+Per-clip completions at 16k (vs 8k): walk1 0.89 (0.81), push1 0.61 (0.57), walk3 0.53
+(0.49), run1 0.51 (0.34), sprint1 0.50 (0.43), jumps1 0.35 (0.19), fight1 0.17 (0.11),
+dance1 0.16 (0.08). Reading: budget doubling lifted every clip (mean +8.7pp) but the
+dynamic tail (dance/fight/jumps) remains far below gate — consistent with the literature
+norm that multi-clip trackers at this heterogeneity run 4096 envs x 20-30k iters. The
+preregistered response (envs 1024->2048) needs ~9 GB; an external job currently holds
+12.3 GB -> queued behind it. If 2048 envs also fails, the preregistered reframe applies
+(Q2 via cross-embodiment; multi-clip reported as in-progress).
+
+### E55-A v2 - base arm COMPLETE - **LAFAN-ONLY CONTROL: 3.31 cm lafan-val at 40k (BEATS the 3.66 benchmark band); omni-val untouched (28.9/25.1 cm) as expected**
+`runs/e55a_base/` final: lafan1_val 3.31 cm | omni52 28.95 | omni53 25.06. The control
+confirms (a) our training recipe reproduces benchmark-grade fidelity from scratch in 11 h
+on a SHARED GPU, (b) interaction motions are unreachable without interaction data.
+
+### E55-A v2 - twoteach arm INTERIM @16k/40k - **OMNI ERROR COLLAPSES 26.7->6.5 cm (omni52) / 25.9->9.5 (omni53) — the shared latent ABSORBS interaction-rich data; lafan at 8.6 cm mid-training (interference to watch)**
+Two-teacher training reaches 4x better interaction-clip fidelity than the control by 16k
+steps while sharing one latent space. The open question for the final verdict: does
+lafan-val recover toward <=3.6 cm by 40k (the no-forgetting gate is base+0.3 = 3.61 cm)
+or is there a real interference price? Curve to watch: lafan 8.6 cm at 16k vs base's
+4.8 cm at the same step — but base plateaued late (5.4->4.4->4.8->...->3.31), so
+convergence order matters; verdict at 40k.
