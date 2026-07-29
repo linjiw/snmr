@@ -206,8 +206,11 @@ def main() -> None:
     lafan_tr, lafan_va = load_lafan(device)
     omni_tr, omni_va = load_omni(device)
     pools = [lafan_tr] + (omni_tr if arm == "twoteach" else [])
-    # sampling proportional to sqrt(clip count) — omni has many short clips
-    weights = np.sqrt([len(p.clips) for p in pools]); weights /= weights.sum()
+    # v3: sampling proportional to sqrt(FRAME count), not clip count. v2's sqrt-clip-count
+    # gave lafan 23% of samples despite 82% of frames (omni clips are ~10x shorter),
+    # producing avoidable interference (lafan-val 6-7cm vs base 3.31cm).
+    frames = np.array([sum(c["human_pos"].shape[0] for c in p.clips) for p in pools], float)
+    weights = np.sqrt(frames); weights /= weights.sum()
     print(f"arm={arm} pools:", [(p.name, len(p.clips)) for p in pools], "weights", weights.round(2))
 
     model = SNMR(SNMRConfig(latent_dim=128, enc_hidden=256, dec_hidden=256,
