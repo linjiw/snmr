@@ -1,0 +1,14 @@
+{
+ "robot-terrain": {
+  "identical_human_pairs": 164,
+  "human_max_abs_diff": 0.0,
+  "dof_divergence_mean_rad": 0.06847776639592341,
+  "dof_divergence_max_rad": 1.3616957064550754
+ },
+ "robot-object": {
+  "identical_human_pairs": 4495,
+  "human_max_abs_diff": 0.0,
+  "dof_divergence_mean_rad": 0.030680851361975053,
+  "dof_divergence_max_rad": 4.69264958720388
+ }
+}

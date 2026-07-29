@@ -1374,3 +1374,18 @@ Key design decisions:
    verifiable one-to-many structure — the E47 Dirac objection to flow/generative decoders
    is REMOVED for this data (E56-C unblocked once E55-A lands).
 4. Object trajectories preserved (`object_pose` 7D) for future interaction-conditioning.
+
+### E55-A v2 base arm - LAFAN1-only control @16k/40k steps - **INTERIM: lafan-val 4.4-4.8 cm (converging toward the 3.66 benchmark); omni-val 26-29 cm UNTRAINED (the transfer gap the twoteach arm must close)**
+`runs/e55a_base/` (full-pool v2; base arm trains ONLY LAFAN1 pairs, evals all three pools).
+lafan1_val: 42 -> 7.6 -> 5.4 -> 4.4 -> 4.8 cm (0-16k). omni52/omni53 val stay at 26-29 cm —
+a model that never saw interaction data CANNOT retarget it (expected; this is the pretest
+that makes the twoteach comparison meaningful). Curve still descending at 16k; the 40k
+budget looks right. NOTE: base-arm eval uses ~1.14M-param config (temporal off).
+
+### E56-D provenance - Full-dataset multimodality quantification - **4,659 identical-human pairs (human max-abs-diff EXACTLY 0.0); dof divergence: terrain 0.068 rad mean / 1.36 max, object 0.031 rad mean / 4.69 max — 16-36x above E47's 0.0019 rad floor**
+`runs/e56d_multimodality_provenance.json` (all sibling groups, not the agent's sample:
+164 terrain pairs + 4,495 object pairs). Confirms and extends the agent audit: the
+one-to-many structure is dataset-wide. Object-subset divergence is smaller on average
+(0.031 rad — rot/trans variants keep more of the pose) but has the largest single-joint
+excursions (4.69 rad — arm swaps for box handling). E56-D's teacher/variant-code arm has
+its measurement target.
