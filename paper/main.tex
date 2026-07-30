@@ -32,21 +32,23 @@
 The dominant humanoid motion pipeline is two-stage: retarget human motion to the robot,
 then train a tracking policy on the result. The interface between the stages is a stack
 of robot-space joint targets---a representation chosen for convenience, not for control.
-We ask what a \emph{learned} interface carries instead. We first distill a per-frame IK
-retargeter into one multi-embodiment network with a shared latent, then audit that latent
-with falsification-first probes: it is content-rich (75\% cross-embodiment clip retrieval
-at 1.8\% chance; CKA 0.91), embodiment-aligned but not invariant (0.28 linear probe vs
-0.91 nonlinear attacker), physically impoverished, and---frozen---inert as a control
-input, a null we replicate and that an independent ablation confirms. Making the interface
-load-bearing requires co-training: a goal-conditioned residual-to-prior CVAE,
-DAgger-distilled from an RL teacher, whose 64-d latent is the tracking policy's
-\emph{only} motion command, closes the interface gap from $-33$ points (frozen latent,
-0.65) to $-2.8$ points ($0.952\pm0.002$ vs a $0.98$ teacher; three seeds, one training
-regime). The same latent absorbs a second, interaction-rich teacher: adding terrain and
-object-interaction clips---three human skeletons, two teachers, one network---cuts
-interaction-clip error $3$--$5\times$ at a measured $+1.05$\,cm cost on locomotion. We
-release a preregistered negative-results ledger and a measurement-substrate defect whose
-repair cut joint tracking error by 46\%.
+We take a first step toward a \emph{learned} interface. We distill a per-frame IK
+retargeter into one multi-embodiment network with a shared retargeting latent
+$z_{\mathrm{ret}}$ (128-d, five humanoids), and audit that latent with pre-specified
+probes: it is instance-aligned across embodiments (window retrieval 75--83\% at 1.02\%
+chance; CKA 0.91) but carries little semantic motion category (0.151 vs 0.125 chance),
+is embodiment-aligned but not invariant (0.28 linear probe vs 0.91 nonlinear attacker),
+physically impoverished (contact F1 0.088 without supervision), and---frozen---inert as
+a control input, a null that an independent ablation confirms. On the control side we
+show a separate 64-d command bottleneck $z_{\mathrm{cmd}}$, produced by a
+goal-conditioned residual-to-prior CVAE and DAgger-distilled from an explicit-command RL
+teacher, can be the actor's \emph{only} motion input at $0.952\pm0.002$ ten-second
+completion versus the $0.98$ teacher (three seeds), where naive alternatives fail
+(frozen concatenation is harmful; goal-free priors reach 0.02--0.05). The retargeting
+network also absorbs a second, interaction-rich teacher across three human skeletons,
+cutting interaction-clip articulation error $3$--$5\times$ at $+1.05$\,cm on locomotion
+(preliminary: ground-truth root). We release a pre-specified negative-results ledger and
+a measurement-substrate defect whose repair cut joint tracking error by 46\%.
 \end{abstract}
 
 % ============================ FIGURE 1 ============================
@@ -165,17 +167,19 @@ falsification-first probes before asking it to do anything (\S\ref{sec:audit}). 
 make the interface load-bearing (\S\ref{sec:method}): a conditional VAE whose
 goal-conditioned prior compresses the reference into a 64-d command latent, trained by
 DAgger from an explicit-command RL teacher, with the reference visible to the prior but
-never to the decoder. On a simulated Unitree~G1 the latent-only command reaches
-$0.952\pm0.002$ ten-second completion against the 0.98 teacher across three seeds---the
-interface gap shrinks from thirty points to under three
-(Fig.~\ref{fig:teaser}c). The same latent then absorbs a second, interaction-rich
+never to the decoder. On a simulated Unitree~G1 this bottleneck reaches
+$0.952\pm0.002$ ten-second completion against its 0.98 teacher across three seeds
+(Fig.~\ref{fig:teaser}c); its prior still consumes the robot-space goal, so we present it
+as the actor-side half of the interface program, with the source-side prior specified as
+the open step. The same latent then absorbs a second, interaction-rich
 teacher---terrain and object clips from a fundamentally different retargeter, arriving on
 different human skeletons---cutting interaction-clip error $3$--$5\times$ at a measured
 $+1.05$\,cm locomotion cost (\S\ref{sec:exp}).
 
 Two findings we did not go looking for became contributions. First, a world-body indexing
 defect in a widely used MuJoCo-Warp training framework silently zeroed the primary
-body-position tracking reward in every run---ours and, we believe, others'; its repair cut
+body-position tracking reward in every one of our runs (upstream report in preparation);
+its repair cut
 joint tracking RMSE by 46\% with no change to the learning algorithm and brought our
 tracker into an externally calibrated band (\S\ref{sec:defect}). Second, rolling tracking
 policies out on their own references and recording the simulated states yields physically
@@ -184,22 +188,23 @@ price---quantifying the data-side alternative to physics-in-the-loop retargeting
 
 \textbf{Contributions.}
 \begin{itemize}
-\item \textbf{A learned retarget-to-track interface.} A goal-conditioned,
-  residual-to-prior CVAE command prior, DAgger-distilled from an RL tracking teacher,
-  whose 64-d latent is the policy's only motion command---$0.952\pm0.002$ completion
-  against a 0.98 explicit-command teacher (3 seeds), with the reference never visible to
-  the decoder, and a 30-point gap to the frozen-latent interface under one regime.
+\item \textbf{A learned command bottleneck for humanoid tracking.} A
+  goal-conditioned, residual-to-prior CVAE whose 64-d latent is the policy's only motion
+  input---$0.952\pm0.002$ completion against a 0.98 explicit-command teacher (3 training
+  seeds, SD), with the reference never visible to the decoder, and a documented failure
+  anatomy (path consistency, goal conditioning) for making such bottlenecks work.
 \item \textbf{A falsification-first audit of a shared motion latent.} Preregistered probe
   families establishing what the latent carries---content-rich, embodiment-aligned but
   not invariant, physically impoverished, control-inert while frozen---with the negative
   verdicts stated as measured results, one independently replicated.
-\item \textbf{One multi-embodiment, multi-teacher retargeter.} A 1.5M-parameter
-  skeleton-agnostic network amortizing an IK teacher across five humanoids (limits by
-  construction, 671\,fps CPU), which then absorbs a second interaction-rich teacher
-  across three human skeletons at a quantified locomotion cost---with the sharing cost
-  and the zero-shot-embodiment failure ($5.2\times$) measured rather than assumed.
+\item \textbf{Skeleton-agnostic retargeting distillation, measured honestly.} A
+  1.5M-parameter network amortizing an IK teacher across five humanoids (limits by
+  construction, 671\,fps CPU), and a separate two-teacher G1 study absorbing
+  interaction-rich clips across three human skeletons at a quantified locomotion
+  cost (preliminary: articulation under ground-truth root)---with the sharing cost and
+  the zero-shot-embodiment failure ($5.2\times$) measured rather than assumed.
 \item \textbf{A measurement-substrate defect, found, fixed, and released}, plus the
-  preregistered negative-results ledger---closed research lines with the evidence that
+  pre-specified negative-results ledger---closed research lines with the evidence that
   closed them, so the field can stop re-deriving them.
 \end{itemize}
 
@@ -236,14 +241,19 @@ boundary \emph{is}.
 \label{sec:interface}
 A source motion $m_t$ enters a retargeter $R$; the standard interface hands the tracker
 $\pi$ a reference $g_t = (q^{\mathrm{ref}}_t, \dot q^{\mathrm{ref}}_t)$ of robot joint
-targets. We replace the actor-visible $g_t$ with a learned command:
-$\zcmd = \mu_\rho(\mathrm{proprio}_t, g_{t:t+k})$, under an \emph{exclusivity contract}:
-the goal window is visible to the prior $\rho$ and to the critic, but never to the
-decoder, so motion intent reaches the actor only through the 64-d bottleneck.
+targets. We move the actor-visible reference behind a learned bottleneck:
+$\zcmd = \mu_\rho(\mathrm{proprio}_t, g_t)$ (the current-frame command; a future window
+is future work), under an \emph{exclusivity contract}: the goal is visible to the prior
+$\rho$ and to the critic, but never to the decoder, so motion intent reaches the actor
+only through the 64-d bottleneck. We emphasize scope: the prior currently consumes the
+\emph{robot-space} goal $g_t$, so this is an actor-side bottleneck within the tracker;
+the interface-replacement step---a prior over the source-side representation
+$z_{\mathrm{ret}}$ alone---is specified in \S\ref{sec:limits}.
 
 The latent's source is \snmr{}: a graph-attention encoder over the source skeleton
 (per-node features, adjacency, global pooling---skeleton-agnostic by construction) maps
-motion to a per-frame latent $z\in\mathbb{R}^{128}$; embodiment-conditioned graph
+motion to a per-frame retargeting latent $z_{\mathrm{ret}}\in\mathbb{R}^{128}$
+(distinct from the control bottleneck \zcmd{}); embodiment-conditioned graph
 decoders (AdaLN on a 32-d embodiment code, $\tanh$ joint-limit heads) emit trajectories
 for any of five humanoids. Trained by distillation from a per-frame IK
 teacher~\cite{gmr} on 77 LAFAN1 clips $\times$ 5 robots (2.48M paired frames), it
@@ -254,19 +264,21 @@ treated as a measured limitation, not hidden.
 
 \section{Auditing the Latent}
 \label{sec:audit}
-Before asking the latent to carry control, we measured what it holds. Four preregistered
+Before asking the latent to carry control, we measured what it holds. Four pre-specified
 probe families, in increasing severity:
 
-\textbf{Content: rich.} Cross-embodiment clip retrieval hits 75\% top-1 at 1.8\% chance;
-CKA between per-robot encodings of the same motion is 0.91.
+\textbf{Content: instance-aligned, not semantic.} Cross-embodiment \emph{window}
+retrieval hits 75--83\% top-1 at 1.02\% chance (98 windows); CKA between per-robot
+encodings is 0.89--0.92. But a motion-\emph{category} probe is near chance (0.151 vs
+0.125): the latent aligns instances across bodies without organizing them semantically.
 
 \textbf{Embodiment: aligned, not invariant.} A linear probe recovers the source
 embodiment at only 0.28 accuracy, but a nonlinear attacker reaches 0.91---the classic
 gap between ``not linearly decodable'' and ``absent.'' Scale explains only $\sim$1\% of
 the leak.
 
-\textbf{Physics: impoverished.} Foot-contact state is not decodably present under pure
-distillation (linear F1 0.023). A co-trained contact head injects it durably (F1 0.227
+\textbf{Physics: impoverished.} Foot-contact state is weakly present under pure
+distillation (linear F1 0.088 at full budget). A co-trained contact head injects it durably (F1 0.227
 at full budget, $1.8\times$ a deployable-heuristic baseline) at a real fidelity price
 ($+1.5$\,cm at loss weight 0.5), so physics enters the latent only when supervised in.
 
@@ -321,10 +333,12 @@ Three failures fixed the design, in order. (i)~Collecting rollouts on the privil
 posterior path collapses deployment to 0.001 while the posterior path itself scores
 0.84---train/deploy path consistency is not optional. (ii)~Fixing the collection path
 alone recovers only $20\times$; mixing prior-path samples into the action loss damages
-the posterior ($0.84\to0.42$). (iii)~The load-bearing fix is conditioning the prior on
-the \emph{goal}: with it, the deployment path reaches 0.935--0.955. The design lesson
-compresses to one line: \emph{the prior needs the goal; the posterior needs only a small
-privileged residual; the decoder needs neither.}
+the posterior ($0.84\to0.42$). (iii)~Adding goal conditioning to the prior while removing prior-path samples from
+the action loss lifts the deployment path to 0.935--0.955; a factorial ablation
+separating those two changes is in progress, so we report the combination rather than a
+single-factor attribution. The working design compresses to one line: \emph{the prior
+sees the goal; the posterior adds only a small privileged residual; the decoder sees
+neither.}
 
 \section{Experiments}
 \label{sec:exp}
@@ -334,13 +348,16 @@ arms (100 for reference policies). Retargeting numbers: 7 held-out LAFAN1 clips,
 bootstrap CIs over per-clip means.
 
 \subsection{Does the learned interface work?}
-Table~\ref{tab:main} is the paper's central result. A 64-d co-trained latent as the
-actor's only motion command recovers 97\% of the explicit teacher's completion at matched
-joint RMSE, where the frozen retargeting latent---same recipe, same reward, same
-budget---reaches 0.65. The gap \emph{widened} when we repaired the reward defect
-(\S\ref{sec:defect}): a working body-position signal lifts explicit and co-trained
-interfaces alike, but a frozen non-causal latent cannot exploit it. Co-training is what
-converts the representation into an interface.
+Table~\ref{tab:main} is the paper's central result. A 64-d co-trained bottleneck as
+the actor's only motion input recovers 97\% of its explicit-command teacher's completion
+at matched joint RMSE (same DAgger algorithm, same reward stack, three seeds). The frozen
+retargeting latent as sole command reaches 0.65 under a PPO recipe; because algorithm,
+interaction budget, and seed count differ from the student runs, we report it as context
+rather than a controlled contrast---the within-recipe frozen baseline (identical DAgger
+pipeline, $z_{\mathrm{ret}}$ command) is running and will replace this row. What Table~I
+does establish: the bottleneck costs only 2.8 points against its own teacher, where the
+design's failed variants (posterior-path collection, goal-free priors) collapse to
+0.001--0.05.
 
 \begin{table}[t]
 \centering
@@ -361,7 +378,7 @@ Frozen \snmr{} latent & 0.650 & --- & 1 \\
 \subsection{Does the latent add value beyond the explicit goal?}
 On single-clip walking: no---the paired difference between the +\snmr{}-latent arm and
 the goal-only arm straddles zero across seeds ($+2.1/+0.5/-0.2$\,pp), exactly as
-preregistered (an explicit goal saturates a single clip). The +\snmr{} arm's seed
+pre-specified (an explicit goal saturates a single clip). The +\snmr{} arm's seed
 variance is $4\times$ tighter ($\pm0.002$ vs $\pm0.008$; suggestive at $n{=}3$).
 Multi-clip teachers at our compute budget have not yet cleared their quality gate
 (0.47 mean completion at 1024 envs $\times$ 16k iters over 8 heterogeneous clips), so
@@ -371,7 +388,9 @@ than claimed.
 
 \subsection{Does the interface scale with better retargeting data?}
 \label{sec:twoteacher}
-Yes, and measurably (Table~\ref{tab:twoteacher}). Adding a second, interaction-rich
+Preliminarily, yes (Table~\ref{tab:twoteacher}; articulation under ground-truth
+root---object/terrain state is not yet input, and a redo with full root loss and
+group-held-out splits is registered). Adding a second, interaction-rich
 teacher---1{,}938 OmniRetarget clips~\cite{omniretarget} whose paired human data arrives
 on 52- and 53-joint keypoint skeletons, ingested with MST-inferred topology and
 synthetic orientations---cuts held-out interaction-clip error $5.2\times$ (object) and
@@ -386,7 +405,8 @@ threshold below which our earlier work showed generative decoders have nothing t
 
 \begin{table}[t]
 \centering
-\caption{Two-teacher absorption: held-out MPJPE (cm), matched budget.}
+\caption{Two-teacher absorption, \emph{preliminary}: held-out articulation MPJPE
+(cm) under ground-truth root pose; matched step budget.}
 \label{tab:twoteacher}
 \begin{tabular}{lccc}
 \toprule
@@ -403,8 +423,11 @@ Terrain interaction & 25.06 & \textbf{8.16} & $-16.9$ ($3.1\times$) \\
 Matched tracking policies (3 seeds per source $\times$ 2 eval seeds $\times$ 100
 rollouts) trained on \snmr{} references vs the IK teacher's: 86.7\% vs 86.7\%
 completion---point-equal---with joint RMSE noninferior ($+0.33\%$,
-CI $[-3.1, +4.9]\%$). Formal noninferiority on completion was not established: the
-$\pm6$\,pp CI exceeds the preregistered $-5$\,pp margin at this seed count---a power
+CI $[-3.1, +4.9]\%$). This matrix predates the reward repair
+(\S\ref{sec:defect}); both sources trained under the identical defect, but a
+position-blind assay may under-detect source differences, so a post-repair rerun with a
+sensitivity control (deliberately corrupted references) is registered and pending. Formal noninferiority on completion was not established: the
+$\pm6$\,pp CI exceeds the pre-specified $-5$\,pp margin at this seed count---a power
 statement, not a quality gap (per-seed spread $\pm3$\,pp dominates any source effect).
 
 \subsection{What does physics-repaired supervision buy and cost?}
@@ -418,9 +441,11 @@ retargeting~\cite{reactor}.
 \section{A Defect in the Measurement Substrate}
 \label{sec:defect}
 While calibrating our tracker against external baselines we found that the primary
-body-position tracking reward had been \emph{exactly zero} for every MuJoCo-Warp run:
-a world-body off-by-one (state tensors include the world body at index 0; the body-name
-list excludes it) shifted every simulation-side body read one body rootward, so the
+body-position tracking reward had been \emph{exactly zero} for every one of our
+MuJoCo-Warp runs:
+a world-body off-by-one (state tensors include the world body at index 0; the
+body-name list excludes it) shifted every simulation-side body read one body rootward
+in our stack (pinned revision; IsaacSim/IsaacGym paths unaffected), so the
 tracked pelvis slot read the world body---always at the origin---and the exponential
 reward kernel underflowed to 0.0 for 8{,}000 consecutive iterations (the raw term logs
 prove it). Policies still walked, because orientation and velocity terms survived; they
@@ -433,10 +458,13 @@ reached 0.122\,rad at 0.98 completion, matching an external 187-run calibration 
 identically); absolute capability numbers did not. We report this at section level
 because the lesson generalizes: \emph{measure your reward channels before tuning them.}
 
-\section{Limitations}
-\textbf{Interface scope.} The latent's additive value over an explicit goal is null on
-single-clip walking; the multi-clip and cross-embodiment settings where its value should
-be structural are in progress. \textbf{Embodiment generalization.} Zero-shot transfer to
+\section{Limitations}\label{sec:limits}
+\textbf{Interface scope --- the central open step.} The current prior consumes the
+robot-space goal; the interface-replacement experiment (a prior over
+$z_{\mathrm{ret}}$ alone, with tracking gradients optionally reaching the retargeting
+encoder) is specified and queued, as are the within-recipe frozen baseline and the
+factorial attribution ablation. The latent's additive value over an explicit goal is
+null on single-clip walking; multi-clip and cross-embodiment settings are in progress. \textbf{Embodiment generalization.} Zero-shot transfer to
 an unseen robot fails ($5.2\times$ error); embodiment augmentation is the identified
 path. \textbf{Physics of the latent.} Contact enters only by co-training at a fidelity
 price; repaired references cost 6+\,cm at current tracker quality. \textbf{Interaction
@@ -455,7 +483,7 @@ representation---audited before trusted, co-trained before deployed, and made th
 policy's only channel to the goal---it carries nearly everything the explicit interface
 carried, in a form one network can share across robots and extend across teachers. The
 measurement lesson runs deeper than the architecture: two of this paper's strongest
-results are a reward channel that was silently dead and a set of preregistered nulls; we
+results are a reward channel that was silently dead and a set of pre-specified nulls; we
 commend both practices to the field.
 
 \begin{thebibliography}{20}
