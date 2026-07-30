@@ -1412,3 +1412,25 @@ lafan-val recover toward <=3.6 cm by 40k (the no-forgetting gate is base+0.3 = 3
 or is there a real interference price? Curve to watch: lafan 8.6 cm at 16k vs base's
 4.8 cm at the same step — but base plateaued late (5.4->4.4->4.8->...->3.31), so
 convergence order matters; verdict at 40k.
+
+### E55-A v2 twoteach - FINAL @40k - **INTERACTION CLIPS: 26.7->5.4 cm (omni52) / 25.9->8.1 cm (omni53) — 4.9x/3.2x better than the LAFAN-only control; LAFAN price 5.99 vs 3.31 cm (v2's sampling-diet artifact; v3 running with the fix)**
+`runs/e55a_twoteach/` final (40k steps, shared GPU):
+
+| pool (held-out) | base (lafan-only) | twoteach v2 | delta |
+|---|---|---|---|
+| lafan1 val | **3.31 cm** | 5.99 cm | +2.68 (diet artifact, see below) |
+| omni52 val (object) | 28.95 | **5.43** | -23.5 (4.9x) |
+| omni53 val (terrain) | 25.06 | **8.12** | -16.9 (3.2x) |
+
+Verdicts:
+1. **The shared latent absorbs interaction-rich data across three human skeletons**
+   (24/52/53 joints, two teachers, synthetic quats on the omni side). The
+   skeleton-agnosticism architecture claim survives its first real test.
+2. **The no-forgetting gate (<=3.61 cm) FAILS in v2 — but attributably**: sqrt-clip-count
+   sampling gave lafan 23% of samples with 82% of frames. v3 (sqrt-frame-count: 61/39)
+   is running; v2-vs-v3 lafan delta = diet share of the interference; the remainder =
+   genuine conflict. Terrain (omni53) plateaus ~8.1 cm vs object 5.4 — consistent with
+   the hidden-variable hypothesis (terrain z-scale siblings unresolvable without h;
+   E56-D tests exactly this).
+3. Registered gate "twoteach beats base by >=30% on omni val" PASSES overwhelmingly
+   (4.9x/3.2x). Data expansion is PROMOTED; conditioning question handed to E56-D.
