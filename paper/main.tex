@@ -1,0 +1,496 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,allcolors=blue!60!black]{hyperref}
+
+% palette (matches the project site)
+\definecolor{cblue}{HTML}{2A78D6}
+\definecolor{corange}{HTML}{EB6834}
+\definecolor{cgreen}{HTML}{1BAF7A}
+\definecolor{cink2}{HTML}{52514E}
+\definecolor{cgrid}{HTML}{E1E0D9}
+\definecolor{washblue}{HTML}{EAF2FC}
+\definecolor{washgreen}{HTML}{E8F7F1}
+\definecolor{washorange}{HTML}{FDF0EA}
+
+\newcommand{\zcmd}{\ensuremath{z_{\mathrm{cmd}}}}
+\newcommand{\snmr}{SNMR}
+
+\title{Act Through the Latent: Closing the\\Retarget-to-Track Interface with a Goal-Conditioned Command Prior}
+
+\author{Anonymous ICRA Submission}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The dominant humanoid motion pipeline is two-stage: retarget human motion to the robot,
+then train a tracking policy on the result. The interface between the stages is a stack
+of robot-space joint targets---a representation chosen for convenience, not for control.
+We ask what a \emph{learned} interface carries instead. We first distill a per-frame IK
+retargeter into one multi-embodiment network with a shared latent, then audit that latent
+with falsification-first probes: it is content-rich (75\% cross-embodiment clip retrieval
+at 1.8\% chance; CKA 0.91), embodiment-aligned but not invariant (0.28 linear probe vs
+0.91 nonlinear attacker), physically impoverished, and---frozen---inert as a control
+input, a null we replicate and that an independent ablation confirms. Making the interface
+load-bearing requires co-training: a goal-conditioned residual-to-prior CVAE,
+DAgger-distilled from an RL teacher, whose 64-d latent is the tracking policy's
+\emph{only} motion command, closes the interface gap from $-33$ points (frozen latent,
+0.65) to $-2.8$ points ($0.952\pm0.002$ vs a $0.98$ teacher; three seeds, one training
+regime). The same latent absorbs a second, interaction-rich teacher: adding terrain and
+object-interaction clips---three human skeletons, two teachers, one network---cuts
+interaction-clip error $3$--$5\times$ at a measured $+1.05$\,cm cost on locomotion. We
+release a preregistered negative-results ledger and a measurement-substrate defect whose
+repair cut joint tracking error by 46\%.
+\end{abstract}
+
+% ============================ FIGURE 1 ============================
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  node distance=4mm,
+  box/.style={draw=cink2!60, fill=white, rounded corners=2pt, align=center,
+              inner sep=4pt, minimum height=9mm},
+  latent/.style={draw=none, fill=cgreen, text=white, rounded corners=8pt,
+                 align=center, inner sep=5pt, minimum height=9mm},
+  pipe/.style={draw=none, fill=cink2!25, align=center, inner sep=4pt, minimum height=9mm},
+  arr/.style={-{Stealth[length=2mm]}, thick, cink2},
+  blocked/.style={-{Stealth[length=2mm]}, thick, corange, dashed},
+]
+% ---------- panel (a): the interface today ----------
+\begin{scope}
+\node[box] (h1) {Human\\motion};
+\node[box, right=7mm of h1] (r1) {Retargeter\\(IK / mesh / neural)};
+\node[pipe, right=7mm of r1, text width=24mm] (p1) {\footnotesize 29 joint targets\\[-1pt]\footnotesize + root pose / frame};
+\node[box, right=7mm of p1] (t1) {Tracking\\policy};
+\draw[arr] (h1) -- (r1);
+\draw[arr] (r1) -- (p1);
+\draw[arr] (p1) -- (t1);
+\node[below=1.5mm of p1, text=corange, align=center, font=\footnotesize]
+  {dropped: contact reasoning,\\uncertainty, cross-embodiment structure};
+\node[above=2mm of p1, font=\bfseries\small] {(a) The interface today: a format};
+\end{scope}
+% ---------- panel (b): the interface learned ----------
+\begin{scope}[yshift=-34mm]
+\node[box] (h2) {Human\\motion};
+\node[box, right=7mm of h2] (r2) {\snmr{}\\retargeter};
+\node[box, right=7mm of r2, fill=washgreen, draw=cgreen] (prior) {Prior $\rho$\\{\footnotesize proprio + goal}};
+\node[latent, right=6mm of prior] (z2) {\zcmd\\{\footnotesize 64-d}};
+\node[box, right=6mm of z2] (dec) {Decoder\\{\footnotesize proprio + \zcmd{} only}};
+\node[box, right=7mm of dec] (sim) {Physics\\(G1)};
+\draw[arr] (h2) -- (r2);
+\draw[arr] (r2) -- (prior);
+\draw[arr, cgreen] (prior) -- (z2);
+\draw[arr, cgreen] (z2) -- (dec);
+\draw[arr] (dec) -- (sim);
+% the barrier: goal never reaches the decoder
+\draw[blocked] (r2.south) to[out=-30,in=-150] node[midway, below, font=\footnotesize, text=corange]
+  {explicit reference $\;\to$ decoder: \textbf{blocked}} (dec.south);
+\node at ($(z2.north)+(0,4.5mm)$) [font=\bfseries\small] {(b) The interface learned: the policy's only motion command};
+\end{scope}
+% ---------- panel (c): the gap, measured ----------
+\begin{scope}[xshift=125mm, yshift=-4mm]
+\node[font=\bfseries\small, anchor=west] at (-2mm, 6mm) {(c) 10-s completion, one recipe};
+% simple horizontal bar chart, hand-drawn
+\foreach \y/\lab/\v/\c in {0/{frozen latent}/0.65/corange, -8/{ours (latent-only)}/0.952/cgreen, -16/{explicit teacher}/0.98/cblue}{
+  \node[anchor=east, font=\footnotesize] at (0mm, \y mm) {\lab};
+  \fill[\c, rounded corners=1pt] (1mm, \y mm - 1.6mm) rectangle ({1mm + \v*38mm}, \y mm + 1.6mm);
+  \node[anchor=west, font=\footnotesize\bfseries] at ({1.5mm + \v*38mm}, \y mm) {\v};
+}
+\draw[cgrid] (1mm,-20mm) -- (1mm,4mm);
+\node[font=\footnotesize, text=cink2, anchor=west, align=left] at (-2mm,-25mm)
+  {gap closed: $-33$\,pp $\to$ $-2.8$\,pp\\(3 seeds, $\pm0.002$)};
+\end{scope}
+\end{tikzpicture}
+\caption{\textbf{The retarget-to-track interface, replaced.} (a)~The standard humanoid
+stack passes per-frame joint targets between retargeting and tracking, discarding the
+retargeter's contact reasoning, its uncertainty, and the cross-embodiment structure it
+learned. (b)~We replace that interface with a learned 64-d command latent: the reference
+reaches the goal-conditioned prior but \emph{never} the decoder, so \zcmd{} is the
+tracking policy's only motion command. (c)~Under one training regime, the frozen
+retargeting latent reaches 0.65 ten-second completion, our co-trained command latent
+$0.952\pm0.002$, and the explicit-command teacher 0.98: co-training closes the interface
+gap from thirty-three points to under three.}
+\label{fig:teaser}
+\end{figure*}
+
+\section{Introduction}
+
+Nearly every humanoid that has learned to move from human motion has done so in two
+stages: a retargeter converts human motion into robot-space joint trajectories, and a
+reinforcement-learning tracking policy learns to follow them. The split is a good
+engineering decision---retargeters and trackers are developed, evaluated, and reused
+independently, and the recent generation of each is strong: interaction-preserving
+optimization on the retargeting side~\cite{omniretarget}, physics-in-the-loop
+retargeting~\cite{reactor}, and unified tracking controllers that follow thousands of
+clips with one network~\cite{beyondmimic,gmt}. But the \emph{interface} between the
+stages has escaped scrutiny. What actually crosses the boundary is a per-frame stack of
+joint targets---a format, not a representation.
+
+That format is lossy in three specific ways. It discards everything the retargeter knew
+that is not a joint angle: its contact reasoning, its uncertainty, and the
+cross-embodiment structure it learned when one network serves several robots. It is
+evaluated by kinematic metrics (pose error, foot skate, penetration) that are blind to
+\emph{trackability}---the GMR study~\cite{gmr} showed retargeting artifacts silently cap
+what downstream RL can learn, evidence that the interface transmits harm as readily as
+signal. And it is \emph{dimensionally unshareable}: a 29-DoF joint-target stream cannot
+command a 23-DoF robot, so every multi-robot system pays the interface cost once per
+embodiment.
+
+The obvious repair fails, and the failure is informative. Handing the tracking policy the
+retargeter's latent \emph{alongside} its usual reference does nothing: in our experiments
+the policy ignores the latent (concatenation is null-to-harmful, $-10$ points at worst),
+and UniTracker's ablation reports the same mechanism independently---``when the actor
+receives the reference motion directly, the influence of the latent variable $z$
+vanishes''~\cite{unitracker}. A frozen latent as the \emph{sole} command is feasible but
+costs about thirty points against the explicit-command teacher under the identical
+training recipe (0.65 vs 0.98). Training a latent by RL from scratch
+collapses~\cite{unitracker,bfm}. The latent, as produced by retargeting alone, is not a
+control interface.
+
+\textbf{Our key insight is that the retargeting-to-tracking boundary should not be a
+representation the two stages agree on, but one the tracking policy learns to act
+through: a latent becomes useful for control exactly when it is the policy's only channel
+to the goal, and is inert whenever an explicit reference is available beside it.} The
+sections that follow are the constructive and destructive halves of that claim. We build
+\snmr{}, a skeleton-agnostic retargeting network distilled from a classical IK teacher
+whose shared latent serves five humanoids, and we audit that latent with
+falsification-first probes before asking it to do anything (\S\ref{sec:audit}). We then
+make the interface load-bearing (\S\ref{sec:method}): a conditional VAE whose
+goal-conditioned prior compresses the reference into a 64-d command latent, trained by
+DAgger from an explicit-command RL teacher, with the reference visible to the prior but
+never to the decoder. On a simulated Unitree~G1 the latent-only command reaches
+$0.952\pm0.002$ ten-second completion against the 0.98 teacher across three seeds---the
+interface gap shrinks from thirty points to under three
+(Fig.~\ref{fig:teaser}c). The same latent then absorbs a second, interaction-rich
+teacher---terrain and object clips from a fundamentally different retargeter, arriving on
+different human skeletons---cutting interaction-clip error $3$--$5\times$ at a measured
+$+1.05$\,cm locomotion cost (\S\ref{sec:exp}).
+
+Two findings we did not go looking for became contributions. First, a world-body indexing
+defect in a widely used MuJoCo-Warp training framework silently zeroed the primary
+body-position tracking reward in every run---ours and, we believe, others'; its repair cut
+joint tracking RMSE by 46\% with no change to the learning algorithm and brought our
+tracker into an externally calibrated band (\S\ref{sec:defect}). Second, rolling tracking
+policies out on their own references and recording the simulated states yields physically
+repaired supervision---$2$--$3\times$ less foot skate at a measured fidelity
+price---quantifying the data-side alternative to physics-in-the-loop retargeting.
+
+\textbf{Contributions.}
+\begin{itemize}
+\item \textbf{A learned retarget-to-track interface.} A goal-conditioned,
+  residual-to-prior CVAE command prior, DAgger-distilled from an RL tracking teacher,
+  whose 64-d latent is the policy's only motion command---$0.952\pm0.002$ completion
+  against a 0.98 explicit-command teacher (3 seeds), with the reference never visible to
+  the decoder, and a 30-point gap to the frozen-latent interface under one regime.
+\item \textbf{A falsification-first audit of a shared motion latent.} Preregistered probe
+  families establishing what the latent carries---content-rich, embodiment-aligned but
+  not invariant, physically impoverished, control-inert while frozen---with the negative
+  verdicts stated as measured results, one independently replicated.
+\item \textbf{One multi-embodiment, multi-teacher retargeter.} A 1.5M-parameter
+  skeleton-agnostic network amortizing an IK teacher across five humanoids (limits by
+  construction, 671\,fps CPU), which then absorbs a second interaction-rich teacher
+  across three human skeletons at a quantified locomotion cost---with the sharing cost
+  and the zero-shot-embodiment failure ($5.2\times$) measured rather than assumed.
+\item \textbf{A measurement-substrate defect, found, fixed, and released}, plus the
+  preregistered negative-results ledger---closed research lines with the evidence that
+  closed them, so the field can stop re-deriving them.
+\end{itemize}
+
+\section{Related Work}
+\textbf{Retargeting as preprocessing.} Classical retargeting solves per-frame IK with
+hand-tuned correspondences~\cite{gmr}; interaction-mesh methods add hard contact
+constraints~\cite{omniretarget}; ReActor moves retargeting inside physics via bilevel RL,
+eliminating artifacts by construction~\cite{reactor}. All three families emit the same
+interface---robot joint trajectories---and are evaluated by kinematic quality plus,
+recently, downstream RL success~\cite{gmr,omniretarget}. None asks whether the
+\emph{representation} handed to the tracker should itself be learned. Neural feed-forward
+retargeters~\cite{ikmr,nmr,adamorph} amortize the optimization and, in AdaMorph's case,
+span many embodiments through a morphology-agnostic latent---but their latents are
+internal machinery, not command interfaces, and none is analyzed for what it carries.
+
+\textbf{Tracking and its command spaces.} Modern trackers follow references specified as
+joint targets with body-pose terms~\cite{beyondmimic,gmt,exbody2}; HOVER unifies multiple
+command \emph{modes} by distillation~\cite{hover}; UniTracker compresses the reference
+into a CVAE latent and is the closest precedent for our Stage-2---single-embodiment, with
+no retargeter and no representation analysis~\cite{unitracker}. Latent skill spaces for
+physics characters~\cite{pulse,maskedmimic,controlvae} establish the recipe elements we
+verify at robot scale: learned conditional priors, residual-to-prior encoders,
+distillation-not-RL. Behavioral foundation models~\cite{bfmzero} reach a promptable
+latent from the opposite entry point---unsupervised RL with no retargeting anywhere. To
+our knowledge no published system co-trains a \emph{multi-embodiment retargeting} latent
+under the \emph{control} objective.
+
+\textbf{Interface critiques.} BeyondMimic names a ``planning-control
+gap''~\cite{beyondmimic}; the GMR study quantifies how retargeting quality caps
+tracking~\cite{gmr}. Both stop at the boundary we cross: neither changes what the
+boundary \emph{is}.
+
+\section{The Two-Stage Interface}
+\label{sec:interface}
+A source motion $m_t$ enters a retargeter $R$; the standard interface hands the tracker
+$\pi$ a reference $g_t = (q^{\mathrm{ref}}_t, \dot q^{\mathrm{ref}}_t)$ of robot joint
+targets. We replace the actor-visible $g_t$ with a learned command:
+$\zcmd = \mu_\rho(\mathrm{proprio}_t, g_{t:t+k})$, under an \emph{exclusivity contract}:
+the goal window is visible to the prior $\rho$ and to the critic, but never to the
+decoder, so motion intent reaches the actor only through the 64-d bottleneck.
+
+The latent's source is \snmr{}: a graph-attention encoder over the source skeleton
+(per-node features, adjacency, global pooling---skeleton-agnostic by construction) maps
+motion to a per-frame latent $z\in\mathbb{R}^{128}$; embodiment-conditioned graph
+decoders (AdaLN on a 32-d embodiment code, $\tanh$ joint-limit heads) emit trajectories
+for any of five humanoids. Trained by distillation from a per-frame IK
+teacher~\cite{gmr} on 77 LAFAN1 clips $\times$ 5 robots (2.48M paired frames), it
+reaches 3.66\,cm held-out MPJPE (CI $[3.46, 3.86]$; G1 specialist; 2.9--6.0\,cm shared
+across all five robots) at 671\,fps on CPU, with zero joint-limit violations by
+construction. Foot skate (0.29 vs teacher 0.05\,m/s) is the known inherited gap and is
+treated as a measured limitation, not hidden.
+
+\section{Auditing the Latent}
+\label{sec:audit}
+Before asking the latent to carry control, we measured what it holds. Four preregistered
+probe families, in increasing severity:
+
+\textbf{Content: rich.} Cross-embodiment clip retrieval hits 75\% top-1 at 1.8\% chance;
+CKA between per-robot encodings of the same motion is 0.91.
+
+\textbf{Embodiment: aligned, not invariant.} A linear probe recovers the source
+embodiment at only 0.28 accuracy, but a nonlinear attacker reaches 0.91---the classic
+gap between ``not linearly decodable'' and ``absent.'' Scale explains only $\sim$1\% of
+the leak.
+
+\textbf{Physics: impoverished.} Foot-contact state is not decodably present under pure
+distillation (linear F1 0.023). A co-trained contact head injects it durably (F1 0.227
+at full budget, $1.8\times$ a deployable-heuristic baseline) at a real fidelity price
+($+1.5$\,cm at loss weight 0.5), so physics enters the latent only when supervised in.
+
+\textbf{Control: inert while frozen.} Concatenated beside the explicit reference, the
+latent is ignored or harmful ($-10$\,pp); as the sole command it reaches 0.65 under our
+final recipe; a learned readout over the frozen latent does not close the gap. The audit
+is the specification for \S\ref{sec:method}: nothing short of co-training makes this
+representation an interface.
+
+% ============================ FIGURE 2 ============================
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  box/.style={draw=cink2!60, fill=white, rounded corners=2pt, align=center, inner sep=3pt},
+  arr/.style={-{Stealth[length=1.8mm]}, thick, cink2},
+]
+\node[box, fill=washgreen, draw=cgreen, text width=21mm] (collect)
+  {\textbf{1. Collect}\\ act with $z=\mu_\rho + \sigma\epsilon$\\ $\epsilon$ fixed per episode\\ (deployment path)};
+\node[box, fill=washorange, draw=corange, text width=21mm, right=4mm of collect] (label)
+  {\textbf{2. Label}\\ frozen RL teacher\\ annotates every\\ visited state};
+\node[box, fill=washblue, draw=cblue, text width=25mm, right=4mm of label] (update)
+  {\textbf{3. Update}\\ $\|a{-}a^\ast\|^2 + \beta\,\mathrm{KL} + \alpha\,\mathrm{smooth}$\\ $\mathrm{KL} = \|\mu_{\mathrm{res}}\|^2/2\sigma^2$};
+\draw[arr] (collect) -- (label);
+\draw[arr] (label) -- (update);
+\draw[arr, dashed] (update.south) to[out=-150,in=-30]
+  node[midway, below, text=cink2] {updated prior/posterior/decoder $\to$ next round} (collect.south);
+\end{tikzpicture}
+\caption{\textbf{One DAgger round ($\times$2{,}000).} Rollouts are collected on the
+deployment (prior) path with episodic noise; a frozen explicit-command teacher labels
+visited states; the CVAE updates with action matching, a closed-form KL from the
+residual-to-prior posterior (tied $\sigma$), and a latent smoothness term. The dashed
+return edge makes it DAgger rather than behavior cloning. At deployment:
+$\zcmd = \mu_\rho$ (deterministic), no teacher, no posterior, no explicit reference to
+the actor.}
+\label{fig:loop}
+\end{figure}
+
+\section{Making the Latent Load-Bearing}
+\label{sec:method}
+The method (Fig.~\ref{fig:loop}) is a conditional VAE trained by online distillation.
+The \textbf{prior} $\rho(\zcmd \mid \mathrm{proprio}, g)$ sees deployable inputs only:
+proprioception plus the reference goal window (and, in one arm, the frozen \snmr{}
+latent stream). The \textbf{posterior} adds privileged simulation state as a
+\emph{residual on the prior mean} with tied fixed $\sigma{=}0.3$, giving the closed-form
+KL $\|\mu_{\mathrm{res}}\|^2/2\sigma^2$. The \textbf{decoder} maps
+$(\mathrm{proprio}, \zcmd)$ to PD targets at 50\,Hz and never sees the goal. Training is
+pure DAgger from a frozen explicit-command RL teacher (no RL gradient mixed in),
+with episodic reparameterization noise and a latent smoothness regularizer.
+
+Three failures fixed the design, in order. (i)~Collecting rollouts on the privileged
+posterior path collapses deployment to 0.001 while the posterior path itself scores
+0.84---train/deploy path consistency is not optional. (ii)~Fixing the collection path
+alone recovers only $20\times$; mixing prior-path samples into the action loss damages
+the posterior ($0.84\to0.42$). (iii)~The load-bearing fix is conditioning the prior on
+the \emph{goal}: with it, the deployment path reaches 0.935--0.955. The design lesson
+compresses to one line: \emph{the prior needs the goal; the posterior needs only a small
+privileged residual; the decoder needs neither.}
+
+\section{Experiments}
+\label{sec:exp}
+All tracking numbers: 10-second phase-stratified rollouts on a simulated Unitree~G1
+(MuJoCo-Warp), deterministic deployment path, 1{,}024 rollouts per evaluation for latent
+arms (100 for reference policies). Retargeting numbers: 7 held-out LAFAN1 clips,
+bootstrap CIs over per-clip means.
+
+\subsection{Does the learned interface work?}
+Table~\ref{tab:main} is the paper's central result. A 64-d co-trained latent as the
+actor's only motion command recovers 97\% of the explicit teacher's completion at matched
+joint RMSE, where the frozen retargeting latent---same recipe, same reward, same
+budget---reaches 0.65. The gap \emph{widened} when we repaired the reward defect
+(\S\ref{sec:defect}): a working body-position signal lifts explicit and co-trained
+interfaces alike, but a frozen non-causal latent cannot exploit it. Co-training is what
+converts the representation into an interface.
+
+\begin{table}[t]
+\centering
+\caption{Command-interface comparison, one training regime (G1, walk1).}
+\label{tab:main}
+\begin{tabular}{lccc}
+\toprule
+Interface (actor's motion input) & Completion & RMSE (rad) & Seeds \\
+\midrule
+Explicit command (teacher) & 0.980 & 0.122 & 1 \\
+\textbf{Ours: latent-only, +\snmr{} $z$} & $\mathbf{0.952\pm0.002}$ & 0.127 & 3 \\
+Ours: latent-only & $0.944\pm0.008$ & 0.128 & 3 \\
+Frozen \snmr{} latent & 0.650 & --- & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Does the latent add value beyond the explicit goal?}
+On single-clip walking: no---the paired difference between the +\snmr{}-latent arm and
+the goal-only arm straddles zero across seeds ($+2.1/+0.5/-0.2$\,pp), exactly as
+preregistered (an explicit goal saturates a single clip). The +\snmr{} arm's seed
+variance is $4\times$ tighter ($\pm0.002$ vs $\pm0.008$; suggestive at $n{=}3$).
+Multi-clip teachers at our compute budget have not yet cleared their quality gate
+(0.47 mean completion at 1024 envs $\times$ 16k iters over 8 heterogeneous clips), so
+the multi-clip and cross-embodiment answers---where explicit commands are dimensionally
+unshareable and the latent's value is structural---are reported as in-progress rather
+than claimed.
+
+\subsection{Does the interface scale with better retargeting data?}
+\label{sec:twoteacher}
+Yes, and measurably (Table~\ref{tab:twoteacher}). Adding a second, interaction-rich
+teacher---1{,}938 OmniRetarget clips~\cite{omniretarget} whose paired human data arrives
+on 52- and 53-joint keypoint skeletons, ingested with MST-inferred topology and
+synthetic orientations---cuts held-out interaction-clip error $5.2\times$ (object) and
+$3.1\times$ (terrain) while locomotion pays $+1.05$\,cm. A sampling-diet ablation
+attributes 61\% of the naive run's larger interference to data balance rather than
+representational conflict. The terrain plateau ($\sim$8.2\,cm vs 5.5 for object) is the
+measured signature of a hidden conditioning variable (terrain scale): the dataset
+contains 4{,}659 sibling pairs with \emph{bit-identical} human motion and divergent robot
+trajectories (mean DoF divergence 0.031--0.068\,rad)---real conditional multimodality
+that a deterministic decoder must average, and that we quantify at $16$--$36\times$ the
+threshold below which our earlier work showed generative decoders have nothing to model.
+
+\begin{table}[t]
+\centering
+\caption{Two-teacher absorption: held-out MPJPE (cm), matched budget.}
+\label{tab:twoteacher}
+\begin{tabular}{lccc}
+\toprule
+Held-out pool & LAFAN1-only & Two-teacher & $\Delta$ \\
+\midrule
+Locomotion (LAFAN1) & \textbf{3.31} & 4.36 & $+1.05$ \\
+Object interaction & 28.95 & \textbf{5.53} & $-23.4$ ($5.2\times$) \\
+Terrain interaction & 25.06 & \textbf{8.16} & $-16.9$ ($3.1\times$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Are learned references as trackable as IK references?}
+Matched tracking policies (3 seeds per source $\times$ 2 eval seeds $\times$ 100
+rollouts) trained on \snmr{} references vs the IK teacher's: 86.7\% vs 86.7\%
+completion---point-equal---with joint RMSE noninferior ($+0.33\%$,
+CI $[-3.1, +4.9]\%$). Formal noninferiority on completion was not established: the
+$\pm6$\,pp CI exceeds the preregistered $-5$\,pp margin at this seed count---a power
+statement, not a quality gap (per-seed spread $\pm3$\,pp dominates any source effect).
+
+\subsection{What does physics-repaired supervision buy and cost?}
+Rolling a calibrated tracker out on its own references and recording simulated states
+yields repaired supervision with $2$--$3\times$ lower stance-foot speed than the
+references themselves ($3$--$6\times$ on pre-repair policies) and zero penetration (a
+simulator property, which we do not claim), at 6.2--6.7\,cm heading-local reconstruction
+distance---the quantified data-side alternative to bilevel physics
+retargeting~\cite{reactor}.
+
+\section{A Defect in the Measurement Substrate}
+\label{sec:defect}
+While calibrating our tracker against external baselines we found that the primary
+body-position tracking reward had been \emph{exactly zero} for every MuJoCo-Warp run:
+a world-body off-by-one (state tensors include the world body at index 0; the body-name
+list excludes it) shifted every simulation-side body read one body rootward, so the
+tracked pelvis slot read the world body---always at the origin---and the exponential
+reward kernel underflowed to 0.0 for 8{,}000 consecutive iterations (the raw term logs
+prove it). Policies still walked, because orientation and velocity terms survived; they
+were orientation-plus-velocity trackers with a corrupted position channel. Repairing the
+indexing (released as a small patch; IsaacSim/IsaacGym paths are unaffected, which is
+why upstream never saw it) cut joint tracking RMSE from 0.263 to 0.142\,rad ($-46\%$)
+with no change to the learning algorithm; adding a standard joint-space reward term then
+reached 0.122\,rad at 0.98 completion, matching an external 187-run calibration band
+(97.9\%). Paired comparisons made under the defect survive (both sources suffered
+identically); absolute capability numbers did not. We report this at section level
+because the lesson generalizes: \emph{measure your reward channels before tuning them.}
+
+\section{Limitations}
+\textbf{Interface scope.} The latent's additive value over an explicit goal is null on
+single-clip walking; the multi-clip and cross-embodiment settings where its value should
+be structural are in progress. \textbf{Embodiment generalization.} Zero-shot transfer to
+an unseen robot fails ($5.2\times$ error); embodiment augmentation is the identified
+path. \textbf{Physics of the latent.} Contact enters only by co-training at a fidelity
+price; repaired references cost 6+\,cm at current tracker quality. \textbf{Interaction
+tracking.} Our simulator path supports neither objects nor terrain in the tracking loop;
+interaction data enters at the retargeting level only, where its absorption is measured.
+\textbf{Simulation only.} No hardware; the MuJoCo-Warp stack is externally calibrated
+but sim-to-real is unvalidated. \textbf{Data scale.} 4.6\,h/robot of locomotion plus
+0.9--3.4\,h of interaction data is small; the two-teacher result is the first point on
+the scaling curve, not its end. Moving past these---conditioning on the interaction
+hidden variable, capacity scaling matched to data, and the cross-embodiment command
+demonstration---is the immediate agenda.
+
+\section{Conclusion}
+The boundary between retargeting and tracking has been a file format. Treated as a
+representation---audited before trusted, co-trained before deployed, and made the
+policy's only channel to the goal---it carries nearly everything the explicit interface
+carried, in a form one network can share across robots and extend across teachers. The
+measurement lesson runs deeper than the architecture: two of this paper's strongest
+results are a reward channel that was silently dead and a set of preregistered nulls; we
+commend both practices to the field.
+
+\begin{thebibliography}{20}
+\bibitem{reactor} D.~M{\"u}ller et al., ``ReActor: Reinforcement learning for
+physics-aware motion retargeting,'' \emph{ACM TOG}, 2026.
+\bibitem{omniretarget} L.~Yang et al., ``OmniRetarget: Interaction-preserving data
+generation for humanoid whole-body loco-manipulation and scene interaction,'' arXiv:2509.26633, 2025.
+\bibitem{gmr} J.~P. Araujo et al., ``Retargeting matters: General motion retargeting for
+humanoid motion tracking,'' arXiv:2510.02252, 2025.
+\bibitem{beyondmimic} Q.~Liao et al., ``BeyondMimic: From motion tracking to versatile
+humanoid control via guided diffusion,'' arXiv:2508.08241, 2025.
+\bibitem{gmt} Z.~Chen et al., ``GMT: General motion tracking for humanoid whole-body
+control,'' arXiv:2506.14770, 2025.
+\bibitem{unitracker} K.~Yin et al., ``UniTracker: Learning universal whole-body motion
+tracker for humanoid robots,'' arXiv:2507.07356, 2025.
+\bibitem{pulse} Z.~Luo et al., ``Universal humanoid motion representations for
+physics-based control,'' \emph{ICLR}, 2024.
+\bibitem{maskedmimic} C.~Tessler et al., ``MaskedMimic: Unified physics-based character
+control through masked motion inpainting,'' \emph{SIGGRAPH Asia}, 2024.
+\bibitem{controlvae} H.~Yao et al., ``ControlVAE: Model-based learning of generative
+controllers for physics-based characters,'' \emph{SIGGRAPH Asia}, 2022.
+\bibitem{hover} T.~He et al., ``HOVER: Versatile neural whole-body controller for
+humanoid robots,'' \emph{ICRA}, 2025.
+\bibitem{exbody2} M.~Ji et al., ``ExBody2: Advanced expressive humanoid whole-body
+control,'' arXiv:2412.13196, 2024.
+\bibitem{ikmr} X.~Chen et al., ``Implicit kinodynamic motion retargeting for
+human-to-humanoid imitation learning,'' arXiv:2509.15443, 2025.
+\bibitem{nmr} W.~Zhao et al., ``Make tracking easy: Neural motion retargeting for
+humanoid robots,'' arXiv:2603.22201, 2026.
+\bibitem{adamorph} H.~Zhang et al., ``AdaMorph: Unified motion retargeting via
+embodiment-aware adaptive transformers,'' arXiv:2601.07284, 2026.
+\bibitem{bfm} K.~Yin et al., ``Behavior foundation model for humanoid robots,''
+arXiv:2509.13780, 2025.
+\bibitem{bfmzero} Y.~Li et al., ``BFM-Zero: A promptable behavioral foundation model for
+humanoid control using unsupervised reinforcement learning,'' arXiv:2511.04131, 2025.
+\end{thebibliography}
+
+\end{document}
