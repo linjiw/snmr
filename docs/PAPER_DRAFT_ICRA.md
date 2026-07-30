@@ -56,9 +56,10 @@ retargeter's latent *alongside* its usual reference does nothing: in our experim
 policy ignores the latent (concatenation is null-to-harmful, −10 points at worst,
 E36–E39), and UniTracker's ablation reports the same mechanism independently — "when the
 actor receives the reference motion directly, the influence of the latent variable z
-vanishes." A frozen latent as the *sole* command is feasible but costs 16 points against
-its contemporaneous explicit-command baseline (0.72 vs 0.88, E37/E39). Training a latent
-by RL from scratch collapses [UniTracker, BFM]. The latent, as produced by retargeting
+vanishes." A frozen latent as the *sole* command is feasible but costs about thirty points against
+the explicit-command teacher under the identical training recipe (0.65 vs 0.98, E52-L1R;
+0.72 vs 0.88 under the earlier pre-repair recipe, E37/E39). Training a latent by RL from
+scratch collapses [UniTracker, BFM]. The latent, as produced by retargeting
 alone, is not a control interface.
 
 **Our key insight is that the retargeting-to-tracking boundary should not be a
@@ -73,7 +74,7 @@ probes before asking it to do anything (§IV). We then make the interface load-b
 command latent, trained by DAgger from an explicit-command RL teacher, with the reference
 visible to the prior but never to the decoder. On a simulated Unitree G1 the latent-only
 command reaches 0.952±0.002 ten-second completion against the 0.98 teacher across three
-seeds — the interface gap shrinks from sixteen points to under three.
+seeds — the interface gap shrinks from thirty points to under three.
 
 Two findings we did not go looking for became contributions. First, a world-body indexing
 defect in a widely used MuJoCo-Warp training framework silently zeroed the primary
