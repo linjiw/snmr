@@ -20,10 +20,12 @@ nonlinear attacker), physically impoverished, and — frozen — inert as a cont
 null we replicate and that UniTracker's ablation independently confirms. Making the
 interface load-bearing requires co-training: a goal-conditioned residual-to-prior CVAE,
 DAgger-distilled from an RL teacher, whose 64-d latent is the tracking policy's *only*
-motion command, closes the interface gap from −16 points (frozen latent vs its
-contemporaneous explicit baseline) to −2.8 points (0.952±0.002 vs 0.98, three seeds). We
-release a preregistered negative-results ledger and a measurement-substrate defect whose
-repair cut joint tracking error by 46%.
+motion command, closes the interface gap from −33 points (frozen latent, 0.65) to −2.8 points
+(0.952±0.002 vs a 0.98 teacher; three seeds, all same-regime). The same latent absorbs a
+second, interaction-rich teacher: adding OmniRetarget's terrain and object clips — three
+human skeletons, two teachers, one network — cuts interaction-clip error 3–5× at a
+measured +1.05 cm cost on locomotion. We release a preregistered negative-results ledger
+and a measurement-substrate defect whose repair cut joint tracking error by 46%.
 
 ---
 
@@ -167,15 +169,26 @@ the posterior needs only a small privileged residual; the decoder needs neither.
 ## VI. Experiments
 
 **Q1 — Does the learned interface work?** E52 three-seed table: teacher 0.98 / D
-0.952±0.002 / C 0.944±0.008 / frozen-latent 0.72–0.77; RMSE 0.127–0.128 vs teacher 0.122.
-Within-regime gap framing per FLAG-1: frozen-latent interface sat −16pp below its
-contemporaneous explicit baseline; the co-trained interface sits −2.8pp below its own.
-*(E52-L1R post-fix frozen-latent re-run: slot reserved — queued.)*
+0.952±0.002 / C 0.944±0.008 / frozen-latent 0.65 (E52-L1R, re-run post-fix so all rows
+share one regime); RMSE 0.127–0.128 vs teacher 0.122. The frozen-vs-co-trained gap
+*widened* under the repaired reward (30pp): a working body-position signal lifts explicit
+and co-trained interfaces alike, but a frozen non-causal latent cannot exploit it —
+co-training is what converts the representation into an interface.
 
 **Q2 — Does the retargeting latent add value beyond the explicit goal?** Single-clip:
 null (paired D−C = +2.1/+0.5/−0.2pp; D's seed-variance 4× tighter, suggestive only).
-*(E53 multi-clip slot: teacher gate failed at 8k [0.378]; 16k in flight. E54
-cross-embodiment slot: the case where explicit commands are dimensionally unshareable.)*
+*(E53 multi-clip slot: teacher gates failed at 8k/16k [0.378/0.465, dynamic-tail-limited
+at 1024 envs]; 2048-env retry queued. E54 cross-embodiment slot: the case where explicit
+commands are dimensionally unshareable.)*
+
+**Q2b — Does the interface scale with better retargeting data?** Yes, measurably: adding
+a second, interaction-rich teacher (OmniRetarget; 1,938 clips across 52/53-joint human
+skeletons with synthetic orientations) cuts held-out interaction-clip error 28.9→5.5 cm
+(object) and 25.1→8.2 cm (terrain) while locomotion pays +1.05 cm (4.36 vs 3.31) — after
+a sampling-diet fix whose before/after itself attributes 61% of the naive run's
+interference to data balance rather than representational conflict. The terrain plateau
+(~8.2 cm, vs 5.5 for object) is the measured signature of a hidden conditioning variable
+(terrain scale), tested directly in the variant-code experiment (E56-D, running).
 
 **Q3 — Are learned references as trackable as IK references?** B1-confirmatory: 86.7% =
 86.7% point-equal completion (3 seeds × 2 eval seeds × 100 rollouts each source), RMSE
