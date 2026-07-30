@@ -151,5 +151,18 @@
   "sim": 0.138,
   "teacher": 0.372,
   "mpjpe_cm": 6.7
+ },
+ "twoteacher": {
+  "base": {
+   "lafan_cm": 3.31,
+   "omni_object_cm": 28.95,
+   "omni_terrain_cm": 25.06
+  },
+  "twoteach": {
+   "lafan_cm": 5.99,
+   "omni_object_cm": 5.43,
+   "omni_terrain_cm": 8.12
+  },
+  "note": "v2 (clip-count sampling); v3 frame-count rebalance in flight"
  }
 }
