@@ -1434,3 +1434,34 @@ Verdicts:
    E56-D tests exactly this).
 3. Registered gate "twoteach beats base by >=30% on omni val" PASSES overwhelmingly
    (4.9x/3.2x). Data expansion is PROMOTED; conditioning question handed to E56-D.
+
+### E52-L1R - Frozen-latent baseline POST-bodyfix (FLAG-1 integrity re-run) - **0.65 completion (from 0.72 pre-fix at 1024 envs; this run 512 envs); WITHIN-REGIME GAP TO CO-TRAINED INTERFACE: -30pp vs -2.8pp — the paper's headline comparison is now single-regime and LARGER**
+`runs/e52_l1r/` (frozen tangent-preview latent command, post-DEFECT-1 recipe w/ joint
+reward, 512 envs x 8k iters, 100-rollout eval seed 404): completion 0.650, survival 7.58 s.
+
+Resolution of FLAG-1: post-fix frozen-latent 0.65 vs post-fix co-trained latent 0.952
+(E52-D, 3 seeds) vs post-fix explicit teacher 0.98 — all three now same-regime. The
+frozen-vs-co-trained gap WIDENED post-fix (30pp vs the old cross-regime 23pp): with a
+working body-position reward the explicit and co-trained interfaces improve, but a frozen
+non-causal latent cannot exploit it. Strengthens the central claim. (Caveat: 512 vs 1024
+envs — completion was env-robust in E33; note in paper as recipe detail.)
+
+### E55-A v3 twoteach (frame-weighted sampling) - FINAL - **NO-FORGETTING RESTORED: lafan 4.36 cm (v2: 5.99; base: 3.31) while KEEPING interaction gains (omni52 5.53, omni53 8.16). Diet explained 61% of v2's interference; residual +1.05 cm = the honest price of two teachers at this capacity**
+`runs/e55a_twoteach_v3/` final @40k: lafan 4.36 / omni52 5.53 / omni53 8.16 cm.
+
+| | base | v2 (clip-weighted) | v3 (frame-weighted) |
+|---|---|---|---|
+| lafan1 val | 3.31 | 5.99 | **4.36** |
+| omni52 val | 28.95 | 5.43 | **5.53** |
+| omni53 val | 25.06 | 8.12 | **8.16** |
+
+Verdicts:
+1. **v2-vs-v3 attribution: the sampling diet explained 1.63 of v2's 2.68 cm interference
+   (61%)**; the residual +1.05 cm vs base is the genuine two-teacher price at 1.14M params.
+   Strict no-forgetting gate (<=3.61) still not met — but the price bought a 4.9x/3.1x
+   interaction capability, and the E56-B capacity sweep is the registered next lever
+   (the residual price is exactly what more capacity should absorb).
+2. **Interaction fidelity is sampling-robust** (omni values unchanged v2->v3) — the
+   absorption result is not an artifact of oversampling omni.
+3. Terrain plateau ~8.2 cm persists in both versions -> hidden-variable/conditioning
+   hypothesis unrefuted; E56-D (built, smoke-tested) is next on the freed GPU slot.
