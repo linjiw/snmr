@@ -249,6 +249,9 @@ def main() -> None:
         close_simulation_app(sim_app)
         return
     eval_z = os.environ.get("E52_EVAL_Z", "prior")  # prior | posterior
+    noise_cmd = float(os.environ.get("E52_EVAL_NOISE_CMD", "0"))      # sigma, normalized units
+    noise_z = float(os.environ.get("E52_EVAL_NOISE_ZRET", "0"))       # sigma, standardized z units
+    noise_prop = float(os.environ.get("E52_EVAL_NOISE_PROPRIO", "0"))
     student.eval()
     env.set_is_evaluating()
     motion_steps = int(motion_command.motion.time_step_total)
@@ -263,6 +266,12 @@ def main() -> None:
         for step in range(HORIZON_STEPS):
             _, proprio, cmd, priv = split_obs(obs_dict)
             zwin = z_window()
+            if noise_cmd > 0:
+                cmd = cmd + noise_cmd * torch.randn_like(cmd)
+            if noise_z > 0:
+                zwin = zwin + noise_z * torch.randn_like(zwin)
+            if noise_prop > 0:
+                proprio = proprio + noise_prop * torch.randn_like(proprio)
             z_cmd = student.mu_prior(proprio, zwin, cmd)
             if eval_z == "posterior":
                 z_cmd = z_cmd + student.mu_residual(proprio, zwin, cmd, priv)
@@ -278,6 +287,7 @@ def main() -> None:
     report = {
         "arm": arm,
         "eval_z": eval_z,
+        "noise_cmd": noise_cmd, "noise_zret": noise_z, "noise_proprio": noise_prop,
         "num_rollouts": n_envs,
         "completion_rate": float(completed.float().mean()),
         "mean_survival_s": float(survival.mean() * env.dt),

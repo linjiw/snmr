@@ -164,3 +164,32 @@ w/ dropout = genuine literature gap (zero hits) — E56-D is novel.
 **Doc corrections applied:** Feng attribution (Dirac corollary is ours), AdaMorph zero-shot
 scope (unseen MOTIONS not robots — LORO setting remains open for everyone). Cite SAME/NSM/
 DeepPhase/LMP by DOI (no arXiv IDs exist).
+
+## E61 — REGISTERED (2026-07-31): Why leverage the retargeting latent? The noise-redundancy test
+
+**Hypothesis (the paper's "why" story):** the z_ret channel is computed from the HUMAN
+side of the pipeline, so it is statistically independent of corruption in the robot-space
+reference. Arm D (prior sees cmd + z_ret) therefore holds redundant goal information that
+arm C (cmd only) structurally cannot have. Under reference corruption — the real-world
+failure mode (retargeting artifacts, video-mocap jitter, network dropout in teleop) —
+D should degrade more slowly than C. Precedent: UniTracker's latent gain widens under
+noise (+3.58pp clean -> +7.20pp at their noise level 2).
+
+**Design (eval-only, zero training cost — existing C/D checkpoints, 3 seeds each):**
+sweep eval-time Gaussian corruption of the NORMALIZED 58-d command at sigma in
+{0, 0.1, 0.25, 0.5, 1.0} x {C, D} x 3 seeds x 100 rollouts (knobs E52_EVAL_NOISE_CMD;
+also E52_EVAL_NOISE_ZRET for the symmetric control — corrupt z_ret instead, D should
+converge to C's clean performance, proving the redundancy is bidirectional).
+
+**Pre-specified readouts/gates:**
+- Primary: completion-vs-sigma curves; PROMOTE the "retargeting latent as robustness
+  channel" story iff D-C >= +5pp at some sigma with non-overlapping seed ranges.
+- Secondary: the D-C gap as a function of sigma (monotone widening = clean story).
+- Control: noise on z_ret only — if D degrades toward C-clean (not below), redundancy
+  confirmed; if D collapses, D was actually leaning on z_ret more than on cmd.
+- Null reading: D==C at all sigma -> z_ret adds nothing even under corruption; the
+  additive-value claim is dead on single-clip in ALL conditions (still a publishable
+  boundary for the paper).
+
+Cost: 30 eval runs x ~4 min = ~2 h GPU. Queue: immediately after E58 seeds finish
+(same checkpoints directory layout).
