@@ -1465,3 +1465,27 @@ Verdicts:
    absorption result is not an artifact of oversampling omni.
 3. Terrain plateau ~8.2 cm persists in both versions -> hidden-variable/conditioning
    hypothesis unrefuted; E56-D (built, smoke-tested) is next on the freed GPU slot.
+
+### E56-D - Variant-code conditioning - **VERDICT: THE 4-D HIDDEN-VARIABLE CODE IS INSUFFICIENT — R2 spread recovery plateaus at 0.43 (<0.5 gate), R1 resolution ratio only 1.05 (<1.5 gate). Conditioning with a weak code does NOT explain the sibling multimodality → the generative-decoder question (E56-C MeanFlow) STAYS LIVE, now with a measured residual to model**
+`runs/e56d_{code,nocode}/` (40k steps each, full two-teacher pool, 8 held-out sibling
+groups; pre-specified gates from the protocol).
+
+| readout | code arm @40k | nocode | gate | verdict |
+|---|---|---|---|---|
+| R1 wrong/correct-code MPJPE ratio | 1.051 | 1.0 (by construction) | >1.5 | FAIL |
+| R2 decode-spread / data-spread | 0.428 (still rising slowly) | 0.0 | >=0.5 | FAIL (near) |
+
+Reading (pre-specified decision rule): if conditioning explained the variance, E56-C died.
+It did NOT — the filename-derived 4-d code (z-scale offset, rot/trans flags, index)
+recovers only 43% of the sibling spread and barely steers between modes. Two live
+explanations, both actionable:
+(a) **the code is too coarse** — the true hidden variable is the full terrain geometry /
+    object pose trajectory, not 4 scalars. Next: condition on the object_pose channel we
+    preserved (7-d/frame) and/or terrain height value — E56-D2.
+(b) **the deterministic decoder averages within-code residual modes** — exactly the
+    setting where a MeanFlow head (E56-C) has something real to model, now with a
+    quantified target: the residual 57% of the spread.
+Order: E56-D2 (cheap, one arm, conditioning on real h) BEFORE E56-C; if D2 also caps
+below 0.5, the generative head is justified with two negative controls behind it.
+Bonus finding: R2 growth is training-limited (0.116->0.428 over 4k->40k, not converged) —
+attribution should re-check at higher budget before strong claims.
