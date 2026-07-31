@@ -1489,3 +1489,12 @@ Order: E56-D2 (cheap, one arm, conditioning on real h) BEFORE E56-C; if D2 also 
 below 0.5, the generative head is justified with two negative controls behind it.
 Bonus finding: R2 growth is training-limited (0.116->0.428 over 4k->40k, not converged) —
 attribution should re-check at higher budget before strong claims.
+
+### E58 seed0 (interim) - z_ret-only prior under identical DAgger recipe - **FAILS: 0.004 completion (survival 2.4s). The frozen retargeting latent, even feeding a co-trained prior with no other goal signal, cannot carry the command on walk1. Consistent with E52-v2's 0.021; the v3 recipe changes don't rescue it.**
+`runs/e58_interface_arm/seed0/` (arm a_prior_snmr = prior sees [proprio, proj(z_ret@0,+5)],
+no 58-d robot command anywhere in the student; 2000 DAgger rounds @1024 envs; seeds 1-2
+running). Interim reading: the SIMPLE form of interface replacement (frozen z_ret as the
+boundary tensor) is dead on this clip. The remaining live form is E58b: tracking gradients
+INTO the SNMR encoder (requires wiring the encoder + human features into the DAgger loop —
+a real build, not a config arm). The null itself strengthens the audit's "inert while
+frozen" verdict and now covers the co-trained-readout-with-prior case too.
