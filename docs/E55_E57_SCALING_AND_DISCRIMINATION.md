@@ -193,3 +193,12 @@ converge to C's clean performance, proving the redundancy is bidirectional).
 
 Cost: 30 eval runs x ~4 min = ~2 h GPU. Queue: immediately after E58 seeds finish
 (same checkpoints directory layout).
+
+## E57-A launch note (2026-08-01)
+Degraded reference built: walk1 dof + N(0, 0.05 rad), joint_vel recomputed by finite
+difference (consistency). Training 8k @512 envs (matches L1R budget tier). TWO evals on
+completion: (primary, protocol-faithful) tracking the DEGRADED reference itself — the C6
+analogue where each policy tracks its own source; (secondary) tracking the clean
+reference — transfer readout. Assay-sensitivity gate: primary completion drops >=5pp vs
+the clean-trained tracker at the same budget (E52-L1R's explicit twin: teacher-recipe
+@512 envs). If no drop, all C6 equality claims are suspended pending a better assay.
