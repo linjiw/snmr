@@ -376,10 +376,19 @@ Frozen \snmr{} latent & 0.650 & --- & 1 \\
 \end{table}
 
 \subsection{Does the latent add value beyond the explicit goal?}
-On single-clip walking: no---the paired difference between the +\snmr{}-latent arm and
-the goal-only arm straddles zero across seeds ($+2.1/+0.5/-0.2$\,pp), exactly as
-pre-specified (an explicit goal saturates a single clip). The +\snmr{} arm's seed
-variance is $4\times$ tighter ($\pm0.002$ vs $\pm0.008$; suggestive at $n{=}3$).
+On single-clip walking: no, and we mapped the negative space completely. (i)~As sole
+command through a co-trained prior, the frozen retargeting latent fails
+(0.004--0.016 completion, 3 seeds, identical DAgger recipe). (ii)~Beside the explicit
+goal, its additive value straddles zero ($+2.1/+0.5/-0.2$\,pp paired). (iii)~Under
+corruption of the robot-space reference---the hypothesized setting where an independent
+human-side channel should buy robustness---a 100-rollout screen suggested $+4.0$\,pp at
+$\sigma{=}0.5$, but a $10\times$-powered rerun (1{,}024 rollouts per cell, four noise
+levels) returned $-1.0$ to $+0.7$\,pp with paired per-seed deltas straddling zero: the
+screen's signal was sampling noise, and our pre-specified promotion gate correctly
+rejected it. A symmetric control (corrupting the latent channel itself leaves the policy
+at its clean performance) confirms the policy learns to ignore the frozen latent. The
+one unexplained difference is a $4\times$ tighter seed variance with the latent present
+($\pm0.002$ vs $\pm0.008$; $n{=}3$, curiosity not claim).
 Multi-clip teachers at our compute budget have not yet cleared their quality gate
 (0.47 mean completion at 1024 envs $\times$ 16k iters over 8 heterogeneous clips), so
 the multi-clip and cross-embodiment answers---where explicit commands are dimensionally
