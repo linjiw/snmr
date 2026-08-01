@@ -1533,3 +1533,30 @@ Readings:
    anywhere with seed separation, the robustness story is promoted; if the gap stays
    ~4pp, report as directional with CIs (still a mechanism-consistent finding chain:
    variance tightening + asymmetric-channel control + crossover direction).
+
+### E61b - Powered noise sweep (1024 rollouts/cell, sigma 0.4-0.75, 3 seeds) - **NULL: the n=100 +4.0pp signal was sampling noise. D-C at 10x power: -0.6/+0.7/+0.6/-1.0pp; paired per-seed deltas straddle zero at every sigma; no seed separation anywhere. The robustness story is NOT promoted.**
+`runs/e61_noise/*_n1024.json`.
+
+| sigma | C mean | D mean | D-C | paired deltas (pp) |
+|---|---|---|---|---|
+| 0.4 | 0.877 | 0.871 | -0.6 | [-3.6, +1.6, +0.4] |
+| 0.5 | 0.761 | 0.768 | +0.7 | [+2.5, +0.2, -0.7] |
+| 0.6 | 0.579 | 0.585 | +0.6 | [-1.9, +1.4, +2.3] |
+| 0.75 | 0.268 | 0.259 | -1.0 | [-3.4, -0.5, +1.0] |
+
+Verdicts:
+1. **The pre-specified gate did its job**: the +4.0pp at n=100 rollouts would have been
+   a false positive; at n=1024 it evaporates. The robustness story is a NULL on
+   single-clip walk.
+2. **Reinterpretation of the z_ret-noise control**: D holding 0.93-0.94 under z_ret
+   corruption now reads as "D ignores z_ret" rather than "redundancy reserve" —
+   consistent with the additive null (E52), the frozen-command null (E58), and now the
+   corruption null (E61b). One coherent conclusion: **on single-clip walk, the frozen
+   retargeting latent contributes approximately nothing to the tracking policy through
+   any tested channel.** The 4x seed-variance tightening remains the sole unexplained
+   D-C difference (possibly an optimization-landscape regularization effect of the
+   extra input; flag as curiosity, not claim).
+3. Negative space now fully mapped for single-clip: can't replace (E58 0.004-0.016),
+   no clean additive (E52 +0.8pp null), no corruption robustness (E61b null). The
+   latent's value, if it exists, lives at multi-clip/cross-embodiment scale (E53/E54)
+   or requires gradients into the encoder (E58b) — exactly the follow-up program.

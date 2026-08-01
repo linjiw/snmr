@@ -1,0 +1,14 @@
+{
+  "arm": "c_prior_explicit",
+  "eval_z": "prior",
+  "noise_cmd": 0.4,
+  "noise_zret": 0.0,
+  "noise_proprio": 0.0,
+  "num_rollouts": 1024,
+  "completion_rate": 0.8955078125,
+  "mean_survival_s": 9.26138687133789,
+  "joint_rmse_rad": 0.14166831970214844,
+  "teacher_ckpt": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260727_123641-e51v2_bodyfix_jointrew_seed0-locomotion/model_07999.pt",
+  "rounds": 0,
+  "beta_kl": 0.1
+}
