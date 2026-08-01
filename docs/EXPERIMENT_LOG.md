@@ -1498,3 +1498,10 @@ boundary tensor) is dead on this clip. The remaining live form is E58b: tracking
 INTO the SNMR encoder (requires wiring the encoder + human features into the DAgger loop —
 a real build, not a config arm). The null itself strengthens the audit's "inert while
 frozen" verdict and now covers the co-trained-readout-with-prior case too.
+
+### E58 FINAL (3 seeds) - z_ret-only prior, identical DAgger recipe - **CONFIRMED NULL: 0.004/0.010/0.016 completion. The frozen retargeting latent cannot be the boundary tensor, even through a co-trained prior. Interface-replacement (frozen form) closed; E58b (gradients into encoder) is the only remaining form. Doubles as the review's E59 within-recipe frozen baseline.**
+`runs/e58_interface_arm/seed{0,1,2}/`. This result also settles the review's B5 within-
+regime demand from the other side: under the IDENTICAL DAgger recipe/budget as arms C/D,
+a frozen-z_ret command reaches 0.004-0.016 (vs C 0.944, D 0.952) — the within-regime gap
+is ~94pp, far larger than the cross-regime 0.65 row suggested. The paper's Table I
+frozen row is replaced by this number.
