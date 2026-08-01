@@ -1505,3 +1505,31 @@ regime demand from the other side: under the IDENTICAL DAgger recipe/budget as a
 a frozen-z_ret command reaches 0.004-0.016 (vs C 0.944, D 0.952) — the within-regime gap
 is ~94pp, far larger than the cross-regime 0.65 row suggested. The paper's Table I
 frozen row is replaced by this number.
+
+### E61 - Noise-redundancy sweep (33 cells, 100 rollouts each) - **DIRECTIONAL SUPPORT AT THE CROSSOVER: D-C flips from -2.3pp clean to +4.0pp at sigma=0.5 (all 3 D seeds >= all-but-one C seeds); z_ret-noise control CLEAN (D holds 0.93-0.94 under z corruption up to 2 sigma). Pre-specified +5pp/non-overlap gate NOT met at n=100 -> E61b power extension running (1024 rollouts, fine grid 0.4-0.75)**
+`runs/e61_noise/` (existing C/D checkpoints, eval-only; corruption on the NORMALIZED
+58-d robot-space reference).
+
+| sigma | C mean | D mean | D-C |
+|---|---|---|---|
+| 0 | 0.947 | 0.923 | -2.3pp |
+| 0.1 | 0.950 | 0.940 | -1.0 |
+| 0.25 | 0.907 | 0.913 | +0.7 |
+| 0.5 | 0.747 | **0.787** | **+4.0** |
+| 1.0 | 0.003 | 0.013 | +1.0 (both collapsed) |
+
+Readings:
+1. **The interaction direction is as hypothesized**: D pays a small clean-data tax
+   (-2.3pp) and buys corruption robustness (+4.0pp at sigma 0.5); monotone gap increase
+   from sigma 0 -> 0.5. At sigma 0.5, D seeds {0.76,0.80,0.80} vs C {0.73,0.76,0.75} —
+   only one C seed touches the D range.
+2. **The symmetric control is the cleanest result**: corrupting z_ret itself (up to
+   sigma 2.0) leaves D at 0.93-0.94 = D-clean, NOT C-clean and NOT degraded. D uses
+   z_ret as auxiliary/redundant information, exactly the redundancy-reserve mechanism —
+   losing the auxiliary channel costs ~nothing, losing the primary is buffered by it.
+3. Gate discipline: +4.0pp < +5pp pre-specified promote threshold at n=100/cell ->
+   NOT promoted yet. E61b (running): 1024 rollouts/cell x sigma {0.4,0.5,0.6,0.75} x
+   3 seeds x 2 arms = the powered test of the same gate. If E61b confirms >=+5pp
+   anywhere with seed separation, the robustness story is promoted; if the gap stays
+   ~4pp, report as directional with CIs (still a mechanism-consistent finding chain:
+   variance tightening + asymmetric-channel control + crossover direction).
