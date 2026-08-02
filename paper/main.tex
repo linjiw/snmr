@@ -473,6 +473,21 @@ reached 0.122\,rad at 0.98 completion, matching an external 187-run calibration 
 identically); absolute capability numbers did not. We report this at section level
 because the lesson generalizes: \emph{measure your reward channels before tuning them.}
 
+The same discipline then caught a second defect---in our own code. The observation
+manager of our tracking stack concatenates observation terms \emph{alphabetically}, not
+in configuration order; our distillation trainer sliced the explicit reference off the
+front of the observation vector, where it is not. The consequence, established by causal
+ablation (blanking the leaked dimensions at deployment drops completion from 0.93 to
+0.00), is that in the affected runs the decoder saw the explicit reference inside its
+``proprioception'' input, violating the exclusivity contract of \S\ref{sec:method}. All
+bottleneck-side numbers in this draft (Table~\ref{tab:main}, the additive and
+noise-robustness results) are therefore from leak-affected runs and are being
+re-measured under the repaired slicing; retargeting-side results, the audit, the
+reference-policy baselines, and the trackability matrix are unaffected (their pipelines
+never sliced the observation vector). The red flag that should have caught it earlier:
+under the leak, arms with \emph{identical} goal information differed by ninety points of
+completion---an incoherence input duplication cannot produce.
+
 \section{Limitations}\label{sec:limits}
 \textbf{Interface scope --- the central open step.} The current prior consumes the
 robot-space goal; the interface-replacement experiment (a prior over

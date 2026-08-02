@@ -144,7 +144,7 @@
 <!-- ============================ KPI ROW ============================ -->
 <section>
   <div class="kpis">
-    <div class="kpi hero-kpi"><div class="eyebrow">HEADLINE RESULT</div><div class="v">0.952</div><div class="l">10-s completion with a 64-d latent as the policy's <strong>only</strong> motion command (3 seeds, ±0.002)</div><div class="d">explicit-command teacher 0.98 · frozen-latent baseline 0.65 (same recipe)</div></div>
+    <div class="kpi hero-kpi"><div class="eyebrow">HEADLINE RESULT — UNDER RE-MEASUREMENT</div><div class="v">0.952</div><div class="l">10-s completion with a 64-d latent as the policy's <strong>only</strong> motion command (3 seeds, ±0.002)</div><div class="d">explicit-command teacher 0.98 · <strong>2026-08-02: an obs-ordering leak (DEFECT-2) let the decoder see the explicit reference in these runs; fixed slicing re-runs are in flight and this number will be replaced</strong></div></div>
     <div class="kpi"><div class="v">3.66 cm</div><div class="l">retargeting MPJPE, held-out clips (G1 specialist) — <a href="benchmark.html">full benchmark</a></div><div class="d">CI [3.46, 3.86] · shared 5-robot net: 2.9–6.0 cm · limits by construction</div></div>
     <div class="kpi"><div class="v">0.98</div><div class="l">explicit tracker after our stack fixes</div><div class="d">from 0.90 — matches external calibration</div></div>
   </div>
@@ -463,6 +463,7 @@
       <tr><td>Proprio-only prior can carry a deployed latent command</td><td>Failed (0.05)</td><td>goal-conditioned prior</td></tr>
       <tr><td>SNMR z adds completion on single-clip walk</td><td>Null across seeds (+0.8pp, straddles 0)</td><td>the additive claim moves to multi-clip / cross-embodiment</td></tr>
       <tr><td>Zero-shot transfer to an unseen robot via embodiment code</td><td>Failed (5.2× error)</td><td>embodiment augmentation as future work</td></tr>
+      <tr><td><strong>DEFECT-2 (2026-08-02, self-caught):</strong> the E52 trainer's obs slicing assumed config order, but holosoma concatenates observation terms alphabetically — the decoder saw the explicit reference inside "proprio" in all E52 v1–v3 runs (causal probe: blanking the leaked dims drops 0.93 → 0.00)</td><td>All bottleneck-side numbers on this page are being re-measured under fixed slicing (E52 v4, in flight)</td><td>the assay that caught DEFECT-1 caught our own bug too; red flag was a 90pp gap between arms with identical goal information</td></tr>
     </tbody>
   </table>
 </section>
