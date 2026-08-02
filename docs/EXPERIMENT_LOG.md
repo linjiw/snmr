@@ -1629,3 +1629,21 @@ corrupted "goal" (which was actually actions+bav+partial dof_pos) made the v3 pr
 WORSE. The headline claim ("reference reaches the actor only through the 64-d z") is
 now true and the number is better. Remaining v4 arms: A (z_ret-only — the TRUE
 interface test), B (no-goal control), D (additive).
+
+### E52 v4 - arm A (interim) - **DEFECT-2 FIX REVERSES E58: the frozen retargeting latent as the prior's ONLY goal source reaches 0.606 completion (0.163 rad, 1024 rollouts) — not the 0.004-0.016 catastrophic failure the leak-era runs reported. The "interface-replacement (frozen form) CLOSED" verdict is REOPENED.**
+`runs/e52_v4/a_prior_snmr_eval.json`. First genuine run of the paper's central
+interface test (under the leak, every arm's networks saw the explicit reference via
+"proprio", and the arm-A/E58 failures were an artifact of that stack). Clean facts:
+- A (prior sees [proprio, proj(z_ret window)]): 0.606 / 0.163 rad; l_action plateaus
+  ~1.03 (10x arm C's 0.097); l_kl 7.6 (vs C 0.003) — the posterior carries a large
+  residual, so the prior is far from the posterior, yet deploys at 0.61.
+- Context: C (explicit goal) 0.965; teacher 0.98; leak-era PPO frozen-z L1R 0.65
+  (different regime, now coincidentally similar).
+**Interpretation is GATED on arm B (proprio-only prior, running next):** walk1 is
+cyclic, so a proprio-only prior could learn the gait phase without any goal channel.
+If B ~= A, the 0.606 is phase-from-proprio and z_ret still adds ~nothing; if A >> B,
+the frozen retargeting latent genuinely carries deployable goal information — the
+paper's H2 claim, alive for the first time on clean measurement. Arm D (additive)
+completes the picture. Also note for the leak postmortem: leak-era E58 had MORE goal
+information available (leaked cmd in proprio) yet scored 60pp LOWER — consistent with
+the DEFECT-2 incoherence flag, still not fully explained; v4 B/D will constrain this.
