@@ -300,7 +300,10 @@ class MotionDecoder(nn.Module):
         z_nodes = z.unsqueeze(1).expand(T, N, self.cfg.latent_dim)
         base = torch.cat([z_nodes, stat], dim=-1)  # (T, N, in_dim) re-injected each layer
 
-        cond = embodiment_code.unsqueeze(0).expand(T, -1)  # (T, embodiment_dim)
+        # embodiment_code: (embodiment_dim,) static, or (T, embodiment_dim) per-frame
+        # (E56-D2: time-varying hidden-variable conditioning, e.g. object pose).
+        cond = embodiment_code.unsqueeze(0).expand(T, -1) if embodiment_code.dim() == 1 \
+            else embodiment_code
         h = F.elu(self.input_proj(base))
         for layer, adaln, reinj in zip(self.layers, self.adalns, self.reinject):
             h_att = F.elu(layer(h, adj))

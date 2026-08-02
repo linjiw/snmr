@@ -202,3 +202,13 @@ analogue where each policy tracks its own source; (secondary) tracking the clean
 reference — transfer readout. Assay-sensitivity gate: primary completion drops >=5pp vs
 the clean-trained tracker at the same budget (E52-L1R's explicit twin: teacher-recipe
 @512 envs). If no drop, all C6 equality claims are suspended pending a better assay.
+
+## E56-D2 launch note (2026-08-02)
+Per-frame object-pose conditioning (scripts/train_e56d2_objpose.py, runs/e56d2_objpose/):
+cond = [object_pose(7) | z_scale-1 | has_object] broadcast per-frame into decoder AdaLN
+beside the embodiment code (MotionDecoder now accepts (T, cond_dim)). 1,826/1,890 omni
+clips carry object_pose. Same instrument as E56-D (8 held-out sibling groups), same gates
+(R1>1.5, R2>=0.5), readouts split by family (object vs terrain — terrain only gets the
+z-scale scalar, so the object family is the decisive one). Decision rule: both pass ->
+conditioning explains the multimodality, E56-C MeanFlow dead (positive negative);
+either fails -> measured residual, E56-C proceeds.
