@@ -1619,3 +1619,13 @@ both), assert actor_dim==154, goal dim 58->64. Smoke passed. **E52 v4 launched: 
 C/D/B/A sequential, seed 0, identical v3 recipe/budget (2000 rounds @1024 envs).** A
 (z_ret-only prior) is now the TRUE interface-replacement test — under the leak it was
 never actually run.
+
+### E52 v4 - arm C (interim) - **THE BOTTLENECK RESULT SURVIVES THE DEFECT-2 FIX AND IMPROVES: 0.965 completion / 0.126 rad (1024 rollouts, seed 0) vs 0.935 leak-affected v3.**
+`runs/e52_v4/c_prior_explicit_eval.json`. Clean-slicing arm C (prior sees the true
+64-d goal = motion_command+ref_ori at [90:154); decoder sees ONLY the 90-d proprio +
+z_cmd) BEATS its leak-affected counterpart (+3.0pp) and lands 1.5pp under the 0.98
+explicit teacher. Reading: the leak was not propping the result up — if anything the
+corrupted "goal" (which was actually actions+bav+partial dof_pos) made the v3 prior
+WORSE. The headline claim ("reference reaches the actor only through the 64-d z") is
+now true and the number is better. Remaining v4 arms: A (z_ret-only — the TRUE
+interface test), B (no-goal control), D (additive).
