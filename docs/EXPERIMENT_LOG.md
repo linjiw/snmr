@@ -1583,3 +1583,39 @@ Verdicts:
    target harder to follow than a coherent clean trajectory; consistent with the GMR
    paper's artifact taxonomy (incoherent references cap learning).
 Review blocker B9: RESOLVED (positive control run; assay sensitivity established).
+
+### DEFECT-2 (found 2026-07-31, FIXED 2026-08-02) - obs-ordering leak in train_e52_dagger.py - **the E52 decoder saw the full 58-d explicit reference inside "proprio" in every v1-v3/seed run: C1 exclusivity was violated; all leak-affected results are re-running under the fixed slicing (E52 v4).**
+holosoma's ObservationManager concatenates obs terms ALPHABETICALLY (manager.py:
+`sorted(obs_tensors.keys())`), not in config order. Verified by runtime probe at pinned
+rev 9fb2b57 (4 envs): `max|actor_obs[:,90:148] - motion_command| = 0.0` while
+`[:, :58]` differs by 6.84. True layout: actions[0:29] base_ang_vel[29:32] dof_pos[32:61]
+dof_vel[61:90] motion_command[90:148] motion_ref_ori_b[148:154]. The trainer sliced
+cmd=full[:, :58], proprio=full[:, 58:].
+
+Consequences (causal probes, seed1 arm C, 256 envs, eval seed 404 — jsons archived):
+| eval path | completion |
+|---|---|
+| prior (as reported) | 0.93 |
+| decoder proprio with leaked cmd+ref_ori blanked | **0.00** |
+| leaked cmd only blanked (ref_ori kept) | 0.11 |
+| zero_z / rand_z (z channel ablated) | 0.00 |
+Both channels were load-bearing: the actor needed BOTH the 64-d z AND the leaked
+explicit reference. The headline "reference reaches the actor only through z" is false
+for v1-v3.
+
+Blast radius: **E52 v1/v2/v3 + 3 seeds, E53 students, E58 (all arms), E61/E61b
+(noise was applied to full[:, :58] = wrong dims; decoder read the clean true reference
+throughout — the powered null tested nothing)**. CLEAN: L1/L1R/E49 (config-level term
+replacement), E51/E57-A (PPO on unmodified obs), all retargeting-side results (E55/E56,
+Table II), the audit numbers, DEFECT-1.
+
+Internal inconsistency worth recording: under the leak, arms A'/B (v2: 0.02-0.05) and
+E58 (0.004-0.016) had the SAME goal information as arm C (0.93) — all priors saw the true
+cmd via leaked proprio — yet only C worked. Input duplication should not move completion
+90pp; this incoherence was itself a red flag for the leak.
+
+Fix: PROPRIO_SLICE=[0:90), GOAL_SLICE=[90:154) (cmd + ref_ori; decoder excluded from
+both), assert actor_dim==154, goal dim 58->64. Smoke passed. **E52 v4 launched: arms
+C/D/B/A sequential, seed 0, identical v3 recipe/budget (2000 rounds @1024 envs).** A
+(z_ret-only prior) is now the TRUE interface-replacement test — under the leak it was
+never actually run.

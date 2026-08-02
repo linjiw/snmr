@@ -9,8 +9,9 @@ ControlVAE closed-form KL ||mu_res||^2/(2 sigma^2) (D2-A); episodic reparameteri
 (C8); PULSE latent-smoothness regularizer (C11).
 
 Environment obs config is UNCHANGED (teacher needs the explicit motion_command term), so:
-  teacher input   = full actor_obs (motion_command first, per g1 observation.py order)
-  student proprio = actor_obs[MOTION_CMD_DIM:]  (normalized with the teacher's frozen stats)
+  teacher input   = full actor_obs (terms concatenated ALPHABETICALLY — see DEFECT-2 note)
+  student proprio = actor_obs[PROPRIO_SLICE] (actions/base_ang_vel/dof_pos/dof_vel only,
+                    normalized with the teacher's frozen stats; NO reference-derived dims)
   student z_snmr  = frozen SNMR latents at offsets (0,+5) (C6), fetched via
                     snmr.integration.wbt_latent from the z-augmented motion npz
   posterior extra = critic_obs (privileged, incl. explicit reference), teacher's critic stats
@@ -44,7 +45,19 @@ from holosoma.train_agent import AnnotatedExperimentConfig  # noqa: E402
 from holosoma.utils.sim_utils import close_simulation_app, setup_simulation_environment  # noqa: E402
 from holosoma.utils.tyro_utils import TYRO_CONIFG  # noqa: E402
 
-MOTION_CMD_DIM = 58          # ref joint_pos(29) + joint_vel(29), first term of actor_obs
+# DEFECT-2 FIX (2026-08-02): holosoma's ObservationManager concatenates terms
+# ALPHABETICALLY (manager.py "sorted(obs_tensors.keys())"), NOT in config order. The g1
+# WBT actor_obs layout at pinned rev 9fb2b57, verified by runtime probe (max-abs-diff 0.0):
+#   actions[0:29] base_ang_vel[29:32] dof_pos[32:61] dof_vel[61:90]
+#   motion_command[90:148] motion_ref_ori_b[148:154]
+# v1-v3 sliced cmd = full[:, :58] (= actions+bav+dof_pos[:26]) and proprio = full[:, 58:],
+# so the DECODER saw the true reference inside "proprio" (C1 violated in every run).
+# v4: proprio = the four proprioceptive terms; goal = motion_command + ref_ori (all
+# reference-derived dims). Old checkpoints (proprio 96 / cmd 58) cannot load into v4
+# shapes (proprio 90 / goal 64) — intentional, prevents silently mixing regimes.
+PROPRIO_SLICE = slice(0, 90)
+GOAL_SLICE = slice(90, 154)
+MOTION_CMD_DIM = 64          # prior goal dim: motion_command(58) + motion_ref_ori_b(6)
 Z_SNMR_DIM = 128
 Z_OFFSETS = (0, 5)           # C6: current + 0.1 s at 50 Hz
 Z_CMD_DIM = 64               # D4
@@ -109,6 +122,8 @@ def main() -> None:
     beta_kl = float(os.environ.get("E52_BETA_KL", "0.1"))
     alpha_smooth = float(os.environ.get("E52_ALPHA_SMOOTH", "0.005"))
     eval_only = os.environ.get("E52_EVAL_ONLY", "") == "1"
+    prior_mix = float(os.environ.get("E52_PRIOR_MIX", "0"))  # E60 factorial knob: fraction of
+    # action-loss samples decoding PRIOR z instead of posterior z (v2 used 0.5, v3 uses 0)
     steps_per_round, epochs, minibatch = 24, 5, 4096
     out.mkdir(parents=True, exist_ok=True)
 
@@ -116,8 +131,9 @@ def main() -> None:
     env, device, sim_app = setup_simulation_environment(tyro_cfg)
     obs_dims = env.observation_manager.get_obs_dims()
     actor_dim, critic_dim = int(obs_dims["actor_obs"]), int(obs_dims["critic_obs"])
+    assert actor_dim == 154, f"obs layout changed ({actor_dim}); re-verify slices"
     num_act = env.robot_config.actions_dim
-    proprio_dim = actor_dim - MOTION_CMD_DIM
+    proprio_dim = PROPRIO_SLICE.stop - PROPRIO_SLICE.start
 
     # --- frozen teacher (arm-A explicit policy) + its obs normalizers -------------------
     ckpt = torch.load(teacher_ckpt, map_location=device)
@@ -167,7 +183,7 @@ def main() -> None:
     def split_obs(obs_dict):
         full = actor_norm(obs_dict["actor_obs"], update=False)
         priv = critic_norm(obs_dict["critic_obs"], update=False)
-        return full, full[:, MOTION_CMD_DIM:], full[:, :MOTION_CMD_DIM], priv
+        return full, full[:, PROPRIO_SLICE], full[:, GOAL_SLICE], priv
 
     n_envs = env.num_envs
     eps = torch.randn(n_envs, Z_CMD_DIM, device=device)  # episodic noise (C8)
@@ -214,10 +230,14 @@ def main() -> None:
                 mu_p = student.mu_prior(proprio, zwin, cmd)
                 mu_res = student.mu_residual(proprio, zwin, cmd, priv)
                 mu_q = mu_p + mu_res
-                # v3: action loss on posterior z only (v2's 50% prior-z mix degraded the
-                # posterior 0.84->0.42 without rescuing the prior); with a goal-conditioned
-                # prior the residual is small and the KL closes the gap (UniTracker).
-                z = mu_q + SIGMA * torch.randn_like(mu_q)
+                # E60 knob: prior_mix fraction of samples decode prior z (v2 behavior);
+                # default 0 = v3 behavior (posterior z only).
+                if prior_mix > 0:
+                    use_prior = (torch.rand(mu_q.shape[0], 1, device=device) < prior_mix).float()
+                    mu_z = use_prior * mu_p + (1 - use_prior) * mu_q
+                else:
+                    mu_z = mu_q
+                z = mu_z + SIGMA * torch.randn_like(mu_z)
                 a = student.act(proprio, z)
                 l_act = (a - data["a_teacher"][idx]).square().sum(-1).mean()
                 l_kl = mu_res.square().sum(-1).mean() / (2 * SIGMA**2)
@@ -293,7 +313,7 @@ def main() -> None:
         "mean_survival_s": float(survival.mean() * env.dt),
         "joint_rmse_rad": float((rmse_sum / survival.clamp_min(1)).mean()),
         "teacher_ckpt": str(teacher_ckpt),
-        "rounds": rounds, "beta_kl": beta_kl,
+        "rounds": rounds, "beta_kl": beta_kl, "prior_mix": prior_mix,
     }
     suffix = "" if eval_z == "prior" else f"_{eval_z}"
     (out / f"{arm}_eval{suffix}.json").write_text(json.dumps(report, indent=2) + "\n")
