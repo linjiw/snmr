@@ -1696,3 +1696,28 @@ Verdicts vs pre-registered questions:
 Blast-radius updates: E58's "interface-replacement closed" OVERTURNED; E61/E61b remain
 invalid (wrong noise dims) and are superseded by future clean reruns if the robustness
 question returns. E60 factorial auto-started (goal_mix cell running).
+
+### E61-v4 - Clean noise-redundancy sweep (v4 checkpoints, fixed slicing, 1024 rollouts/cell, eval seed 404) - **TWO RESULTS: (1) CAUSAL CONFIRMATION OF H2 — corrupting z_ret collapses arm A 0.606→0.000, so the deployed policy genuinely reads the latent (kills "prior memorized walk1"); (2) D−C gap is directionally positive and monotone in cmd noise (+0.4/+1.2/+2.8/+2.0pp at sigma 0/0.25/0.5/1.0) but below the +5pp gate at 1 seed.**
+`runs/e61v4_noise/`. First VALID run of the redundancy design (leak-era E61/E61b noised
+the wrong dims while the decoder read a clean leaked reference — tested nothing).
+
+| sigma_cmd | C | D | D−C |
+|---|---|---|---|
+| 0 | 0.955 | 0.959 | +0.4pp |
+| 0.25 | 0.938 | 0.950 | +1.2pp |
+| 0.5 | 0.838 | 0.866 | +2.8pp |
+| 1.0 | 0.109 | 0.129 | +2.0pp |
+
+Controls:
+- **A + z_ret noise (sigma 1.0): 0.000** (from 0.606 clean). The strongest possible
+  dependence readout — arm A's completion flows THROUGH the retargeting latent. This is
+  the causal companion to the B control (0.002): together they show 0.606 is neither
+  proprio-phase (B) nor prior memorization (this control); it is z_ret content. PAPER.
+- **D + z_ret noise (sigma 2.0): 0.920** (from 0.959). Clean-slicing D reads z_ret a
+  LITTLE (−4pp when corrupted) — unlike leak-era D, which ignored it entirely. Coheres
+  with the small positive D−C trend under cmd noise.
+- Sanity: nc0 cells match v4 driver evals within ~1pp (different eval seed).
+Gate status: pre-specified +5pp/non-overlapping-seeds NOT met at n=1 training seed;
+D−C(sigma) monotonicity is registered as directional. Decision: recompute over seeds
+1-2 when runs/e52_v4_seeds lands (same cells, ~40 min) — the gate gets its 3-seed test
+without new training.
