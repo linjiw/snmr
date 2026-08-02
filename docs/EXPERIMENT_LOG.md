@@ -1647,3 +1647,27 @@ paper's H2 claim, alive for the first time on clean measurement. Arm D (additive
 completes the picture. Also note for the leak postmortem: leak-era E58 had MORE goal
 information available (leaked cmd in proprio) yet scored 60pp LOWER — consistent with
 the DEFECT-2 incoherence flag, still not fully explained; v4 B/D will constrain this.
+
+### E52 v4 - arm B (interim) - **CONTROL CONFIRMS THE H2 SIGNAL: proprio-only prior 0.002 completion (survival 2.8s, RMSE 0.260) vs arm A's z_ret-only 0.606. The 0.604 gap IS the frozen retargeting latent's deployable goal content — NOT gait phase from proprioception.**
+`runs/e52_v4/b_prior_proprio_eval.json`. The phase-from-proprio alternative is dead:
+a goal-free prior cannot track cyclic walk1 at all under the identical recipe. Clean
+2x2 so far (seed 0, 1024 rollouts):
+
+| prior goal source | completion | RMSE (rad) | l_action plateau |
+|---|---|---|---|
+| explicit cmd (C) | 0.965 | 0.126 | 0.10 |
+| frozen z_ret only (A) | 0.606 | 0.163 | 1.03 |
+| none (B) | 0.002 | 0.260 | 2.25 |
+| explicit+z_ret (D) | running | | |
+
+Monotone ordering by goal quality across completion, RMSE, AND action-matching loss.
+**H2 (the frozen retargeting latent transfers control-relevant goal information) is
+SUPPORTED on clean measurement — the leak-era "control-inert while frozen" verdict is
+overturned for the sole-command setting.** The honest statement: z_ret alone recovers
+62% of the teacher's completion (0.606/0.98) through a 64-d co-trained prior with no
+robot-space reference anywhere in the student; the explicit command remains 36pp
+better. Leak-era postmortem note: under DEFECT-2 the SAME arm-A configuration scored
+0.02-0.05 (v2) / 0.004-0.016 (E58) — the leaked always-on explicit channel in "proprio"
+apparently acted as a shortcut that suppressed learning from z_ret entirely (shortcut
+dominance), which also explains the incoherence flag (identical goal info, 90pp apart).
+Seeds 1-2 queued (runs/e52_v4_seeds). Paper impact: Q1/Q2 rewrite, ledger row flips.
