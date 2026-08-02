@@ -1560,3 +1560,26 @@ Verdicts:
    no clean additive (E52 +0.8pp null), no corruption robustness (E61b null). The
    latent's value, if it exists, lives at multi-clip/cross-embodiment scale (E53/E54)
    or requires gradients into the encoder (E58b) — exactly the follow-up program.
+
+### E57-A - Assay positive control (degraded-reference tracker) - **ASSAY VALIDATED: 0.05 rad reference corruption drops completion 0.94 -> 0.48 (-46pp, 9x the 5pp gate). The completion assay IS sensitive to reference quality at known-artifact scale -> the C6 equality (86.7%=86.7%) is INFORMATIVE, not an instrument blind spot.**
+`runs/e57a/` (walk1 dof + N(0,0.05rad), vel-consistent; post-fix recipe, 8k @512 envs).
+
+| eval | completion | survival |
+|---|---|---|
+| track own DEGRADED ref (primary) | **0.480** | 5.15 s |
+| track clean ref (transfer) | 0.740 | 7.68 s |
+| clean-trained tracker, clean ref (reference bar, 1024 envs) | 0.94-0.98 | 9.4+ |
+
+Verdicts:
+1. **Gate passed decisively**: -46pp >> 5pp. (Env-count confound 512-vs-1024 noted;
+   E33 found completion env-robust at these scales, and the effect is 9x the gate.)
+2. **C6 retro-validated**: an assay that detects 0.05 rad corruption at -46pp would
+   have detected a GMR-vs-SNMR difference of comparable scale; the observed point-
+   equality reflects genuinely comparable reference quality (SNMR-vs-teacher MPJPE
+   3.4cm ~ 0.06 rad but SPATIALLY STRUCTURED vs iid — noted as the remaining
+   difference between the control's corruption and real retargeting error).
+3. Interesting secondary: the degraded-trained policy tracks the CLEAN reference
+   better (0.74) than its own training reference (0.48) — iid joint noise makes the
+   target harder to follow than a coherent clean trajectory; consistent with the GMR
+   paper's artifact taxonomy (incoherent references cap learning).
+Review blocker B9: RESOLVED (positive control run; assay sensitivity established).
