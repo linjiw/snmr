@@ -1671,3 +1671,28 @@ better. Leak-era postmortem note: under DEFECT-2 the SAME arm-A configuration sc
 apparently acted as a shortcut that suppressed learning from z_ret entirely (shortcut
 dominance), which also explains the incoherence flag (identical goal info, 90pp apart).
 Seeds 1-2 queued (runs/e52_v4_seeds). Paper impact: Q1/Q2 rewrite, ledger row flips.
+
+### E52 v4 FINAL (seed 0) - Post-DEFECT-2 four-arm rerun - **CLEAN 2x2 COMPLETE. Headline survives and improves (C 0.965); H2 SUPPORTED (A 0.606 vs B 0.002 — the frozen retargeting latent alone carries 62% of teacher completion); additive value still null (D 0.953 ~ C 0.965).**
+`runs/e52_v4/` (2000 rounds @1024 envs each, teacher 0.98, 1024-rollout evals).
+
+| prior goal source | completion | RMSE (rad) | leak-era |
+|---|---|---|---|
+| explicit cmd (C) | 0.965 | 0.126 | 0.935 |
+| explicit+z_ret (D) | 0.953 | 0.127 | 0.955 |
+| frozen z_ret only (A) | **0.606** | 0.163 | 0.004-0.05 |
+| none (B) | 0.002 | 0.260 | 0.021-0.049 |
+
+Verdicts vs pre-registered questions:
+1. Bottleneck headline: SURVIVES the fix, +3pp. The exclusivity contract now actually
+   holds (decoder input contains zero reference-derived dims).
+2. H2 interface-replacement: the ONLY verdict the fix flipped. z_ret-only 0.606 is
+   30x the leak-era number; with B at 0.002, the gap is z_ret content, not phase.
+   Honest framing: a retargeting latent computed purely from HUMAN motion carries
+   most-but-not-all of the goal (0.606 vs 0.965 explicit) through a co-trained prior.
+3. Additive (D-C): -1.2pp — still null on single-clip walk1, UNCHANGED from leak era.
+   The latent helps when it is the only channel, not beside an explicit goal
+   (consistent with UniTracker's vanishing-influence observation, now on clean data).
+4. D's tighter-variance curiosity: not assessable at 1 seed; seeds queued.
+Blast-radius updates: E58's "interface-replacement closed" OVERTURNED; E61/E61b remain
+invalid (wrong noise dims) and are superseded by future clean reruns if the robustness
+question returns. E60 factorial auto-started (goal_mix cell running).
