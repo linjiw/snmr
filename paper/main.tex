@@ -370,8 +370,12 @@ actor's only motion input costs 1.5 points against its own teacher, where the de
 failed variants (posterior-path collection, goal-free priors) collapse to 0.001--0.002.
 Second, the frozen retargeting latent alone---a channel computed purely from
 \emph{human} motion, with no robot-space reference anywhere in the student---retains
-0.606, thirty times the goal-free control: the retargeting latent transfers deployable
-goal information across the interface. Third, the remaining 36-point gap between
+0.606, thirty times the goal-free control; and the claim is causal, not correlational:
+corrupting the latent at deployment collapses this arm to 0.000, so the completion flows
+\emph{through} $z_{\mathrm{ret}}$, ruling out both gait-phase-from-proprioception (the
+0.002 control) and prior memorization (the corruption control). The retargeting latent
+transfers deployable goal information across the interface. Third, the remaining
+36-point gap between
 $z_{\mathrm{ret}}$-only and explicit-goal arms is the honest current price of removing
 the robot-space reference; closing it (gradients into the retargeting encoder) is the
 specified next step.
@@ -405,12 +409,15 @@ latent matters where an explicit command is unavailable or unshareable---multi-c
 cross-embodiment settings, where a 29-DoF target stream cannot command a 23-DoF robot at
 all. Those settings remain in progress: multi-clip teachers at our compute budget have
 not yet cleared their quality gate (0.47 mean completion at 1{,}024 envs $\times$ 16k
-iters over 8 heterogeneous clips). We also report a cautionary tale for noise-robustness
-claims: a 100-rollout screen suggested the latent buys $+4$\,pp under reference
-corruption, and a $10\times$-powered rerun returned zero---though both ran under the
-observation-layout defect (\S\ref{sec:defect}), so the robustness question is open, not
-answered, and its pre-specified gate discipline (screen, power-up, reject) is the part
-that transfers.
+iters over 8 heterogeneous clips). The redundancy hypothesis---the human-side latent
+should buy robustness when the robot-space reference is corrupted---now has its first
+valid test (the leak-era version noised dimensions the decoder never read): on clean
+checkpoints the beside-the-goal gap is directionally positive and grows with corruption
+($+0.4/+1.2/+2.8$\,pp at $\sigma{=}0/0.25/0.5$; 1{,}024 rollouts per cell) but sits
+below our pre-specified $+5$\,pp promotion gate at one training seed; the symmetric
+control (corrupting the latent instead costs the combined arm 4\,pp) confirms the
+policy reads both channels. We report the trend as directional, gated on the in-flight
+seed replication.
 
 \subsection{Does the interface scale with better retargeting data?}
 \label{sec:twoteacher}
