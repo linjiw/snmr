@@ -432,10 +432,16 @@ Terrain interaction & 25.06 & \textbf{8.16} & $-16.9$ ($3.1\times$) \\
 Matched tracking policies (3 seeds per source $\times$ 2 eval seeds $\times$ 100
 rollouts) trained on \snmr{} references vs the IK teacher's: 86.7\% vs 86.7\%
 completion---point-equal---with joint RMSE noninferior ($+0.33\%$,
-CI $[-3.1, +4.9]\%$). This matrix predates the reward repair
-(\S\ref{sec:defect}); both sources trained under the identical defect, but a
-position-blind assay may under-detect source differences, so a post-repair rerun with a
-sensitivity control (deliberately corrupted references) is registered and pending. Formal noninferiority on completion was not established: the
+CI $[-3.1, +4.9]\%$). This matrix predates the reward repair (\S\ref{sec:defect}); both sources trained
+under the identical defect. A sensitivity control now validates the assay itself: a
+tracker trained on a deliberately corrupted reference (i.i.d.\ joint noise,
+$\sigma{=}0.05$\,rad --- the scale of known retargeting artifacts) drops to 0.48
+completion against its own reference, a 46-point fall that is $9\times$ our
+pre-specified detection gate. The completion assay is therefore sensitive to
+reference-quality differences of the relevant magnitude, and the observed point-equality
+is informative rather than an instrument blind spot. (The control's corruption is
+i.i.d.\ while real retargeting error is spatially structured; a post-repair rerun on
+harder clips remains registered.) Formal noninferiority on completion was not established: the
 $\pm6$\,pp CI exceeds the pre-specified $-5$\,pp margin at this seed count---a power
 statement, not a quality gap (per-seed spread $\pm3$\,pp dominates any source effect).
 
