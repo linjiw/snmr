@@ -1,0 +1,24 @@
+c_prior_explicit_nc0_nz0: "completion_rate": 0.955078125
+d_prior_explicit_snmr_nc0_nz0: "completion_rate": 0.958984375
+c_prior_explicit_nc0.25_nz0: "completion_rate": 0.9384765625
+d_prior_explicit_snmr_nc0.25_nz0: "completion_rate": 0.9501953125
+c_prior_explicit_nc0.5_nz0: "completion_rate": 0.837890625
+d_prior_explicit_snmr_nc0.5_nz0: "completion_rate": 0.8662109375
+c_prior_explicit_nc1.0_nz0: "completion_rate": 0.109375
+d_prior_explicit_snmr_nc1.0_nz0: "completion_rate": 0.12890625
+d_prior_explicit_snmr_nc0_nz2.0: "completion_rate": 0.919921875
+a_prior_snmr_nc0_nz1.0: "completion_rate": 0.0
+seed1 c_prior_explicit_nc0.25_nz0: "completion_rate": 0.9501953125
+seed1 d_prior_explicit_snmr_nc0.25_nz0: "completion_rate": 0.9453125
+seed1 c_prior_explicit_nc0.5_nz0: "completion_rate": 0.86328125
+seed1 d_prior_explicit_snmr_nc0.5_nz0: "completion_rate": 0.8505859375
+seed1 c_prior_explicit_nc1.0_nz0: "completion_rate": 0.109375
+seed1 d_prior_explicit_snmr_nc1.0_nz0: "completion_rate": 0.1259765625
+seed1 a_prior_snmr_nc0_nz1.0: "completion_rate": 0.0
+seed2 c_prior_explicit_nc0.25_nz0: "completion_rate": 0.95703125
+seed2 d_prior_explicit_snmr_nc0.25_nz0: "completion_rate": 0.94921875
+seed2 c_prior_explicit_nc0.5_nz0: "completion_rate": 0.865234375
+seed2 d_prior_explicit_snmr_nc0.5_nz0: "completion_rate": 0.8828125
+seed2 c_prior_explicit_nc1.0_nz0: "completion_rate": 0.1044921875
+seed2 d_prior_explicit_snmr_nc1.0_nz0: "completion_rate": 0.1455078125
+seed2 a_prior_snmr_nc0_nz1.0: "completion_rate": 0.0

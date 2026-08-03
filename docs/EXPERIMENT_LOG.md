@@ -1758,3 +1758,22 @@ pose signal into per-joint decisions. Either way, deterministic decoding average
 modes on exactly the interaction-rich data we care about. E56-C MeanFlow head is next
 on the retargeting queue with a measured target: reproduce >=50% of object-sibling
 spread via sampling (the E56-D2 conditioning floor to beat: 6%).
+
+### E61-v4 FINAL (3 seeds x 1024 rollouts/cell) - **REDUNDANCY GATE FAILS AT ALL SIGMAS — the seed-0 trend does not replicate. D−C straddles zero at sigma 0.25/0.5; at sigma 1.0 all three seeds are positive (+1.7/+2.0/+4.1pp) but both arms are broken there (~0.1 completion) and the gate needs >=+5pp. The robustness/redundancy story is NOT promoted — now on VALID instrumentation.**
+`runs/e61v4_noise/{,seed1,seed2}`. Per-sigma paired D−C:
+| sigma | seed0 | seed1 | seed2 | range |
+|---|---|---|---|---|
+| 0.25 | +1.2 | −0.5 | −0.8 | straddles 0 |
+| 0.5 | +2.8 | −1.3 | +1.8 | straddles 0 |
+| 1.0 | +2.0 | +1.7 | +4.1 | all + but tiny |
+
+- **The causal control replicates PERFECTLY: A + z_ret corruption = 0.000 on all 3
+  seeds** (from 0.656 clean). H2's causal dependence claim is 3-seed solid.
+- The additive/redundancy claim is now closed with clean instrumentation and proper
+  power: z_ret beside an explicit goal buys nothing, clean or corrupted (single-clip).
+  Substitution (0.656) is the real effect; addition is not. This is the FINAL word on
+  single-clip walk1 for the frozen latent: paper Q2 ships this as a completed negative
+  with the sigma-1.0 footnote as directional-only.
+- Gate discipline note: this is the second time a promising sub-+5pp trend failed seed
+  replication (E61b's n=100 +4pp was the first). The pre-specified gate has now
+  correctly rejected two would-be stories.
