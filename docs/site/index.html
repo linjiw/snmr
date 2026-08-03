@@ -132,9 +132,10 @@
   shared motion latent — then shows the act-through-latent idea carries control: a co-trained
   64-d command code (<code>z_cmd</code>) is the tracking policy's <strong>only</strong> motion
   input on a simulated Unitree&nbsp;G1. Fed the frozen retargeting latent as its <em>only</em>
-  goal source — no robot-space reference anywhere in the student — the policy retains 0.606
-  completion (goal-free control: 0.002); beside an explicit goal the latent's additive value is
-  null (the shortcut mechanism, and an honest open thread).</p>
+  goal source — no robot-space reference anywhere in the student — the policy retains 0.656 ± 0.044
+  completion across 3 seeds (goal-free control: 0.001; corrupting z_ret collapses it to 0.000 — the
+  dependence is causal); beside an explicit goal the latent's additive value is null (the shortcut
+  mechanism, and an honest open thread).</p>
   <div class="badges">
     <span class="badge">5 humanoid embodiments, one network</span>
     <span class="badge">MuJoCo-Warp RL tracking</span>
@@ -146,7 +147,7 @@
 <!-- ============================ KPI ROW ============================ -->
 <section>
   <div class="kpis">
-    <div class="kpi hero-kpi"><div class="eyebrow">HEADLINE RESULT — POST-FIX (2026-08-02)</div><div class="v">0.965</div><div class="l">10-s completion with a 64-d latent as the policy's <strong>only</strong> motion command (1,024 rollouts; seed replication running)</div><div class="d">teacher 0.98 · frozen z_ret as the <em>only</em> goal source: <strong>0.606</strong> · no goal: 0.002 — completion monotone in goal quality, all post-DEFECT-2 measurement</div></div>
+    <div class="kpi hero-kpi"><div class="eyebrow">HEADLINE RESULT — 3 SEEDS, POST-FIX</div><div class="v">0.955</div><div class="l">10-s completion with a 64-d latent as the policy's <strong>only</strong> motion command (±0.008, 3 seeds × 1,024 rollouts)</div><div class="d">teacher 0.98 · frozen z_ret as the <em>only</em> goal source: <strong>0.656 ± 0.044</strong> · no goal: 0.001 · corrupting z_ret collapses the latent-only arm to 0.000 (causal)</div></div>
     <div class="kpi"><div class="v">3.66 cm</div><div class="l">retargeting MPJPE, held-out clips (G1 specialist) — <a href="benchmark.html">full benchmark</a></div><div class="d">CI [3.46, 3.86] · shared 5-robot net: 2.9–6.0 cm · limits by construction</div></div>
     <div class="kpi"><div class="v">0.98</div><div class="l">explicit tracker after our stack fixes</div><div class="d">from 0.90 — matches external calibration</div></div>
   </div>
@@ -303,10 +304,11 @@
 
   <div class="card"><h4>3 · The prior needs a goal — but z_ret IS a goal.</h4>
   <p>Post-DEFECT-2 factorial (all clean measurement): a prior over proprioception alone collapses
-  (<strong>0.002</strong>). Conditioning it on the frozen retargeting latent — a channel computed purely from
+  (<strong>0.001</strong>). Conditioning it on the frozen retargeting latent — a channel computed purely from
   <em>human</em> motion, with no robot-space reference anywhere in the student — lifts it to
-  <strong>0.606</strong>. The explicit robot-space command reaches <strong>0.965</strong>; adding z_ret beside it is null
-  (0.953, shortcut mechanism). The information bottleneck stays honest: the goal enters only the prior, never
+  <strong>0.656 ± 0.044</strong> (3 seeds). The explicit robot-space command reaches <strong>0.955 ± 0.008</strong>; adding z_ret
+  beside it is null (0.956, shortcut mechanism). Goal-conditioning is the load-bearing choice
+  (E60 factorial: ≈0.95 with it regardless of loss path, 0.000 without it). The information bottleneck stays honest: the goal enters only the prior, never
   the decoder.</p></div>
 
   <figure>
@@ -380,20 +382,21 @@
     <svg id="barChart" viewBox="0 0 900 300" role="img" aria-labelledby="figBarsTitle" style="width:100%;height:auto">
       <title id="figBarsTitle">10-second completion rate by command interface</title>
     </svg>
-    <figcaption>Fig. 3 — Post-fix command-interface factorial (E52 v4, seed 0, 1,024 rollouts per arm,
-    one recipe): completion is monotone in what the prior sees. The 64-d bottleneck costs 1.5pp against
-    its teacher; the frozen human-side retargeting latent alone retains 0.606 where the goal-free
-    control collapses. Seed replication in flight. Exact values in the table below.</figcaption>
+    <figcaption>Fig. 3 — Post-fix command-interface factorial (E52 v4, mean ± sd over 3 training seeds,
+    1,024 rollouts per evaluation, one recipe): completion is monotone in what the prior sees. The 64-d
+    bottleneck costs 2.5pp against its teacher; the frozen human-side retargeting latent alone retains
+    0.656 where the goal-free control collapses; corrupting z_ret collapses the latent-only arm to 0.000
+    (causal dependence). Exact values in the table below.</figcaption>
   </figure>
   <details><summary>Table view</summary>
     <table class="data">
       <thead><tr><th>Interface</th><th>Prior sees</th><th>Completion</th><th>Joint RMSE (rad)</th><th>Seeds</th></tr></thead>
       <tbody>
         <tr><td>Explicit command (teacher)</td><td>—</td><td>0.980</td><td>0.122</td><td>1</td></tr>
-        <tr><td>C: latent-only, explicit goal</td><td>proprio + cmd</td><td>0.965</td><td>0.126</td><td>1 (seeds running)</td></tr>
-        <tr><td>D: latent-only, explicit goal + SNMR z</td><td>proprio + cmd + z_ret</td><td>0.953</td><td>0.127</td><td>1 (seeds running)</td></tr>
-        <tr><td>A: latent-only, z_ret as sole goal</td><td>proprio + z_ret</td><td>0.606</td><td>0.163</td><td>1 (seeds running)</td></tr>
-        <tr><td>B: no goal (control)</td><td>proprio</td><td>0.002</td><td>0.260</td><td>1</td></tr>
+        <tr><td>C: latent-only, explicit goal</td><td>proprio + cmd</td><td>0.955 ± 0.008</td><td>0.127</td><td>3</td></tr>
+        <tr><td>D: latent-only, explicit goal + SNMR z</td><td>proprio + cmd + z_ret</td><td>0.956 ± 0.003</td><td>0.127</td><td>3</td></tr>
+        <tr><td>A: latent-only, z_ret as sole goal</td><td>proprio + z_ret</td><td>0.656 ± 0.044</td><td>0.161</td><td>3</td></tr>
+        <tr><td>B: no goal (control)</td><td>proprio</td><td>0.001 ± 0.001</td><td>0.254</td><td>3</td></tr>
       </tbody>
     </table>
   </details>
@@ -469,8 +472,8 @@
       <tr><td>Proprio-only prior can carry a deployed latent command</td><td>Failed (0.05)</td><td>goal-conditioned prior</td></tr>
       <tr><td>SNMR z adds completion on single-clip walk</td><td>Null across seeds (+0.8pp, straddles 0)</td><td>the additive claim moves to multi-clip / cross-embodiment</td></tr>
       <tr><td>Zero-shot transfer to an unseen robot via embodiment code</td><td>Failed (5.2× error)</td><td>embodiment augmentation as future work</td></tr>
-      <tr><td><strong>DEFECT-2 (2026-08-02, self-caught & repaired):</strong> the E52 trainer's obs slicing assumed config order, but holosoma concatenates observation terms alphabetically — the decoder saw the explicit reference inside "proprio" in all E52 v1–v3 runs (causal probe: blanking the leaked dims drops 0.93 → 0.00)</td><td>Post-fix rerun moved results in BOTH directions: explicit-goal arm 0.935 → <strong>0.965</strong>; frozen-z_ret-only arm 0.004 → <strong>0.606</strong> — a logged negative OVERTURNED (the leaked shortcut had suppressed latent learning)</td><td>red flag was a 90pp gap between arms with identical goal information; incoherence between arms is a leak detector</td></tr>
-      <tr><td>Frozen z_ret as the sole command fails (leak-era E58: 0.004–0.016)</td><td><strong>OVERTURNED post-DEFECT-2</strong>: 0.606 vs 0.002 goal-free control — the human-side latent carries 62% of teacher completion</td><td>interface-replacement reopened; gap-closing lever = gradients into the encoder (E58b)</td></tr>
+      <tr><td><strong>DEFECT-2 (2026-08-02, self-caught & repaired):</strong> the E52 trainer's obs slicing assumed config order, but holosoma concatenates observation terms alphabetically — the decoder saw the explicit reference inside "proprio" in all E52 v1–v3 runs (causal probe: blanking the leaked dims drops 0.93 → 0.00)</td><td>Post-fix rerun moved results in BOTH directions: explicit-goal arm 0.935 → <strong>0.955 ± 0.008</strong>; frozen-z_ret-only arm 0.004 → <strong>0.656 ± 0.044</strong> (3 seeds) — a logged negative OVERTURNED (the leaked shortcut had suppressed latent learning)</td><td>red flag was a 90pp gap between arms with identical goal information; incoherence between arms is a leak detector</td></tr>
+      <tr><td>Frozen z_ret as the sole command fails (leak-era E58: 0.004–0.016)</td><td><strong>OVERTURNED post-DEFECT-2</strong>: 0.656 ± 0.044 (3 seeds) vs 0.001 goal-free control, and corrupting z_ret collapses it to 0.000 — the human-side latent causally carries two-thirds of teacher completion</td><td>interface-replacement reopened; gap-closing lever = gradients into the encoder (E58b)</td></tr>
     </tbody>
   </table>
 </section>
@@ -522,10 +525,10 @@ function roundBarH(svg, x0, y, w, h, fill) {
 // ---- Fig 3: completion bars ---------------------------------------------
 const barData = [
   { label: 'Explicit command (teacher)', v: 0.980, sd: null, c: '--s1', note: 'the upper bound the student distills from' },
-  { label: 'C: latent-only, explicit goal (ours)', v: 0.965, sd: null, c: '--s3', note: 'post-DEFECT-2 · joint RMSE 0.126 rad · seeds running' },
-  { label: 'D: + SNMR z beside explicit goal', v: 0.953, sd: null, c: '--s3', note: 'additive value null (shortcut mechanism)' },
-  { label: 'A: frozen z_ret as SOLE goal (human-side)', v: 0.606, sd: null, c: '--s2', note: 'no robot-space reference anywhere in the student' },
-  { label: 'B: no goal (control)', v: 0.002, sd: null, c: '--s2', note: 'goal-free prior collapses' },
+  { label: 'C: latent-only, explicit goal (ours)', v: 0.955, sd: 0.008, c: '--s3', note: '3 seeds · post-DEFECT-2 · joint RMSE 0.127 rad' },
+  { label: 'D: + SNMR z beside explicit goal', v: 0.956, sd: 0.003, c: '--s3', note: 'additive value null (shortcut mechanism)' },
+  { label: 'A: frozen z_ret as SOLE goal (human-side)', v: 0.656, sd: 0.044, c: '--s2', note: 'causal: corrupting z_ret collapses to 0.000' },
+  { label: 'B: no goal (control)', v: 0.001, sd: 0.001, c: '--s2', note: 'goal-free prior collapses' },
 ];
 function drawBars() {
   const svg = document.getElementById('barChart');
