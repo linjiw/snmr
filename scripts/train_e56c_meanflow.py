@@ -128,8 +128,10 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--steps", type=int, default=120000)
     ap.add_argument("--batch", type=int, default=4096)
-    ap.add_argument("--lr", type=float, default=1e-4)
+    ap.add_argument("--lr", type=float, default=5e-5)
     ap.add_argument("--r_neq_t", type=float, default=0.25)
+    ap.add_argument("--warmup_regression", type=int, default=20000,
+                    help="steps with r=t only (pure regression) before the bootstrap term")
     ap.add_argument("--eval_every", type=int, default=10000)
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
@@ -187,14 +189,24 @@ def main() -> None:
         cond = Z_tr[idx].to(device)
         eps = torch.randn_like(x)
         t = torch.rand(args.batch, device=device)
-        r = torch.where(torch.rand(args.batch, device=device) < args.r_neq_t,
-                        torch.rand(args.batch, device=device) * t, t)
+        # E56-C v2 stabilization (v1 diverged, loss 4e2 -> 1e13 by 10k):
+        # (a) regression warmup: r=t (u_tgt=v exactly) for the first N steps;
+        # (b) clamp the bootstrap target to a ball around v (JVP blowup guard);
+        # (c) MeanFlow's own adaptive weighting w = 1/(err^2 + c)^p (Eq. 22, p=1).
+        if step < args.warmup_regression:
+            r = t
+        else:
+            r = torch.where(torch.rand(args.batch, device=device) < args.r_neq_t,
+                            torch.rand(args.batch, device=device) * t, t)
         z_t = (1 - t)[:, None] * x + t[:, None] * eps
         v = eps - x
         u, dudt = jvp(lambda zz, rr, tt: u_wrapped(zz, rr, tt, cond),
                       (z_t, r, t), (v, torch.zeros_like(r), torch.ones_like(t)))
         u_tgt = (v - (t - r)[:, None] * dudt).detach()
-        loss = (u - u_tgt).square().mean()
+        u_tgt = v + (u_tgt - v).clamp(-5.0, 5.0)
+        err2 = (u - u_tgt).square().mean(-1)
+        w = (1.0 / (err2.detach() + 1e-3))
+        loss = (w * err2).mean()
         opt.zero_grad()
         loss.backward()
         nn.utils.clip_grad_norm_(head.parameters(), 1.0)
