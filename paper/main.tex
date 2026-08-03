@@ -435,12 +435,18 @@ on 52- and 53-joint keypoint skeletons, ingested with MST-inferred topology and
 synthetic orientations---cuts held-out interaction-clip error $5.2\times$ (object) and
 $3.1\times$ (terrain) while locomotion pays $+1.05$\,cm. A sampling-diet ablation
 attributes 61\% of the naive run's larger interference to data balance rather than
-representational conflict. The terrain plateau ($\sim$8.2\,cm vs 5.5 for object) is the
-measured signature of a hidden conditioning variable (terrain scale): the dataset
-contains 4{,}659 sibling pairs with \emph{bit-identical} human motion and divergent robot
-trajectories (mean DoF divergence 0.031--0.068\,rad)---real conditional multimodality
-that a deterministic decoder must average, and that we quantify at $16$--$36\times$ the
-threshold below which our earlier work showed generative decoders have nothing to model.
+representational conflict. The dataset also delivers a measured lesson about
+interaction multimodality: it contains 4{,}659 sibling pairs with \emph{bit-identical}
+human motion and divergent robot trajectories (mean DoF divergence
+0.031--0.068\,rad)---real conditional multimodality, $16$--$36\times$ the threshold
+below which our earlier work showed generative decoders have nothing to model. We
+tested whether conditioning explains it: a single terrain-scale scalar recovers 52\% of
+terrain-sibling variance, but the exact per-frame 7-d object pose recovers only 6\% of
+object-sibling variance under the same instrument. Terrain multimodality is
+hidden-variable-explained; object multimodality (grasp-strategy choice, with arm
+excursions up to 4.7\,rad between siblings) is not, so a deterministic decoder averages
+modes on exactly the interaction-rich clips---the measured justification for a
+generative decoding head, which we are testing under a pre-specified kill rule.
 
 \begin{table}[t]
 \centering
@@ -514,11 +520,11 @@ bottleneck-side numbers in this paper are from post-repair reruns; retargeting-s
 results, the audit probes, the reference-policy baselines, and the trackability matrix
 were never affected (their pipelines do not slice the observation vector). The repair
 moved the results in \emph{both} directions: the explicit-goal bottleneck improved
-(0.935 to 0.965---the corrupted goal slice had been hurting its prior), and the
-frozen-latent-only arm went from 0.004--0.016 to 0.606---under the leak, the always-on
-explicit shortcut inside ``proprio'' suppressed learning from the latent entirely, and
-a false negative we had logged as a closed research line reopened as this paper's second
-result. The red flag that should have caught it earlier: under the leak, arms with
+(0.935 to $0.955\pm0.008$---the corrupted goal slice had been hurting its prior), and
+the frozen-latent-only arm went from 0.004--0.016 to $0.656\pm0.044$---under the leak,
+the always-on explicit shortcut inside ``proprio'' suppressed learning from the latent
+entirely, and a false negative we had logged as a closed research line reopened as this
+paper's second result. The red flag that should have caught it earlier: under the leak, arms with
 \emph{identical} goal information differed by ninety points of completion---an
 incoherence input duplication cannot produce.
 
