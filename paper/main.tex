@@ -376,7 +376,8 @@ for prior-path mixing); without it, 0.000--0.002 either way. Second, the frozen
 retargeting latent alone---a channel computed purely from \emph{human} motion, with no
 robot-space reference anywhere in the student---retains $0.656\pm0.044$, and the claim
 is causal, not correlational: corrupting the latent at deployment collapses this arm to
-0.000, so the completion flows \emph{through} $z_{\mathrm{ret}}$, ruling out both
+0.000 on all three seeds, so the completion flows \emph{through} $z_{\mathrm{ret}}$,
+ruling out both
 gait-phase-from-proprioception (the 0.001 control) and prior memorization (the
 corruption control). The retargeting latent transfers deployable goal information
 across the interface. Third, the remaining 30-point gap between
@@ -405,23 +406,24 @@ No goal (proprio-only prior) & $0.001\pm0.001$ & 0.254 \\
 \subsection{Does the latent add value beyond the explicit goal?}
 On single-clip walking: no---but it substitutes for most of it. The clean factorial
 separates two questions the leak-era runs conflated. \emph{Additive} value beside the
-explicit goal is null ($0.953$ vs $0.965$; consistent with the shortcut mechanism and
-with UniTracker's vanishing-influence observation). \emph{Substitutive} value is large:
-$z_{\mathrm{ret}}$-only retains 0.606 where the goal-free control collapses to 0.002.
-The right reading of the interface program is therefore substitution, not addition: the
-latent matters where an explicit command is unavailable or unshareable---multi-clip and
-cross-embodiment settings, where a 29-DoF target stream cannot command a 23-DoF robot at
-all. Those settings remain in progress: multi-clip teachers at our compute budget have
-not yet cleared their quality gate (0.47 mean completion at 1{,}024 envs $\times$ 16k
-iters over 8 heterogeneous clips). The redundancy hypothesis---the human-side latent
-should buy robustness when the robot-space reference is corrupted---now has its first
-valid test (the leak-era version noised dimensions the decoder never read): on clean
-checkpoints the beside-the-goal gap is directionally positive and grows with corruption
-($+0.4/+1.2/+2.8$\,pp at $\sigma{=}0/0.25/0.5$; 1{,}024 rollouts per cell) but sits
-below our pre-specified $+5$\,pp promotion gate at one training seed; the symmetric
-control (corrupting the latent instead costs the combined arm 4\,pp) confirms the
-policy reads both channels. We report the trend as directional, gated on the in-flight
-seed replication.
+explicit goal is null ($0.956\pm0.003$ vs $0.955\pm0.008$, paired per-seed deltas
+straddling zero; consistent with the shortcut mechanism and with UniTracker's
+vanishing-influence observation). \emph{Substitutive} value is large:
+$z_{\mathrm{ret}}$-only retains $0.656\pm0.044$ where the goal-free control collapses
+to 0.001. The redundancy variant of the additive claim---the human-side latent should
+buy robustness when the robot-space reference is corrupted---also fails on its first
+valid test (the leak-era version noised dimensions the decoder never read): across
+three seeds and three corruption levels ($1{,}024$ rollouts per cell), the paired gap
+straddles zero at usable noise ($\sigma{\le}0.5$) and reaches only $+1.7$ to
+$+4.1$\,pp where both arms are already broken ($\sigma{=}1.0$), below the
+pre-specified $+5$\,pp gate---the second sub-gate trend our promotion discipline has
+correctly rejected. The right reading of the interface program is therefore
+substitution, not addition: the latent matters where an explicit command is
+unavailable or unshareable---multi-clip and cross-embodiment settings, where a 29-DoF
+target stream cannot command a 23-DoF robot at all. Those settings remain in progress:
+multi-clip teachers at our compute budget have not yet cleared their quality gate
+(0.47 mean completion at 1{,}024 envs $\times$ 16k iters over 8 heterogeneous clips;
+the pre-registered 2{,}048-env retry is running).
 
 \subsection{Does the interface scale with better retargeting data?}
 \label{sec:twoteacher}
