@@ -1777,3 +1777,15 @@ spread via sampling (the E56-D2 conditioning floor to beat: 6%).
 - Gate discipline note: this is the second time a promising sub-+5pp trend failed seed
   replication (E61b's n=100 +4pp was the first). The pre-specified gate has now
   correctly rejected two would-be stories.
+
+### E56-C v2 (120k) - MeanFlow head, first full run - **G1 FAILS: 1-NFE RMSE 0.25 rad = 2.17x the deterministic baseline (gate: within 10%); samples are overdispersed (spread 2.9-3.8x the DATA sibling spread, not under it). Per the registered decision rule this is INCONCLUSIVE, not a kill — the kill requires G2-fail AFTER G1-pass. Iteration needed before the generative question can be answered.**
+`runs/e56c_meanflow/` (v1 diverged at lr 1e-4 — logged; v2 = regression warmup +
+bootstrap-target clamp + adaptive weighting, stable but underfit). Diagnosis: the
+1-NFE map from a 3-layer MLP must invert the full noise->dof transport per frame;
+0.25 rad is roughly the marginal std of the standardized dof space, i.e. the head has
+learned the marginal but not sharpened the conditional. Overdispersion (G2>1) is the
+signature. Levers before re-run (in order): (1) more NFE at eval (2-4 steps — MeanFlow
+supports it; 1-NFE was our choice, not the method's limit), (2) wider/deeper head,
+(3) w-embedding of cond into every layer instead of input concat. Honest state for the
+paper: "a generative head is under test; its sanity gate is not yet met" — Limitations
+wording already accurate. NOT counted against the generative hypothesis.
