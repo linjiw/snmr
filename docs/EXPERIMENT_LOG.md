@@ -1721,3 +1721,40 @@ Gate status: pre-specified +5pp/non-overlapping-seeds NOT met at n=1 training se
 D−C(sigma) monotonicity is registered as directional. Decision: recompute over seeds
 1-2 when runs/e52_v4_seeds lands (same cells, ~40 min) — the gate gets its 3-seed test
 without new training.
+
+### E60 - v2->v3 factorial (clean cells, post-DEFECT-2) - **ATTRIBUTION RESOLVED: goal-conditioning is THE load-bearing fix; the 50% prior-z action-loss mix is a mild drag with a goal (0.942 vs 0.965, -2.3pp) and irrelevant without one (0.000 either way). Review blocker B6 CLOSED.**
+`runs/e60_factorial/` (2000 rounds @1024 envs, seed 0, fixed slicing).
+
+| | mix=0 (v3/v4 style) | mix=0.5 (v2 style) |
+|---|---|---|
+| goal-conditioned prior | 0.965 (v4 C) | **0.942** |
+| no-goal prior | 0.002 (v4 B) | **0.000** |
+
+No interaction: the goal main effect is ~0.95 completion; the mix main effect is ~-2pp.
+The v2->v3 rescue was goal-conditioning, full stop (the leak-era confound about which
+change mattered is also moot — both v2 changes were made under the leak; these are the
+clean estimates). Paper B6 wording ("we changed two things") can now be replaced with
+the measured attribution.
+
+### E52 v4 seeds - 3-seed replication of the clean factorial - **ALL VERDICTS REPLICATE. C 0.955±0.008, D 0.956±0.003, A 0.656±0.044, B 0.001±0.001 (1024 rollouts/eval).**
+`runs/e52_v4_seeds/`. Paired D−C: −1.2/+0.7/+0.8pp — additive null CONFIRMED at 3 seeds.
+A (z_ret-only): 0.606/0.690/0.670 — the interface-replacement result is stable and the
+mean is HIGHER than the seed-0 point (0.656 vs 0.606); gap to C is 30pp (was 36 at
+seed 0). B: 0.002/0.001/0.000 — control solid. D's tighter variance replicates again
+(sd 0.003 vs C 0.008; still n=3, still curiosity). Paper Table I can now cite mean±sd
+across 3 training seeds for every arm.
+
+### E56-D2 FINAL - Per-frame object-pose conditioning - **GATES FAIL DECISIVELY, AND THE FAILURE IS THE FINDING: exact object pose recovers only 6% of object-sibling spread (R2_object 0.064; R1_object 1.002) while the z-scale SCALAR recovers 52% of terrain spread (R2_terrain 0.525, gate-passing on its own). Conditioning does NOT explain object-clip multimodality -> E56-C (MeanFlow generative head) is now the PRIMARY live hypothesis on the retargeting side.**
+`runs/e56d2_objpose/` (40k steps, 8 held-out sibling groups, gates R1>1.5 / R2>=0.5).
+Contrast with E56-D (4-d filename code): pooled R2 0.294 vs 0.428 — the RICHER code did
+WORSE pooled, because object clips dominate its conditioning signal and they don't
+respond. Reading: terrain multimodality is hidden-variable-explained (one scalar
+suffices); object multimodality is NOT — the 7-d object pose trajectory, the most
+complete hidden variable available in the dataset, barely moves the decoder. Live
+explanations: (a) the object-conditioned solution manifold is genuinely multimodal
+given human+object (grasp-strategy choice — arm swaps of up to 4.69 rad between
+siblings); (b) AdaLN broadcast conditioning is too weak a mechanism to route a 7-d
+pose signal into per-joint decisions. Either way, deterministic decoding averages
+modes on exactly the interaction-rich data we care about. E56-C MeanFlow head is next
+on the retargeting queue with a measured target: reproduce >=50% of object-sibling
+spread via sampling (the E56-D2 conditioning floor to beat: 6%).
