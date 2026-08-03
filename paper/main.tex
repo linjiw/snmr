@@ -258,10 +258,10 @@ targets. We move the actor-visible reference behind a learned bottleneck:
 $\zcmd = \mu_\rho(\mathrm{proprio}_t, g_t)$ (the current-frame command; a future window
 is future work), under an \emph{exclusivity contract}: the goal is visible to the prior
 $\rho$ and to the critic, but never to the decoder, so motion intent reaches the actor
-only through the 64-d bottleneck. We emphasize scope: the prior currently consumes the
-\emph{robot-space} goal $g_t$, so this is an actor-side bottleneck within the tracker;
-the interface-replacement step---a prior over the source-side representation
-$z_{\mathrm{ret}}$ alone---is specified in \S\ref{sec:limits}.
+only through the 64-d bottleneck. The prior's goal source is the experimental factor
+(\S\ref{sec:exp}): the robot-space reference $g_t$ (the actor-side bottleneck), the
+source-side representation $z_{\mathrm{ret}}$ alone (the interface-replacement arm---no
+robot-space reference anywhere in the student), both, or neither (control).
 
 The latent's source is \snmr{}: a graph-attention encoder over the source skeleton
 (per-node features, adjacency, global pooling---skeleton-agnostic by construction) maps
@@ -345,14 +345,14 @@ with episodic reparameterization noise and a latent smoothness regularizer.
 
 Three failures fixed the design, in order. (i)~Collecting rollouts on the privileged
 posterior path collapses deployment to 0.001 while the posterior path itself scores
-0.84---train/deploy path consistency is not optional. (ii)~Fixing the collection path
-alone recovers only $20\times$; mixing prior-path samples into the action loss damages
-the posterior ($0.84\to0.42$). (iii)~Adding goal conditioning to the prior while removing prior-path samples from
-the action loss lifts the deployment path to 0.935--0.955; a factorial ablation
-separating those two changes is in progress, so we report the combination rather than a
-single-factor attribution. The working design compresses to one line: \emph{the prior
-sees the goal; the posterior adds only a small privileged residual; the decoder sees
-neither.}
+0.84---train/deploy path consistency is not optional. (ii)~Mixing prior-path samples
+into the action loss damages the posterior ($0.84\to0.42$) without rescuing deployment.
+(iii)~Goal-conditioning the prior is the load-bearing fix, and a post-repair factorial
+ablation gives the clean attribution: with a goal-conditioned prior, deployment reaches
+$\approx$0.95 whether or not prior-path samples enter the action loss (the mix costs
+2.3\,pp); without one, 0.000--0.002 either way. The working design compresses to one
+line: \emph{the prior sees a goal; the posterior adds only a small privileged residual;
+the decoder sees neither.}
 
 \section{Experiments}
 \label{sec:exp}
@@ -537,9 +537,13 @@ interaction data enters at the retargeting level only, where its absorption is m
 \textbf{Simulation only.} No hardware; the MuJoCo-Warp stack is externally calibrated
 but sim-to-real is unvalidated. \textbf{Data scale.} 4.6\,h/robot of locomotion plus
 0.9--3.4\,h of interaction data is small; the two-teacher result is the first point on
-the scaling curve, not its end. Moving past these---conditioning on the interaction
-hidden variable, capacity scaling matched to data, and the cross-embodiment command
-demonstration---is the immediate agenda.
+the scaling curve, not its end. \textbf{Interaction multimodality is not yet modeled.}
+Conditioning on the interaction hidden variable fails even given the exact per-frame
+object pose (6\% of object-sibling variance recovered, vs.\ 52\% for terrain from a
+single scalar)---deterministic decoding averages modes on precisely the
+interaction-rich clips; a generative head with a pre-specified kill rule is under test.
+Moving past these---closing the encoder-gradient gap, capacity scaling matched to data,
+and the cross-embodiment command demonstration---is the immediate agenda.
 
 \section{Conclusion}
 The boundary between retargeting and tracking has been a file format. Treated as a
