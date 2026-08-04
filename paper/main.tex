@@ -460,10 +460,14 @@ pre-specified $+5$\,pp gate---the second sub-gate trend our promotion discipline
 correctly rejected. The right reading of the interface program is therefore
 substitution, not addition: the latent matters where an explicit command is
 unavailable or unshareable---multi-clip and cross-embodiment settings, where a 29-DoF
-target stream cannot command a 23-DoF robot at all. Those settings remain in progress:
-multi-clip teachers at our compute budget have not yet cleared their quality gate
-(0.47 mean completion at 1{,}024 envs $\times$ 16k iters over 8 heterogeneous clips;
-the pre-registered 2{,}048-env retry is running).
+target stream cannot command a 23-DoF robot at all. Those settings remain out of reach
+at our compute budget: multi-clip teachers over 8 heterogeneous clips failed their
+pre-specified quality gate three times (0.38 at 8k iterations, 0.47 at 16k, 0.48 after
+doubling to 2{,}048 envs---the registered scaling lever bought $+1.3$\,pp, so
+environment count is not the binding constraint), and we do not distill students from
+sub-gate teachers. The literature norm for this heterogeneity (4{,}096 envs,
+20--30k iterations) is beyond our budget; we report the plateau rather than claim the
+setting.
 
 \subsection{Does the interface scale with better retargeting data?}
 \label{sec:twoteacher}
