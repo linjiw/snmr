@@ -1860,3 +1860,14 @@ anatomy. Review panel predictions: verifier "if ~0.65 the headline dies" — it 
 ### Teacher re-eval @1024 rollouts (stats-reviewer Q2) - **TEACHER BOUND CORRECTED: 0.954 at 1024 rollouts (was 0.980 at 100 rollouts, binomial SE ~1.4pp). Arm C (0.955±0.008) MATCHES its teacher at matched evaluation precision — the '2.5pp below teacher' gap was evaluation noise in the reference point.**
 `runs/e51_teacher_1024eval/eval404_1024.json`. The latent-only interface claim
 STRENGTHENS: the 64-d code costs ~0pp against the explicit-command teacher.
+
+### E62 - Deterministic 64-d goal encoder (no posterior/KL/noise; identical DAgger recipe, seed 0) - **THE CVAE MACHINERY IS NOT LOAD-BEARING: 0.969 completion / 0.125 rad — slightly ABOVE the CVAE arm C (0.955±0.008). A plain learned 64-d recoding of the goal, trained by the same DAgger loop, matches/exceeds the full prior/posterior/KL apparatus on single-clip walking.**
+`runs/e62_deterministic/c_prior_explicit_eval.json` (1024 rollouts, seed 0; within arm
+C's seed range at n=1 — read as "no detectable CVAE advantage", not "deterministic is
+better"). Combined with the E64 finding that the posterior residual had collapsed
+(l_kl 0.003 → ||mu_res|| ~1% of noise floor), the honest method statement is: what
+matters is (1) goal-conditioning, (2) DAgger path consistency, (3) the exclusivity
+contract — NOT the variational machinery. UniTracker-style CVAE framing is unearned at
+this scale; the paper's §V rewrites to "a learned goal recoding trained by DAgger,
+with the CVAE variant matching but not exceeding it." Answers review Q (animation Q2,
+rep-learning Q3, verifier W3).
