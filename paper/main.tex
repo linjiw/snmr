@@ -388,11 +388,13 @@ $\approx$0.95 whether or not prior-path samples enter the action loss (the mix c
 request completes the attribution: a \emph{deterministic} 64-d goal encoder---no
 posterior, no KL, no noise, same DAgger loop---reaches 0.969 (one seed, within the
 CVAE arm's range), and the trained CVAE's own posterior residual is $\sim$1\% of its
-noise floor. The variational machinery is not load-bearing here; what matters is
-goal-conditioning, path consistency, and the exclusivity contract. The working design
-compresses to one line: \emph{a goal-conditioned recoding, trained on the deployment
-path, with the decoder blind to the goal}---the CVAE is one implementation of it, not
-the mechanism.
+noise floor. At nominal command rate the variational machinery is not load-bearing;
+what matters is goal-conditioning, path consistency, and the exclusivity contract. It
+earns its keep under command-channel \emph{latency}: refreshing \zcmd{} every 100\,ms
+instead of 20\,ms, the noise-trained CVAE keeps 0.485 completion where the
+deterministic encoder collapses to 0.027 ($18\times$; both die at 200\,ms). The
+working design compresses to one line: \emph{a goal-conditioned recoding, trained on
+the deployment path with injected latent noise, the decoder blind to the goal}.
 
 \section{Experiments}
 \label{sec:exp}
