@@ -1899,3 +1899,6 @@ a latent command channel tolerates 2x jitter almost free (CVAE -2.6pp) and survi
 (0.485) where a naively-trained encoder dies. Paper: one sentence in SV refining the E62
 attribution + the curve in the repo. Both arms still cliff at 200 ms — the practitioner
 reviewer's brittleness point stands at large holds.
+
+### E56-C v3 (interim, 20k/200k) - G1 SANITY GATE PASSES: 4-NFE RMSE 0.110 vs 0.115 deterministic baseline (rel 0.96, gate <=1.10). v2's failure was 1-NFE from a thin head, not MeanFlow: multi-step sampling (nfe 1->4: 0.39->0.11) + cond re-injection each layer fixed it. G2 (spread recovery on held-out siblings) now gets a fair test after the 30k regression warmup ends; current draws overdispersed (obj 1.63, terr 1.33 — should tighten as the bootstrap term engages).
+`runs/e56c_meanflow_v3/` (hidden 1024, 4 layers, ctx re-injection, 200k steps, lr 1e-4).
