@@ -299,6 +299,8 @@ def main() -> None:
     noise_cmd = float(os.environ.get("E52_EVAL_NOISE_CMD", "0"))      # sigma, normalized units
     noise_z = float(os.environ.get("E52_EVAL_NOISE_ZRET", "0"))       # sigma, standardized z units
     noise_prop = float(os.environ.get("E52_EVAL_NOISE_PROPRIO", "0"))
+    hold_z = int(os.environ.get("E52_EVAL_HOLD_Z", "0"))  # E65: refresh z_cmd only every
+    # k control ticks (zero-order hold) — latency/dropout robustness readout. k=1 = off.
     student.eval()
     env.set_is_evaluating()
     motion_steps = int(motion_command.motion.time_step_total)
@@ -319,9 +321,13 @@ def main() -> None:
                 zwin = zwin + noise_z * torch.randn_like(zwin)
             if noise_prop > 0:
                 proprio = proprio + noise_prop * torch.randn_like(proprio)
-            z_cmd = student.mu_prior(proprio, zwin, cmd)
-            if eval_z == "posterior":
-                z_cmd = z_cmd + student.mu_residual(proprio, zwin, cmd, priv)
+            if hold_z > 1 and step % hold_z != 0:
+                z_cmd = held_z  # zero-order hold between refreshes
+            else:
+                z_cmd = student.mu_prior(proprio, zwin, cmd)
+                if eval_z == "posterior":
+                    z_cmd = z_cmd + student.mu_residual(proprio, zwin, cmd, priv)
+                held_z = z_cmd
             if dump_buf is not None and step % 5 == 0:
                 dump_buf["z"].append(z_cmd.cpu()); dump_buf["cmd"].append(cmd.cpu())
                 dump_buf["proprio"].append(proprio.cpu())

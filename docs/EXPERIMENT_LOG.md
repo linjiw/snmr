@@ -1871,3 +1871,14 @@ contract — NOT the variational machinery. UniTracker-style CVAE framing is une
 this scale; the paper's §V rewrites to "a learned goal recoding trained by DAgger,
 with the CVAE variant matching but not exceeding it." Answers review Q (animation Q2,
 rep-learning Q3, verifier W3).
+
+### E65 - REGISTERED (2026-08-04): latency/hold robustness of the latent command (practitioner-reviewer ask)
+Zero-order-hold eval knob E52_EVAL_HOLD_Z=k (refresh z_cmd every k control ticks =
+20k ms at 50 Hz). Cells: k in {1,2,5,10} x {arm C (v4), E62 deterministic} + reference:
+the explicit TEACHER with its command similarly frozen is not directly comparable (the
+env recomputes its obs); the within-study contrast is C-vs-E62 (does the CVAE's train-
+time noise buy hold robustness that the deterministic encoder lacks? PULSE-style
+regularization would predict yes — the one place the variational machinery could still
+earn its keep). Eval-only, ~4 min/cell on existing checkpoints. Gate: none (descriptive
+deployment readout); reported as a robustness curve in the paper's practical-notes
+paragraph if space allows, else in the repo.
