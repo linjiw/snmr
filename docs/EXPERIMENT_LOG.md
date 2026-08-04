@@ -1802,3 +1802,9 @@ wording already accurate. NOT counted against the generative hypothesis.
 Paper action: rename the contribution from "bottleneck" language to "learned command
 interface under an exclusivity contract," report rank/R^2, and note the Z_CMD_DIM sweep
 as registered follow-up (E64b: 8/16/32 at matched recipe).
+
+### E55-R twoteach (interim; specialists running) - Full-root two-teacher redo per review B4 - **FIRST FREE-ROOT NUMBERS: world-frame MPJPE with PREDICTED root (heading-frame anchor reconstruction) = 5.9 cm locomotion / 12.2 cm object / 11.9 cm terrain (group-held-out sibling splits, no shared human across split). GT-root-pinned comparability column: 4.8 / 6.0 / 9.8 cm — same ballpark as old Table II (3.31-4.36 / 5.5 / 8.2), so B4's leakage concern did not carry the old result.**
+`runs/e55r_twoteach/` (40k steps; anchor scales lafan 0.876 / omni52 1.149 / omni53
+1.054; rel-root pos err 2.7 cm loco / 10.7 cm interaction). Root prediction costs
++1.1 cm loco and +5-6 cm interaction over GT-root — the honest full-pipeline price.
+Specialist arms (lafan-only, omni-only) running; Table II rewrite when all three land.
