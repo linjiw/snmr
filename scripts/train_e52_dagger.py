@@ -124,6 +124,9 @@ def main() -> None:
     eval_only = os.environ.get("E52_EVAL_ONLY", "") == "1"
     prior_mix = float(os.environ.get("E52_PRIOR_MIX", "0"))  # E60 factorial knob: fraction of
     # action-loss samples decoding PRIOR z instead of posterior z (v2 used 0.5, v3 uses 0)
+    deterministic = os.environ.get("E52_DET", "") == "1"  # E62: deterministic 64-d goal
+    # encoder baseline — no posterior/KL/noise; z = mu_prior everywhere; action loss only.
+    # Isolates whether the CVAE machinery matters or any learned 64-d readout suffices.
     steps_per_round, epochs, minibatch = 24, 5, 4096
     out.mkdir(parents=True, exist_ok=True)
 
@@ -203,7 +206,8 @@ def main() -> None:
                 mu_p = student.mu_prior(proprio, zwin, cmd)
                 mu_q = mu_p + student.mu_residual(proprio, zwin, cmd, priv)
                 # collect along the DEPLOYMENT path (prior z + episodic noise): true DAgger.
-                a_student = student.act(proprio, mu_p + SIGMA * eps)
+                a_student = student.act(proprio, mu_p if deterministic
+                                        else mu_p + SIGMA * eps)
                 mix = (torch.rand(n_envs, 1, device=device) < p_teacher).float()
                 actions = mix * a_teacher + (1 - mix) * a_student
                 for k, v in (("proprio", proprio), ("zwin", zwin), ("cmd", cmd),
@@ -232,18 +236,20 @@ def main() -> None:
                 mu_q = mu_p + mu_res
                 # E60 knob: prior_mix fraction of samples decode prior z (v2 behavior);
                 # default 0 = v3 behavior (posterior z only).
-                if prior_mix > 0:
+                if deterministic:
+                    mu_z = mu_p
+                elif prior_mix > 0:
                     use_prior = (torch.rand(mu_q.shape[0], 1, device=device) < prior_mix).float()
                     mu_z = use_prior * mu_p + (1 - use_prior) * mu_q
                 else:
                     mu_z = mu_q
-                z = mu_z + SIGMA * torch.randn_like(mu_z)
+                z = mu_z if deterministic else mu_z + SIGMA * torch.randn_like(mu_z)
                 a = student.act(proprio, z)
                 l_act = (a - data["a_teacher"][idx]).square().sum(-1).mean()
                 l_kl = mu_res.square().sum(-1).mean() / (2 * SIGMA**2)
                 l_sm = (data["prev_valid"][idx]
                         * (mu_q - data["prev_mu"][idx]).square().sum(-1)).mean()
-                loss = l_act + beta_kl * l_kl + alpha_smooth * l_sm
+                loss = l_act if deterministic else l_act + beta_kl * l_kl + alpha_smooth * l_sm
                 opt.zero_grad()
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(student.parameters(), 1.0)
@@ -314,6 +320,7 @@ def main() -> None:
         "joint_rmse_rad": float((rmse_sum / survival.clamp_min(1)).mean()),
         "teacher_ckpt": str(teacher_ckpt),
         "rounds": rounds, "beta_kl": beta_kl, "prior_mix": prior_mix,
+        "deterministic": deterministic,
     }
     suffix = "" if eval_z == "prior" else f"_{eval_z}"
     (out / f"{arm}_eval{suffix}.json").write_text(json.dumps(report, indent=2) + "\n")
