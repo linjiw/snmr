@@ -11,10 +11,12 @@ Raw reviews in session transcripts; this file is the synthesis + action ledger.
 | Real-robot practitioner | 3 | 4 | 3 | 3 | 3 (borderline) | 4 |
 | Representation learning (ICLR) | 3 | 2 | 3 | 4 | 3 (weak reject/borderline) | 4 |
 | Adversarial verifier (numbers) | 3 | 3 | 4 | 3 | 3 (borderline; 4 with E63+fixes) | 5 |
-| Stats/reproducibility | — | — | — | — | pending | — |
+| Stats/reproducibility | — | 4 | 4 | (repro 3) | **4 (weak accept)** | 5 |
 
-Consensus: **3/6 borderline across all four**, high confidence, with every reviewer
-naming a concrete path to 4-5.
+Consensus: **3,3,3,3,4 — borderline+**, high confidence, every reviewer naming a
+concrete path up. The strictest numbers audit scored HIGHEST — "the most reproducible
+numbers set I have audited; every headline statistic reproduces to the digit" — i.e.,
+the weaknesses are scope/controls, not integrity.
 
 ## Convergent findings (≥3 reviewers) → actions
 
@@ -69,6 +71,14 @@ naming a concrete path to 4-5.
    (with DR); verifier: "solid 4".
 3. E62 → attribution of the CVAE machinery (animation Q2, rep Q3).
 4. E54 cross-embodiment (post-E53) → practitioner's and animation's single change.
+
+## Round-4 fixes applied (stats reviewer)
+- Fig-1c teacher-bar protocol note (1 seed x 100); Table I RMSE-censoring disclosure;
+  E60 n=1 disclosure; E63 "running"->"queued"; reproduction recipe paragraph added to
+  SVI preamble (teacher recipe, DAgger hyperparams, architectures, goal composition).
+- Their decisive ask = same as verifier's: E63 clock control (already queued first).
+- Teacher-bound precision ask (1024-rollout teacher re-eval) = cheap eval-only,
+  added to post-E53 queue.
 
 ## Queue (GPU, in order)
 E53-2048 (running, ~13.4k/16k) → E63 ×3 seeds → E62 → E57-B → [E53 students if gate

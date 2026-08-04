@@ -116,7 +116,7 @@ latent, in our favor.
 }
 \draw[cgrid] (1mm,-22mm) -- (1mm,4mm);
 \node[font=\footnotesize, text=cink2, anchor=west, align=left] at (-2mm,-26.5mm)
-  {one recipe, 3 seeds $\times$ 1{,}024 rollouts;\\completion monotone in goal quality};
+  {one recipe, 3 seeds $\times$ 1{,}024 rollouts\\(teacher bar: 1 seed $\times$ 100);\\completion monotone in goal quality};
 \end{scope}
 \end{tikzpicture}
 \caption{\textbf{The retarget-to-track interface, learned (single-clip scope; see
@@ -384,7 +384,15 @@ track the full 10\,s without triggering the stack's standard tracking-failure
 termination (anchor drift $>0.5$\,m or orientation error $>0.8$\,rad at any tracked
 body, or end-effector deviation $>0.25$\,m)---i.e., a rollout ``completes'' only while
 it stays within a bounded tube around the reference, not merely upright. Retargeting
-numbers: 7 held-out LAFAN1 clips, bootstrap CIs over per-clip means.
+numbers: 7 held-out LAFAN1 clips, bootstrap CIs over per-clip means. \emph{Recipe (for reproduction):} clip =
+LAFAN1 walk1\_subject5; teacher = PPO, 8k iters at 512 envs with the repaired reward
+stack plus a joint-space term ($w{=}1.0$, $\sigma{=}0.5$); students = 2{,}000 DAgger
+rounds at 1{,}024 envs (24-step collection, 5 epochs, minibatch 4{,}096, Adam
+$3{\times}10^{-4}$), prior/posterior MLPs $512{\times}256$, decoder
+$512{\times}256{\times}128$, $\beta_{\mathrm{KL}}{=}0.1$, smoothness
+$\alpha{=}0.005$, tied $\sigma{=}0.3$, goal = 58-d reference joints/velocities plus
+6-d reference orientation. Code, protocol scripts with input hashes, and the
+negative-results ledger accompany the submission.
 
 \subsection{Does the learned interface work?}
 Table~\ref{tab:main} is the paper's central result: a four-arm factorial over what the
@@ -408,7 +416,7 @@ is goal \emph{content} from an exogenous \emph{clock}: on a single periodic clip
 phase information is nearly goal information, and the latent is fetched on the
 reference's frame index. A matched-dimension phase-only control (a fixed random
 projection of frame-index sinusoids through the identical fetch path) is registered
-and running; we report the substitution number with that caveat attached. Third, the remaining 30-point gap between
+and queued; we report the substitution number with that caveat attached. Third, the remaining 30-point gap between
 $z_{\mathrm{ret}}$-only and explicit-goal arms is the honest current price of removing
 the robot-space reference; closing it (gradients into the retargeting encoder) is the
 specified next step.
