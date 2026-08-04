@@ -78,19 +78,23 @@ class FourierTime(nn.Module):
 
 
 class MeanFlowHead(nn.Module):
-    def __init__(self, hidden=512):
+    """v3: cond+time re-injected at every layer (FiLM-lite via concat), hidden 1024."""
+
+    def __init__(self, hidden=1024, layers=4):
         super().__init__()
         self.temb = FourierTime(32)
-        in_dim = DOF + ZDIM + 2 * 32
-        self.net = nn.Sequential(
-            nn.Linear(in_dim, hidden), nn.SiLU(),
-            nn.Linear(hidden, hidden), nn.SiLU(),
-            nn.Linear(hidden, hidden), nn.SiLU(),
-            nn.Linear(hidden, DOF),
-        )
+        ctx = ZDIM + 2 * 32
+        self.inp = nn.Linear(DOF + ctx, hidden)
+        self.blocks = nn.ModuleList(
+            [nn.Linear(hidden + ctx, hidden) for _ in range(layers - 1)])
+        self.out = nn.Linear(hidden, DOF)
 
     def forward(self, z_t, cond, r, t):
-        return self.net(torch.cat([z_t, cond, self.temb(r), self.temb(t)], -1))
+        ctx = torch.cat([cond, self.temb(r), self.temb(t)], -1)
+        h = torch.nn.functional.silu(self.inp(torch.cat([z_t, ctx], -1)))
+        for blk in self.blocks:
+            h = torch.nn.functional.silu(blk(torch.cat([h, ctx], -1)))
+        return self.out(h)
 
 
 @torch.no_grad()
@@ -111,17 +115,24 @@ def encode_pool(model, pools, device, window=64):
 
 
 @torch.no_grad()
-def sample_nfe1(head, cond, x_mean, x_std, K=1, generator=None):
-    """(F, ZDIM) cond -> (K, F, DOF) unstandardized samples."""
+def sample_nfe(head, cond, x_mean, x_std, K=1, nfe=1, generator=None):
+    """(F, ZDIM) cond -> (K, F, DOF); nfe uniform backward steps t: 1->0."""
     F = cond.shape[0]
     outs = []
+    ts = torch.linspace(1.0, 0.0, nfe + 1, device=cond.device)
     for _ in range(K):
-        eps = torch.randn(F, DOF, device=cond.device, generator=generator)
-        r = torch.zeros(F, device=cond.device)
-        t = torch.ones(F, device=cond.device)
-        x = eps - head(eps, cond, r, t)
-        outs.append(x * x_std + x_mean)
+        z = torch.randn(F, DOF, device=cond.device, generator=generator)
+        for i in range(nfe):
+            t_hi, t_lo = ts[i], ts[i + 1]
+            r = torch.full((F,), float(t_lo), device=cond.device)
+            t = torch.full((F,), float(t_hi), device=cond.device)
+            z = z - (t_hi - t_lo) * head(z, cond, r, t)
+        outs.append(z * x_std + x_mean)
     return torch.stack(outs)
+
+
+def sample_nfe1(head, cond, x_mean, x_std, K=1, generator=None):
+    return sample_nfe(head, cond, x_mean, x_std, K=K, nfe=1, generator=generator)
 
 
 def main() -> None:
@@ -135,7 +146,7 @@ def main() -> None:
     ap.add_argument("--eval_every", type=int, default=10000)
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
-    out = pathlib.Path("runs/e56c_meanflow")
+    out = pathlib.Path("runs/e56c_meanflow_v3")
     out.mkdir(parents=True, exist_ok=True)
     device = args.device
     torch.manual_seed(0)
@@ -215,9 +226,12 @@ def main() -> None:
         if step % args.eval_every == 0 or step == args.steps - 1:
             head.eval()
             with torch.no_grad():
-                # G1: 1-NFE dof-RMSE on lafan val (mean over 4 draws to tame variance)
-                s = sample_nfe1(head, Z_va.to(device), x_mean, x_std, K=4)
-                g1 = float((s.mean(0) - X_va.to(device)).square().mean().sqrt())
+                # G1 at multiple NFE (v3): mean over 4 draws
+                g1_by_nfe = {}
+                for nfe in (1, 2, 4):
+                    s = sample_nfe(head, Z_va.to(device), x_mean, x_std, K=4, nfe=nfe)
+                    g1_by_nfe[nfe] = float((s.mean(0) - X_va.to(device)).square().mean().sqrt())
+                g1 = g1_by_nfe[4]
                 # G2: sibling-spread recovery on held-out groups (object/terrain split)
                 fam = {"object": [], "terrain": []}
                 for pool_name, groups in sib_groups.items():
@@ -228,14 +242,15 @@ def main() -> None:
                         feat = human_pose_features(sibs[0]["human_pos"][:T],
                                                    sibs[0]["human_quat"][:T])
                         z = snmr.encode(feat, pool.static, pool.adj)
-                        draws = sample_nfe1(head, z, x_mean, x_std, K=8)
+                        draws = sample_nfe(head, z, x_mean, x_std, K=8, nfe=4)
                         dec_spread = float(draws.std(dim=0).mean())
                         dat_spread = float(torch.stack(
                             [c["qpos"][:T, 7:] for c in sibs]).std(dim=0).mean())
                         family = "object" if "z_scale" not in sibs[0]["name"] else "terrain"
                         fam[family].append(dec_spread / max(dat_spread, 1e-6))
                 rec = {"step": step, "loss": float(loss),
-                       "G1_nfe1_rmse": g1, "G1_baseline_rmse": baseline_rmse,
+                       "G1_nfe1_rmse": g1_by_nfe[1], "G1_nfe2_rmse": g1_by_nfe[2],
+                       "G1_nfe4_rmse": g1, "G1_baseline_rmse": baseline_rmse,
                        "G1_rel": g1 / baseline_rmse,
                        "G2_object": float(np.mean(fam["object"])) if fam["object"] else None,
                        "G2_terrain": float(np.mean(fam["terrain"])) if fam["terrain"] else None,
