@@ -384,9 +384,15 @@ into the action loss damages the posterior ($0.84\to0.42$) without rescuing depl
 (iii)~Goal-conditioning the prior is the load-bearing fix, and a post-repair factorial
 ablation gives the clean attribution: with a goal-conditioned prior, deployment reaches
 $\approx$0.95 whether or not prior-path samples enter the action loss (the mix costs
-2.3\,pp); without one, 0.000--0.002 either way. The working design compresses to one
-line: \emph{the prior sees a goal; the posterior adds only a small privileged residual;
-the decoder sees neither.}
+2.3\,pp); without one, 0.000--0.002 either way. And an ablation we ran at reviewers'
+request completes the attribution: a \emph{deterministic} 64-d goal encoder---no
+posterior, no KL, no noise, same DAgger loop---reaches 0.969 (one seed, within the
+CVAE arm's range), and the trained CVAE's own posterior residual is $\sim$1\% of its
+noise floor. The variational machinery is not load-bearing here; what matters is
+goal-conditioning, path consistency, and the exclusivity contract. The working design
+compresses to one line: \emph{a goal-conditioned recoding, trained on the deployment
+path, with the decoder blind to the goal}---the CVAE is one implementation of it, not
+the mechanism.
 
 \section{Experiments}
 \label{sec:exp}
