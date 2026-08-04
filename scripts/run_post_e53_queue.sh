@@ -31,6 +31,25 @@ for SEED in 0 1 2; do
   fi
 done
 
+# --- Teacher-bound precision (stats reviewer Q2): re-eval the SAME teacher checkpoint
+# at 1024 rollouts so the "2.5pp below teacher" gap has a comparable-precision bound.
+TOUT="$MAIN/runs/e51_teacher_1024eval"
+mkdir -p "$TOUT"
+if [ ! -f "$TOUT/eval404_1024.json" ]; then
+  cd "$HOLOSOMA"
+  nice -n 15 "$PY" "$MAIN/scripts/eval_agent_repair.py" \
+    --checkpoint "$TEACHER" \
+    --wbt-metrics.config.enabled \
+    --wbt-metrics.config.output-path "$TOUT/eval404_1024.json" \
+    --wbt-metrics.config.horizon-s 10.0 \
+    --training.headless True --training.num-envs 1024 --training.seed 404 \
+    --training.max-eval-steps 500 --training.export-onnx False \
+    --simulator.config.sim.max-episode-length-s 100000.0 \
+    --command.setup-terms.motion-command.params.motion-config.motion-file "$REFERENCE_Z" \
+    > "$TOUT/eval.log" 2>&1
+  echo "teacher-1024: $(tr -d '\n' < "$TOUT/eval404_1024.json" 2>/dev/null | head -c 160)"
+fi
+
 # --- E62: deterministic 64-d goal encoder under identical DAgger recipe (walk1, seed 0)
 OUT="$MAIN/runs/e62_deterministic"
 mkdir -p "$OUT"
