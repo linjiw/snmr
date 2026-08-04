@@ -43,21 +43,24 @@ physically impoverished (contact F1 0.088 without supervision), and inert when
 concatenated beside an explicit reference, a null that an independent ablation confirms.
 On the control side we show a separate 64-d command code $z_{\mathrm{cmd}}$,
 produced by a goal-conditioned residual-to-prior CVAE and DAgger-distilled from an
-explicit-command RL teacher, can be the actor's \emph{only} motion input at $0.955\pm0.008$
-ten-second completion versus the 0.98 teacher (3 seeds, 1{,}024 rollouts each). Feeding
-the prior the frozen retargeting latent \emph{instead of} any robot-space reference
-still reaches $0.656\pm0.044$ (mean survival 7.9 of 10\,s)---two-thirds of teacher
-completion from a command channel computed purely from human motion---where a goal-free
-prior collapses to 0.001 and
-corrupting the latent collapses the arm to zero: the channel is necessary, not
-bypassed.
+explicit-command RL teacher, can be the actor's \emph{only} motion input at
+$0.955\pm0.008$ ten-second completion---\emph{matching} its teacher (0.954 at equal
+evaluation precision; 3 seeds, 1{,}024 rollouts each). Feeding the prior the frozen
+retargeting latent \emph{instead of} any robot-space reference reaches $0.656\pm0.044$
+where a goal-free prior collapses to 0.001---but a pre-specified control we ran at
+reviewers' insistence overturned our own favored reading: a pure \emph{clock} (a fixed
+random projection of frame-index sinusoids through the identical fetch path) reaches
+$0.754\pm0.010$, so on single-clip cyclic motion the latent's deployable value does not
+exceed---indeed falls short of---phase information alone. We report this as the third
+result our falsification apparatus killed, and as the null model single-clip
+act-through-latent claims must beat.
 The retargeting network also absorbs a second, interaction-rich teacher across three
 human skeletons, cutting interaction-clip articulation error $3.1$--$5.2\times$ at
 $+1.05$\,cm on locomotion (preliminary: ground-truth root). We release a pre-specified
 negative-results ledger and two measurement defects---one in a widely used simulator
 framework whose repair cut joint tracking error by 46\%, and one in our own trainer
-whose repair \emph{overturned} our own published-internally negative on the frozen
-latent, in our favor.
+whose repair first overturned our own logged negative on the frozen latent and whose
+clock control then retired the favorable reading: both reversals gated, both reported.
 \end{abstract}
 
 % ============================ FIGURE 1 ============================
@@ -109,14 +112,14 @@ latent, in our favor.
 \begin{scope}[xshift=125mm, yshift=-4mm]
 \node[font=\bfseries\small, anchor=west] at (-2mm, 6mm) {(c) 10-s completion, one recipe};
 % simple horizontal bar chart, hand-drawn
-\foreach \y/\lab/\v/\c in {0/{no goal}/0.001/corange, -6/{$z_{\mathrm{ret}}$ only (human-side)}/0.656/cgreen!70!black, -12/{ours (explicit goal)}/0.955/cgreen, -18/{explicit teacher}/0.98/cblue}{
+\foreach \y/\lab/\v/\c in {0/{no goal}/0.001/corange, -5/{$z_{\mathrm{ret}}$ only}/0.656/cgreen!70!black, -10/{clock control}/0.754/corange!70!black, -15/{ours (explicit)}/0.955/cgreen, -20/{teacher}/0.954/cblue}{
   \node[anchor=east, font=\footnotesize] at (0mm, \y mm) {\lab};
   \fill[\c, rounded corners=1pt] (1mm, \y mm - 1.4mm) rectangle ({1mm + \v*38mm}, \y mm + 1.4mm);
   \node[anchor=west, font=\footnotesize\bfseries] at ({1.5mm + \v*38mm}, \y mm) {\v};
 }
-\draw[cgrid] (1mm,-22mm) -- (1mm,4mm);
-\node[font=\footnotesize, text=cink2, anchor=west, align=left] at (-2mm,-26.5mm)
-  {one recipe, 3 seeds $\times$ 1{,}024 rollouts\\(teacher bar: 1 seed $\times$ 100);\\completion monotone in goal quality};
+\draw[cgrid] (1mm,-24mm) -- (1mm,4mm);
+\node[font=\footnotesize, text=cink2, anchor=west, align=left] at (-2mm,-28.5mm)
+  {one recipe, 3 seeds $\times$ 1{,}024 rollouts\\(teacher: 1 seed $\times$ 1{,}024); the clock\\control caps single-clip latent claims};
 \end{scope}
 \end{tikzpicture}
 \caption{\textbf{The retarget-to-track interface, learned (single-clip scope; see
@@ -126,9 +129,10 @@ retargeter's contact reasoning, its uncertainty, and the cross-embodiment struct
 learned. (b)~We replace that interface with a learned 64-d command latent: the goal
 reaches the goal-conditioned prior but \emph{never} the decoder, so \zcmd{} is the
 tracking policy's only motion command. (c)~Under one training regime (3 training seeds,
-1{,}024 rollouts per evaluation), completion is monotone in what the prior sees: no goal
-collapses (0.001), the frozen \emph{human-side} retargeting latent alone reaches 0.656,
-the explicit robot-space goal 0.955, against the 0.98 explicit-command teacher.}
+1{,}024 rollouts per evaluation): the learned code with the explicit goal \emph{matches}
+its teacher (0.955 vs 0.954); the frozen human-side retargeting latent alone reaches
+0.656---but a phase-only clock control reaches 0.754, capping what the latent can claim
+on a single cyclic clip.}
 \label{fig:teaser}
 \end{figure*}
 
@@ -161,12 +165,14 @@ the policy ignores the latent (concatenation is null-to-harmful, $-10$ points at
 and UniTracker's ablation reports the same mechanism independently---``when the actor
 receives the reference motion directly, the influence of the latent variable $z$
 vanishes''~\cite{unitracker}. Training a latent by RL from scratch
-collapses~\cite{unitracker,bfm}. But remove the explicit reference entirely, and the
-picture inverts: fed to a co-trained prior as the \emph{only} goal source, the same
-frozen latent carries two-thirds of the teacher's completion ($0.656\pm0.044$ vs 0.98)
-where a goal-free prior collapses to 0.001. The retargeting latent is not inert; it is
-\emph{dominated}---when a strictly more informative channel is available beside it,
-the policy uses that channel and ignores this one.
+collapses~\cite{unitracker,bfm}. Remove the explicit reference entirely and the frozen
+latent does carry the policy---$0.656\pm0.044$ completion as the sole goal source,
+against 0.001 goal-free---but the decisive control cuts deeper than the encouraging
+number: a pure clock, a fixed random projection of frame-index sinusoids fed through
+the identical pathway, reaches $0.754\pm0.010$. On a single cyclic clip, phase
+information alone outperforms the retargeting latent; whatever motion content the
+latent holds beyond phase is not deployable value on this instrument, and its phase is
+noisier than clean sinusoids. The latent is \emph{dominated} twice over.
 
 \textbf{Our key insight is that the retargeting-to-tracking boundary should not be a
 representation the two stages agree on, but one the tracking policy learns to act
@@ -180,11 +186,12 @@ falsification-first probes before asking it to do anything (\S\ref{sec:audit}). 
 make the interface load-bearing (\S\ref{sec:method}): a conditional VAE whose
 goal-conditioned prior compresses the reference into a 64-d command latent, trained by
 DAgger from an explicit-command RL teacher, with the reference visible to the prior but
-never to the decoder. On a simulated Unitree~G1 this interface reaches
-$0.955\pm0.008$ ten-second completion against its 0.98 teacher (Fig.~\ref{fig:teaser}c);
-replacing the prior's robot-space goal with the frozen retargeting latent---so that
-\emph{no robot-space reference exists anywhere in the student}---retains
-$0.656\pm0.044$, and removing the goal entirely collapses to 0.001. The same latent then absorbs a second, interaction-rich
+never to the decoder. On a simulated Unitree~G1 this interface \emph{matches} its
+teacher---$0.955\pm0.008$ vs 0.954 at equal evaluation precision
+(Fig.~\ref{fig:teaser}c); replacing the prior's robot-space goal with the frozen
+retargeting latent---no robot-space reference anywhere in the student---retains
+$0.656\pm0.044$ against a 0.001 goal-free control, but a phase-clock control at 0.754
+caps that arm's interpretation at ``timing, at most.'' The same latent then absorbs a second, interaction-rich
 teacher---terrain and object clips from a fundamentally different retargeter, arriving on
 different human skeletons---cutting interaction-clip error $3$--$5\times$ at a measured
 $+1.05$\,cm locomotion cost (\S\ref{sec:exp}).
@@ -203,14 +210,20 @@ price---quantifying the data-side alternative to physics-in-the-loop retargeting
 \begin{itemize}
 \item \textbf{A learned command interface for humanoid tracking, under an exclusivity
   contract.} A goal-conditioned, residual-to-prior CVAE whose 64-d latent is the
-  policy's only motion input---$0.955\pm0.008$ completion against a 0.98
-  explicit-command teacher (3 seeds), with the reference never visible to the decoder
-  and the code measurably a \emph{recoding}, not a copy (effective rank 14 of 64; the
-  goal is less linearly decodable from \zcmd{} than from proprioception alone, held-out
-  $R^2$ 0.48 vs 0.62); fed the frozen \emph{human-side} retargeting latent as its only
-  goal source it retains $0.656\pm0.044$ (goal-free control: 0.001)---plus a documented
-  failure anatomy (path consistency, goal conditioning, observation-layout leaks) for
-  making such interfaces work.
+  policy's only motion input---$0.955\pm0.008$ completion, \emph{matching} its
+  explicit-command teacher (0.954 at equal precision; 3 seeds), with the reference
+  never visible to the decoder and the code measurably a \emph{recoding}, not a copy
+  (effective rank 14 of 64; the goal is less linearly decodable from \zcmd{} than from
+  proprioception alone, held-out $R^2$ 0.48 vs 0.62)---plus a documented failure
+  anatomy (path consistency, goal conditioning, observation-layout leaks) for making
+  such interfaces work.
+\item \textbf{The clock null model for act-through-latent claims.} A pre-specified
+  control that overturned our own favored result: on single-clip cyclic tracking, a
+  fixed random projection of frame-index sinusoids as the prior's only input reaches
+  $0.754\pm0.010$ completion---\emph{above} the frozen retargeting latent
+  ($0.656\pm0.044$) and 79\% of teacher. Any claim that a learned latent ``carries
+  motion content'' on periodic clips must beat this trivially-constructed bar; ours
+  did not, and we say so.
 \item \textbf{A falsification-first audit of a shared motion latent.} Pre-specified probe
   families establishing what the latent carries---instance-aligned, embodiment-aligned
   but not invariant, physically impoverished, dominated beside an explicit
@@ -384,14 +397,13 @@ track the full 10\,s without triggering the stack's standard tracking-failure
 termination (anchor drift $>0.5$\,m or orientation error $>0.8$\,rad at any tracked
 body, or end-effector deviation $>0.25$\,m)---i.e., a rollout ``completes'' only while
 it stays within a bounded tube around the reference, not merely upright. Retargeting
-numbers: 7 held-out LAFAN1 clips, bootstrap CIs over per-clip means. \emph{Recipe (for reproduction):} clip =
-LAFAN1 walk1\_subject5; teacher = PPO, 8k iters at 512 envs with the repaired reward
-stack plus a joint-space term ($w{=}1.0$, $\sigma{=}0.5$); students = 2{,}000 DAgger
-rounds at 1{,}024 envs (24-step collection, 5 epochs, minibatch 4{,}096, Adam
-$3{\times}10^{-4}$), prior/posterior MLPs $512{\times}256$, decoder
-$512{\times}256{\times}128$, $\beta_{\mathrm{KL}}{=}0.1$, smoothness
-$\alpha{=}0.005$, tied $\sigma{=}0.3$, goal = 58-d reference joints/velocities plus
-6-d reference orientation. Code, protocol scripts with input hashes, and the
+numbers: 7 held-out LAFAN1 clips, bootstrap CIs over per-clip means. \emph{Recipe:} clip = LAFAN1 walk1\_subject5;
+teacher = PPO, 8k iters, 512 envs, repaired rewards + joint-space term ($w{=}1$,
+$\sigma{=}0.5$); students = 2{,}000 DAgger rounds, 1{,}024 envs, 24-step collection,
+5 epochs, minibatch 4{,}096, Adam $3{\times}10^{-4}$; prior/posterior $512{\times}256$,
+decoder $512{\times}256{\times}128$, $\beta_{\mathrm{KL}}{=}0.1$,
+$\alpha_{\mathrm{smooth}}{=}0.005$, tied $\sigma{=}0.3$; goal = 58-d reference
+joints/velocities $+$ 6-d orientation. Code, hashed protocol scripts, and the
 negative-results ledger accompany the submission.
 
 \subsection{Does the learned interface work?}
@@ -401,25 +413,25 @@ prior sees, under one recipe (same DAgger algorithm, reward stack, budget, and s
 \S\ref{sec:defect}). Completion is monotone in goal quality across completion, RMSE,
 \emph{and} the imitation loss plateau (0.10/1.03/2.25 for explicit/$z_{\mathrm{ret}}$/no
 goal). Three readings. First, the interface works: the 64-d command latent as the
-actor's only motion input costs 2.5 points against its own teacher, where the design's
-failed variants (posterior-path collection, goal-free priors) collapse to 0.001. An
-attribution ablation confirms goal-conditioning is the load-bearing design choice: with
-it, completion is $\approx$0.95 regardless of the action-loss sampling path ($-2.3$\,pp
-for prior-path mixing); without it, 0.000--0.002 either way. Second, the frozen
-retargeting latent alone---a channel computed purely from \emph{human} motion, with no
-robot-space reference anywhere in the student---retains $0.656\pm0.044$, and two controls
-constrain the interpretation: a goal-free prior collapses to 0.001 (the completion is
-not gait-phase-from-proprioception), and corrupting the latent at deployment collapses
-this arm to 0.000 on all three seeds (the channel is necessary---the prior did not
-memorize the clip and route around its input). What these controls cannot yet separate
-is goal \emph{content} from an exogenous \emph{clock}: on a single periodic clip,
-phase information is nearly goal information, and the latent is fetched on the
-reference's frame index. A matched-dimension phase-only control (a fixed random
-projection of frame-index sinusoids through the identical fetch path) is registered
-and queued; we report the substitution number with that caveat attached. Third, the remaining 30-point gap between
-$z_{\mathrm{ret}}$-only and explicit-goal arms is the honest current price of removing
-the robot-space reference; closing it (gradients into the retargeting encoder) is the
-specified next step.
+actor's only motion input \emph{matches} its teacher (0.955 vs 0.954 at equal
+evaluation precision), where the design's failed variants (posterior-path collection,
+goal-free priors) collapse to 0.001. An attribution ablation confirms goal-conditioning
+is the load-bearing design choice: with it, completion is $\approx$0.95 regardless of
+the action-loss sampling path ($-2.3$\,pp for prior-path mixing); without it,
+0.000--0.002 either way (one seed per cell). Second---and this is the row we were
+obliged to add---the phase-only clock control decides the $z_{\mathrm{ret}}$-only
+arm's meaning. That arm retains $0.656\pm0.044$ with no robot-space reference anywhere
+in the student, is not proprioceptive gait memory (goal-free control 0.001), and is
+not prior memorization (corrupting the latent collapses it to 0.000, all seeds). But a
+fixed random projection of frame-index \emph{sinusoids} through the identical fetch
+path reaches $0.754\pm0.010$---ten points \emph{above} the latent, non-overlapping
+seed ranges. On a single cyclic clip the deployable content of the retargeting latent
+is therefore at most timing, delivered more noisily than a clean clock. We had a
+favorable reading of 0.656 drafted; this control, demanded by our own protocol,
+retired it. Third, the constructive residue: an exogenous $\sim$64-d clock alone
+recovers 79\% of teacher completion---goal-conditioned priors need remarkably little information on periodic motion---which
+is why single-clip results cannot establish latent-content claims
+(\S\ref{sec:limits}).
 
 \begin{table}[t]
 \centering
@@ -431,16 +443,17 @@ specified next step.
 \toprule
 Prior's goal source & Completion & RMSE \\
 \midrule
---- (explicit-command teacher, bound)$^{\dagger}$ & 0.980 & 0.122 \\
+--- (explicit-command teacher)$^{\dagger}$ & 0.954 & 0.122 \\
 Explicit robot-space command & $\mathbf{0.955\pm0.008}$ & 0.127 \\
 Explicit cmd $+$ frozen $z_{\mathrm{ret}}$ & $0.956\pm0.003$ & 0.127 \\
+Phase clock only (control) & $0.754\pm0.010$ & 0.150 \\
 Frozen $z_{\mathrm{ret}}$ only (human-side) & $0.656\pm0.044$ & 0.161 \\
 No goal (proprio-only prior) & $0.001\pm0.001$ & 0.254 \\
 \bottomrule
 \end{tabular}
 
-{\raggedright\footnotesize $^{\dagger}$single policy, 100 rollouts (reference-policy
-protocol); no seed SD available.\par}
+{\raggedright\footnotesize $^{\dagger}$single policy re-evaluated at 1{,}024
+rollouts for precision parity; no seed SD available.\par}
 \end{table}
 
 \subsection{Does the latent add value beyond the explicit goal?}
@@ -569,18 +582,20 @@ moved the results in \emph{both} directions: the explicit-goal arm improved
 (0.935 to $0.955\pm0.008$---the corrupted goal slice had been hurting its prior), and
 the frozen-latent-only arm went from 0.004--0.016 to $0.656\pm0.044$---under the leak,
 the always-on explicit shortcut inside ``proprio'' suppressed learning from the latent
-entirely, and a false negative we had logged as a closed research line reopened as this
-paper's second result. The red flag that should have caught it earlier: under the leak, arms with
+entirely; a false negative we had logged reopened---then was cut back down by the
+clock control (\S\ref{sec:exp}), each step gated in advance. The red flag that should have caught it earlier: under the leak, arms with
 \emph{identical} goal information differed by ninety points of completion---an
 incoherence input duplication cannot produce.
 
 \section{Limitations}\label{sec:limits}
-\textbf{Interface scope --- the central open step.} The $z_{\mathrm{ret}}$-only arm
-reaches $0.656\pm0.044$ with a \emph{frozen} encoder; the 30-point gap to the
-explicit-goal arm is unclosed, and the specified lever (tracking gradients into the
-retargeting encoder) is queued. The latent's additive value beside an
-explicit goal is null on single-clip walking; multi-clip and cross-embodiment
-settings---where substitution is the only option---are in progress. \textbf{Embodiment generalization.} Zero-shot transfer to
+\textbf{Interface scope --- the central open step.} On single-clip cyclic walking the
+frozen retargeting latent's deployable value is bounded by the clock control
+(0.656 vs 0.754): no latent-content claim survives on this instrument. The live forms
+of the question are (i) aperiodic/multi-clip tracking, where phase alone cannot
+suffice---blocked at our budget by the teacher quality gate; (ii) cross-embodiment
+command, where explicit references are unshareable by construction; and (iii) tracking
+gradients into the retargeting encoder. The latent's additive value beside an explicit
+goal is null on single-clip walking. \textbf{Embodiment generalization.} Zero-shot transfer to
 an unseen robot fails ($5.2\times$ error); embodiment augmentation is the identified
 path. \textbf{Physics of the latent.} Contact enters only by co-training at a fidelity
 price; repaired references cost 6+\,cm at current tracker quality. \textbf{Interaction
@@ -600,14 +615,15 @@ and the cross-embodiment command demonstration---is the immediate agenda.
 \section{Conclusion}
 The boundary between retargeting and tracking has been a file format. Treated as a
 representation---audited before trusted, co-trained before deployed, and made the
-policy's only channel to the goal---the learned code carries nearly everything the
-explicit interface carried (0.955 vs 0.98), and the retargeter's own latent, computed
-from human motion alone, carries two-thirds of it (0.656, with the clock-vs-content
-control registered). The measurement lesson runs deeper than the architecture: this paper's
-strongest results include a reward channel that was silently dead, a set of
-pre-specified nulls, and a false negative of our own that only a defect repair
-overturned; we commend all three practices---measuring reward channels, pre-specifying
-gates, and hunting incoherence between arms---to the field.
+policy's only channel to the goal---the learned code matches the explicit interface it
+replaces (0.955 vs 0.954). The retargeting latent itself did not survive its controls:
+what looked like two-thirds of teacher completion from human motion alone is bounded
+above by a trivial clock (0.754), and we publish that bound as the null model the next
+act-through-latent claim must beat. The measurement lesson runs deeper than the
+architecture: this paper's strongest results include a reward channel that was
+silently dead, a set of pre-specified nulls, a false negative overturned by a defect
+repair, and a false positive retired by a pre-specified control---we commend all four
+practices, and especially the last, to the field.
 
 \begin{thebibliography}{20}
 \bibitem{reactor} D.~M{\"u}ller et al., ``ReActor: Reinforcement learning for
