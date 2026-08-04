@@ -35,8 +35,9 @@ of robot-space joint targets---a representation chosen for convenience, not for 
 We take a first step toward a \emph{learned} interface. We distill a per-frame IK
 retargeter into one multi-embodiment network with a shared retargeting latent
 $z_{\mathrm{ret}}$ (128-d, five humanoids), and audit that latent with pre-specified
-probes: it is instance-aligned across embodiments (window retrieval 75--83\% at 1.02\%
-chance; CKA 0.91) but carries little semantic motion category (0.151 vs 0.125 chance),
+probes: it is instance-aligned across embodiments (window retrieval 57--83\% top-1 at
+1.02\% chance---the low end is the morphological outlier; CKA 0.86--0.92), with motion
+category not linearly decodable (0.151 vs 0.125 chance) though nonlinearly organized,
 is embodiment-aligned but not invariant (0.28 linear probe vs 0.91 nonlinear attacker),
 physically impoverished (contact F1 0.088 without supervision), and inert when
 concatenated beside an explicit reference, a null that an independent ablation confirms.
@@ -45,12 +46,13 @@ produced by a goal-conditioned residual-to-prior CVAE and DAgger-distilled from 
 explicit-command RL teacher, can be the actor's \emph{only} motion input at $0.955\pm0.008$
 ten-second completion versus the 0.98 teacher (3 seeds, 1{,}024 rollouts each). Feeding
 the prior the frozen retargeting latent \emph{instead of} any robot-space reference
-still reaches $0.656\pm0.044$---two-thirds of teacher completion from a command channel
-computed purely from human motion---where a goal-free prior collapses to 0.001 and
+still reaches $0.656\pm0.044$ (mean survival 7.9 of 10\,s)---two-thirds of teacher
+completion from a command channel computed purely from human motion---where a goal-free
+prior collapses to 0.001 and
 corrupting the latent collapses the arm to zero: the channel is necessary, not
 bypassed.
 The retargeting network also absorbs a second, interaction-rich teacher across three
-human skeletons, cutting interaction-clip articulation error $3$--$5\times$ at
+human skeletons, cutting interaction-clip articulation error $3.1$--$5.2\times$ at
 $+1.05$\,cm on locomotion (preliminary: ground-truth root). We release a pre-specified
 negative-results ledger and two measurement defects---one in a widely used simulator
 framework whose repair cut joint tracking error by 46\%, and one in our own trainer
@@ -292,11 +294,12 @@ Before asking the latent to carry control, we measured what it holds. Four pre-s
 probe families, in increasing severity:
 
 \textbf{Content: instance-aligned, not linearly semantic.} Cross-embodiment
-\emph{window} retrieval hits 75--83\% top-1 at 1.02\% chance (98 windows); CKA between
-per-robot encodings is 0.89--0.92. A \emph{linear} motion-category probe is near chance
-(0.151 vs 0.125)---category structure, if present, is not linearly accessible (the same
-caveat we apply to the embodiment probe below applies here; we therefore claim only
-instance alignment, not semantic absence).
+\emph{window} retrieval hits 75--83\% top-1 at 1.02\% chance on four embodiments and
+57\% on the fifth (the morphological outlier); CKA between per-robot encodings is
+0.86--0.92. A \emph{linear} motion-category probe is near chance (0.151 vs 0.125), but
+low-dimensional embeddings show clear category clusters: the structure is nonlinearly
+organized, and we claim only that it is not linearly accessible---the same caveat we
+apply to the embodiment probe below.
 
 \textbf{Embodiment: aligned, not invariant.} A linear probe recovers the source
 embodiment at only 0.28 accuracy, but a nonlinear attacker reaches 0.91---the classic
@@ -420,13 +423,16 @@ specified next step.
 \toprule
 Prior's goal source & Completion & RMSE \\
 \midrule
---- (explicit-command teacher, bound) & 0.980 & 0.122 \\
+--- (explicit-command teacher, bound)$^{\dagger}$ & 0.980 & 0.122 \\
 Explicit robot-space command & $\mathbf{0.955\pm0.008}$ & 0.127 \\
 Explicit cmd $+$ frozen $z_{\mathrm{ret}}$ & $0.956\pm0.003$ & 0.127 \\
 Frozen $z_{\mathrm{ret}}$ only (human-side) & $0.656\pm0.044$ & 0.161 \\
 No goal (proprio-only prior) & $0.001\pm0.001$ & 0.254 \\
 \bottomrule
 \end{tabular}
+
+{\raggedright\footnotesize $^{\dagger}$single policy, 100 rollouts (reference-policy
+protocol); no seed SD available.\par}
 \end{table}
 
 \subsection{Does the latent add value beyond the explicit goal?}
@@ -494,7 +500,8 @@ Terrain inter. & 25.06 & \textbf{8.16} & $-16.9$ ($3.1\times$) \\
 \subsection{Are learned references as trackable as IK references?}
 Matched tracking policies (3 seeds per source $\times$ 2 eval seeds $\times$ 100
 rollouts) trained on \snmr{} references vs the IK teacher's: 86.7\% vs 86.7\%
-completion---point-equal---with joint RMSE noninferior ($+0.33\%$,
+completion---statistically indistinguishable (per-seed spread $\pm3$\,pp; the exact
+tie is coincidence at this power)---with joint RMSE noninferior ($+0.33\%$,
 CI $[-3.1, +4.9]\%$). This matrix predates the reward repair (\S\ref{sec:defect}); both sources trained
 under the identical defect. A sensitivity control now validates the assay itself: a
 tracker trained on a deliberately corrupted reference (i.i.d.\ joint noise,
@@ -526,7 +533,7 @@ body-name list excludes it) shifted every simulation-side body read one body roo
 in our stack (pinned revision; IsaacSim/IsaacGym paths unaffected), so the
 tracked pelvis slot read the world body---always at the origin---and the exponential
 reward kernel underflowed to 0.0 for 8{,}000 consecutive iterations (the raw term logs
-prove it). Policies still walked, because orientation and velocity terms survived; they
+show it). Policies still walked, because orientation and velocity terms survived; they
 were orientation-plus-velocity trackers with a corrupted position channel. Repairing the
 indexing (released as a small patch; IsaacSim/IsaacGym paths are unaffected, which is
 why upstream never saw it) cut joint tracking RMSE from 0.263 to 0.142\,rad ($-46\%$)
@@ -581,9 +588,10 @@ and the cross-embodiment command demonstration---is the immediate agenda.
 \section{Conclusion}
 The boundary between retargeting and tracking has been a file format. Treated as a
 representation---audited before trusted, co-trained before deployed, and made the
-policy's only channel to the goal---it carries nearly everything the explicit interface
-carried, and the retargeter's own latent, computed from human motion alone, carries
-most of it too. The measurement lesson runs deeper than the architecture: this paper's
+policy's only channel to the goal---the learned code carries nearly everything the
+explicit interface carried (0.955 vs 0.98), and the retargeter's own latent, computed
+from human motion alone, carries two-thirds of it (0.656, with the clock-vs-content
+control registered). The measurement lesson runs deeper than the architecture: this paper's
 strongest results include a reward channel that was silently dead, a set of
 pre-specified nulls, and a false negative of our own that only a defect repair
 overturned; we commend all three practices---measuring reward channels, pre-specifying
