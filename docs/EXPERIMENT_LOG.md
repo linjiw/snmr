@@ -1808,3 +1808,22 @@ as registered follow-up (E64b: 8/16/32 at matched recipe).
 1.054; rel-root pos err 2.7 cm loco / 10.7 cm interaction). Root prediction costs
 +1.1 cm loco and +5-6 cm interaction over GT-root — the honest full-pipeline price.
 Specialist arms (lafan-only, omni-only) running; Table II rewrite when all three land.
+
+### E53-2048 - Multi-clip teacher, preregistered env-scaling lever - **GATE FAILED A THIRD TIME: mean per-clip completion 0.478 < 0.6 (from 0.465 @1024 envs, 0.378 @8k budget). Env doubling bought +1.3pp — env count is NOT the binding constraint at this heterogeneity. Per the preregistered decision rule, the multi-clip reframe now applies: Q2's multi-clip/cross-embodiment answers ship as in-progress; no multi-clip students will be trained on a sub-gate teacher.**
+`runs/e53_multiclip/reports/e53_2048_*_eval404.json` (100 rollouts/clip, seed 404).
+| clip | 2048 envs | 1024 envs |
+|---|---|---|
+| walk1 | 0.86 | 0.89 |
+| push1 | 0.61 | 0.61 |
+| walk3 | 0.58 | 0.53 |
+| sprint1 | 0.49 | 0.50 |
+| run1 | 0.48 | 0.51 |
+| jumps1 | 0.31 | 0.35 |
+| fight1 | 0.27 | 0.17 |
+| dance1 | 0.22 | 0.16 |
+Reading: the dynamic tail moved (+10/+6pp fight/dance) but locomotion clips plateaued or
+dipped — the remaining gap is a budget/curriculum problem (literature norm: 4096 envs x
+20-30k iters for this heterogeneity), out of scope at our compute. The honest paper
+statement stays: multi-clip teachers at our budget have not cleared their quality gate;
+0.478 at 2x envs quantifies the plateau. The registered next lever would be 4096x24k
+(~2 days GPU) — deferred; E63/E62/E57-B (review-decisive) hold the queue.
