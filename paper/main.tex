@@ -21,7 +21,7 @@
 \newcommand{\zcmd}{\ensuremath{z_{\mathrm{cmd}}}}
 \newcommand{\snmr}{SNMR}
 
-\title{Act Through the Latent: Closing the\\Retarget-to-Track Interface with a Goal-Conditioned Command Prior}
+\title{Act Through the Latent: Toward a Learned\\Retarget-to-Track Interface for Humanoid Tracking}
 
 \author{Anonymous ICRA Submission}
 
@@ -116,7 +116,8 @@ latent, in our favor.
   {one recipe, 3 seeds $\times$ 1{,}024 rollouts;\\completion monotone in goal quality};
 \end{scope}
 \end{tikzpicture}
-\caption{\textbf{The retarget-to-track interface, replaced.} (a)~The standard humanoid
+\caption{\textbf{The retarget-to-track interface, learned (single-clip scope; see
+\S\ref{sec:limits}).} (a)~The standard humanoid
 stack passes per-frame joint targets between retargeting and tracking, discarding the
 retargeter's contact reasoning, its uncertainty, and the cross-embodiment structure it
 learned. (b)~We replace that interface with a learned 64-d command latent: the goal
@@ -280,10 +281,12 @@ treated as a measured limitation, not hidden.
 Before asking the latent to carry control, we measured what it holds. Four pre-specified
 probe families, in increasing severity:
 
-\textbf{Content: instance-aligned, not semantic.} Cross-embodiment \emph{window}
-retrieval hits 75--83\% top-1 at 1.02\% chance (98 windows); CKA between per-robot
-encodings is 0.89--0.92. But a motion-\emph{category} probe is near chance (0.151 vs
-0.125): the latent aligns instances across bodies without organizing them semantically.
+\textbf{Content: instance-aligned, not linearly semantic.} Cross-embodiment
+\emph{window} retrieval hits 75--83\% top-1 at 1.02\% chance (98 windows); CKA between
+per-robot encodings is 0.89--0.92. A \emph{linear} motion-category probe is near chance
+(0.151 vs 0.125)---category structure, if present, is not linearly accessible (the same
+caveat we apply to the embodiment probe below applies here; we therefore claim only
+instance alignment, not semantic absence).
 
 \textbf{Embodiment: aligned, not invariant.} A linear probe recovers the source
 embodiment at only 0.28 accuracy, but a nonlinear attacker reaches 0.91---the classic
@@ -358,8 +361,12 @@ the decoder sees neither.}
 \label{sec:exp}
 All tracking numbers: 10-second phase-stratified rollouts on a simulated Unitree~G1
 (MuJoCo-Warp), deterministic deployment path, 1{,}024 rollouts per evaluation for latent
-arms (100 for reference policies). Retargeting numbers: 7 held-out LAFAN1 clips,
-bootstrap CIs over per-clip means.
+arms (100 for reference policies). \emph{Completion} is the fraction of rollouts that
+track the full 10\,s without triggering the stack's standard tracking-failure
+termination (anchor drift $>0.5$\,m or orientation error $>0.8$\,rad at any tracked
+body, or end-effector deviation $>0.25$\,m)---i.e., a rollout ``completes'' only while
+it stays within a bounded tube around the reference, not merely upright. Retargeting
+numbers: 7 held-out LAFAN1 clips, bootstrap CIs over per-clip means.
 
 \subsection{Does the learned interface work?}
 Table~\ref{tab:main} is the paper's central result: a four-arm factorial over what the
