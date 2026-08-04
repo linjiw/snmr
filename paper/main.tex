@@ -40,14 +40,15 @@ chance; CKA 0.91) but carries little semantic motion category (0.151 vs 0.125 ch
 is embodiment-aligned but not invariant (0.28 linear probe vs 0.91 nonlinear attacker),
 physically impoverished (contact F1 0.088 without supervision), and inert when
 concatenated beside an explicit reference, a null that an independent ablation confirms.
-On the control side we show a separate 64-d command bottleneck $z_{\mathrm{cmd}}$,
+On the control side we show a separate 64-d command code $z_{\mathrm{cmd}}$,
 produced by a goal-conditioned residual-to-prior CVAE and DAgger-distilled from an
 explicit-command RL teacher, can be the actor's \emph{only} motion input at $0.955\pm0.008$
 ten-second completion versus the 0.98 teacher (3 seeds, 1{,}024 rollouts each). Feeding
 the prior the frozen retargeting latent \emph{instead of} any robot-space reference
 still reaches $0.656\pm0.044$---two-thirds of teacher completion from a command channel
-computed purely from human motion---where a goal-free prior collapses to 0.001, and
-corrupting the latent collapses the arm to zero (the dependence is causal).
+computed purely from human motion---where a goal-free prior collapses to 0.001 and
+corrupting the latent collapses the arm to zero: the channel is necessary, not
+bypassed.
 The retargeting network also absorbs a second, interaction-rich teacher across three
 human skeletons, cutting interaction-clip articulation error $3$--$5\times$ at
 $+1.05$\,cm on locomotion (preliminary: ground-truth root). We release a pre-specified
@@ -162,12 +163,13 @@ collapses~\cite{unitracker,bfm}. But remove the explicit reference entirely, and
 picture inverts: fed to a co-trained prior as the \emph{only} goal source, the same
 frozen latent carries two-thirds of the teacher's completion ($0.656\pm0.044$ vs 0.98)
 where a goal-free prior collapses to 0.001. The retargeting latent is not inert; it is
-\emph{shortcut-dominated}---useful exactly when nothing easier is available beside it.
+\emph{dominated}---when a strictly more informative channel is available beside it,
+the policy uses that channel and ignores this one.
 
 \textbf{Our key insight is that the retargeting-to-tracking boundary should not be a
 representation the two stages agree on, but one the tracking policy learns to act
 through: a latent becomes useful for control exactly when it is the policy's only
-channel to the goal, and is shortcut-dominated whenever an explicit reference is
+channel to the goal, and is ignored whenever a more informative explicit reference is
 available beside it.} The
 sections that follow are the constructive and destructive halves of that claim. We build
 \snmr{}, a skeleton-agnostic retargeting network distilled from a classical IK teacher
@@ -176,7 +178,7 @@ falsification-first probes before asking it to do anything (\S\ref{sec:audit}). 
 make the interface load-bearing (\S\ref{sec:method}): a conditional VAE whose
 goal-conditioned prior compresses the reference into a 64-d command latent, trained by
 DAgger from an explicit-command RL teacher, with the reference visible to the prior but
-never to the decoder. On a simulated Unitree~G1 this bottleneck reaches
+never to the decoder. On a simulated Unitree~G1 this interface reaches
 $0.955\pm0.008$ ten-second completion against its 0.98 teacher (Fig.~\ref{fig:teaser}c);
 replacing the prior's robot-space goal with the frozen retargeting latent---so that
 \emph{no robot-space reference exists anywhere in the student}---retains
@@ -197,17 +199,19 @@ price---quantifying the data-side alternative to physics-in-the-loop retargeting
 
 \textbf{Contributions.}
 \begin{itemize}
-\item \textbf{A learned command bottleneck for humanoid tracking.} A
-  goal-conditioned, residual-to-prior CVAE whose 64-d latent is the policy's only motion
-  input---$0.955\pm0.008$ completion against a 0.98 explicit-command teacher (3 seeds)
-  with the reference never visible to the decoder; fed the frozen \emph{human-side}
-  retargeting latent as its only goal source it retains $0.656\pm0.044$ (goal-free
-  control: 0.001)---plus a documented
+\item \textbf{A learned command interface for humanoid tracking, under an exclusivity
+  contract.} A goal-conditioned, residual-to-prior CVAE whose 64-d latent is the
+  policy's only motion input---$0.955\pm0.008$ completion against a 0.98
+  explicit-command teacher (3 seeds), with the reference never visible to the decoder
+  and the code measurably a \emph{recoding}, not a copy (effective rank 14 of 64; the
+  goal is less linearly decodable from \zcmd{} than from proprioception alone, held-out
+  $R^2$ 0.48 vs 0.62); fed the frozen \emph{human-side} retargeting latent as its only
+  goal source it retains $0.656\pm0.044$ (goal-free control: 0.001)---plus a documented
   failure anatomy (path consistency, goal conditioning, observation-layout leaks) for
-  making such bottlenecks work.
+  making such interfaces work.
 \item \textbf{A falsification-first audit of a shared motion latent.} Pre-specified probe
   families establishing what the latent carries---instance-aligned, embodiment-aligned
-  but not invariant, physically impoverished, shortcut-dominated beside an explicit
+  but not invariant, physically impoverished, dominated beside an explicit
   reference---with the negative verdicts stated as measured results, one independently
   replicated and one \emph{overturned by our own defect repair} (frozen-latent control
   value: from ``inert'' to two-thirds of teacher).
@@ -237,7 +241,7 @@ internal machinery, not command interfaces, and none is analyzed for what it car
 \textbf{Tracking and its command spaces.} Modern trackers follow references specified as
 joint targets with body-pose terms~\cite{beyondmimic,gmt,exbody2}; HOVER unifies multiple
 command \emph{modes} by distillation~\cite{hover}; UniTracker compresses the reference
-into a CVAE latent and is the closest precedent for our command bottleneck---single-embodiment, with
+into a CVAE latent and is the closest precedent for our command interface---single-embodiment, with
 no retargeter and no representation analysis~\cite{unitracker}. Latent skill spaces for
 physics characters~\cite{pulse,maskedmimic,controlvae} establish the recipe elements we
 verify at robot scale: learned conditional priors, residual-to-prior encoders,
@@ -255,19 +259,25 @@ boundary \emph{is}.
 \label{sec:interface}
 A source motion $m_t$ enters a retargeter $R$; the standard interface hands the tracker
 $\pi$ a reference $g_t = (q^{\mathrm{ref}}_t, \dot q^{\mathrm{ref}}_t)$ of robot joint
-targets. We move the actor-visible reference behind a learned bottleneck:
+targets. We move the actor-visible reference behind a learned code:
 $\zcmd = \mu_\rho(\mathrm{proprio}_t, g_t)$ (the current-frame command; a future window
 is future work), under an \emph{exclusivity contract}: the goal is visible to the prior
 $\rho$ and to the critic, but never to the decoder, so motion intent reaches the actor
-only through the 64-d bottleneck. The prior's goal source is the experimental factor
-(\S\ref{sec:exp}): the robot-space reference $g_t$ (the actor-side bottleneck), the
+only through the 64-d code. We use ``interface,'' not ``bottleneck'': the code is not
+dimensionally narrower than the goal (64-d each), and no rate term constrains the
+goal-to-code path---the claim is exclusivity and recoding, which we verify directly
+(the deployed code has effective rank 14 of 64, and the goal is \emph{less} linearly
+decodable from it than from proprioception, held-out $R^2$ 0.48 vs 0.62: the prior
+discards reference detail and emits a control-sufficient code rather than a copy).
+The prior's goal source is the experimental factor
+(\S\ref{sec:exp}): the robot-space reference $g_t$ (the actor-side interface), the
 source-side representation $z_{\mathrm{ret}}$ alone (the interface-replacement arm---no
 robot-space reference anywhere in the student), both, or neither (control).
 
 The latent's source is \snmr{}: a graph-attention encoder over the source skeleton
 (per-node features, adjacency, global pooling---skeleton-agnostic by construction) maps
 motion to a per-frame retargeting latent $z_{\mathrm{ret}}\in\mathbb{R}^{128}$
-(distinct from the control bottleneck \zcmd{}); embodiment-conditioned graph
+(distinct from the control code \zcmd{}); embodiment-conditioned graph
 decoders (AdaLN on a 32-d embodiment code, $\tanh$ joint-limit heads) emit trajectories
 for any of five humanoids. Trained by distillation from a per-frame IK
 teacher~\cite{gmr} on 77 LAFAN1 clips $\times$ 5 robots (2.48M paired frames), it
@@ -290,7 +300,9 @@ instance alignment, not semantic absence).
 
 \textbf{Embodiment: aligned, not invariant.} A linear probe recovers the source
 embodiment at only 0.28 accuracy, but a nonlinear attacker reaches 0.91---the classic
-gap between ``not linearly decodable'' and ``absent.'' Scale explains only $\sim$1\% of
+gap between ``not linearly decodable'' and ``absent.'' A height-normalization
+intervention moves the attacker only $\sim$1\,pp, suggesting---though, being an
+out-of-distribution intervention, not proving---that body scale is a minor share of
 the leak.
 
 \textbf{Physics: impoverished.} Foot-contact state is weakly present under pure
@@ -298,9 +310,9 @@ distillation (linear F1 0.088 at full budget). A co-trained contact head injects
 at full budget, $1.8\times$ a deployable-heuristic baseline) at a real fidelity price
 ($+1.5$\,cm at loss weight 0.5), so physics enters the latent only when supervised in.
 
-\textbf{Control: shortcut-dominated, not inert.} Concatenated beside the explicit
-reference, the latent is ignored or harmful ($-10$\,pp)---whenever an easier channel to
-the goal exists, the policy takes it. Remove that channel, and the frozen latent alone
+\textbf{Control: dominated, not inert.} Concatenated beside the explicit
+reference, the latent is ignored or harmful ($-10$\,pp)---when a more informative
+channel to the goal exists, the policy takes it. Remove that channel, and the frozen latent alone
 carries $0.656\pm0.044$ completion through a co-trained prior (\S\ref{sec:exp}). The audit is the
 specification for \S\ref{sec:method}: the latent becomes an interface only when it is
 made the sole channel and a prior is co-trained to read it.
@@ -374,20 +386,23 @@ prior sees, under one recipe (same DAgger algorithm, reward stack, budget, and s
 1{,}024 rollouts per evaluation; all numbers post-repair of both defects in
 \S\ref{sec:defect}). Completion is monotone in goal quality across completion, RMSE,
 \emph{and} the imitation loss plateau (0.10/1.03/2.25 for explicit/$z_{\mathrm{ret}}$/no
-goal). Three readings. First, the bottleneck works: the 64-d command latent as the
+goal). Three readings. First, the interface works: the 64-d command latent as the
 actor's only motion input costs 2.5 points against its own teacher, where the design's
 failed variants (posterior-path collection, goal-free priors) collapse to 0.001. An
 attribution ablation confirms goal-conditioning is the load-bearing design choice: with
 it, completion is $\approx$0.95 regardless of the action-loss sampling path ($-2.3$\,pp
 for prior-path mixing); without it, 0.000--0.002 either way. Second, the frozen
 retargeting latent alone---a channel computed purely from \emph{human} motion, with no
-robot-space reference anywhere in the student---retains $0.656\pm0.044$, and the claim
-is causal, not correlational: corrupting the latent at deployment collapses this arm to
-0.000 on all three seeds, so the completion flows \emph{through} $z_{\mathrm{ret}}$,
-ruling out both
-gait-phase-from-proprioception (the 0.001 control) and prior memorization (the
-corruption control). The retargeting latent transfers deployable goal information
-across the interface. Third, the remaining 30-point gap between
+robot-space reference anywhere in the student---retains $0.656\pm0.044$, and two controls
+constrain the interpretation: a goal-free prior collapses to 0.001 (the completion is
+not gait-phase-from-proprioception), and corrupting the latent at deployment collapses
+this arm to 0.000 on all three seeds (the channel is necessary---the prior did not
+memorize the clip and route around its input). What these controls cannot yet separate
+is goal \emph{content} from an exogenous \emph{clock}: on a single periodic clip,
+phase information is nearly goal information, and the latent is fetched on the
+reference's frame index. A matched-dimension phase-only control (a fixed random
+projection of frame-index sinusoids through the identical fetch path) is registered
+and running; we report the substitution number with that caveat attached. Third, the remaining 30-point gap between
 $z_{\mathrm{ret}}$-only and explicit-goal arms is the honest current price of removing
 the robot-space reference; closing it (gradients into the retargeting encoder) is the
 specified next step.
@@ -415,8 +430,8 @@ No goal (proprio-only prior) & $0.001\pm0.001$ & 0.254 \\
 On single-clip walking: no---but it substitutes for most of it. The clean factorial
 separates two questions the leak-era runs conflated. \emph{Additive} value beside the
 explicit goal is null ($0.956\pm0.003$ vs $0.955\pm0.008$, paired per-seed deltas
-straddling zero; consistent with the shortcut mechanism and with UniTracker's
-vanishing-influence observation). \emph{Substitutive} value is large:
+straddling zero; the weaker of two redundant channels goes unused, consistent with
+UniTracker's vanishing-influence observation). \emph{Substitutive} value is large:
 $z_{\mathrm{ret}}$-only retains $0.656\pm0.044$ where the goal-free control collapses
 to 0.001. The redundancy variant of the additive claim---the human-side latent should
 buy robustness when the robot-space reference is corrupted---also fails on its first
@@ -525,10 +540,10 @@ front of the observation vector, where it is not. The consequence, established b
 ablation (blanking the leaked dimensions at deployment drops completion from 0.93 to
 0.00), is that in the affected runs the decoder saw the explicit reference inside its
 ``proprioception'' input, violating the exclusivity contract of \S\ref{sec:method}. All
-bottleneck-side numbers in this paper are from post-repair reruns; retargeting-side
+interface-side numbers in this paper are from post-repair reruns; retargeting-side
 results, the audit probes, the reference-policy baselines, and the trackability matrix
 were never affected (their pipelines do not slice the observation vector). The repair
-moved the results in \emph{both} directions: the explicit-goal bottleneck improved
+moved the results in \emph{both} directions: the explicit-goal arm improved
 (0.935 to $0.955\pm0.008$---the corrupted goal slice had been hurting its prior), and
 the frozen-latent-only arm went from 0.004--0.016 to $0.656\pm0.044$---under the leak,
 the always-on explicit shortcut inside ``proprio'' suppressed learning from the latent
