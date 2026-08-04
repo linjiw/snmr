@@ -1882,3 +1882,20 @@ regularization would predict yes — the one place the variational machinery cou
 earn its keep). Eval-only, ~4 min/cell on existing checkpoints. Gate: none (descriptive
 deployment readout); reported as a robustness curve in the paper's practical-notes
 paragraph if space allows, else in the repo.
+
+### E65 - Command-latency robustness (zero-order hold on z_cmd; 1024 rollouts/cell, seed 404) - **THE CVAE'S TRAIN-TIME NOISE BUYS REAL HOLD ROBUSTNESS — the one place the variational machinery earns its keep. At 100 ms hold (k=5) the CVAE arm keeps 0.485 completion while the deterministic encoder collapses to 0.027 (18x). E62's "not load-bearing" verdict is REFINED, not reversed: equal at nominal rate, decisively different under command-channel latency.**
+`runs/e65_hold/` (refresh z_cmd every k ticks = 20k ms at 50 Hz).
+
+| hold | CVAE arm C | deterministic E62 |
+|---|---|---|
+| 20 ms (k=1) | 0.959 | 0.960 |
+| 40 ms (k=2) | 0.933 | 0.885 |
+| 100 ms (k=5) | **0.485** | **0.027** |
+| 200 ms (k=10) | 0.010 | 0.000 |
+
+Reading: episodic sigma=0.3 reparameterization noise trains the decoder to act under a
+stale/imprecise z (PULSE-style regularization prediction confirmed). Deployment-relevant:
+a latent command channel tolerates 2x jitter almost free (CVAE -2.6pp) and survives 5x
+(0.485) where a naively-trained encoder dies. Paper: one sentence in SV refining the E62
+attribution + the curve in the repo. Both arms still cliff at 200 ms — the practitioner
+reviewer's brittleness point stands at large holds.
