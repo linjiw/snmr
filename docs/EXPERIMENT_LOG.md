@@ -1827,3 +1827,36 @@ dipped — the remaining gap is a budget/curriculum problem (literature norm: 40
 statement stays: multi-clip teachers at our budget have not cleared their quality gate;
 0.478 at 2x envs quantifies the plateau. The registered next lever would be 4096x24k
 (~2 days GPU) — deferred; E63/E62/E57-B (review-decisive) hold the queue.
+
+### E63 - Phase-only clock control (3 seeds, 1024 rollouts each) - **THE CLOCK BEATS z_ret: 0.754±0.010 completion vs arm A's 0.656±0.044. The central substitution claim is OVERTURNED — arm A's 0.656 was not motion content; a fixed random projection of frame-index sinusoids through the identical fetch path outperforms the retargeting latent by ~10pp. On single-clip cyclic walking, the deployable signal in z_ret is AT MOST phase, and z_ret carries phase WORSE than clean sinusoids.**
+`runs/e63_phase_only/seed{0,1,2}` (identical recipe/budget/fetch path; latents replaced
+by 16 log-spaced sinusoid pairs of the frame index through a fixed random 32->128
+projection, seed 63).
+
+| arm (prior's only goal source) | completion | rmse |
+|---|---|---|
+| explicit cmd (C) | 0.955±0.008 | 0.127 |
+| **phase clock (E63)** | **0.754±0.010** | 0.150 |
+| frozen z_ret (A) | 0.656±0.044 | 0.161 |
+| none (B) | 0.001±0.001 | 0.254 |
+
+Readings (pre-specified decision rule: clock ~ 0.65 -> claim dies; clock << 0.65 ->
+claim established; observed: clock ABOVE z_ret — the die-case, stronger form):
+1. The "z_ret carries deployable goal information" claim in its content form is DEAD
+   on this instrument. What survives: z_ret carries at least phase (0.656 >> 0.001);
+   its content beyond phase is unmeasurable here and its phase encoding is noisier
+   than pure sinusoids (10pp deficit, non-overlapping seed ranges).
+2. This is the THIRD favored result our own falsification apparatus has killed
+   (E61b, E61-v4 seed-0 trend, now the E52-v4 arm-A interpretation). The reviewers'
+   demanded control did exactly what they predicted it might.
+3. Constructive corollary: a ~64-d exogenous clock alone recovers 77% of teacher
+   completion on cyclic single-clip tracking — a finding in itself (the UniTracker-
+   style prior needs remarkably little goal information on periodic motion), and the
+   right null model for ALL single-clip act-through-latent claims going forward.
+Paper impact: abstract, intro, Q1, contribution 1, Fig-1c, conclusion all rewritten;
+the substitution claim is withdrawn and replaced by the clock finding + the honest
+anatomy. Review panel predictions: verifier "if ~0.65 the headline dies" — it did.
+
+### Teacher re-eval @1024 rollouts (stats-reviewer Q2) - **TEACHER BOUND CORRECTED: 0.954 at 1024 rollouts (was 0.980 at 100 rollouts, binomial SE ~1.4pp). Arm C (0.955±0.008) MATCHES its teacher at matched evaluation precision — the '2.5pp below teacher' gap was evaluation noise in the reference point.**
+`runs/e51_teacher_1024eval/eval404_1024.json`. The latent-only interface claim
+STRENGTHENS: the 64-d code costs ~0pp against the explicit-command teacher.

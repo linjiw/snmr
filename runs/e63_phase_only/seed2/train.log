@@ -1,0 +1,638 @@
+/home/ec2-user/work/retarget/.venv-wbt/lib64/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/home/ec2-user/work/retarget/.venv-wbt/lib64/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+2026-08-04 17:44:09.206 | INFO     | holosoma.utils.sim_utils:setup_simulation_environment:202 - 🚀 Setting up simulation environment...
+2026-08-04 17:44:09.354 | INFO     | holosoma.utils.sim_utils:setup_simulation_environment:210 - Device: cuda:0
+2026-08-04 17:44:09.355 | INFO     | holosoma.utils.sim_utils:setup_simulation_environment:220 - Seed: 2
+2026-08-04 17:44:09.356 | INFO     | holosoma.utils.sim_utils:setup_simulation_environment:273 - Creating environment: holosoma.envs.wbt.wbt_manager.WholeBodyTrackingManager
+Warp 1.15.0 initialized:
+   CUDA Toolkit 12.9, Driver 13.2
+   Devices:
+     "cpu"      : "x86_64"
+     "cuda:0"   : "NVIDIA A10G" (22 GiB, sm_86, mempool enabled)
+   Kernel cache:
+     /home/ec2-user/.cache/warp/1.15.0
+generating randomized terrains 0 / 200     generating randomized terrains 1 / 200     generating randomized terrains 2 / 200     generating randomized terrains 3 / 200     generating randomized terrains 4 / 200     generating randomized terrains 5 / 200     generating randomized terrains 6 / 200     generating randomized terrains 7 / 200     generating randomized terrains 8 / 200     generating randomized terrains 9 / 200     generating randomized terrains 10 / 200     generating randomized terrains 11 / 200     generating randomized terrains 12 / 200     generating randomized terrains 13 / 200     generating randomized terrains 14 / 200     generating randomized terrains 15 / 200     generating randomized terrains 16 / 200     generating randomized terrains 17 / 200     generating randomized terrains 18 / 200     generating randomized terrains 19 / 200     generating randomized terrains 20 / 200     generating randomized terrains 21 / 200     generating randomized terrains 22 / 200     generating randomized terrains 23 / 200     generating randomized terrains 24 / 200     generating randomized terrains 25 / 200     generating randomized terrains 26 / 200     generating randomized terrains 27 / 200     generating randomized terrains 28 / 200     generating randomized terrains 29 / 200     generating randomized terrains 30 / 200     generating randomized terrains 31 / 200     generating randomized terrains 32 / 200     generating randomized terrains 33 / 200     generating randomized terrains 34 / 200     generating randomized terrains 35 / 200     generating randomized terrains 36 / 200     generating randomized terrains 37 / 200     generating randomized terrains 38 / 200     generating randomized terrains 39 / 200     generating randomized terrains 40 / 200     generating randomized terrains 41 / 200     generating randomized terrains 42 / 200     generating randomized terrains 43 / 200     generating randomized terrains 44 / 200     generating randomized terrains 45 / 200     generating randomized terrains 46 / 200     generating randomized terrains 47 / 200     generating randomized terrains 48 / 200     generating randomized terrains 49 / 200     generating randomized terrains 50 / 200     generating randomized terrains 51 / 200     generating randomized terrains 52 / 200     generating randomized terrains 53 / 200     generating randomized terrains 54 / 200     generating randomized terrains 55 / 200     generating randomized terrains 56 / 200     generating randomized terrains 57 / 200     generating randomized terrains 58 / 200     generating randomized terrains 59 / 200     generating randomized terrains 60 / 200     generating randomized terrains 61 / 200     generating randomized terrains 62 / 200     generating randomized terrains 63 / 200     generating randomized terrains 64 / 200     generating randomized terrains 65 / 200     generating randomized terrains 66 / 200     generating randomized terrains 67 / 200     generating randomized terrains 68 / 200     generating randomized terrains 69 / 200     generating randomized terrains 70 / 200     generating randomized terrains 71 / 200     generating randomized terrains 72 / 200     generating randomized terrains 73 / 200     generating randomized terrains 74 / 200     generating randomized terrains 75 / 200     generating randomized terrains 76 / 200     generating randomized terrains 77 / 200     generating randomized terrains 78 / 200     generating randomized terrains 79 / 200     generating randomized terrains 80 / 200     generating randomized terrains 81 / 200     generating randomized terrains 82 / 200     generating randomized terrains 83 / 200     generating randomized terrains 84 / 200     generating randomized terrains 85 / 200     generating randomized terrains 86 / 200     generating randomized terrains 87 / 200     generating randomized terrains 88 / 200     generating randomized terrains 89 / 200     generating randomized terrains 90 / 200     generating randomized terrains 91 / 200     generating randomized terrains 92 / 200     generating randomized terrains 93 / 200     generating randomized terrains 94 / 200     generating randomized terrains 95 / 200     generating randomized terrains 96 / 200     generating randomized terrains 97 / 200     generating randomized terrains 98 / 200     generating randomized terrains 99 / 200     generating randomized terrains 100 / 200     generating randomized terrains 101 / 200     generating randomized terrains 102 / 200     generating randomized terrains 103 / 200     generating randomized terrains 104 / 200     generating randomized terrains 105 / 200     generating randomized terrains 106 / 200     generating randomized terrains 107 / 200     generating randomized terrains 108 / 200     generating randomized terrains 109 / 200     generating randomized terrains 110 / 200     generating randomized terrains 111 / 200     generating randomized terrains 112 / 200     generating randomized terrains 113 / 200     generating randomized terrains 114 / 200     generating randomized terrains 115 / 200     generating randomized terrains 116 / 200     generating randomized terrains 117 / 200     generating randomized terrains 118 / 200     generating randomized terrains 119 / 200     generating randomized terrains 120 / 200     generating randomized terrains 121 / 200     generating randomized terrains 122 / 200     generating randomized terrains 123 / 200     generating randomized terrains 124 / 200     generating randomized terrains 125 / 200     generating randomized terrains 126 / 200     generating randomized terrains 127 / 200     generating randomized terrains 128 / 200     generating randomized terrains 129 / 200     generating randomized terrains 130 / 200     generating randomized terrains 131 / 200     generating randomized terrains 132 / 200     generating randomized terrains 133 / 200     generating randomized terrains 134 / 200     generating randomized terrains 135 / 200     generating randomized terrains 136 / 200     generating randomized terrains 137 / 200     generating randomized terrains 138 / 200     generating randomized terrains 139 / 200     generating randomized terrains 140 / 200     generating randomized terrains 141 / 200     generating randomized terrains 142 / 200     generating randomized terrains 143 / 200     generating randomized terrains 144 / 200     generating randomized terrains 145 / 200     generating randomized terrains 146 / 200     generating randomized terrains 147 / 200     generating randomized terrains 148 / 200     generating randomized terrains 149 / 200     generating randomized terrains 150 / 200     generating randomized terrains 151 / 200     generating randomized terrains 152 / 200     generating randomized terrains 153 / 200     generating randomized terrains 154 / 200     generating randomized terrains 155 / 200     generating randomized terrains 156 / 200     generating randomized terrains 157 / 200     generating randomized terrains 158 / 200     generating randomized terrains 159 / 200     generating randomized terrains 160 / 200     generating randomized terrains 161 / 200     generating randomized terrains 162 / 200     generating randomized terrains 163 / 200     generating randomized terrains 164 / 200     generating randomized terrains 165 / 200     generating randomized terrains 166 / 200     generating randomized terrains 167 / 200     generating randomized terrains 168 / 200     generating randomized terrains 169 / 200     generating randomized terrains 170 / 200     generating randomized terrains 171 / 200     generating randomized terrains 172 / 200     generating randomized terrains 173 / 200     generating randomized terrains 174 / 200     generating randomized terrains 175 / 200     2026-08-04 17:44:10.489 | INFO     | holosoma.simulator.mujoco.mujoco:__init__:110 - === MuJoCo Simulator Initialization Started ===
+2026-08-04 17:44:10.489 | INFO     | holosoma.simulator.mujoco.mujoco:__init__:111 - Device: cuda:0
+2026-08-04 17:44:10.489 | INFO     | holosoma.simulator.mujoco.mujoco:__init__:112 - Simulator config: SimulatorInitConfig(name='mujoco', sim=SimEngineConfig(fps=200, control_decimation=4, substeps=1, physx=PhysxConfig(solver_type=1, num_position_iterations=4, num_velocity_iterations=0, num_threads=4, enable_dof_force_sensors=False, bounce_threshold_velocity=0.5), render_mode='fake', render_interval=1, max_episode_length_s=20.0), debug_viz=True, viewer=ViewerConfig(enable_tracking=False, camera=None), scene=SceneConfig(replicate_physics=True, asset_root=None, scene_files=None, rigid_objects=None, env_spacing=20.0), reset_manager=ResetManagerConfig(events=[]), contact_sensor_history_length=3, robot_mjcf_filter=MujocoXMLFilterCfg(enable=False, remove_lights=True, remove_ground=True, ground_names=['floor', 'ground', 'plane']), mujoco_backend=<MujocoBackend.WARP: 'warp'>, mujoco_warp=MujocoWarpConfig(nconmax_per_env=96, njmax_per_env=None), bridge=BridgeConfig(enabled=False, use_joystick=False, joystick_device=0, joystick_type='xbox', domain_id=0, interface=None, rate_limit_dt=None, use_ros=False), virtual_gantry=VirtualGantryCfg(enabled=False, attachment_body_names=['Trunk', 'torso_link', 'torso', 'base_link', 'pelvis', 'base'], stiffness=200.0, damping=100.0, height=3.0, point=None, length=0.0, apply_force=0.0, apply_force_sign=-1))
+2026-08-04 17:44:10.489 | INFO     | holosoma.simulator.mujoco.mujoco:__init__:157 - === MuJoCo Simulator Initialization Completed ===
+2026-08-04 17:44:10.489 | INFO     | holosoma.simulator.mujoco.mujoco:load_assets:320 - === Loading assets ===
+2026-08-04 17:44:10.490 | INFO     | holosoma.simulator.mujoco.scene_manager:add_robot:344 - Adding robot from: /home/ec2-user/work/retarget/holosoma/src/holosoma/holosoma/data/robots/g1/g1_29dof.xml with prefix: robot_
+2026-08-04 17:44:10.494 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set pelvis geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.494 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_hip_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.494 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_knee_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.494 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.494 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.494 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_hip_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_knee_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_ankle_roll_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set torso_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set torso_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set torso_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set torso_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_shoulder_yaw_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_elbow_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set left_wrist_yaw_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_shoulder_yaw_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_elbow_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | DEBUG    | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:430 - Set right_wrist_yaw_link geom: contype=1, conaffinity=3 (self + environment)
+2026-08-04 17:44:10.495 | INFO     | holosoma.simulator.mujoco.scene_manager:_configure_robot_collisions:432 - Applied collision settings to 29 geoms across 33 bodies
+2026-08-04 17:44:10.496 | INFO     | holosoma.simulator.mujoco.scene_manager:compile:494 - Compiling world model using MjSpec
+2026-08-04 17:44:10.742 | INFO     | holosoma.simulator.mujoco.mujoco:load_assets:344 - Initializing WarpBackend (GPU multi-environment)
+2026-08-04 17:44:11.753 | INFO     | holosoma.simulator.mujoco.backends.warp_backend:__init__:106 - Initializing WarpBackend: 1024 envs on cuda:0
+2026-08-04 17:44:11.753 | INFO     | holosoma.simulator.mujoco.backends.warp_backend:__init__:117 - GPU memory allocation: nconmax=96 per env, njmax=576 per env
+2026-08-04 17:44:11.817 | INFO     | holosoma.simulator.mujoco.backends.warp_backend:__init__:159 - Capturing CUDA graph for simulation step...
+2026-08-04 17:44:12.606 | INFO     | holosoma.simulator.mujoco.backends.warp_backend:__init__:164 - CUDA graph captured successfully
+2026-08-04 17:44:12.607 | INFO     | holosoma.simulator.mujoco.backends.warp_backend:__init__:166 - WarpBackend initialized: 33 bodies, 36 qpos, 35 qvel, 29 actuators
+2026-08-04 17:44:12.607 | INFO     | holosoma.simulator.mujoco.backends.warp_backend:initialize_state:188 - Syncing initial state from CPU to GPU...
+2026-08-04 17:44:12.622 | INFO     | holosoma.simulator.mujoco.backends.warp_backend:initialize_state:203 - Initial state synced to GPU successfully
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_name_maps:195 - Built name maps: 62 clean->prefixed mappings
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:206 - === Building MuJoCo body ID to holosoma index mapping ===
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'pelvis' -> 'robot_pelvis' | MuJoCo ID 1 -> holosoma idx 0
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_hip_pitch_link' -> 'robot_left_hip_pitch_link' | MuJoCo ID 2 -> holosoma idx 1
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_hip_roll_link' -> 'robot_left_hip_roll_link' | MuJoCo ID 3 -> holosoma idx 2
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_hip_yaw_link' -> 'robot_left_hip_yaw_link' | MuJoCo ID 4 -> holosoma idx 3
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_knee_link' -> 'robot_left_knee_link' | MuJoCo ID 5 -> holosoma idx 4
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_ankle_pitch_link' -> 'robot_left_ankle_pitch_link' | MuJoCo ID 6 -> holosoma idx 5
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_ankle_roll_link' -> 'robot_left_ankle_roll_link' | MuJoCo ID 7 -> holosoma idx 6
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_foot_contact_point' -> 'robot_left_foot_contact_point' | MuJoCo ID 8 -> holosoma idx 7
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_hip_pitch_link' -> 'robot_right_hip_pitch_link' | MuJoCo ID 9 -> holosoma idx 8
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_hip_roll_link' -> 'robot_right_hip_roll_link' | MuJoCo ID 10 -> holosoma idx 9
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_hip_yaw_link' -> 'robot_right_hip_yaw_link' | MuJoCo ID 11 -> holosoma idx 10
+2026-08-04 17:44:12.623 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_knee_link' -> 'robot_right_knee_link' | MuJoCo ID 12 -> holosoma idx 11
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_ankle_pitch_link' -> 'robot_right_ankle_pitch_link' | MuJoCo ID 13 -> holosoma idx 12
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_ankle_roll_link' -> 'robot_right_ankle_roll_link' | MuJoCo ID 14 -> holosoma idx 13
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_foot_contact_point' -> 'robot_right_foot_contact_point' | MuJoCo ID 15 -> holosoma idx 14
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'waist_yaw_link' -> 'robot_waist_yaw_link' | MuJoCo ID 16 -> holosoma idx 15
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'waist_roll_link' -> 'robot_waist_roll_link' | MuJoCo ID 17 -> holosoma idx 16
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'torso_link' -> 'robot_torso_link' | MuJoCo ID 18 -> holosoma idx 17
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_shoulder_pitch_link' -> 'robot_left_shoulder_pitch_link' | MuJoCo ID 19 -> holosoma idx 18
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_shoulder_roll_link' -> 'robot_left_shoulder_roll_link' | MuJoCo ID 20 -> holosoma idx 19
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_shoulder_yaw_link' -> 'robot_left_shoulder_yaw_link' | MuJoCo ID 21 -> holosoma idx 20
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_elbow_link' -> 'robot_left_elbow_link' | MuJoCo ID 22 -> holosoma idx 21
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_wrist_roll_link' -> 'robot_left_wrist_roll_link' | MuJoCo ID 23 -> holosoma idx 22
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_wrist_pitch_link' -> 'robot_left_wrist_pitch_link' | MuJoCo ID 24 -> holosoma idx 23
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'left_wrist_yaw_link' -> 'robot_left_wrist_yaw_link' | MuJoCo ID 25 -> holosoma idx 24
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_shoulder_pitch_link' -> 'robot_right_shoulder_pitch_link' | MuJoCo ID 26 -> holosoma idx 25
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_shoulder_roll_link' -> 'robot_right_shoulder_roll_link' | MuJoCo ID 27 -> holosoma idx 26
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_shoulder_yaw_link' -> 'robot_right_shoulder_yaw_link' | MuJoCo ID 28 -> holosoma idx 27
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_elbow_link' -> 'robot_right_elbow_link' | MuJoCo ID 29 -> holosoma idx 28
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_wrist_roll_link' -> 'robot_right_wrist_roll_link' | MuJoCo ID 30 -> holosoma idx 29
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_wrist_pitch_link' -> 'robot_right_wrist_pitch_link' | MuJoCo ID 31 -> holosoma idx 30
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:215 - Body mapping: 'right_wrist_yaw_link' -> 'robot_right_wrist_yaw_link' | MuJoCo ID 32 -> holosoma idx 31
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_build_body_index_mapping:222 - === Body mapping complete: 32 mappings created ===
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_set_robot_properties:448 - Total joints: 30, Robot DOFs: 29
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_set_robot_properties:449 - Robot joint names (prefixed): ['robot_left_hip_pitch_joint', 'robot_left_hip_roll_joint', 'robot_left_hip_yaw_joint', 'robot_left_knee_joint', 'robot_left_ankle_pitch_joint', 'robot_left_ankle_roll_joint', 'robot_right_hip_pitch_joint', 'robot_right_hip_roll_joint', 'robot_right_hip_yaw_joint', 'robot_right_knee_joint', 'robot_right_ankle_pitch_joint', 'robot_right_ankle_roll_joint', 'robot_waist_yaw_joint', 'robot_waist_roll_joint', 'robot_waist_pitch_joint', 'robot_left_shoulder_pitch_joint', 'robot_left_shoulder_roll_joint', 'robot_left_shoulder_yaw_joint', 'robot_left_elbow_joint', 'robot_left_wrist_roll_joint', 'robot_left_wrist_pitch_joint', 'robot_left_wrist_yaw_joint', 'robot_right_shoulder_pitch_joint', 'robot_right_shoulder_roll_joint', 'robot_right_shoulder_yaw_joint', 'robot_right_elbow_joint', 'robot_right_wrist_roll_joint', 'robot_right_wrist_pitch_joint', 'robot_right_wrist_yaw_joint']
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_set_robot_properties:450 - DOF names: ['left_hip_pitch_joint', 'left_hip_roll_joint', 'left_hip_yaw_joint', 'left_knee_joint', 'left_ankle_pitch_joint', 'left_ankle_roll_joint', 'right_hip_pitch_joint', 'right_hip_roll_joint', 'right_hip_yaw_joint', 'right_knee_joint', 'right_ankle_pitch_joint', 'right_ankle_roll_joint', 'waist_yaw_joint', 'waist_roll_joint', 'waist_pitch_joint', 'left_shoulder_pitch_joint', 'left_shoulder_roll_joint', 'left_shoulder_yaw_joint', 'left_elbow_joint', 'left_wrist_roll_joint', 'left_wrist_pitch_joint', 'left_wrist_yaw_joint', 'right_shoulder_pitch_joint', 'right_shoulder_roll_joint', 'right_shoulder_yaw_joint', 'right_elbow_joint', 'right_wrist_roll_joint', 'right_wrist_pitch_joint', 'right_wrist_yaw_joint']
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_set_robot_properties:451 - Body names: ['pelvis', 'left_hip_pitch_link', 'left_hip_roll_link', 'left_hip_yaw_link', 'left_knee_link', 'left_ankle_pitch_link', 'left_ankle_roll_link', 'left_foot_contact_point', 'right_hip_pitch_link', 'right_hip_roll_link', 'right_hip_yaw_link', 'right_knee_link', 'right_ankle_pitch_link', 'right_ankle_roll_link', 'right_foot_contact_point', 'waist_yaw_link', 'waist_roll_link', 'torso_link', 'left_shoulder_pitch_link', 'left_shoulder_roll_link', 'left_shoulder_yaw_link', 'left_elbow_link', 'left_wrist_roll_link', 'left_wrist_pitch_link', 'left_wrist_yaw_link', 'right_shoulder_pitch_link', 'right_shoulder_roll_link', 'right_shoulder_yaw_link', 'right_elbow_link', 'right_wrist_roll_link', 'right_wrist_pitch_link', 'right_wrist_yaw_link']
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_set_robot_joint_addressing:460 - === Setting up robot joint addressing ===
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_set_robot_joint_addressing:474 - Found robot freejoint: 'robot_floating_base_joint' (id=0)
+2026-08-04 17:44:12.624 | INFO     | holosoma.simulator.mujoco.mujoco:_set_robot_joint_addressing:480 - Robot freejoint addressing: ID=0, qpos_addr=0, qvel_addr=0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_robot_joint_addressing:503 - Setup 29 DOF joint addresses
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_robot_joint_addressing:504 - === Robot joint addressing setup completed ===
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:513 - Setting initial joint angles from robot config
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_hip_pitch_joint' -> 'robot_left_hip_pitch_joint' (ID: 1, qpos_addr: 7) to angle -0.312
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_hip_roll_joint' -> 'robot_left_hip_roll_joint' (ID: 2, qpos_addr: 8) to angle 0.0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_hip_yaw_joint' -> 'robot_left_hip_yaw_joint' (ID: 3, qpos_addr: 9) to angle 0.0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_knee_joint' -> 'robot_left_knee_joint' (ID: 4, qpos_addr: 10) to angle 0.669
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_ankle_pitch_joint' -> 'robot_left_ankle_pitch_joint' (ID: 5, qpos_addr: 11) to angle -0.363
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_ankle_roll_joint' -> 'robot_left_ankle_roll_joint' (ID: 6, qpos_addr: 12) to angle 0.0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_hip_pitch_joint' -> 'robot_right_hip_pitch_joint' (ID: 7, qpos_addr: 13) to angle -0.312
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_hip_roll_joint' -> 'robot_right_hip_roll_joint' (ID: 8, qpos_addr: 14) to angle 0.0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_hip_yaw_joint' -> 'robot_right_hip_yaw_joint' (ID: 9, qpos_addr: 15) to angle 0.0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_knee_joint' -> 'robot_right_knee_joint' (ID: 10, qpos_addr: 16) to angle 0.669
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_ankle_pitch_joint' -> 'robot_right_ankle_pitch_joint' (ID: 11, qpos_addr: 17) to angle -0.363
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_ankle_roll_joint' -> 'robot_right_ankle_roll_joint' (ID: 12, qpos_addr: 18) to angle 0.0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'waist_yaw_joint' -> 'robot_waist_yaw_joint' (ID: 13, qpos_addr: 19) to angle 0.0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'waist_roll_joint' -> 'robot_waist_roll_joint' (ID: 14, qpos_addr: 20) to angle 0.0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'waist_pitch_joint' -> 'robot_waist_pitch_joint' (ID: 15, qpos_addr: 21) to angle 0.0
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_shoulder_pitch_joint' -> 'robot_left_shoulder_pitch_joint' (ID: 16, qpos_addr: 22) to angle 0.2
+2026-08-04 17:44:12.625 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_shoulder_roll_joint' -> 'robot_left_shoulder_roll_joint' (ID: 17, qpos_addr: 23) to angle 0.2
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_shoulder_yaw_joint' -> 'robot_left_shoulder_yaw_joint' (ID: 18, qpos_addr: 24) to angle 0.0
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_elbow_joint' -> 'robot_left_elbow_joint' (ID: 19, qpos_addr: 25) to angle 0.6
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_wrist_roll_joint' -> 'robot_left_wrist_roll_joint' (ID: 20, qpos_addr: 26) to angle 0.0
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_wrist_pitch_joint' -> 'robot_left_wrist_pitch_joint' (ID: 21, qpos_addr: 27) to angle 0.0
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'left_wrist_yaw_joint' -> 'robot_left_wrist_yaw_joint' (ID: 22, qpos_addr: 28) to angle 0.0
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_shoulder_pitch_joint' -> 'robot_right_shoulder_pitch_joint' (ID: 23, qpos_addr: 29) to angle 0.2
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_shoulder_roll_joint' -> 'robot_right_shoulder_roll_joint' (ID: 24, qpos_addr: 30) to angle -0.2
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_shoulder_yaw_joint' -> 'robot_right_shoulder_yaw_joint' (ID: 25, qpos_addr: 31) to angle 0.0
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_elbow_joint' -> 'robot_right_elbow_joint' (ID: 26, qpos_addr: 32) to angle 0.6
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_wrist_roll_joint' -> 'robot_right_wrist_roll_joint' (ID: 27, qpos_addr: 33) to angle 0.0
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_wrist_pitch_joint' -> 'robot_right_wrist_pitch_joint' (ID: 28, qpos_addr: 34) to angle 0.0
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:540 - Set joint 'right_wrist_yaw_joint' -> 'robot_right_wrist_yaw_joint' (ID: 29, qpos_addr: 35) to angle 0.0
+2026-08-04 17:44:12.626 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:551 - Joint angle setting complete: 29 set, 0 failed out of 29 total
+2026-08-04 17:44:12.627 | INFO     | holosoma.simulator.mujoco.mujoco:_set_initial_joint_angles:558 - Applied forward kinematics with initial joint angles
+2026-08-04 17:44:12.627 | INFO     | holosoma.simulator.shared.virtual_gantry:create_virtual_gantry:519 - === Setting up virtual gantry system ===
+2026-08-04 17:44:12.627 | INFO     | holosoma.simulator.shared.virtual_gantry:create_virtual_gantry:526 - Virtual gantry attached to body 'torso_link' (ID: 18)
+2026-08-04 17:44:12.627 | INFO     | holosoma.simulator.shared.virtual_gantry:create_virtual_gantry:528 - === Virtual gantry system setup completed ===
+2026-08-04 17:44:12.627 | INFO     | holosoma.simulator.base_simulator.base_simulator:_init_bridge:474 - Robot bridge disabled
+generating randomized terrains 176 / 200     generating randomized terrains 177 / 200     generating randomized terrains 178 / 200     generating randomized terrains 179 / 200     generating randomized terrains 180 / 200     generating randomized terrains 181 / 200     generating randomized terrains 182 / 200     generating randomized terrains 183 / 200     generating randomized terrains 184 / 200     generating randomized terrains 185 / 200     generating randomized terrains 186 / 200     generating randomized terrains 187 / 200     generating randomized terrains 188 / 200     generating randomized terrains 189 / 200     generating randomized terrains 190 / 200     generating randomized terrains 191 / 200     generating randomized terrains 192 / 200     generating randomized terrains 193 / 200     generating randomized terrains 194 / 200     generating randomized terrains 195 / 200     generating randomized terrains 196 / 200     generating randomized terrains 197 / 200     generating randomized terrains 198 / 200     generating randomized terrains 199 / 200     
+ generated all randomized terrains!
+Module mujoco_warp._src.smooth 91c07ed load on device 'cuda:0' took 3.97 ms  (cached)
+Module _nxn_broadphase__locals__kernel_7c49670b 7c49670 load on device 'cuda:0' took 1.29 ms  (cached)
+Module _primitive_narrowphase__locals__primitive_narrowphase_2a9a83ca 2a9a83c load on device 'cuda:0' took 1.00 ms  (cached)
+Module mujoco_warp._src.constraint 36c8060 load on device 'cuda:0' took 1.21 ms  (cached)
+Module _friction_dof__locals__kernel_b6332f7a b6332f7 load on device 'cuda:0' took 0.80 ms  (cached)
+Module _friction_tendon__locals__kernel_3f950ad4 3f950ad load on device 'cuda:0' took 2.00 ms  (cached)
+Module _limit_slide_hinge__locals__kernel_697e08d0 697e08d load on device 'cuda:0' took 0.84 ms  (cached)
+Module _limit_tendon__locals__kernel_9c90766b 9c90766 load on device 'cuda:0' took 1.28 ms  (cached)
+Module _efc_contact_init__locals__kernel_c7fda836 c7fda83 load on device 'cuda:0' took 1.22 ms  (cached)
+Module _efc_contact_jac_sparse__locals__kernel_c4f13e50 c4f13e5 load on device 'cuda:0' took 0.67 ms  (cached)
+Module _efc_contact_update__locals__kernel_a9f93c23 a9f93c2 load on device 'cuda:0' took 0.62 ms  (cached)
+Module mujoco_warp._src.sensor de892d8 load on device 'cuda:0' took 3.19 ms  (cached)
+Module mujoco_warp._src.forward 35ed569 load on device 'cuda:0' took 2.09 ms  (cached)
+Module mujoco_warp._src.forward ea2bb44 load on device 'cuda:0' took 1.93 ms  (cached)
+Module mujoco_warp._src.passive d8c18c6 load on device 'cuda:0' took 2.55 ms  (cached)
+Module _qfrc_smooth__locals__kernel_f1330af6 f1330af load on device 'cuda:0' took 1.21 ms  (cached)
+Module mujoco_warp._src.support ca784c5 load on device 'cuda:0' took 0.95 ms  (cached)
+Module _tile_cholesky_factorize_solve_block__locals__kernel_e27b9fca dda0549 load on device 'cuda:0' took 47.24 ms  (cached)
+Module mujoco_warp._src.solver 85325a6 load on device 'cuda:0' took 2.23 ms  (cached)
+Module _solve_init_jaref_kernel__locals__kernel_d1059581 d105958 load on device 'cuda:0' took 1.65 ms  (cached)
+Module mul_m_kernel__locals___mul_m_dc7994af dc7994a load on device 'cuda:0' took 1.90 ms  (cached)
+Module _update_constraint_efc__locals__kernel_fbd22eb4 fbd22eb load on device 'cuda:0' took 0.69 ms  (cached)
+Module _update_constraint_init_qfrc_constraint_sparse__locals__kernel_9cd0e049 9cd0e04 load on device 'cuda:0' took 1.02 ms  (cached)
+Module _update_gradient_zero_grad_dot__locals__kernel_b3ca350f b3ca350 load on device 'cuda:0' took 0.91 ms  (cached)
+Module _update_gradient_grad__locals__kernel_1e983fa6 1e983fa load on device 'cuda:0' took 0.56 ms  (cached)
+Module _update_gradient_init_h_sparse__locals__kernel_7d44b002 7d44b00 load on device 'cuda:0' took 1.71 ms  (cached)
+Module _JTDAJ_sparse__locals__kernel_360e6a1b 360e6a1 load on device 'cuda:0' took 0.66 ms  (cached)
+Module _JTDAJ_sparse__locals__kernel_360e6a1b 9a9fdcd load on device 'cuda:0' took 0.77 ms  (cached)
+Module _update_gradient_cholesky_blocked__locals__kernel_7ee368f4 248a328 load on device 'cuda:0' took 105.77 ms  (cached)
+Module _linesearch_jv_fused_kernel__locals__kernel_204984bc 204984b load on device 'cuda:0' took 1.71 ms  (cached)
+Module _linesearch_iterative_kernel__locals__kernel_078e7ccf 43bd141 load on device 'cuda:0' took 1.16 ms  (cached)
+Module _update_constraint_efc__locals__kernel_685d62b6 685d62b load on device 'cuda:0' took 0.88 ms  (cached)
+Module _update_gradient_zero_grad_dot__locals__kernel_679d034c 679d034 load on device 'cuda:0' took 1.51 ms  (cached)
+Module _update_gradient_grad__locals__kernel_ac4dac37 ac4dac3 load on device 'cuda:0' took 0.90 ms  (cached)
+Module _update_gradient_h_incremental_sparse__locals__kernel_665efaa0 665efaa load on device 'cuda:0' took 0.95 ms  (cached)
+Module _update_gradient_cholesky_blocked_skip_unchanged__locals__kernel_0982ca6f 73538f0 load on device 'cuda:0' took 113.47 ms  (cached)
+Module _solve_zero_search_dot__locals__kernel_74892a1f 74892a1 load on device 'cuda:0' took 1.66 ms  (cached)
+Module _solve_search_update__locals__kernel_c23ecfbd c23ecfb load on device 'cuda:0' took 1.51 ms  (cached)
+Module _next_time_builder__locals___next_time_eb151a48 eb151a4 load on device 'cuda:0' took 0.83 ms  (cached)
+Analyzing compiled model (robot source: /home/ec2-user/work/retarget/holosoma/src/holosoma/holosoma/data/robots/g1/g1_29dof.xml)
+================================================================================
+MUJOCO MODEL STRUCTURE ANALYSIS
+================================================================================
+
+📊 MODEL OVERVIEW:
+   Model file: /home/ec2-user/work/retarget/holosoma/src/holosoma/holosoma/data/robots/g1/g1_29dof.xml
+   Total bodies: 33
+   Total joints: 30
+   Total DOFs: 35
+   Total qpos elements: 36
+   Total actuators: 29
+   Total geoms: 72
+
+🏗️  BODY LIST:
+   ID  Name                           Parent ID Parent Name
+   --- ------------------------------ --------- --------------------
+   0   world                          0         world
+   1   robot_pelvis                   0         world
+   2   robot_left_hip_pitch_link      1         robot_pelvis
+   3   robot_left_hip_roll_link       2         robot_left_hip_pitch_link
+   4   robot_left_hip_yaw_link        3         robot_left_hip_roll_link
+   5   robot_left_knee_link           4         robot_left_hip_yaw_link
+   6   robot_left_ankle_pitch_link    5         robot_left_knee_link
+   7   robot_left_ankle_roll_link     6         robot_left_ankle_pitch_link
+   8   robot_left_foot_contact_point  7         robot_left_ankle_roll_link
+   9   robot_right_hip_pitch_link     1         robot_pelvis
+   10  robot_right_hip_roll_link      9         robot_right_hip_pitch_link
+   11  robot_right_hip_yaw_link       10        robot_right_hip_roll_link
+   12  robot_right_knee_link          11        robot_right_hip_yaw_link
+   13  robot_right_ankle_pitch_link   12        robot_right_knee_link
+   14  robot_right_ankle_roll_link    13        robot_right_ankle_pitch_link
+   15  robot_right_foot_contact_point 14        robot_right_ankle_roll_link
+   16  robot_waist_yaw_link           1         robot_pelvis
+   17  robot_waist_roll_link          16        robot_waist_yaw_link
+   18  robot_torso_link               17        robot_waist_roll_link
+   19  robot_left_shoulder_pitch_link 18        robot_torso_link
+   20  robot_left_shoulder_roll_link  19        robot_left_shoulder_pitch_link
+   21  robot_left_shoulder_yaw_link   20        robot_left_shoulder_roll_link
+   22  robot_left_elbow_link          21        robot_left_shoulder_yaw_link
+   23  robot_left_wrist_roll_link     22        robot_left_elbow_link
+   24  robot_left_wrist_pitch_link    23        robot_left_wrist_roll_link
+   25  robot_left_wrist_yaw_link      24        robot_left_wrist_pitch_link
+   26  robot_right_shoulder_pitch_link 18        robot_torso_link
+   27  robot_right_shoulder_roll_link 26        robot_right_shoulder_pitch_link
+   28  robot_right_shoulder_yaw_link  27        robot_right_shoulder_roll_link
+   29  robot_right_elbow_link         28        robot_right_shoulder_yaw_link
+   30  robot_right_wrist_roll_link    29        robot_right_elbow_link2026-08-04 17:44:12.629 | INFO     | holosoma.simulator.mujoco.mujoco:load_assets:376 - Assets loaded - num_dof: 29, num_bodies: 33
+2026-08-04 17:44:12.629 | INFO     | holosoma.simulator.mujoco.mujoco:load_assets:377 - DOF names: ['left_hip_pitch_joint', 'left_hip_roll_joint', 'left_hip_yaw_joint', 'left_knee_joint', 'left_ankle_pitch_joint', 'left_ankle_roll_joint', 'right_hip_pitch_joint', 'right_hip_roll_joint', 'right_hip_yaw_joint', 'right_knee_joint', 'right_ankle_pitch_joint', 'right_ankle_roll_joint', 'waist_yaw_joint', 'waist_roll_joint', 'waist_pitch_joint', 'left_shoulder_pitch_joint', 'left_shoulder_roll_joint', 'left_shoulder_yaw_joint', 'left_elbow_joint', 'left_wrist_roll_joint', 'left_wrist_pitch_joint', 'left_wrist_yaw_joint', 'right_shoulder_pitch_joint', 'right_shoulder_roll_joint', 'right_shoulder_yaw_joint', 'right_elbow_joint', 'right_wrist_roll_joint', 'right_wrist_pitch_joint', 'right_wrist_yaw_joint']
+2026-08-04 17:44:12.629 | INFO     | holosoma.simulator.mujoco.mujoco:load_assets:378 - Body names: ['pelvis', 'left_hip_pitch_link', 'left_hip_roll_link', 'left_hip_yaw_link', 'left_knee_link', 'left_ankle_pitch_link', 'left_ankle_roll_link', 'left_foot_contact_point', 'right_hip_pitch_link', 'right_hip_roll_link', 'right_hip_yaw_link', 'right_knee_link', 'right_ankle_pitch_link', 'right_ankle_roll_link', 'right_foot_contact_point', 'waist_yaw_link', 'waist_roll_link', 'torso_link', 'left_shoulder_pitch_link', 'left_shoulder_roll_link', 'left_shoulder_yaw_link', 'left_elbow_link', 'left_wrist_roll_link', 'left_wrist_pitch_link', 'left_wrist_yaw_link', 'right_shoulder_pitch_link', 'right_shoulder_roll_link', 'right_shoulder_yaw_link', 'right_elbow_link', 'right_wrist_roll_link', 'right_wrist_pitch_link', 'right_wrist_yaw_link']
+2026-08-04 17:44:12.630 | INFO     | holosoma.simulator.mujoco.mujoco:__init__:59 - Initializing MuJoCo Scene with env_origins shape: torch.Size([1024, 3]), device: cuda:0
+2026-08-04 17:44:12.630 | INFO     | holosoma.simulator.mujoco.mujoco:__init__:72 - MuJoCo Scene initialized successfully - 1024 environments
+2026-08-04 17:44:12.630 | INFO     | holosoma.simulator.mujoco.mujoco:create_envs:618 - Initialized command system with shape: torch.Size([1024, 9])
+2026-08-04 17:44:12.941 | INFO     | holosoma.managers.randomization.terms.locomotion:__init__:59 - [Randomization] PushRandomizerState initialized (enabled=True, max_push_vel=[0.5, 0.5, 0.20000000298023224, 0.5199999809265137, 0.5199999809265137, 0.7799999713897705], interval_s=[1.0, 3.0])
+2026-08-04 17:44:12.973 | INFO     | holosoma.simulator.mujoco.fields:prepare_manager_fields:89 - Discovered 1 required fields from managers: ['body_ipos']
+2026-08-04 17:44:12.973 | INFO     | holosoma.simulator.mujoco.fields:prepare_fields:123 - Preparing 1 fields for per-environment operations
+2026-08-04 17:44:12.976 | INFO     | holosoma.simulator.mujoco.fields:prepare_fields:133 - Field expansion complete
+2026-08-04 17:44:12.995 | INFO     | holosoma.managers.randomization.terms.locomotion:randomize_base_com_startup:556 - [Randomization] Base CoM: x=[-0.025, 0.025], y=[-0.05, 0.05], z=[-0.05, 0.05] (operation=add)
+2026-08-04 17:44:13.008 | INFO     | holosoma.managers.command.terms.wbt:__init__:44 - Loading motion file: /home/ec2-user/work/retarget/snmr/runs/wbt_latent_gmr/walk1_subject5_mj_z.npz
+2026-08-04 17:44:13.444 | DEBUG    | holosoma.utils.sim_utils:setup_simulation_environment:277 - Environment created successfully!
+
+   31  robot_right_wrist_pitch_link   30        robot_right_wrist_roll_link
+   32  robot_right_wrist_yaw_link     31        robot_right_wrist_pitch_link
+
+🔗 JOINT STRUCTURE:
+   ID  Name                           Type     Body                 qpos_addr qvel_addr
+   --- ------------------------------ -------- -------------------- --------- ---------
+   0   robot_floating_base_joint      FREE     robot_pelvis         0         0        
+   1   robot_left_hip_pitch_joint     HINGE    robot_left_hip_pitch_link 7         6        
+   2   robot_left_hip_roll_joint      HINGE    robot_left_hip_roll_link 8         7        
+   3   robot_left_hip_yaw_joint       HINGE    robot_left_hip_yaw_link 9         8        
+   4   robot_left_knee_joint          HINGE    robot_left_knee_link 10        9        
+   5   robot_left_ankle_pitch_joint   HINGE    robot_left_ankle_pitch_link 11        10       
+   6   robot_left_ankle_roll_joint    HINGE    robot_left_ankle_roll_link 12        11       
+   7   robot_right_hip_pitch_joint    HINGE    robot_right_hip_pitch_link 13        12       
+   8   robot_right_hip_roll_joint     HINGE    robot_right_hip_roll_link 14        13       
+   9   robot_right_hip_yaw_joint      HINGE    robot_right_hip_yaw_link 15        14       
+   10  robot_right_knee_joint         HINGE    robot_right_knee_link 16        15       
+   11  robot_right_ankle_pitch_joint  HINGE    robot_right_ankle_pitch_link 17        16       
+   12  robot_right_ankle_roll_joint   HINGE    robot_right_ankle_roll_link 18        17       
+   13  robot_waist_yaw_joint          HINGE    robot_waist_yaw_link 19        18       
+   14  robot_waist_roll_joint         HINGE    robot_waist_roll_link 20        19       
+   15  robot_waist_pitch_joint        HINGE    robot_torso_link     21        20       
+   16  robot_left_shoulder_pitch_joint HINGE    robot_left_shoulder_pitch_link 22        21       
+   17  robot_left_shoulder_roll_joint HINGE    robot_left_shoulder_roll_link 23        22       
+   18  robot_left_shoulder_yaw_joint  HINGE    robot_left_shoulder_yaw_link 24        23       
+   19  robot_left_elbow_joint         HINGE    robot_left_elbow_link 25        24       
+   20  robot_left_wrist_roll_joint    HINGE    robot_left_wrist_roll_link 26        25       
+   21  robot_left_wrist_pitch_joint   HINGE    robot_left_wrist_pitch_link 27        26       
+   22  robot_left_wrist_yaw_joint     HINGE    robot_left_wrist_yaw_link 28        27       
+   23  robot_right_shoulder_pitch_joint HINGE    robot_right_shoulder_pitch_link 29        28       
+   24  robot_right_shoulder_roll_joint HINGE    robot_right_shoulder_roll_link 30        29       
+   25  robot_right_shoulder_yaw_joint HINGE    robot_right_shoulder_yaw_link 31        30       
+   26  robot_right_elbow_joint        HINGE    robot_right_elbow_link 32        31       
+   27  robot_right_wrist_roll_joint   HINGE    robot_right_wrist_roll_link 33        32       
+   28  robot_right_wrist_pitch_joint  HINGE    robot_right_wrist_pitch_link 34        33       
+   29  robot_right_wrist_yaw_joint    HINGE    robot_right_wrist_yaw_link 35        34       
+
+🎯 DOF ANALYSIS (holosoma perspective):
+   Expected DOF count: 29
+
+   Idx DOF Name                       MJ_ID qpos_addr qvel_addr
+   --- ------------------------------ ----- --------- ---------
+   0   robot_left_hip_pitch_joint     1     7         6        
+   1   robot_left_hip_roll_joint      2     8         7        
+   2   robot_left_hip_yaw_joint       3     9         8        
+   3   robot_left_knee_joint          4     10        9        
+   4   robot_left_ankle_pitch_joint   5     11        10       
+   5   robot_left_ankle_roll_joint    6     12        11       
+   6   robot_right_hip_pitch_joint    7     13        12       
+   7   robot_right_hip_roll_joint     8     14        13       
+   8   robot_right_hip_yaw_joint      9     15        14       
+   9   robot_right_knee_joint         10    16        15       
+   10  robot_right_ankle_pitch_joint  11    17        16       
+   11  robot_right_ankle_roll_joint   12    18        17       
+   12  robot_waist_yaw_joint          13    19        18       
+   13  robot_waist_roll_joint         14    20        19       
+   14  robot_waist_pitch_joint        15    21        20       
+   15  robot_left_shoulder_pitch_joint 16    22        21       
+   16  robot_left_shoulder_roll_joint 17    23        22       
+   17  robot_left_shoulder_yaw_joint  18    24        23       
+   18  robot_left_elbow_joint         19    25        24       
+   19  robot_left_wrist_roll_joint    20    26        25       
+   20  robot_left_wrist_pitch_joint   21    27        26       
+   21  robot_left_wrist_yaw_joint     22    28        27       
+   22  robot_right_shoulder_pitch_joint 23    29        28       
+   23  robot_right_shoulder_roll_joint 24    30        29       
+   24  robot_right_shoulder_yaw_joint 25    31        30       
+   25  robot_right_elbow_joint        26    32        31       
+   26  robot_right_wrist_roll_joint   27    33        32       
+   27  robot_right_wrist_pitch_joint  28    34        33       
+   28  robot_right_wrist_yaw_joint    29    35        34       
+
+⚙️  ACTUATOR MAPPING:
+   ID  Name                           Joint                         
+   --- ------------------------------ ------------------------------
+   0   robot_left_hip_pitch_joint     robot_left_hip_pitch_joint    
+   1   robot_left_hip_roll_joint      robot_left_hip_roll_joint     
+   2   robot_left_hip_yaw_joint       robot_left_hip_yaw_joint      
+   3   robot_left_knee_joint          robot_left_knee_joint         
+   4   robot_left_ankle_pitch_joint   robot_left_ankle_pitch_joint  
+   5   robot_left_ankle_roll_joint    robot_left_ankle_roll_joint   
+   6   robot_right_hip_pitch_joint    robot_right_hip_pitch_joint   
+   7   robot_right_hip_roll_joint     robot_right_hip_roll_joint    
+   8   robot_right_hip_yaw_joint      robot_right_hip_yaw_joint     
+   9   robot_right_knee_joint         robot_right_knee_joint        
+   10  robot_right_ankle_pitch_joint  robot_right_ankle_pitch_joint 
+   11  robot_right_ankle_roll_joint   robot_right_ankle_roll_joint  
+   12  robot_waist_yaw_joint          robot_waist_yaw_joint         
+   13  robot_waist_roll_joint         robot_waist_roll_joint        
+   14  robot_waist_pitch_joint        robot_waist_pitch_joint       
+   15  robot_left_shoulder_pitch_joint robot_left_shoulder_pitch_joint
+   16  robot_left_shoulder_roll_joint robot_left_shoulder_roll_joint
+   17  robot_left_shoulder_yaw_joint  robot_left_shoulder_yaw_joint 
+   18  robot_left_elbow_joint         robot_left_elbow_joint        
+   19  robot_left_wrist_roll_joint    robot_left_wrist_roll_joint   
+   20  robot_left_wrist_pitch_joint   robot_left_wrist_pitch_joint  
+   21  robot_left_wrist_yaw_joint     robot_left_wrist_yaw_joint    
+   22  robot_right_shoulder_pitch_joint robot_right_shoulder_pitch_joint
+   23  robot_right_shoulder_roll_joint robot_right_shoulder_roll_joint
+   24  robot_right_shoulder_yaw_joint robot_right_shoulder_yaw_joint
+   25  robot_right_elbow_joint        robot_right_elbow_joint       
+   26  robot_right_wrist_roll_joint   robot_right_wrist_roll_joint  
+   27  robot_right_wrist_pitch_joint  robot_right_wrist_pitch_joint 
+   28  robot_right_wrist_yaw_joint    robot_right_wrist_yaw_joint   
+
+📸 CURRENT STATE SNAPSHOT:
+   qpos (first 10): [ 0.     0.     0.793  1.     0.     0.     0.    -0.312  0.     0.   ]
+   qvel (first 10): [0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+   ctrl (all): [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+ 0. 0. 0. 0. 0.]
+
+================================================================================
+END OF MODEL ANALYSIS
+================================================================================
+Module repeat_array_kernel_59f5e8bb 2133ce6 load on device 'cuda:0' took 1.03 ms  (cached)
+wbt_bodyfix: sim body tensors 33-wide, name list 32 -> offset 1 applied to sim-side body indices
+Actor Module: Sequential(
+  (0): Linear(in_features=154, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=29, bias=True)
+)2026-08-04 17:44:14.532 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.75440598  0.61261809  3.        ]'
+2026-08-04 17:44:14.982 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[22.08675957  5.19218683  3.        ]'
+
+{"round": 0, "p_teacher": 1.0, "l_action": 39.39827632904053, "l_kl": 11.996390883127848, "l_smooth": 23.784285324811936}
+2026-08-04 17:45:57.850 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.29746628  1.42193246  3.        ]'
+{"round": 50, "p_teacher": 0.75, "l_action": 0.6696790397167206, "l_kl": 0.07292347078522046, "l_smooth": 2.347995718320211}
+2026-08-04 17:48:13.758 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.12569046  3.93380141  3.        ]'
+{"round": 100, "p_teacher": 0.5, "l_action": 0.7590030252933502, "l_kl": 0.14747241288423538, "l_smooth": 2.4311405340830485}
+2026-08-04 17:51:48.367 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.91450691  3.74403334  3.        ]'
+{"round": 150, "p_teacher": 0.25, "l_action": 1.8270087520281473, "l_kl": 4.870437304178874, "l_smooth": 3.329817295074463}
+2026-08-04 17:53:19.647 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[22.1243515   3.79492784  3.        ]'
+2026-08-04 17:53:25.356 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.48092842  3.68750358  3.        ]'
+2026-08-04 17:54:42.318 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.13816643  4.9789505   3.        ]'
+2026-08-04 17:55:12.094 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.95978546  3.96592212  3.        ]'
+2026-08-04 17:55:20.698 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.94562149  3.68524051  3.        ]'
+2026-08-04 17:55:31.167 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.34189034  0.26413247  3.        ]'
+2026-08-04 17:55:40.804 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.90451813  4.12981558  3.        ]'
+2026-08-04 17:55:44.331 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.10448837  2.21835494  3.        ]'
+2026-08-04 17:55:52.519 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.57457733  4.08342457  3.        ]'
+{"round": 200, "p_teacher": 0.0, "l_action": 2.448899245262146, "l_kl": 11.05937910079956, "l_smooth": 2.7403583606084188}
+2026-08-04 17:55:59.409 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.59429741  0.63234234  3.        ]'
+2026-08-04 17:56:04.591 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[22.19657326  8.56138039  3.        ]'
+2026-08-04 17:56:21.771 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.66238403  2.80470562  3.        ]'
+2026-08-04 17:56:48.925 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.28258705  1.62565804  3.        ]'
+2026-08-04 17:57:01.495 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.48252296  3.264745    3.        ]'
+2026-08-04 17:57:32.584 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.14655304  1.72545683  3.        ]'
+2026-08-04 17:57:58.396 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.44995689  1.14439583  3.        ]'
+2026-08-04 17:58:08.663 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.12494469  5.85936213  3.        ]'
+2026-08-04 17:58:21.714 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.84102058  2.241642    3.        ]'
+2026-08-04 17:58:36.187 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.47771645  6.70771456  3.        ]'
+{"round": 250, "p_teacher": 0.0, "l_action": 2.009469509124756, "l_kl": 9.65656582514445, "l_smooth": 2.797382458051046}
+2026-08-04 17:59:18.703 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.54048729  3.29215002  3.        ]'
+2026-08-04 18:00:11.937 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.97093201  3.6337502   3.        ]'
+2026-08-04 18:00:26.198 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.95801163  2.19070411  3.        ]'
+2026-08-04 18:00:49.684 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.84371948  3.98007464  3.        ]'
+2026-08-04 18:01:08.507 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.368433    0.31115711  3.        ]'
+{"round": 300, "p_teacher": 0.0, "l_action": 1.8110690553983053, "l_kl": 8.641135438283284, "l_smooth": 3.1084929943084716}
+2026-08-04 18:01:29.747 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.2640686   3.68126488  3.        ]'
+2026-08-04 18:01:39.912 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.08662415  2.21259165  3.        ]'
+2026-08-04 18:02:01.974 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.72555161  3.9362247   3.        ]'
+2026-08-04 18:02:44.999 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.89970779  4.10448742  3.        ]'
+2026-08-04 18:02:56.944 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.1601963   3.61118364  3.        ]'
+{"round": 350, "p_teacher": 0.0, "l_action": 1.7300265868504843, "l_kl": 8.738853327433269, "l_smooth": 3.514159115155538}
+2026-08-04 18:04:27.903 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[22.32761955  7.05463886  3.        ]'
+2026-08-04 18:04:33.358 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.72515488  3.68678164  3.        ]'
+2026-08-04 18:04:47.635 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.80470085  3.31171703  3.        ]'
+2026-08-04 18:05:25.783 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.13638878  3.72314215  3.        ]'
+2026-08-04 18:05:35.379 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.60333252  3.92909908  3.        ]'
+2026-08-04 18:05:44.358 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.63342476  1.21179545  3.        ]'
+2026-08-04 18:06:21.899 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.50145721  4.69250107  3.        ]'
+2026-08-04 18:06:43.296 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.61189079  3.11999679  3.        ]'
+{"round": 400, "p_teacher": 0.0, "l_action": 1.6455217838287353, "l_kl": 8.382226355870564, "l_smooth": 3.8543479681015014}
+2026-08-04 18:07:12.673 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.84906006 -0.08148718  3.        ]'
+2026-08-04 18:07:44.513 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.00730896  3.17627573  3.        ]'
+2026-08-04 18:08:10.908 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.47488594  3.29649782  3.        ]'
+2026-08-04 18:08:39.608 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.35475159  5.1479044   3.        ]'
+2026-08-04 18:08:42.838 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.97542763  3.74248648  3.        ]'
+2026-08-04 18:09:30.641 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.31006241  7.720047    3.        ]'
+{"round": 450, "p_teacher": 0.0, "l_action": 1.5548970619837443, "l_kl": 8.198806047439575, "l_smooth": 4.0154639959335325}
+2026-08-04 18:09:56.702 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.1720829   4.27466106  3.        ]'
+2026-08-04 18:10:09.886 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.71006775  5.05736923  3.        ]'
+2026-08-04 18:10:28.227 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.11110497  0.13274744  3.        ]'
+2026-08-04 18:10:34.584 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.53554344  2.39933157  3.        ]'
+2026-08-04 18:10:49.305 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.26343918  5.15867233  3.        ]'
+2026-08-04 18:11:30.895 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[22.06007195  8.548563    3.        ]'
+2026-08-04 18:12:08.289 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.86355782  4.11285067  3.        ]'
+2026-08-04 18:12:21.659 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[22.2814312   2.05103636  3.        ]'
+{"round": 500, "p_teacher": 0.0, "l_action": 1.5037433187166849, "l_kl": 8.247823794682821, "l_smooth": 4.339797115325927}
+2026-08-04 18:12:36.434 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.02189636  0.33408141  3.        ]'
+2026-08-04 18:12:46.667 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[22.39814568  2.98642254  3.        ]'
+2026-08-04 18:13:29.940 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.18066025  5.76232481  3.        ]'
+2026-08-04 18:13:35.930 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.67856407  3.21922278  3.        ]'
+2026-08-04 18:14:44.067 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.91317558  3.73422098  3.        ]'
+2026-08-04 18:14:52.292 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.02220535  3.48544598  3.        ]'
+{"round": 550, "p_teacher": 0.0, "l_action": 1.4337477803230285, "l_kl": 8.20078420639038, "l_smooth": 4.416116611162821}
+2026-08-04 18:15:21.087 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.58170509  4.43864584  3.        ]'
+2026-08-04 18:15:37.606 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.61693764  1.99309635  3.        ]'
+2026-08-04 18:15:42.006 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.99205399  3.56470776  3.        ]'
+2026-08-04 18:15:50.060 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.61580849  3.17441082  3.        ]'
+2026-08-04 18:16:19.515 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.15067863  3.78001595  3.        ]'
+2026-08-04 18:16:34.427 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.38381767 -0.04871995  3.        ]'
+2026-08-04 18:17:01.557 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.15176964  1.58235598  3.        ]'
+2026-08-04 18:17:03.969 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.65924072  3.25612783  3.        ]'
+{"round": 600, "p_teacher": 0.0, "l_action": 1.378684155146281, "l_kl": 7.840555683771769, "l_smooth": 4.805995066960652}
+2026-08-04 18:18:07.341 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.77780533  3.36497259  3.        ]'
+2026-08-04 18:18:24.155 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.17089272  3.64687109  3.        ]'
+2026-08-04 18:19:31.914 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.4860363   6.08700323  3.        ]'
+2026-08-04 18:19:35.530 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.62828636  3.66098142  3.        ]'
+{"round": 650, "p_teacher": 0.0, "l_action": 1.3670128186543782, "l_kl": 8.07543485959371, "l_smooth": 4.876101620992025}
+2026-08-04 18:21:31.463 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[22.28155708  6.86831713  3.        ]'
+2026-08-04 18:21:36.949 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.45493507  0.92286581  3.        ]'
+2026-08-04 18:22:18.887 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.28800964  1.76254594  3.        ]'
+2026-08-04 18:22:26.632 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.62214661  3.16987967  3.        ]'
+2026-08-04 18:23:38.913 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.05612755  1.96274281  3.        ]'
+2026-08-04 18:24:17.900 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.2012825   2.65668368  3.        ]'
+{"round": 700, "p_teacher": 0.0, "l_action": 1.3298178831736247, "l_kl": 7.992756605148315, "l_smooth": 5.0058052221934}
+2026-08-04 18:25:59.156 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.51762962  0.68621624  3.        ]'
+2026-08-04 18:26:04.013 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.65910912  2.55146265  3.        ]'
+2026-08-04 18:26:13.664 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.21393967  3.78312111  3.        ]'
+2026-08-04 18:26:26.205 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.93915367  3.5312047   3.        ]'
+2026-08-04 18:27:11.142 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.42743683  2.0887363   3.        ]'
+2026-08-04 18:27:42.738 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.2381649   1.35965812  3.        ]'
+{"round": 750, "p_teacher": 0.0, "l_action": 1.3224489490191143, "l_kl": 8.052764574686686, "l_smooth": 5.4417677561442055}
+2026-08-04 18:29:06.181 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.89909172  3.64007735  3.        ]'
+{"round": 800, "p_teacher": 0.0, "l_action": 1.273835575580597, "l_kl": 7.78378225962321, "l_smooth": 5.540089305241903}
+2026-08-04 18:30:44.283 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.08885765  3.91722369  3.        ]'
+2026-08-04 18:31:00.491 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.38864899  1.28338075  3.        ]'
+2026-08-04 18:33:12.530 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.76213074  4.0023284   3.        ]'
+{"round": 850, "p_teacher": 0.0, "l_action": 1.233893879254659, "l_kl": 7.622901471455892, "l_smooth": 5.555471134185791}
+2026-08-04 18:33:39.551 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.92799759  3.64932299  3.        ]'
+2026-08-04 18:33:54.321 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.37640953  3.83255172  3.        ]'
+2026-08-04 18:34:01.584 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.2665596   3.80607796  3.        ]'
+2026-08-04 18:34:24.819 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.67213821  2.69674635  3.        ]'
+2026-08-04 18:34:42.903 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.52325439  3.85861778  3.        ]'
+2026-08-04 18:35:11.653 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.78931999  5.00181961  3.        ]'
+2026-08-04 18:35:15.226 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.45348358  3.72415709  3.        ]'
+2026-08-04 18:35:48.611 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.96455574  3.72350836  3.        ]'
+{"round": 900, "p_teacher": 0.0, "l_action": 1.2308993180592855, "l_kl": 7.594466718037923, "l_smooth": 5.577388715744019}
+2026-08-04 18:37:45.601 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.70534325  6.61351061  3.        ]'
+2026-08-04 18:38:10.822 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.47929192  3.81079865  3.        ]'
+2026-08-04 18:38:29.861 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.56206894  3.97929597  3.        ]'
+{"round": 950, "p_teacher": 0.0, "l_action": 1.2112712780634562, "l_kl": 7.441057284673055, "l_smooth": 5.789287773768107}
+2026-08-04 18:38:57.166 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.8605442   3.42081261  3.        ]'
+2026-08-04 18:40:01.381 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.90231514  3.76803255  3.        ]'
+2026-08-04 18:40:17.247 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.1203804   0.23992443  3.        ]'
+2026-08-04 18:40:41.790 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.51129341  6.12307978  3.        ]'
+2026-08-04 18:40:46.576 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.32466507  0.70478499  3.        ]'
+{"round": 1000, "p_teacher": 0.0, "l_action": 1.1640660762786865, "l_kl": 7.2737899462382, "l_smooth": 5.864037307103475}
+2026-08-04 18:41:46.255 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.59586716  4.74274969  3.        ]'
+2026-08-04 18:42:16.645 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.10409546  3.5166049   3.        ]'
+{"round": 1050, "p_teacher": 0.0, "l_action": 1.1730741421381632, "l_kl": 7.4083060423533125, "l_smooth": 6.22948743502299}
+2026-08-04 18:44:35.724 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.59223938  0.68423873  3.        ]'
+2026-08-04 18:44:55.017 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.55667305  4.00063372  3.        ]'
+2026-08-04 18:46:26.149 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.99523354  3.57559252  3.        ]'
+2026-08-04 18:46:35.054 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.59941673  3.74649978  3.        ]'
+{"round": 1100, "p_teacher": 0.0, "l_action": 1.1383416533470154, "l_kl": 6.937958685557048, "l_smooth": 5.907259130477906}
+2026-08-04 18:46:54.643 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.40153885  1.9660784   3.        ]'
+2026-08-04 18:47:12.586 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.55755997  4.67944622  3.        ]'
+2026-08-04 18:48:29.156 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.04421425  0.27113393  3.        ]'
+{"round": 1150, "p_teacher": 0.0, "l_action": 1.1478383541107178, "l_kl": 7.079694668451945, "l_smooth": 6.258359432220459}
+2026-08-04 18:49:43.805 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.39040756  3.48799443  3.        ]'
+2026-08-04 18:51:53.962 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.0592823   3.79433584  3.        ]'
+{"round": 1200, "p_teacher": 0.0, "l_action": 1.1179712653160094, "l_kl": 6.893861532211304, "l_smooth": 6.2741967360178625}
+2026-08-04 18:52:45.931 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.73940659  4.02128506  3.        ]'
+2026-08-04 18:53:47.056 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.07387543  4.87590504  3.        ]'
+2026-08-04 18:53:52.240 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.41675758  2.2965169   3.        ]'
+2026-08-04 18:54:49.438 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.88961411  3.53351188  3.        ]'
+2026-08-04 18:55:10.957 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.35792732  1.31925607  3.        ]'
+{"round": 1250, "p_teacher": 0.0, "l_action": 1.0717871030171713, "l_kl": 6.478841638565063, "l_smooth": 6.034254868825276}
+2026-08-04 18:57:54.279 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.58085251  2.43358946  3.        ]'
+2026-08-04 18:58:25.794 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.6857605   4.85654974  3.        ]'
+2026-08-04 18:58:50.460 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.45196724  5.09814644  3.        ]'
+{"round": 1300, "p_teacher": 0.0, "l_action": 1.0612969597180684, "l_kl": 6.424512068430583, "l_smooth": 6.50666864713033}
+2026-08-04 18:59:48.881 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.28416824  1.74115074  3.        ]'
+2026-08-04 19:00:11.193 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.14595032  3.66441941  3.        ]'
+2026-08-04 19:00:30.038 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.58331299  4.81546688  3.        ]'
+2026-08-04 19:01:21.918 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.37848282  4.87418222  3.        ]'
+{"round": 1350, "p_teacher": 0.0, "l_action": 1.0743177652359008, "l_kl": 6.3377657254536945, "l_smooth": 6.485972833633423}
+2026-08-04 19:03:23.490 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.87143135  3.77320218  3.        ]'
+2026-08-04 19:04:43.923 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.21818542  3.66066504  3.        ]'
+{"round": 1400, "p_teacher": 0.0, "l_action": 1.051251628001531, "l_kl": 6.4516766707102455, "l_smooth": 6.5779257615407305}
+2026-08-04 19:05:18.956 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.70618629  2.93241382  3.        ]'
+2026-08-04 19:05:32.100 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.1020546   2.21343493  3.        ]'
+2026-08-04 19:05:42.335 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.8471241   4.15800047  3.        ]'
+2026-08-04 19:06:27.082 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.43871117  3.83866787  3.        ]'
+2026-08-04 19:07:08.454 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.94439697  2.93398499  3.        ]'
+2026-08-04 19:07:10.945 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.37340546  1.88150632  3.        ]'
+{"round": 1450, "p_teacher": 0.0, "l_action": 1.022697957356771, "l_kl": 6.096831464767456, "l_smooth": 6.347682730356852}
+2026-08-04 19:07:49.468 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.04997444  3.86332917  3.        ]'
+2026-08-04 19:08:56.824 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.55876541  5.9414587   3.        ]'
+2026-08-04 19:09:11.046 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.94678497  4.34166574  3.        ]'
+{"round": 1500, "p_teacher": 0.0, "l_action": 0.988549800713857, "l_kl": 5.835308043162028, "l_smooth": 6.241274976730347}
+2026-08-04 19:10:17.555 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.74150467  3.43714857  3.        ]'
+2026-08-04 19:10:33.262 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.1746769   0.44939995  3.        ]'
+2026-08-04 19:12:51.494 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.48504639  4.37250757  3.        ]'
+2026-08-04 19:12:54.636 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.4042263   0.45458722  3.        ]'
+{"round": 1550, "p_teacher": 0.0, "l_action": 0.982327789068222, "l_kl": 5.635485204060872, "l_smooth": 6.393151982625326}
+2026-08-04 19:14:22.911 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.64023018  3.79682255  3.        ]'
+{"round": 1600, "p_teacher": 0.0, "l_action": 0.9618558804194133, "l_kl": 5.424567079544067, "l_smooth": 6.4356165091196695}
+2026-08-04 19:16:42.157 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.30906487  3.4994328   3.        ]'
+2026-08-04 19:16:59.942 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.60690117  3.18947363  3.        ]'
+2026-08-04 19:17:47.481 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.92521286  3.65847635  3.        ]'
+2026-08-04 19:18:17.305 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.02669525  3.61196113  3.        ]'
+{"round": 1650, "p_teacher": 0.0, "l_action": 0.9383480588595072, "l_kl": 5.207987101872762, "l_smooth": 6.429121605555216}
+2026-08-04 19:20:34.453 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.09720612  3.74142313  3.        ]'
+2026-08-04 19:20:50.794 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.7121067   3.16837978  3.        ]'
+{"round": 1700, "p_teacher": 0.0, "l_action": 0.9258560736974081, "l_kl": 4.996962658564249, "l_smooth": 6.1758583068847654}
+2026-08-04 19:23:10.655 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.38922691  4.57535362  3.        ]'
+{"round": 1750, "p_teacher": 0.0, "l_action": 0.915878156820933, "l_kl": 4.814787912368774, "l_smooth": 6.743819729487101}
+2026-08-04 19:25:20.702 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.42480659  2.31043458  3.        ]'
+{"round": 1800, "p_teacher": 0.0, "l_action": 0.8817649225393931, "l_kl": 4.669095754623413, "l_smooth": 6.514133151372274}
+2026-08-04 19:28:32.859 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.69158363  3.1432519   3.        ]'
+2026-08-04 19:29:56.701 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.09291649  2.73197103  3.        ]'
+{"round": 1850, "p_teacher": 0.0, "l_action": 0.8736856738726299, "l_kl": 4.495486768086751, "l_smooth": 6.4275616327921545}
+2026-08-04 19:31:09.803 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[22.18310356  3.79395628  3.        ]'
+2026-08-04 19:31:33.433 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.78199387  3.66089058  3.        ]'
+2026-08-04 19:31:39.756 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.0468502  3.6825254  3.       ]'
+2026-08-04 19:32:13.297 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.60888863  1.06787884  3.        ]'
+2026-08-04 19:33:22.684 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.59904861  3.10128593  3.        ]'
+2026-08-04 19:33:39.892 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.00845146  2.04871273  3.        ]'
+{"round": 1900, "p_teacher": 0.0, "l_action": 0.8514264325300852, "l_kl": 4.326309871673584, "l_smooth": 6.150837675730387}
+2026-08-04 19:33:56.583 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.40881348  1.29919767  3.        ]'
+2026-08-04 19:33:59.752 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[20.09530067  2.33205438  3.        ]'
+2026-08-04 19:34:19.480 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[19.37010193  4.99723101  3.        ]'
+2026-08-04 19:36:37.956 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.89482689  5.49750233  3.        ]'
+{"round": 1950, "p_teacher": 0.0, "l_action": 0.8368330319722493, "l_kl": 4.223190236091614, "l_smooth": 6.488659270604452}
+2026-08-04 19:37:15.175 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.76859856  4.70717049  3.        ]'
+2026-08-04 19:38:03.958 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[21.69837761  2.57843375  3.        ]'
+2026-08-04 19:38:14.483 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[18.79297066  0.97223765  3.        ]'
+{"round": 1999, "p_teacher": 0.0, "l_action": 0.8155593017737071, "l_kl": 3.994329746564229, "l_smooth": 6.328157424926758}
+2026-08-04 19:39:13.010 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.92644501  0.47374392  3.        ]'
+2026-08-04 19:39:13.126 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.91143227  0.43233848  3.        ]'
+2026-08-04 19:39:13.600 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.88724899  0.50121891  3.        ]'
+2026-08-04 19:39:14.262 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.91526604  0.46975017  3.        ]'
+2026-08-04 19:39:15.151 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.86717796  0.4321827   3.        ]'
+2026-08-04 19:39:16.118 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.90575027  0.46783748  3.        ]'
+2026-08-04 19:39:16.913 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.93741226  0.45613685  3.        ]'
+2026-08-04 19:39:17.664 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.90733337  0.42945004  3.        ]'
+2026-08-04 19:39:18.517 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.89386368  0.44402191  3.        ]'
+2026-08-04 19:39:19.530 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.93526268  0.48509386  3.        ]'
+2026-08-04 19:39:20.538 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.87270927  0.50669181  3.        ]'
+2026-08-04 19:39:21.591 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.90149689  0.45121709  3.        ]'
+2026-08-04 19:39:22.733 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.91945839  0.44634715  3.        ]'
+2026-08-04 19:39:23.411 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.91756058  0.52644831  3.        ]'
+2026-08-04 19:39:24.497 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.88284492  0.46857128  3.        ]'
+2026-08-04 19:39:25.053 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.92554665  0.43325403  3.        ]'
+2026-08-04 19:39:26.004 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.84597778  0.44147313  3.        ]'
+2026-08-04 19:39:26.834 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.87494278  0.50317091  3.        ]'
+2026-08-04 19:39:27.636 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.92402458  0.48162335  3.        ]'
+2026-08-04 19:39:28.482 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.85020828  0.46714628  3.        ]'
+2026-08-04 19:39:29.254 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.9430294   0.49330825  3.        ]'
+2026-08-04 19:39:29.947 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.92697144  0.5266816   3.        ]'
+2026-08-04 19:39:30.907 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.88489342  0.43689695  3.        ]'
+2026-08-04 19:39:31.942 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.89018631  0.50738174  3.        ]'
+2026-08-04 19:39:32.832 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.85622978  0.50202698  3.        ]'
+2026-08-04 19:39:33.592 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.9210701   0.49712658  3.        ]'
+2026-08-04 19:39:34.337 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.88418579  0.52496135  3.        ]'
+2026-08-04 19:39:37.960 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.86938286  0.47837964  3.        ]'
+2026-08-04 19:39:38.926 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.86237526  0.46306485  3.        ]'
+2026-08-04 19:39:40.084 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.86705589  0.45911133  3.        ]'
+2026-08-04 19:39:40.742 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.86702347  0.47715047  3.        ]'
+2026-08-04 19:39:41.487 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.88501358  0.52100706  3.        ]'
+2026-08-04 19:39:42.354 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.90615082  0.49142548  3.        ]'
+2026-08-04 19:39:43.327 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.90151787  0.47507864  3.        ]'
+2026-08-04 19:39:44.321 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.90820885  0.43562424  3.        ]'
+2026-08-04 19:39:45.363 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.85474205  0.45235211  3.        ]'
+2026-08-04 19:39:46.463 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.91010666  0.51901585  3.        ]'
+2026-08-04 19:39:47.500 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.89011192  0.48049894  3.        ]'
+2026-08-04 19:39:48.610 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.88389206  0.44840705  3.        ]'
+2026-08-04 19:39:49.457 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.93315506  0.47668314  3.        ]'
+2026-08-04 19:39:50.329 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.85777855  0.49368379  3.        ]'
+2026-08-04 19:39:51.443 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.90487671  0.45560113  3.        ]'
+2026-08-04 19:39:52.207 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.94427681  0.46913591  3.        ]'
+2026-08-04 19:39:52.913 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.92055511  0.46865848  3.        ]'
+2026-08-04 19:39:53.771 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.89810562  0.50505292  3.        ]'
+2026-08-04 19:39:54.508 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.90781403  0.51600605  3.        ]'
+2026-08-04 19:39:55.378 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.92279243  0.44172287  3.        ]'
+2026-08-04 19:39:56.121 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.8678894   0.52726895  3.        ]'
+2026-08-04 19:39:56.937 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.88788414  0.47117898  3.        ]'
+2026-08-04 19:40:01.073 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.86513138  0.47259772  3.        ]'
+2026-08-04 19:40:01.642 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.94545746  0.50839412  3.        ]'
+2026-08-04 19:40:02.159 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.89422798  0.49151993  3.        ]'
+2026-08-04 19:40:02.638 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.91270638  0.48554227  3.        ]'
+2026-08-04 19:40:03.253 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.91461372  0.44444236  3.        ]'
+2026-08-04 19:40:03.782 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.92520332  0.50874001  3.        ]'
+2026-08-04 19:40:04.138 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.93354607  0.52516258  3.        ]'
+2026-08-04 19:40:04.716 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.87324333  0.50117266  3.        ]'
+2026-08-04 19:40:05.177 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.90477943  0.48639107  3.        ]'
+2026-08-04 19:40:05.817 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.89989281  0.4360913   3.        ]'
+2026-08-04 19:40:06.539 | DEBUG    | holosoma.simulator.shared.virtual_gantry:set_position_to_robot:190 - Virtual gantry position reset to '[17.94147301  0.45718256  3.        ]'
+{"arm": "a_prior_snmr", "eval_z": "prior", "noise_cmd": 0.0, "noise_zret": 0.0, "noise_proprio": 0.0, "num_rollouts": 1024, "completion_rate": 0.7431640625, "mean_survival_s": 8.304277420043945, "joint_rmse_rad": 0.1521592140197754, "teacher_ckpt": "/home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260727_123641-e51v2_bodyfix_jointrew_seed0-locomotion/model_07999.pt", "rounds": 2000, "beta_kl": 0.1, "prior_mix": 0.0, "deterministic": false}
+2026-08-04 19:40:06.810 | INFO     | holosoma.utils.sim_utils:close_simulation_app:334 - Simulation app closed.
