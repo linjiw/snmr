@@ -131,11 +131,11 @@
   <p class="sub">SNMR distills a classical IK retargeter into one skeleton-agnostic network with a
   shared motion latent — then shows the act-through-latent idea carries control: a co-trained
   64-d command code (<code>z_cmd</code>) is the tracking policy's <strong>only</strong> motion
-  input on a simulated Unitree&nbsp;G1. Fed the frozen retargeting latent as its <em>only</em>
-  goal source — no robot-space reference anywhere in the student — the policy retains 0.656 ± 0.044
-  completion across 3 seeds (goal-free control: 0.001; corrupting z_ret collapses it to 0.000 — the
-  dependence is causal); beside an explicit goal the latent's additive value is null (the shortcut
-  mechanism, and an honest open thread).</p>
+  input on a simulated Unitree&nbsp;G1 — matching its teacher (0.955 vs 0.954). Fed the frozen
+  retargeting latent as its <em>only</em> goal source the policy retains 0.656 — but our own
+  pre-specified clock control reaches <strong>0.754</strong> through the identical pathway, so on
+  single-clip cyclic motion the latent's deployable value is at most timing. We publish the clock
+  as the null model act-through-latent claims must beat.</p>
   <div class="badges">
     <span class="badge">5 humanoid embodiments, one network</span>
     <span class="badge">MuJoCo-Warp RL tracking</span>
