@@ -1,0 +1,16 @@
+{
+  "arm": "c_prior_explicit",
+  "eval_z": "prior",
+  "noise_cmd": 0.0,
+  "noise_zret": 0.0,
+  "noise_proprio": 0.0,
+  "num_rollouts": 256,
+  "completion_rate": 0.9453125,
+  "mean_survival_s": 9.515546798706055,
+  "joint_rmse_rad": 0.12998536229133606,
+  "teacher_ckpt": "logs/WholeBodyTracking/20260727_123641-e51v2_bodyfix_jointrew_seed0-locomotion/model_07999.pt",
+  "rounds": 0,
+  "beta_kl": 0.1,
+  "prior_mix": 0.0,
+  "deterministic": false
+}

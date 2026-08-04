@@ -1789,3 +1789,16 @@ supports it; 1-NFE was our choice, not the method's limit), (2) wider/deeper hea
 (3) w-embedding of cond into every layer instead of input concat. Honest state for the
 paper: "a generative head is under test; its sanity gate is not yet met" — Limitations
 wording already accurate. NOT counted against the generative hypothesis.
+
+### E64 - z_cmd capacity audit (review-panel response; eval-only dump on v4 arm C) - **"BOTTLENECK" IN THE DIMENSION-COUNT SENSE IS NOT SUPPORTED, BUT THE CHANNEL IS A GENUINELY LOSSY RECODING: effective rank 14.1/64 (top-8 PCs = 61% var), held-out linear R^2 of the 64-d goal from z_cmd = 0.475 — LESS than proprio alone predicts it (0.618). z_cmd does not transmit the goal; it transmits a low-rank control code.**
+`runs/e64_capacity/armC_z.npz` (25,600 frames, 256 envs x eval, every 5th step).
+- Var(mu_prior) 1.4-6.5 per dim >> sigma^2=0.09 -> the training-noise channel-capacity
+  bound is vacuous (162.7 bits/frame); sigma=0.3 is a regularizer, not a rate constraint.
+  CONCEDE to the review: no rate term constrains the goal->z path.
+- BUT the learned solution is empirically compressed: participation ratio 14.1 of 64.
+- And it is NOT a bijection of the goal: linear R^2 0.475 < proprio-alone 0.618. The
+  prior discards goal information the decoder could not use and encodes something the
+  raw goal is not (a control-sufficient code).
+Paper action: rename the contribution from "bottleneck" language to "learned command
+interface under an exclusivity contract," report rank/R^2, and note the Z_CMD_DIM sweep
+as registered follow-up (E64b: 8/16/32 at matched recipe).

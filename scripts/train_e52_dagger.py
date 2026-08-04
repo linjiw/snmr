@@ -292,6 +292,9 @@ def main() -> None:
               "E52_EVAL_ONLY=1 with motion_file=<clip>)", flush=True)
         close_simulation_app(sim_app)
         return
+    dump_z = os.environ.get("E52_DUMP_Z", "")  # E64: save (z_cmd, cmd, proprio) during
+    # eval for capacity analysis (Var(mu_prior) vs sigma^2, effective rank, linear R^2)
+    dump_buf = {"z": [], "cmd": [], "proprio": []} if dump_z else None
     eval_z = os.environ.get("E52_EVAL_Z", "prior")  # prior | posterior
     noise_cmd = float(os.environ.get("E52_EVAL_NOISE_CMD", "0"))      # sigma, normalized units
     noise_z = float(os.environ.get("E52_EVAL_NOISE_ZRET", "0"))       # sigma, standardized z units
@@ -319,6 +322,9 @@ def main() -> None:
             z_cmd = student.mu_prior(proprio, zwin, cmd)
             if eval_z == "posterior":
                 z_cmd = z_cmd + student.mu_residual(proprio, zwin, cmd, priv)
+            if dump_buf is not None and step % 5 == 0:
+                dump_buf["z"].append(z_cmd.cpu()); dump_buf["cmd"].append(cmd.cpu())
+                dump_buf["proprio"].append(proprio.cpu())
             actions = student.act(proprio, z_cmd)
             obs_dict, _, dones, _ = env.step({"actions": actions})
             rmse = env.log_dict["eval/error_joint_pos_rmse"]
@@ -340,6 +346,8 @@ def main() -> None:
         "rounds": rounds, "beta_kl": beta_kl, "prior_mix": prior_mix,
         "deterministic": deterministic,
     }
+    if dump_buf is not None:
+        np.savez_compressed(dump_z, **{k: torch.cat(v).numpy() for k, v in dump_buf.items()})
     suffix = "" if eval_z == "prior" else f"_{eval_z}"
     (out / f"{arm}_eval{suffix}.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report), flush=True)
