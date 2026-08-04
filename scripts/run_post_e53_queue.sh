@@ -11,6 +11,26 @@ export PYTHONPATH="$MAIN"
 
 while [ ! -f "$MAIN/runs/e53_multiclip/teacher2048_ckpt.txt" ]; do sleep 600; done
 
+# --- E63: phase-only clock control (RL-reviewer's decisive ask). Same fetch path/dims
+# as arm A but latents = fixed random projection of frame-index sinusoids. If ~0.6, arm
+# A's 0.656 is an oracle clock; if <<0.6, z_ret content is established. 3 seeds.
+for SEED in 0 1 2; do
+  OUT="$MAIN/runs/e63_phase_only/seed$SEED"
+  mkdir -p "$OUT"
+  if [ ! -f "$OUT/a_prior_snmr_eval.json" ]; then
+    cd "$HOLOSOMA"
+    E52_ARM=a_prior_snmr E52_TEACHER_CKPT="$TEACHER" E52_OUT="$OUT" E52_ROUNDS=2000 \
+      E52_PHASE_ONLY=1 \
+      nice -n 15 "$PY" "$MAIN/scripts/train_e52_dagger.py" \
+      exp:g1-29dof-wbt simulator:mjwarp logger:disabled \
+      --training.num-envs 1024 --training.seed "$SEED" \
+      --randomization.ignore-unsupported True \
+      --command.setup-terms.motion-command.params.motion-config.motion-file "$REFERENCE_Z" \
+      --training.name "e63_phase_s${SEED}" --training.headless True > "$OUT/train.log" 2>&1
+    echo "E63 seed$SEED: $(tr -d '\n' < "$OUT/a_prior_snmr_eval.json" 2>/dev/null | head -c 160)"
+  fi
+done
+
 # --- E62: deterministic 64-d goal encoder under identical DAgger recipe (walk1, seed 0)
 OUT="$MAIN/runs/e62_deterministic"
 mkdir -p "$OUT"

@@ -127,6 +127,10 @@ def main() -> None:
     deterministic = os.environ.get("E52_DET", "") == "1"  # E62: deterministic 64-d goal
     # encoder baseline — no posterior/KL/noise; z = mu_prior everywhere; action loss only.
     # Isolates whether the CVAE machinery matters or any learned 64-d readout suffices.
+    phase_only = os.environ.get("E52_PHASE_ONLY", "") == "1"  # E63: clock control for the
+    # z_ret-only arm — replace the SNMR latents with a FIXED random projection of a
+    # sinusoidal frame-index embedding (same fetch path, same dims, zero motion content).
+    # Decides whether arm A's completion is z_ret content or phase-from-an-oracle-timer.
     steps_per_round, epochs, minibatch = 24, 5, 4096
     out.mkdir(parents=True, exist_ok=True)
 
@@ -167,6 +171,20 @@ def main() -> None:
     # --- SNMR latent access + per-clip standardization ----------------------------------
     motion_command = env.command_manager.get_state("motion_command")
     latents = wbt_latent._ensure_latent_loaded(motion_command)
+    if phase_only:
+        # E63: overwrite the cached latents with a phase code of identical shape.
+        # 32 sinusoids of the frame index (log-spaced periods 10..T frames) pushed
+        # through a FIXED random 32->128 projection (seed 63): matched dims/scale via
+        # the same standardization below, but zero motion content beyond the clock.
+        T = latents.shape[0]
+        idx = torch.arange(T, device=latents.device, dtype=torch.float32)
+        periods = torch.logspace(1, np.log10(max(T, 20)), 16, device=latents.device)
+        ang = 2 * np.pi * idx[:, None] / periods[None, :]
+        feats = torch.cat([ang.sin(), ang.cos()], -1)  # (T, 32)
+        g = torch.Generator(device="cpu").manual_seed(63)
+        proj = torch.randn(32, Z_SNMR_DIM, generator=g).to(latents.device)
+        latents = feats @ proj
+        motion_command.motion.latent_z = latents  # _ensure_latent_loaded returns this
     z_mean, z_std = latents.mean(0, keepdim=True), latents.std(0, keepdim=True) + 1e-6
 
     def z_window() -> torch.Tensor:
