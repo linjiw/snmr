@@ -306,9 +306,12 @@ out-of-distribution intervention, not proving---that body scale is a minor share
 the leak.
 
 \textbf{Physics: impoverished.} Foot-contact state is weakly present under pure
-distillation (linear F1 0.088 at full budget). A co-trained contact head injects it durably (F1 0.227
-at full budget, $1.8\times$ a deployable-heuristic baseline) at a real fidelity price
-($+1.5$\,cm at loss weight 0.5), so physics enters the latent only when supervised in.
+distillation: linear F1 0.088 at full budget---at the always-predict-contact baseline
+for the label prevalence ($\approx$0.09), with AUROC 0.51--0.64 on the one
+balanced-support clip, i.e.\ chance-level. A co-trained contact head injects it durably
+(F1 0.227 at full budget, $1.8\times$ a deployable-heuristic baseline at 0.127) at a
+real fidelity price ($+1.5$\,cm at loss weight 0.5), so physics enters the latent only
+when supervised in.
 
 \textbf{Control: dominated, not inert.} Concatenated beside the explicit
 reference, the latent is ignored or harmful ($-10$\,pp)---when a more informative
