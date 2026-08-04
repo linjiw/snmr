@@ -390,14 +390,15 @@ specified next step.
 \caption{Command-interface factorial, one training regime (G1, walk1; mean$\pm$SD over
 3 training seeds, 1{,}024 rollouts per evaluation).}
 \label{tab:main}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcc}
 \toprule
-Prior's goal source (decoder never sees any goal) & Completion & RMSE (rad) \\
+Prior's goal source & Completion & RMSE \\
 \midrule
---- (explicit-command teacher, upper bound) & 0.980 & 0.122 \\
+--- (explicit-command teacher, bound) & 0.980 & 0.122 \\
 Explicit robot-space command & $\mathbf{0.955\pm0.008}$ & 0.127 \\
-Explicit command $+$ frozen \snmr{} $z_{\mathrm{ret}}$ & $0.956\pm0.003$ & 0.127 \\
-Frozen \snmr{} $z_{\mathrm{ret}}$ only (human-side) & $0.656\pm0.044$ & 0.161 \\
+Explicit cmd $+$ frozen $z_{\mathrm{ret}}$ & $0.956\pm0.003$ & 0.127 \\
+Frozen $z_{\mathrm{ret}}$ only (human-side) & $0.656\pm0.044$ & 0.161 \\
 No goal (proprio-only prior) & $0.001\pm0.001$ & 0.254 \\
 \bottomrule
 \end{tabular}
@@ -453,13 +454,14 @@ generative decoding head, which we are testing under a pre-specified kill rule.
 \caption{Two-teacher absorption, \emph{preliminary}: held-out articulation MPJPE
 (cm) under ground-truth root pose; matched step budget.}
 \label{tab:twoteacher}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccc}
 \toprule
-Held-out pool & LAFAN1-only & Two-teacher & $\Delta$ \\
+Held-out pool & LAFAN1 & Two-tchr & $\Delta$ \\
 \midrule
 Locomotion (LAFAN1) & \textbf{3.31} & 4.36 & $+1.05$ \\
-Object interaction & 28.95 & \textbf{5.53} & $-23.4$ ($5.2\times$) \\
-Terrain interaction & 25.06 & \textbf{8.16} & $-16.9$ ($3.1\times$) \\
+Object inter. & 28.95 & \textbf{5.53} & $-23.4$ ($5.2\times$) \\
+Terrain inter. & 25.06 & \textbf{8.16} & $-16.9$ ($3.1\times$) \\
 \bottomrule
 \end{tabular}
 \end{table}
