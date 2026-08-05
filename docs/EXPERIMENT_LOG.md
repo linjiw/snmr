@@ -1902,3 +1902,27 @@ reviewer's brittleness point stands at large holds.
 
 ### E56-C v3 (interim, 20k/200k) - G1 SANITY GATE PASSES: 4-NFE RMSE 0.110 vs 0.115 deterministic baseline (rel 0.96, gate <=1.10). v2's failure was 1-NFE from a thin head, not MeanFlow: multi-step sampling (nfe 1->4: 0.39->0.11) + cond re-injection each layer fixed it. G2 (spread recovery on held-out siblings) now gets a fair test after the 30k regression warmup ends; current draws overdispersed (obj 1.63, terr 1.33 — should tighten as the bootstrap term engages).
 `runs/e56c_meanflow_v3/` (hidden 1024, 4 layers, ctx re-injection, 200k steps, lr 1e-4).
+
+### E56-C v3 FINAL (200k) + mode-structure analysis - **NUANCED VERDICT: the naive G2 gate PASSES (object spread recovery 0.872 >= 0.5; G1 0.836 — samples BEAT the deterministic decoder) but the sharpened discriminators show the spread is mostly CALIBRATED NOISE, not mode coverage: D2 nearest-of-16-samples is WORSE than the deterministic decode in 7/8 held-out sibling groups (mean coverage gain −0.012 rad). Per-frame generative decoding does NOT reach the actual sibling modes. The per-frame generative line CLOSES; the finding reframes the problem as TRAJECTORY-level multimodality.**
+`runs/e56c_meanflow_v3/{log.jsonl,mode_analysis.json}`.
+
+| readout | value | gate | verdict |
+|---|---|---|---|
+| G1 4-NFE RMSE / baseline | 0.836 | <=1.10 | PASS (beats deterministic) |
+| G2 object spread recovery | 0.872 | >=0.5 | PASS (numerically) |
+| D1 spread ratio omni/lafan | 1.65 | >>1 wanted | PARTIAL (conditional structure present but lafan spread 0.024 != 0) |
+| D2 coverage gain (nearest sample vs det) | **−0.012 rad, 1/8 groups positive** | >0 | **FAIL** |
+
+Honest reading: a well-trained per-frame MeanFlow head learns the right spread
+MAGNITUDE with partial conditioning (D1) but its per-frame-independent samples never
+assemble into any one sibling's coherent trajectory — the sibling modes are
+TRAJECTORY-level objects (grasp-strategy choices held consistently over seconds), and
+frame-independent sampling integrates over them instead of selecting one. This also
+retroactively explains why the naive G2 spread gate was insufficient (spread can be
+matched without structure — instrument lesson consistent with this project's pattern).
+Registered follow-up (E56-E, next program): sequence-level mode variable (per-window
+latent selected once and held, VAE or discrete) over the same two-teacher pool, judged
+by D2 coverage — the instrument that actually discriminates. Paper: the two-teacher
+section's "testing under a pre-specified kill rule" line resolves to this verdict in
+one sentence; the E47->E56 chain now ends: "the multimodality is real, unconditionable,
+and per-frame unsamplable — it is a trajectory-level phenomenon."
