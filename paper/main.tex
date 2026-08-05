@@ -509,9 +509,17 @@ tested whether conditioning explains it: a single terrain-scale scalar recovers 
 terrain-sibling variance, but the exact per-frame 7-d object pose recovers only 6\% of
 object-sibling variance under the same instrument. Terrain multimodality is
 hidden-variable-explained; object multimodality (grasp-strategy choice, with arm
-excursions up to 4.7\,rad between siblings) is not, so a deterministic decoder averages
-modes on exactly the interaction-rich clips---the measured justification for a
-generative decoding head, which we are testing under a pre-specified kill rule.
+excursions up to 4.7\,rad between siblings) is not. Nor does per-frame \emph{sampling}
+reach it: a MeanFlow head over the same latent passes its calibration gates (samples
+beat the deterministic decoder's RMSE; spread ratio 0.87 of the data's) yet a
+nearest-of-16-samples test shows the spread is calibrated noise, not mode
+coverage---in 7 of 8 held-out sibling groups no sample lands closer to any actual
+sibling than the deterministic decode. The sibling modes are \emph{trajectory-level}
+objects (a grasp strategy held consistently over seconds); frame-independent
+generation integrates over them rather than selecting one. The measured conclusion:
+interaction multimodality in this data is real, unconditionable by its observables,
+and per-frame unsamplable---a sequence-level mode variable is the registered next
+step.
 
 \begin{table}[t]
 \centering
@@ -616,7 +624,7 @@ the scaling curve, not its end. \textbf{Interaction multimodality is not yet mod
 Conditioning on the interaction hidden variable fails even given the exact per-frame
 object pose (6\% of object-sibling variance recovered, vs.\ 52\% for terrain from a
 single scalar)---deterministic decoding averages modes on precisely the
-interaction-rich clips; a generative head with a pre-specified kill rule is under test.
+interaction-rich clips; per-frame generation matches the spread but not the modes (\S\ref{sec:twoteacher}), so a sequence-level mode variable is the registered next step.
 Moving past these---closing the encoder-gradient gap, capacity scaling matched to data,
 and the cross-embodiment command demonstration---is the immediate agenda.
 
