@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SNMR — One Latent to Retarget and Command</title>
+<title>SNMR — What Crosses the Boundary? Measuring the Retarget-to-Track Interface</title>
 <style>
   :root {
     color-scheme: light;
@@ -127,15 +127,16 @@
 </nav>
 
 <header class="hero">
-  <h1 style="text-wrap:balance">One Latent to Retarget and Command</h1>
-  <p class="sub">SNMR distills a classical IK retargeter into one skeleton-agnostic network with a
-  shared motion latent — then shows the act-through-latent idea carries control: a co-trained
-  64-d command code (<code>z_cmd</code>) is the tracking policy's <strong>only</strong> motion
-  input on a simulated Unitree&nbsp;G1 — matching its teacher (0.955 vs 0.954). Fed the frozen
-  retargeting latent as its <em>only</em> goal source the policy retains 0.656 — but our own
-  pre-specified clock control reaches <strong>0.754</strong> through the identical pathway, so on
-  single-clip cyclic motion the latent's deployable value is at most timing. We publish the clock
-  as the null model act-through-latent claims must beat.</p>
+  <h1 style="text-wrap:balance">What Crosses the Boundary?</h1>
+  <p class="sub">The interface between humanoid motion retargeting and tracking is a per-frame
+  stack of joint targets — a format every pipeline passes and none has measured. We make it
+  measurable: a 64-d learned code under an <em>exclusivity contract</em> (goal visible to the
+  code's prior, never to the actor) performs within seed noise of its explicit-command teacher
+  (0.955 vs 0.954). Ablating what feeds the code yields the interface's <strong>anatomy</strong>:
+  explicit goal ≈ teacher · <strong>a clock 0.754</strong> · frozen retargeting latent 0.656 ·
+  nothing 0.001. On the single-clip cyclic tracking that dominates today's demos, a trivially
+  constructed clock recovers 79% of teacher performance — the bar any "the latent carries motion"
+  claim must now clear.</p>
   <div class="badges">
     <span class="badge">5 humanoid embodiments, one network</span>
     <span class="badge">MuJoCo-Warp RL tracking</span>
