@@ -44,11 +44,11 @@ concatenated beside an explicit reference, a null that an independent ablation c
 On the control side we show a separate 64-d command code $z_{\mathrm{cmd}}$,
 produced by a goal-conditioned residual-to-prior CVAE and DAgger-distilled from an
 explicit-command RL teacher, can be the actor's \emph{only} motion input at
-$0.955\pm0.008$ ten-second completion---\emph{matching} its teacher (0.954 at equal
-evaluation precision; 3 seeds, 1{,}024 rollouts each). Feeding the prior the frozen
+$0.955\pm0.008$ ten-second completion---within seed noise of its teacher (0.954, one
+teacher seed at equal rollout count; 3 student seeds, 1{,}024 rollouts each). Feeding the prior the frozen
 retargeting latent \emph{instead of} any robot-space reference reaches $0.656\pm0.044$
-where a goal-free prior collapses to 0.001---but a pre-specified control we ran at
-reviewers' insistence overturned our own favored reading: a pure \emph{clock} (a fixed
+where a goal-free prior collapses to 0.001---but a pre-specified control overturned
+our own favored reading: a pure \emph{clock} (a fixed
 random projection of frame-index sinusoids through the identical fetch path) reaches
 $0.754\pm0.010$, so on single-clip cyclic motion the latent's deployable value does not
 exceed---indeed falls short of---phase information alone. We report this as the third
@@ -57,8 +57,8 @@ act-through-latent claims must beat.
 The retargeting network also absorbs a second, interaction-rich teacher across three
 human skeletons: with full root prediction and group-held-out splits, the shared model
 is within 2\,cm of each specialist at home while specialists are $5$--$13\times$ worse
-away; and its references track as well as the IK teacher's on hard clips (never worse;
-$+13$\,pp on the hardest). We release a pre-specified
+away; and its references track as well as the IK teacher's on hard clips (never worse
+across four paired cells; $+13$\,pp on the hardest, one seed). We release a pre-specified
 negative-results ledger and two measurement defects---one in a widely used simulator
 framework whose repair cut joint tracking error by 46\%, and one in our own trainer
 whose repair first overturned our own logged negative on the frozen latent and whose
@@ -391,10 +391,12 @@ request completes the attribution: a \emph{deterministic} 64-d goal encoder---no
 posterior, no KL, no noise, same DAgger loop---reaches 0.969 (one seed, within the
 CVAE arm's range), and the trained CVAE's own posterior residual is $\sim$1\% of its
 noise floor. At nominal command rate the variational machinery is not load-bearing;
-what matters is goal-conditioning, path consistency, and the exclusivity contract. It
-earns its keep under command-channel \emph{latency}: refreshing \zcmd{} every 100\,ms
-instead of 20\,ms, the noise-trained CVAE keeps 0.485 completion where the
-deterministic encoder collapses to 0.027 ($18\times$; both die at 200\,ms). The
+what matters is goal-conditioning, path consistency, and the exclusivity contract.
+Train-time latent noise earns its keep under command-channel \emph{latency}: refreshing
+\zcmd{} every 100\,ms instead of 20\,ms, the noise-trained arm keeps 0.485 completion
+where the noise-free deterministic encoder collapses to 0.027 ($18\times$; both die at
+200\,ms). We attribute this to the injected noise rather than the posterior/KL
+structure---the isolating arm (deterministic encoder plus matched noise) is registered. The
 working design compresses to one line: \emph{a goal-conditioned recoding, trained on
 the deployment path with injected latent noise, the decoder blind to the goal}.
 
@@ -423,14 +425,13 @@ prior sees, under one recipe (same DAgger algorithm, reward stack, budget, and s
 \S\ref{sec:defect}). Completion is monotone in goal quality across completion, RMSE,
 \emph{and} the imitation loss plateau (0.10/1.03/2.25 for explicit/$z_{\mathrm{ret}}$/no
 goal). Three readings. First, the interface works: the 64-d command latent as the
-actor's only motion input \emph{matches} its teacher (0.955 vs 0.954 at equal
-evaluation precision), where the design's failed variants (posterior-path collection,
-goal-free priors) collapse to 0.001. An attribution ablation confirms goal-conditioning
+actor's only motion input is within seed noise of its teacher (0.955 vs 0.954 at equal
+rollout counts; the teacher is one training seed), where the design's failed variants
+(posterior-path collection, goal-free priors) collapse to 0.001. An attribution ablation confirms goal-conditioning
 is the load-bearing design choice: with it, completion is $\approx$0.95 regardless of
 the action-loss sampling path ($-2.3$\,pp for prior-path mixing); without it,
-0.000--0.002 either way (one seed per cell). Second---and this is the row we were
-obliged to add---the phase-only clock control decides the $z_{\mathrm{ret}}$-only
-arm's meaning. That arm retains $0.656\pm0.044$ with no robot-space reference anywhere
+0.000--0.002 either way (one seed per cell). Second, the phase-only clock control
+decides the $z_{\mathrm{ret}}$-only arm's meaning. That arm retains $0.656\pm0.044$ with no robot-space reference anywhere
 in the student, is not proprioceptive gait memory (goal-free control 0.001), and is
 not prior memorization (corrupting the latent collapses it to 0.000, all seeds). But a
 fixed random projection of frame-index \emph{sinusoids} through the identical fetch
