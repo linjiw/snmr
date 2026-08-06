@@ -21,7 +21,7 @@
 \newcommand{\zcmd}{\ensuremath{z_{\mathrm{cmd}}}}
 \newcommand{\snmr}{SNMR}
 
-\title{Act Through the Latent: Toward a Learned\\Retarget-to-Track Interface for Humanoid Tracking}
+\title{What Crosses the Boundary? Measuring the\\Retarget-to-Track Interface for Humanoid Tracking}
 
 \author{Anonymous ICRA Submission}
 
@@ -29,40 +29,26 @@
 \maketitle
 
 \begin{abstract}
-The dominant humanoid motion pipeline is two-stage: retarget human motion to the robot,
-then train a tracking policy on the result. The interface between the stages is a stack
-of robot-space joint targets---a representation chosen for convenience, not for control.
-We take a first step toward a \emph{learned} interface. We distill a per-frame IK
-retargeter into one multi-embodiment network with a shared retargeting latent
-$z_{\mathrm{ret}}$ (128-d, five humanoids), and audit that latent with pre-specified
-probes: it is instance-aligned across embodiments (window retrieval 57--83\% top-1 at
-1.02\% chance---the low end is the morphological outlier; CKA 0.86--0.92), with motion
-category not linearly decodable (0.151 vs 0.125 chance) though nonlinearly organized,
-is embodiment-aligned but not invariant (0.28 linear probe vs 0.91 nonlinear attacker),
-physically impoverished (contact F1 0.088 without supervision), and inert when
-concatenated beside an explicit reference, a null that an independent ablation confirms.
-On the control side we show a separate 64-d command code $z_{\mathrm{cmd}}$,
-produced by a goal-conditioned residual-to-prior CVAE and DAgger-distilled from an
-explicit-command RL teacher, can be the actor's \emph{only} motion input at
-$0.955\pm0.008$ ten-second completion---within seed noise of its teacher (0.954, one
-teacher seed at equal rollout count; 3 student seeds, 1{,}024 rollouts each). Feeding the prior the frozen
-retargeting latent \emph{instead of} any robot-space reference reaches $0.656\pm0.044$
-where a goal-free prior collapses to 0.001---but a pre-specified control overturned
-our own favored reading: a pure \emph{clock} (a fixed
-random projection of frame-index sinusoids through the identical fetch path) reaches
-$0.754\pm0.010$, so on single-clip cyclic motion the latent's deployable value does not
-exceed---indeed falls short of---phase information alone. We report this as the third
-result our falsification apparatus killed, and as the null model single-clip
-act-through-latent claims must beat.
-The retargeting network also absorbs a second, interaction-rich teacher across three
-human skeletons: with full root prediction and group-held-out splits, the shared model
-is within 2\,cm of each specialist at home while specialists are $5$--$13\times$ worse
-away; and its references track as well as the IK teacher's on hard clips (never worse
-across four paired cells; $+13$\,pp on the hardest, one seed). We release a pre-specified
-negative-results ledger and two measurement defects---one in a widely used simulator
-framework whose repair cut joint tracking error by 46\%, and one in our own trainer
-whose repair first overturned our own logged negative on the frozen latent and whose
-clock control then retired the favorable reading: both reversals gated, both reported.
+The interface between humanoid motion retargeting and tracking is a per-frame stack of
+robot-space joint targets---a format every pipeline passes and none has measured. We
+make it measurable: a 64-d learned code, DAgger-distilled from an explicit-command RL
+teacher under an \emph{exclusivity contract} (the goal is visible to the code's prior,
+never to the actor), performs within seed noise of its teacher on a simulated Unitree
+G1 ($0.955\pm0.008$ vs 0.954, one teacher seed). Ablating what feeds the code then
+yields the interface's anatomy: the explicit goal reaches teacher level; a frozen
+retargeting latent alone reaches $0.656\pm0.044$; a \emph{clock}---a fixed random
+projection of frame-index sinusoids---reaches $0.754\pm0.010$; nothing reaches 0.001.
+We first audit the latent of a five-humanoid neural retargeter with pre-specified
+probes: it aligns motion instances across embodiments but carries no linearly
+accessible semantics, leaks embodiment, and holds almost no contact information. The
+same network absorbs an interaction-rich second teacher within 2\,cm of each
+specialist at home, where specialists are $5$--$13\times$ worse away. Along the way we
+found and fixed a body-indexing defect in a widely used simulator framework---its
+repair alone cut tracking error 46\%---and we release our controls, protocol, and
+negative-results ledger. On the single-clip cyclic tracking that dominates today's
+demonstrations, a trivially constructed clock recovers 79\% of teacher performance
+through the same interface: the bar any ``the latent carries motion'' claim must now
+clear.
 \end{abstract}
 
 % ============================ FIGURE 1 ============================
@@ -161,87 +147,55 @@ signal. And it is \emph{dimensionally unshareable}: a 29-DoF joint-target stream
 command a 23-DoF robot, so every multi-robot system pays the interface cost once per
 embodiment.
 
-The obvious repair fails, and the failure is informative. Handing the tracking policy the
-retargeter's latent \emph{alongside} its usual reference does nothing: in our experiments
-the policy ignores the latent (concatenation is null-to-harmful, $-10$ points at worst),
-and UniTracker's ablation reports the same mechanism independently---``when the actor
-receives the reference motion directly, the influence of the latent variable $z$
-vanishes''~\cite{unitracker}. Training a latent by RL from scratch
-collapses~\cite{unitracker,bfm}. Remove the explicit reference entirely and the frozen
-latent does carry the policy---$0.656\pm0.044$ completion as the sole goal source,
-against 0.001 goal-free---but the decisive control cuts deeper than the encouraging
-number: a pure clock, a fixed random projection of frame-index sinusoids fed through
-the identical pathway, reaches $0.754\pm0.010$. On a single cyclic clip, phase
-information alone outperforms the retargeting latent; whatever motion content the
-latent holds beyond phase is not deployable value on this instrument, and its phase is
-noisier than clean sinusoids. The latent is \emph{dominated} twice over.
+Simply concatenating the retargeter's latent beside the explicit reference fails, here
+and in independent work~\cite{unitracker}: the policy takes the more informative
+channel. Training a latent command by RL from scratch
+collapses~\cite{unitracker,bfm}. What has been missing is not another repair but a
+measurement.
 
-\textbf{Our key insight is that the retargeting-to-tracking boundary should not be a
-representation the two stages agree on, but one the tracking policy learns to act
-through: a latent becomes useful for control exactly when it is the policy's only
-channel to the goal, and is ignored whenever a more informative explicit reference is
-available beside it.} The
-sections that follow are the constructive and destructive halves of that claim. We build
-\snmr{}, a skeleton-agnostic retargeting network distilled from a classical IK teacher
-whose shared latent serves five humanoids, and we audit that latent with
-falsification-first probes before asking it to do anything (\S\ref{sec:audit}). We then
-make the interface load-bearing (\S\ref{sec:method}): a conditional VAE whose
-goal-conditioned prior compresses the reference into a 64-d command latent, trained by
-DAgger from an explicit-command RL teacher, with the reference visible to the prior but
-never to the decoder. On a simulated Unitree~G1 this interface \emph{matches} its
-teacher---$0.955\pm0.008$ vs 0.954 at equal evaluation precision
-(Fig.~\ref{fig:teaser}c); replacing the prior's robot-space goal with the frozen
-retargeting latent---no robot-space reference anywhere in the student---retains
-$0.656\pm0.044$ against a 0.001 goal-free control, but a phase-clock control at 0.754
-caps that arm's interpretation at ``timing, at most.'' The same latent then absorbs a second, interaction-rich
-teacher---terrain and object clips from a fundamentally different retargeter, arriving on
-different human skeletons---cutting interaction-clip error $3$--$5\times$ at a measured
-$+1.05$\,cm locomotion cost (\S\ref{sec:exp}).
+\textbf{Our key insight is that the interface becomes measurable the moment it is made
+exclusive: give the policy a learned code as its \emph{only} channel to the goal, then
+ablate what feeds the code---and ``what does tracking need from retargeting?'' stops
+being a design debate and becomes a completion curve, whose answer on cyclic motion
+is: little more than a clock.} We build the instrument in two parts: \snmr{}, a
+skeleton-agnostic retargeting network distilled from a classical IK teacher whose
+shared latent serves five humanoids, and a 64-d command code trained by DAgger from an
+explicit-command RL teacher under an exclusivity contract---the goal is visible to the
+code's prior and never to the actor (\S\ref{sec:method}).
 
-Two findings we did not go looking for became contributions. First, a world-body indexing
-defect in a widely used MuJoCo-Warp training framework silently zeroed the primary
-body-position tracking reward in every one of our runs (upstream report in preparation);
-its repair cut
-joint tracking RMSE by 46\% with no change to the learning algorithm and brought our
-tracker into an externally calibrated band (\S\ref{sec:defect}). Second, rolling tracking
-policies out on their own references and recording the simulated states yields physically
-repaired supervision---$2$--$3\times$ less foot skate at a measured fidelity
-price---quantifying the data-side alternative to physics-in-the-loop retargeting.
+On a simulated Unitree~G1 the learned interface performs within seed noise of its
+explicit-command teacher (one teacher seed); the rest of the paper measures what that
+interface actually has to carry---and on cyclic motion, a clock alone recovers most of
+it (Fig.~\ref{fig:teaser}c). A world-body indexing defect we found in a widely used
+MuJoCo-Warp training framework---its repair alone cut joint tracking RMSE by 46\% and
+brought our tracker into an externally calibrated band---is reported as a standalone
+contribution (\S\ref{sec:defect}).
 
 \textbf{Contributions.}
 \begin{itemize}
-\item \textbf{A learned command interface for humanoid tracking, under an exclusivity
-  contract.} A goal-conditioned, residual-to-prior CVAE whose 64-d latent is the
-  policy's only motion input---$0.955\pm0.008$ completion, \emph{matching} its
-  explicit-command teacher (0.954 at equal precision; 3 seeds), with the reference
-  never visible to the decoder and the code measurably a \emph{recoding}, not a copy
-  (effective rank 14 of 64; the goal is less linearly decodable from \zcmd{} than from
-  proprioception alone, held-out $R^2$ 0.48 vs 0.62)---plus a documented failure
-  anatomy (path consistency, goal conditioning, observation-layout leaks) for making
-  such interfaces work.
-\item \textbf{The clock null model for act-through-latent claims.} A pre-specified
-  control that overturned our own favored result: on single-clip cyclic tracking, a
-  fixed random projection of frame-index sinusoids as the prior's only input reaches
+\item \textbf{The measured interface.} A 64-d learned command code under a verified
+  exclusivity contract performs within seed noise of its explicit-command teacher
+  ($0.955\pm0.008$ vs 0.954, one teacher seed; 3 student seeds), and the full
+  input-ablation anatomy behind it: the code is a recoding, not a copy (effective rank
+  14 of 64; the goal is \emph{less} linearly decodable from \zcmd{} than from
+  proprioception, held-out $R^2$ 0.48 vs 0.62), the variational machinery is inert at
+  nominal rate but train-time latent noise buys $18\times$ robustness at 100\,ms
+  command latency (0.485 vs 0.027; isolating arm registered), and a documented failure
+  anatomy (path consistency, goal conditioning, observation-layout leaks).
+\item \textbf{The clock null model.} On single-clip cyclic tracking, a fixed random
+  projection of frame-index sinusoids as the prior's only input reaches
   $0.754\pm0.010$ completion---\emph{above} the frozen retargeting latent
   ($0.656\pm0.044$) and 79\% of teacher. Any claim that a learned latent ``carries
-  motion content'' on periodic clips must beat this trivially-constructed bar; ours
+  motion content'' on periodic clips must beat this trivially constructed bar; ours
   did not, and we say so.
-\item \textbf{A falsification-first audit of a shared motion latent.} Pre-specified probe
-  families establishing what the latent carries---instance-aligned, embodiment-aligned
-  but not invariant, physically impoverished, dominated beside an explicit
-  reference---with the negative verdicts stated as measured results, one independently
-  replicated and one \emph{overturned by our own defect repair} (frozen-latent control
-  value: from ``inert'' to two-thirds of teacher).
-\item \textbf{Skeleton-agnostic retargeting distillation, measured honestly.} A
+\item \textbf{The audited five-humanoid retargeter, and the released apparatus.} A
   1.5M-parameter network amortizing an IK teacher across five humanoids (limits by
-  construction, 671\,fps CPU), and a separate two-teacher G1 study absorbing
-  interaction-rich clips across three human skeletons at a quantified locomotion
-  cost (preliminary: articulation under ground-truth root)---with the sharing cost and
-  the zero-shot-embodiment failure ($5.2\times$) measured rather than assumed.
-\item \textbf{A measurement-substrate defect, found, fixed, and released}, plus the
-  pre-specified negative-results ledger---closed research lines with the evidence that
-  closed them, so the field can stop re-deriving them.
+  construction, 671\,fps CPU), probe-audited before being trusted; a two-teacher study
+  absorbing interaction-rich clips within 2\,cm of each specialist at home; the
+  simulator-defect report; and the protocol, controls, and negative-results ledger.
 \end{itemize}
+Three of our own favored results were retired by pre-specified controls during this
+work; the ledger ships with the paper.
 
 \section{Related Work}
 \textbf{Retargeting as preprocessing.} Classical retargeting solves per-frame IK with
