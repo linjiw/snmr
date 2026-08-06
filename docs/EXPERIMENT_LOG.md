@@ -1965,3 +1965,15 @@ DAgger recipe, seed 0. Readouts decide the interface program's content beyond th
 Also registered (not yet run): E65b deterministic+matched-noise latency arm (isolates
 train-time noise vs posterior/KL for the 18x hold result); teacher seed replication for
 the parity claim. runs/e66_aperiodic/; ~8h (teacher 3h + 3 arms).
+
+### E54 - UNBLOCKED (2026-08-06): T1 WBT port complete, teacher queued
+Builder agent ported holosoma WBT G1->T1 (14-body mapping: Waist/Trunk/Hip_Roll_*/
+Shank_*/foot/AL2/AL3/hand links; configs in clone's config_values/wbt/t1/, uncommitted
+by design — re-apply list in docs/E54_T1_PORT_STATUS.md). Smoke: config parses, env
+constructs on mjwarp (obs widths match G1: 154/286), 10 steps finite; wbt_bodyfix works
+unchanged (offset 1). Gotcha handled: FAKE_BODY_NAME_ALIASES is G1-hardcoded upstream —
+exporter renames contact-point rows data-side. walk1 T1 references exported BOTH ways
+(GMR qpos + phase-2 all-5 ckpt, xy_scale 0.583): runs/wbt_validation/t1_{gmr,snmr}/.
+E54 Stage-0 (T1 explicit teacher, gate >=0.5) queued behind E66. Stage-1 = the triad on
+T1 with z_ret from the SHARED all-5 checkpoint — the same human-side stream that
+commanded G1 commanding a different embodiment: the cross-embodiment interface test.
