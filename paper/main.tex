@@ -226,7 +226,7 @@ gap''~\cite{beyondmimic}; the GMR study quantifies how retargeting quality caps
 tracking~\cite{gmr}. Both stop at the boundary we cross: neither changes what the
 boundary \emph{is}.
 
-\section{The Two-Stage Interface}
+\section{The Instrument: A Learned Code Under an Exclusivity Contract}
 \label{sec:interface}
 A source motion $m_t$ enters a retargeter $R$; the standard interface hands the tracker
 $\pi$ a reference $g_t = (q^{\mathrm{ref}}_t, \dot q^{\mathrm{ref}}_t)$ of robot joint
@@ -257,41 +257,7 @@ across all five robots) at 671\,fps on CPU, with zero joint-limit violations by
 construction. Foot skate (0.29 vs teacher 0.05\,m/s) is the known inherited gap and is
 treated as a measured limitation, not hidden.
 
-\section{Auditing the Latent}
-\label{sec:audit}
-Before asking the latent to carry control, we measured what it holds. Four pre-specified
-probe families, in increasing severity:
-
-\textbf{Content: instance-aligned, not linearly semantic.} Cross-embodiment
-\emph{window} retrieval hits 75--83\% top-1 at 1.02\% chance on four embodiments and
-57\% on the fifth (the morphological outlier); CKA between per-robot encodings is
-0.86--0.92. A \emph{linear} motion-category probe is near chance (0.151 vs 0.125), but
-low-dimensional embeddings show clear category clusters: the structure is nonlinearly
-organized, and we claim only that it is not linearly accessible---the same caveat we
-apply to the embodiment probe below.
-
-\textbf{Embodiment: aligned, not invariant.} A linear probe recovers the source
-embodiment at only 0.28 accuracy, but a nonlinear attacker reaches 0.91---the classic
-gap between ``not linearly decodable'' and ``absent.'' A height-normalization
-intervention moves the attacker only $\sim$1\,pp, suggesting---though, being an
-out-of-distribution intervention, not proving---that body scale is a minor share of
-the leak.
-
-\textbf{Physics: impoverished.} Foot-contact state is weakly present under pure
-distillation: linear F1 0.088 at full budget---at the always-predict-contact baseline
-for the label prevalence ($\approx$0.09), with AUROC 0.51--0.64 on the one
-balanced-support clip, i.e.\ chance-level. A co-trained contact head injects it durably
-(F1 0.227 at full budget, $1.8\times$ a deployable-heuristic baseline at 0.127) at a
-real fidelity price ($+1.5$\,cm at loss weight 0.5), so physics enters the latent only
-when supervised in.
-
-\textbf{Control: dominated, not inert.} Concatenated beside the explicit
-reference, the latent is ignored or harmful ($-10$\,pp)---when a more informative
-channel to the goal exists, the policy takes it. Remove that channel, and the frozen latent alone
-carries $0.656\pm0.044$ completion through a co-trained prior (\S\ref{sec:exp}). The audit is the
-specification for \S\ref{sec:method}: the latent becomes an interface only when it is
-made the sole channel and a prior is co-trained to read it.
-
+\label{sec:method}
 % ============================ FIGURE 2 ============================
 \begin{figure}[t]
 \centering
@@ -320,9 +286,6 @@ $\zcmd = \mu_\rho$ (deterministic), no teacher, no posterior, no explicit refere
 the actor.}
 \label{fig:loop}
 \end{figure}
-
-\section{Making the Latent Load-Bearing}
-\label{sec:method}
 The method (Fig.~\ref{fig:loop}) is a conditional VAE trained by online distillation.
 The \textbf{prior} $\rho(\zcmd \mid \mathrm{proprio}, g)$ sees deployable inputs only:
 proprioception plus the reference goal window (and, in one arm, the frozen \snmr{}
@@ -354,7 +317,7 @@ structure---the isolating arm (deterministic encoder plus matched noise) is regi
 working design compresses to one line: \emph{a goal-conditioned recoding, trained on
 the deployment path with injected latent noise, the decoder blind to the goal}.
 
-\section{Experiments}
+\section{The Anatomy of the Interface}
 \label{sec:exp}
 All tracking numbers: 10-second phase-stratified rollouts on a simulated Unitree~G1
 (MuJoCo-Warp), deterministic deployment path, 1{,}024 rollouts per evaluation for latent
@@ -372,7 +335,7 @@ $\alpha_{\mathrm{smooth}}{=}0.005$, tied $\sigma{=}0.3$; goal = 58-d reference
 joints/velocities $+$ 6-d orientation. Code, hashed protocol scripts, and the
 negative-results ledger accompany the submission.
 
-\subsection{Does the learned interface work?}
+\subsection{The completion curve}
 Table~\ref{tab:main} is the paper's central result: a four-arm factorial over what the
 prior sees, under one recipe (same DAgger algorithm, reward stack, budget, and seed;
 1{,}024 rollouts per evaluation; all numbers post-repair of both defects in
@@ -421,7 +384,7 @@ No goal (proprio-only prior) & $0.001\pm0.001$ & 0.254 \\
 rollouts for precision parity; no seed SD available.\par}
 \end{table}
 
-\subsection{Does the latent add value beyond the explicit goal?}
+\subsection{Addition vs.\ substitution}
 On single-clip walking: no---but it substitutes for most of it. The clean factorial
 separates two questions the leak-era runs conflated. \emph{Additive} value beside the
 explicit goal is null ($0.956\pm0.003$ vs $0.955\pm0.008$, paired per-seed deltas
@@ -447,7 +410,44 @@ sub-gate teachers. The literature norm for this heterogeneity (4{,}096 envs,
 20--30k iterations) is beyond our budget; we report the plateau rather than claim the
 setting.
 
-\subsection{Does the interface scale with better retargeting data?}
+\section{Why the Latent Lands Below a Clock: Auditing $z_{\mathrm{ret}}$}
+\label{sec:audit}
+Before asking the latent to carry control, we measured what it holds. Four pre-specified
+probe families, in increasing severity:
+
+\textbf{Content: instance-aligned, not linearly semantic.} Cross-embodiment
+\emph{window} retrieval hits 75--83\% top-1 at 1.02\% chance on four embodiments and
+57\% on the fifth (the morphological outlier); CKA between per-robot encodings is
+0.86--0.92. A \emph{linear} motion-category probe is near chance (0.151 vs 0.125), but
+low-dimensional embeddings show clear category clusters: the structure is nonlinearly
+organized, and we claim only that it is not linearly accessible---the same caveat we
+apply to the embodiment probe below.
+
+\textbf{Embodiment: aligned, not invariant.} A linear probe recovers the source
+embodiment at only 0.28 accuracy, but a nonlinear attacker reaches 0.91---the classic
+gap between ``not linearly decodable'' and ``absent.'' A height-normalization
+intervention moves the attacker only $\sim$1\,pp, suggesting---though, being an
+out-of-distribution intervention, not proving---that body scale is a minor share of
+the leak.
+
+\textbf{Physics: impoverished.} Foot-contact state is weakly present under pure
+distillation: linear F1 0.088 at full budget---at the always-predict-contact baseline
+for the label prevalence ($\approx$0.09), with AUROC 0.51--0.64 on the one
+balanced-support clip, i.e.\ chance-level. A co-trained contact head injects it durably
+(F1 0.227 at full budget, $1.8\times$ a deployable-heuristic baseline at 0.127) at a
+real fidelity price ($+1.5$\,cm at loss weight 0.5), so physics enters the latent only
+when supervised in.
+
+\textbf{Control: dominated, not inert.} Concatenated beside the explicit
+reference, the latent is ignored or harmful ($-10$\,pp)---when a more informative
+channel to the goal exists, the policy takes it. Remove that channel, and the frozen latent alone
+carries $0.656\pm0.044$ completion through a co-trained prior (\S\ref{sec:exp}). The audit is the
+specification for \S\ref{sec:method}: the latent becomes an interface only when it is
+made the sole channel and a prior is co-trained to read it.
+
+
+\section{Scaling the Interface}
+\subsection{Absorbing a second, interaction-rich teacher}
 \label{sec:twoteacher}
 Yes (Table~\ref{tab:twoteacher}; full root pose predicted in the human heading frame
 and evaluated free-standing---no ground-truth root---on group-held-out sibling splits,
@@ -496,7 +496,7 @@ Terrain inter. & 52.6 & \textbf{10.8} & 11.9 \\
 \end{tabular}
 \end{table}
 
-\subsection{Are learned references as trackable as IK references?}
+\subsection{Trackability of learned references}
 Matched tracking policies (3 seeds per source $\times$ 2 eval seeds $\times$ 100
 rollouts) trained on \snmr{} references vs the IK teacher's: 86.7\% vs 86.7\%
 completion---statistically indistinguishable (per-seed spread $\pm3$\,pp; the exact
