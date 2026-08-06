@@ -77,8 +77,12 @@ def resample_qpos(qpos: np.ndarray, src_fps: float, dst_fps: float) -> np.ndarra
     return out
 
 
-def mujoco_replay(model_path: str, qpos: np.ndarray, fps: float) -> dict:
-    """Replay qpos through MuJoCo FK; velocities by finite differences (mirrors holosoma converter)."""
+def mujoco_replay(model_path: str, qpos: np.ndarray, fps: float, root_body: str = "pelvis") -> dict:
+    """Replay qpos through MuJoCo FK; velocities by finite differences (mirrors holosoma converter).
+
+    ``root_body`` is the floating-base body whose world velocities fill joint_vel[:, :6]
+    ("pelvis" for G1, "Trunk" for the Booster T1).
+    """
     m = mujoco.MjModel.from_xml_path(model_path)
     d = mujoco.MjData(m)
     T = qpos.shape[0]
@@ -126,9 +130,9 @@ def mujoco_replay(model_path: str, qpos: np.ndarray, fps: float) -> dict:
         if m.jnt_type[j] == mujoco.mjtJoint.mjJNT_HINGE
     ]
 
-    # joint_vel: root 6 (lin + ang of pelvis) + dof rates
+    # joint_vel: root 6 (lin + ang of the floating base) + dof rates
     dof_vel = np.gradient(qpos[:, 7:], dt, axis=0)
-    pelvis = body_names.index("pelvis")
+    pelvis = body_names.index(root_body)
     joint_vel = np.concatenate([lin_vel[:, pelvis], ang_vel[:, pelvis], dof_vel], axis=1)
 
     return {
