@@ -1953,3 +1953,15 @@ anchor reconstruction; anchor scales lafan 0.876 / omni52 1.149 / omni53 1.054).
 GT-root-pinned columns confirm the old Table II's ordering was not a split artifact.
 The honest headline: one network absorbs both teachers at <2cm cost to either
 specialist's home domain, where each specialist is 5-13x worse away from home.
+
+### E66 - REGISTERED+LAUNCHED (2026-08-06): the aperiodic triad (cold-read reviewer's decisive ask)
+push1 (box-push, aperiodic — phase cannot suffice): single-clip teacher (E51 recipe,
+gate >=0.5) -> triad {explicit C, phase-clock, z_ret-only A} under the identical v4
+DAgger recipe, seed 0. Readouts decide the interface program's content beyond the null:
+- A > clock on aperiodic -> z_ret carries content beyond phase (cyclic walk1 was the
+  wrong instrument for the claim; H2 revives in the aperiodic form).
+- A ~ clock -> the latent-content negative GENERALIZES (definitive).
+- clock collapses, A holds -> strongest H2 form.
+Also registered (not yet run): E65b deterministic+matched-noise latency arm (isolates
+train-time noise vs posterior/KL for the 18x hold result); teacher seed replication for
+the parity claim. runs/e66_aperiodic/; ~8h (teacher 3h + 3 arms).
