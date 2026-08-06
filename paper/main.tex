@@ -309,7 +309,43 @@ posterior, no KL, no noise, same DAgger loop---reaches 0.969 (one seed, within t
 CVAE arm's range), and the trained CVAE's own posterior residual is $\sim$1\% of its
 noise floor. At nominal command rate the variational machinery is not load-bearing;
 what matters is goal-conditioning, path consistency, and the exclusivity contract.
-Train-time latent noise earns its keep under command-channel \emph{latency}: refreshing
+
+% ============================ FIGURE 3 (latency) ============================
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+  % axes: x = hold ms (log-ish positions), y = completion
+  \def\W{62mm}\def\H{26mm}
+  \draw[cgrid] (0,0) rectangle (\W,\H);
+  \foreach \y/\v in {0/0, 13/0.5, 26/1.0}{
+    \draw[cgrid] (0,\y mm) -- (\W,\y mm);
+    \node[anchor=east, text=cink2] at (-1mm,\y mm) {\v};
+  }
+  % x positions for k=1,2,5,10 -> 20,40,100,200 ms
+  \foreach \x/\lab in {4/20, 20/40, 40/100, 56/200}{
+    \node[anchor=north, text=cink2] at (\x mm,-0.5mm) {\lab};
+  }
+  \node[anchor=north, text=cink2] at (30mm,-4mm) {command hold (ms)};
+  % noise-trained (CVAE) curve: 0.959 0.933 0.485 0.010
+  \draw[cgreen, very thick] (4mm,24.9mm) -- (20mm,24.3mm) -- (40mm,12.6mm) -- (56mm,0.3mm);
+  \foreach \x/\y in {4/24.9, 20/24.3, 40/12.6, 56/0.3} \fill[cgreen] (\x mm,\y mm) circle (0.7mm);
+  % noise-free deterministic: 0.960 0.885 0.027 0.000
+  \draw[corange, very thick, dashed] (4mm,25.0mm) -- (20mm,23.0mm) -- (40mm,0.7mm) -- (56mm,0mm);
+  \foreach \x/\y in {4/25.0, 20/23.0, 40/0.7, 56/0} \fill[corange] (\x mm,\y mm) circle (0.7mm);
+  % annotation at the divergence
+  \draw[-{Stealth[length=1.6mm]}, cink2] (46mm,20mm) -- (41mm,13.5mm);
+  \node[anchor=west, align=left, text=cink2] at (44mm,21.5mm) {$18\times$ at 100\,ms\\(0.485 vs 0.027)};
+  \node[anchor=west, text=cgreen, font=\footnotesize\bfseries] at (2mm,20.5mm) {noise-trained};
+  \node[anchor=west, text=corange, font=\footnotesize\bfseries] at (2mm,17mm) {noise-free};
+\end{tikzpicture}
+\caption{\textbf{Train-time latent noise buys command-latency robustness.} Completion
+vs.\ zero-order hold on \zcmd{} (refresh every $k$ ticks at 50\,Hz; 1{,}024 rollouts
+per point, seed 404). The noise-trained code and the noise-free deterministic encoder
+are identical at nominal rate and diverge $18\times$ at 100\,ms; both fail at 200\,ms.}
+\label{fig:latency}
+\end{figure}
+
+Train-time latent noise earns its keep under command-channel \emph{latency} (Fig.~\ref{fig:latency}): refreshing
 \zcmd{} every 100\,ms instead of 20\,ms, the noise-trained arm keeps 0.485 completion
 where the noise-free deterministic encoder collapses to 0.027 ($18\times$; both die at
 200\,ms). We attribute this to the injected noise rather than the posterior/KL
