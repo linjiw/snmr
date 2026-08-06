@@ -1926,3 +1926,30 @@ by D2 coverage — the instrument that actually discriminates. Paper: the two-te
 section's "testing under a pre-specified kill rule" line resolves to this verdict in
 one sentence; the E47->E56 chain now ends: "the multimodality is real, unconditionable,
 and per-frame unsamplable — it is a trajectory-level phenomenon."
+
+### E57-B FINAL - GMR-vs-SNMR matched tracking on HARD clips (post-fix recipe, 8k @512 envs, 100 rollouts, seed 404 each) - **PAIRED EQUIVALENCE HOLDS OFF-SATURATION, WITH A SURPRISE: dance2 near-equal (GMR 0.33 / SNMR 0.32); fight1 SNMR BEATS GMR +13pp (0.19 vs 0.06, survival 4.1 vs 3.0s). Learned references are at least as trackable as IK references exactly where the assay discriminates — the walk1 equality was NOT saturation-masked.**
+`runs/e57b/*_eval.json`.
+| clip | GMR ref | SNMR ref | delta |
+|---|---|---|---|
+| dance2 | 0.33 / 5.2s | 0.32 / 5.5s | −1pp |
+| fight1 | 0.06 / 3.0s | **0.19 / 4.1s** | **+13pp** |
+Notes: 1 seed/cell (paired design); fight1 is a floor regime for both (combat motion at
+8k iters), where the +13pp and +1.1s survival suggest SNMR's smoothing of GMR's
+high-frequency artifacts HELPS trackability on violent clips — consistent with the GMR
+paper's artifact-taxonomy prediction, now observed in OUR data from the learned side.
+Claim discipline: report as "no clip where SNMR tracks worse; one hard clip where it
+tracks better (1 seed)" — no stronger. Review B9/E57 program now FULLY closed: assay
+validated (E57-A), equality informative on easy clip (C6), equivalence-or-better on
+hard clips (E57-B). Paper SVI-D rewrite + Limitations line removed.
+
+### E55-R FINAL - Two-teacher redo, all 3 arms (full root in human heading frame, group-held-out sibling splits, 40k each) - **TABLE II REPLACED: the two-teacher model is the only arm good everywhere. Specialists confirm symmetric catastrophic blindness (lafan-only: 4.1 loco / 53-59 interaction; omni-only: 26 loco / 11-12 interaction); two-teacher holds 5.9 / 12 / 12. Sharing prices: +1.8cm loco vs lafan specialist, +0.5cm interaction vs omni specialist — SMALL and symmetric. B4 fully discharged (no GT-root crutch, no sibling leakage).**
+`runs/e55r_{twoteach,lafan,omni}/log.jsonl` (free-root world MPJPE via heading-frame
+anchor reconstruction; anchor scales lafan 0.876 / omni52 1.149 / omni53 1.054).
+| arm | loco | object | terrain |
+|---|---|---|---|
+| lafan-only | **4.1** | 58.6 | 52.6 |
+| omni-only | 25.9 | **11.5** | **10.8** |
+| two-teacher | 5.9 | 12.2 | 11.9 |
+GT-root-pinned columns confirm the old Table II's ordering was not a split artifact.
+The honest headline: one network absorbs both teachers at <2cm cost to either
+specialist's home domain, where each specialist is 5-13x worse away from home.
