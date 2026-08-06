@@ -55,8 +55,10 @@ exceed---indeed falls short of---phase information alone. We report this as the 
 result our falsification apparatus killed, and as the null model single-clip
 act-through-latent claims must beat.
 The retargeting network also absorbs a second, interaction-rich teacher across three
-human skeletons, cutting interaction-clip articulation error $3.1$--$5.2\times$ at
-$+1.05$\,cm on locomotion (preliminary: ground-truth root). We release a pre-specified
+human skeletons: with full root prediction and group-held-out splits, the shared model
+is within 2\,cm of each specialist at home while specialists are $5$--$13\times$ worse
+away; and its references track as well as the IK teacher's on hard clips (never worse;
+$+13$\,pp on the hardest). We release a pre-specified
 negative-results ledger and two measurement defects---one in a widely used simulator
 framework whose repair cut joint tracking error by 46\%, and one in our own trainer
 whose repair first overturned our own logged negative on the frozen latent and whose
@@ -492,15 +494,16 @@ setting.
 
 \subsection{Does the interface scale with better retargeting data?}
 \label{sec:twoteacher}
-Preliminarily, yes (Table~\ref{tab:twoteacher}; articulation under ground-truth
-root---object/terrain state is not yet input, and a redo with full root loss and
-group-held-out splits is registered). Adding a second, interaction-rich
-teacher---1{,}938 OmniRetarget clips~\cite{omniretarget} whose paired human data arrives
-on 52- and 53-joint keypoint skeletons, ingested with MST-inferred topology and
-synthetic orientations---cuts held-out interaction-clip error $5.2\times$ (object) and
-$3.1\times$ (terrain) while locomotion pays $+1.05$\,cm. A sampling-diet ablation
-attributes 61\% of the naive run's larger interference to data balance rather than
-representational conflict. The dataset also delivers a measured lesson about
+Yes (Table~\ref{tab:twoteacher}; full root pose predicted in the human heading frame
+and evaluated free-standing---no ground-truth root---on group-held-out sibling splits,
+so no human motion is shared across the split). Adding a second, interaction-rich
+teacher---1{,}938 OmniRetarget clips~\cite{omniretarget} whose paired human data
+arrives on 52- and 53-joint keypoint skeletons, ingested with MST-inferred topology and
+synthetic orientations---produces the only model good everywhere: each specialist is
+$5$--$13\times$ worse away from its home domain, while the shared network pays under
+2\,cm against either specialist at home. A sampling-diet ablation attributes 61\% of a
+naive run's larger interference to data balance rather than representational
+conflict. The dataset also delivers a measured lesson about
 interaction multimodality: it contains 4{,}659 sibling pairs with \emph{bit-identical}
 human motion and divergent robot trajectories (mean DoF divergence
 0.031--0.068\,rad)---real conditional multimodality, $16$--$36\times$ the threshold
@@ -523,17 +526,17 @@ step.
 
 \begin{table}[t]
 \centering
-\caption{Two-teacher absorption, \emph{preliminary}: held-out articulation MPJPE
-(cm) under ground-truth root pose; matched step budget.}
+\caption{Two-teacher absorption: held-out \emph{free-root} world-frame MPJPE (cm;
+root predicted, not given), group-held-out sibling splits, matched budget.}
 \label{tab:twoteacher}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccc}
 \toprule
-Held-out pool & LAFAN1 & Two-tchr & $\Delta$ \\
+Held-out pool & LAFAN1-only & Omni-only & Two-teacher \\
 \midrule
-Locomotion (LAFAN1) & \textbf{3.31} & 4.36 & $+1.05$ \\
-Object inter. & 28.95 & \textbf{5.53} & $-23.4$ ($5.2\times$) \\
-Terrain inter. & 25.06 & \textbf{8.16} & $-16.9$ ($3.1\times$) \\
+Locomotion & \textbf{4.1} & 25.9 & 5.9 \\
+Object inter. & 58.6 & \textbf{11.5} & 12.2 \\
+Terrain inter. & 52.6 & \textbf{10.8} & 11.9 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -550,11 +553,17 @@ $\sigma{=}0.05$\,rad --- the scale of known retargeting artifacts) drops to 0.48
 completion against its own reference, a 46-point fall that is $9\times$ our
 pre-specified detection gate. The completion assay is therefore sensitive to
 reference-quality differences of the relevant magnitude, and the observed point-equality
-is informative rather than an instrument blind spot. (The control's corruption is
-i.i.d.\ while real retargeting error is spatially structured; a post-repair rerun on
-harder clips remains registered.) Formal noninferiority on completion was not established: the
-$\pm6$\,pp CI exceeds the pre-specified $-5$\,pp margin at this seed count---a power
-statement, not a quality gap (per-seed spread $\pm3$\,pp dominates any source effect).
+is informative rather than an instrument blind spot. The registered post-repair rerun
+on harder clips is now done and answers the saturation worry directly: on dance2,
+where both sources track at only $\approx$0.33 completion (far off the assay's
+ceiling), \snmr{} and IK references are within 1\,pp; on fight1, a floor regime for
+both, the \snmr{} reference tracks \emph{better} ($0.19$ vs $0.06$, $+1.1$\,s
+survival; one seed per cell, paired)---consistent with learned smoothing of the IK
+teacher's high-frequency artifacts helping trackability on violent motion. Across
+every clip tested, learned references never track worse. Formal noninferiority on
+completion was not established on the original matrix: the $\pm6$\,pp CI exceeds the
+pre-specified $-5$\,pp margin at that seed count---a power statement, not a quality
+gap.
 
 \subsection{What does physics-repaired supervision buy and cost?}
 Rolling a calibrated tracker out on its own references and recording simulated states
