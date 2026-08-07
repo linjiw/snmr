@@ -45,10 +45,10 @@ same network absorbs an interaction-rich second teacher within 2\,cm of each
 specialist at home, where specialists are $5$--$13\times$ worse away. Along the way we
 found and fixed a body-indexing defect in a widely used simulator framework---its
 repair alone cut tracking error 46\%---and we release our controls, protocol, and
-negative-results ledger. On the single-clip cyclic tracking that dominates today's
-demonstrations, a trivially constructed clock recovers 79\% of teacher performance
-through the same interface: the bar any ``the latent carries motion'' claim must now
-clear.
+negative-results ledger. On single-clip cyclic tracking---the setting of most published
+demonstrations of this kind--- a trivially constructed clock recovers 79\% of teacher performance
+through the same interface: a control any ``the latent carries motion'' claim should
+now run.
 \end{abstract}
 
 % ============================ FIGURE 1 ============================
@@ -238,7 +238,9 @@ targets. We move the actor-visible reference behind a learned code:
 $\zcmd = \mu_\rho(\mathrm{proprio}_t, g_t)$ (the current-frame command; a future window
 is future work), under an \emph{exclusivity contract}: the goal is visible to the prior
 $\rho$ and to the critic, but never to the decoder, so motion intent reaches the actor
-only through the 64-d code. We use ``interface,'' not ``bottleneck'': the code is not
+only through the 64-d code (verified causally: blanking the reference-derived
+dimensions at deployment drops completion from 0.93 to 0.00; \S\ref{sec:defect}). We
+use ``interface,'' not ``bottleneck'': the code is not
 dimensionally narrower than the goal (64-d each), and no rate term constrains the
 goal-to-code path---the claim is exclusivity and recoding, which we verify directly
 (the deployed code has effective rank 14 of 64, and the goal is \emph{less} linearly
@@ -393,10 +395,13 @@ in the student, is not proprioceptive gait memory (goal-free control 0.001), and
 not prior memorization (corrupting the latent collapses it to 0.000, all seeds). But a
 fixed random projection of frame-index \emph{sinusoids} through the identical fetch
 path reaches $0.754\pm0.010$---ten points \emph{above} the latent, non-overlapping
-seed ranges. On a single cyclic clip the deployable content of the retargeting latent
+seed ranges. That a phase variable suffices for single-clip imitation is
+DeepMimic-lineage knowledge~\cite{deepmimic}; what is new is its use as a \emph{null
+model} that latent-content claims must run, and the observation that a learned
+retargeting latent can fall below it. On a single cyclic clip the deployable content of the retargeting latent
 is therefore at most timing, delivered more noisily than a clean clock. We had a
 favorable reading of 0.656 drafted; this control, demanded by our own protocol,
-retired it. Third, the constructive residue: an exogenous $\sim$64-d clock alone
+retired it. Third, the constructive residue: an exogenous clock alone (32 frame-index sinusoids through a fixed random projection)
 recovers 79\% of teacher completion---goal-conditioned priors need remarkably little information on periodic motion---which
 is why single-clip results cannot establish latent-content claims
 (\S\ref{sec:limits}).
@@ -425,8 +430,7 @@ rollouts for precision parity; no seed SD available.\par}
 \end{table}
 
 \subsection{Addition vs.\ substitution}
-On single-clip walking: no---but it substitutes for most of it. The clean factorial
-separates two questions the leak-era runs conflated. \emph{Additive} value beside the
+The factorial separates two questions that are often conflated. \emph{Additive} value beside the
 explicit goal is null ($0.956\pm0.003$ vs $0.955\pm0.008$, paired per-seed deltas
 straddling zero; the weaker of two redundant channels goes unused, consistent with
 UniTracker's vanishing-influence observation). \emph{Substitutive} value is large:
@@ -478,18 +482,22 @@ balanced-support clip, i.e.\ chance-level. A co-trained contact head injects it 
 real fidelity price ($+1.5$\,cm at loss weight 0.5), so physics enters the latent only
 when supervised in.
 
-\textbf{Control: dominated, not inert.} Concatenated beside the explicit
-reference, the latent is ignored or harmful ($-10$\,pp)---when a more informative
-channel to the goal exists, the policy takes it. Together the probes explain the
-anatomy's middle rungs: a latent that aligns instances but holds neither semantics nor
-contact has little to offer a tracker beyond its time course---and it delivers even
-that (\S\ref{sec:exp}) more noisily than clean sinusoids.
+\textbf{Control: dominated, not inert.} Concatenated beside the explicit reference in
+an RL-trained tracker, the latent is ignored or harmful ($-10$\,pp); through the
+distilled prior of \S\ref{sec:exp} the same concatenation is a clean null
+($0.956$ vs $0.955$)---in both trainers, when a more informative channel to the goal
+exists, the policy takes it. Together the probes explain why the latent lands below the clock: a representation
+that aligns motion \emph{instances} but exposes neither semantics nor contact offers a
+tracker little beyond its time course---and being a learned encoding of pose rather
+than of time, it delivers that time course more noisily than clean sinusoids
+(\S\ref{sec:exp}).
 
 
-\section{Scaling the Interface}
+\section{Scaling the Retargeter Behind the Interface}
 \subsection{Absorbing a second, interaction-rich teacher}
 \label{sec:twoteacher}
-Yes (Table~\ref{tab:twoteacher}; full root pose predicted in the human heading frame
+The retargeter behind the interface scales to a second teacher
+(Table~\ref{tab:twoteacher}; full root pose predicted in the human heading frame
 and evaluated free-standing---no ground-truth root---on group-held-out sibling splits,
 so no human motion is shared across the split). Adding a second, interaction-rich
 teacher---1{,}938 OmniRetarget clips~\cite{omniretarget} whose paired human data
@@ -583,8 +591,9 @@ were orientation-plus-velocity trackers with a corrupted position channel. Repai
 indexing (released as a small patch; IsaacSim/IsaacGym paths are unaffected, which is
 why upstream never saw it) cut joint tracking RMSE from 0.263 to 0.142\,rad ($-46\%$)
 with no change to the learning algorithm; adding a standard joint-space reward term then
-reached 0.122\,rad at 0.98 completion, matching an external 187-run calibration band
-(97.9\%). Paired comparisons made under the defect survive (both sources suffered
+reached 0.122\,rad at 0.98 completion on a 100-rollout evaluation (0.954 at 1{,}024
+rollouts, the figure Table~\ref{tab:main} uses), matching an external 187-run
+calibration band (97.9\%). Paired comparisons made under the defect survive (both sources suffered
 identically); absolute capability numbers did not. We report this at section level
 because the lesson generalizes: \emph{measure your reward channels before tuning them.}
 
@@ -658,6 +667,8 @@ humanoid control via guided diffusion,'' arXiv:2508.08241, 2025.
 control,'' arXiv:2506.14770, 2025.
 \bibitem{unitracker} K.~Yin et al., ``UniTracker: Learning universal whole-body motion
 tracker for humanoid robots,'' arXiv:2507.07356, 2025.
+\bibitem{deepmimic} X.~B. Peng et al., ``DeepMimic: Example-guided deep reinforcement
+learning of physics-based character skills,'' \emph{ACM TOG}, 2018.
 \bibitem{pulse} Z.~Luo et al., ``Universal humanoid motion representations for
 physics-based control,'' \emph{ICLR}, 2024.
 \bibitem{maskedmimic} C.~Tessler et al., ``MaskedMimic: Unified physics-based character
