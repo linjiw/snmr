@@ -1,6 +1,13 @@
-# experiment artifacts — large binaries stay out of git; logs/metrics stay in
+# Experiment artifacts: keep structured metrics and protocols in git; keep
+# regenerable binaries, raw console output, and host-local pointers out.
 runs/**/ckpt*.pt
 runs/**/*.pt
+runs/**/*.npz
+runs/*.log
+runs/**/*.log
+runs/**/eval_backup/
+runs/**/*_ckpt.txt
+runs/**/TEACHER_DONE
 exports/*.npz
 __pycache__/
 *.pyc
@@ -8,6 +15,19 @@ __pycache__/
 *.egg-info/
 # scratch training logs at repo root (per-run logs live in runs/<name>/)
 runs_*.log
+
+# Local framework telemetry and paper build products.
+/logs/
+/paper/*.aux
+/paper/*.bbl
+/paper/*.blg
+/paper/*.fdb_latexmk
+/paper/*.fls
+/paper/*.log
+/paper/*.out
+/paper/*.pdf
+/paper/*.synctex.gz
+/texput.log
 
 # LAFAN1-derived fixture: kept local, NOT published (Ubisoft license unverified)
 tests/fixtures/pair_g1_*.npz
