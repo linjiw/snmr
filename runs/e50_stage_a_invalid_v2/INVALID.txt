@@ -1,0 +1,1 @@
+v2 invalidated: _foot_contact_force helper existed but call site still read sim.contact_forces (torque half, all-zero on Warp); also foot indices only matched ankle_roll_link parents while contact registers on sphere sub-bodies. Fixed: explicit rne_postconstraint + force half + per-side group sum.

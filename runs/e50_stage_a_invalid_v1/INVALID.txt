@@ -1,0 +1,1 @@
+v1 invalidated: recorder read cfrc_ext torque half (all-zero) + no SE(2) re-anchoring in export -> contact_frames=0, MPJPE inflated. Fixed in commit 8a6ea21+1, re-run as v2.

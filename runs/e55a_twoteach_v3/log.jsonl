@@ -1,0 +1,11 @@
+{"step": 0, "loss": 0.5927320793271065, "val_lafan1_val_mpjpe_m": 0.42134753508227213, "val_omni52_val_mpjpe_m": 0.48120351880788803, "val_omni53_val_mpjpe_m": 0.44471847265958786, "elapsed_s": 10}
+{"step": 4000, "loss": 0.04088415275327861, "val_lafan1_val_mpjpe_m": 0.08786144905856677, "val_omni52_val_mpjpe_m": 0.08299309387803078, "val_omni53_val_mpjpe_m": 0.10663494219382604, "elapsed_s": 4990}
+{"step": 8000, "loss": 0.020787115208804607, "val_lafan1_val_mpjpe_m": 0.070137550256082, "val_omni52_val_mpjpe_m": 0.05997750007857879, "val_omni53_val_mpjpe_m": 0.09434253598252933, "elapsed_s": 9752}
+{"step": 12000, "loss": 0.0207924876594916, "val_lafan1_val_mpjpe_m": 0.05552925408950874, "val_omni52_val_mpjpe_m": 0.05452434439212084, "val_omni53_val_mpjpe_m": 0.08754252394040425, "elapsed_s": 14649}
+{"step": 16000, "loss": 0.014385219372343272, "val_lafan1_val_mpjpe_m": 0.054592513878430636, "val_omni52_val_mpjpe_m": 0.06177622886995474, "val_omni53_val_mpjpe_m": 0.08642050251364708, "elapsed_s": 17960}
+{"step": 20000, "loss": 0.01897120161447674, "val_lafan1_val_mpjpe_m": 0.05424680880137852, "val_omni52_val_mpjpe_m": 0.04933387661973635, "val_omni53_val_mpjpe_m": 0.08354181237518787, "elapsed_s": 19908}
+{"step": 24000, "loss": 0.010160456848097965, "val_lafan1_val_mpjpe_m": 0.05049798398145607, "val_omni52_val_mpjpe_m": 0.05072467184315125, "val_omni53_val_mpjpe_m": 0.08238313347101212, "elapsed_s": 22478}
+{"step": 28000, "loss": 0.01059152145171538, "val_lafan1_val_mpjpe_m": 0.05223617197147438, "val_omni52_val_mpjpe_m": 0.050656113463143505, "val_omni53_val_mpjpe_m": 0.08172349942227204, "elapsed_s": 25264}
+{"step": 32000, "loss": 0.007702906150370836, "val_lafan1_val_mpjpe_m": 0.04378620481916836, "val_omni52_val_mpjpe_m": 0.05617789768924316, "val_omni53_val_mpjpe_m": 0.08266511000692844, "elapsed_s": 28198}
+{"step": 36000, "loss": 0.019687707535922527, "val_lafan1_val_mpjpe_m": 0.042466785359595506, "val_omni52_val_mpjpe_m": 0.05443306981275479, "val_omni53_val_mpjpe_m": 0.08131715965767701, "elapsed_s": 31156}
+{"step": 39999, "loss": 0.012684618239291012, "val_lafan1_val_mpjpe_m": 0.043609303289226124, "val_omni52_val_mpjpe_m": 0.055295227095484734, "val_omni53_val_mpjpe_m": 0.0816180066516002, "elapsed_s": 32204}

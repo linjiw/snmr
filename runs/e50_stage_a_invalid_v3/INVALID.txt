@@ -1,0 +1,1 @@
+v3 invalidated: foot indices resolved against sim.body_names (world excluded) but cfrc_ext is indexed by raw MuJoCo body id -> read the neighboring (zero) rows. v4 resolves via mj_id2name over model.nbody.

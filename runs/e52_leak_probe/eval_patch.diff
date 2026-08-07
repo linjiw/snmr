@@ -1,0 +1,22 @@
+251c251
+<     eval_z = os.environ.get("E52_EVAL_Z", "prior")  # prior | posterior
+---
+>     eval_z = os.environ.get("E52_EVAL_Z", "prior")  # prior | posterior | zero_z | rand_z | blank_cmd
+269c269,283
+<             actions = student.act(proprio, z_cmd)
+---
+>             elif eval_z == "zero_z":
+>                 z_cmd = torch.zeros_like(z_cmd)
+>             elif eval_z == "rand_z":
+>                 z_cmd = torch.randn_like(z_cmd)
+>             proprio_dec = proprio
+>             if eval_z == "blank_cmd_only":
+>                 proprio_dec = proprio.clone()
+>                 proprio_dec[:, 32:90] = 0.0
+>             if eval_z == "blank_cmd":
+>                 # alphabetical actor_obs: actions[0:29] bav[29:32] dof_pos[32:61] dof_vel[61:90]
+>                 # motion_command[90:148] ref_ori[148:154]; proprio = full[58:], so the leaked
+>                 # motion_command sits at proprio[:, 32:90] and ref_ori at proprio[:, 90:96].
+>                 proprio_dec = proprio.clone()
+>                 proprio_dec[:, 32:96] = 0.0
+>             actions = student.act(proprio_dec, z_cmd)

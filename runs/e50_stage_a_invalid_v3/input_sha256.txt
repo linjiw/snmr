@@ -1,0 +1,6 @@
+cffb274b619b0b979697acc877a9b7f71ecad58713d8662dc96c00627957d939  /home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260721_230736-reference_confirm_gmr_walk1_seed0_to8000-locomotion/model_07999.pt
+6855b5c1253050be0ed2acff7613f0901606453ad7470a5f7c6f76e22e995610  /home/ec2-user/work/retarget/snmr/runs/e50_stage_a/gmr_walk1_recording.npz
+0070174cc489a2cc9f537e6be3817f776096b29285c0d5adc7e715fdcf4b3ae1  /home/ec2-user/work/retarget/snmr/runs/e50_stage_a/gmr_walk1_rollouts.json
+be605c732d0f49b609f07b29d3f35c9521f9f8414f4fd65dba4f83c35514b8de  /home/ec2-user/work/retarget/holosoma/logs/WholeBodyTracking/20260722_141231-reference_confirm_snmr_walk1_seed2_to8000-locomotion/model_07999.pt
+0d07297c63adb3011defd990223d92adc858d423ba39700582ef86c2cdc9cf72  /home/ec2-user/work/retarget/snmr/runs/e50_stage_a/snmr_walk1_recording.npz
+96d9fd0fb0b62216cf8979df9219f0f56953415fb13ffc3e8c42be8c99169e6d  /home/ec2-user/work/retarget/snmr/runs/e50_stage_a/snmr_walk1_rollouts.json
