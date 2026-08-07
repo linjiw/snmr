@@ -1977,3 +1977,39 @@ exporter renames contact-point rows data-side. walk1 T1 references exported BOTH
 E54 Stage-0 (T1 explicit teacher, gate >=0.5) queued behind E66. Stage-1 = the triad on
 T1 with z_ret from the SHARED all-5 checkpoint — the same human-side stream that
 commanded G1 commanding a different embodiment: the cross-embodiment interface test.
+
+### E66 - VERDICT (2026-08-07): INCONCLUSIVE latent comparison; explicit positive control FAILED; trainer-stability defect identified
+Teacher (push1, seed 404, 1024 rollouts): completion 0.514, survival 5.90s, joint RMSE
+0.191 rad (mean over rollouts) — passed the registered 0.5 gate but half of rollouts
+fail. All three students collapsed to 0.000 completion (explicit 0.33s survival /
+0.318 rad; clock 0.58s / 0.212 rad; zret 0.36s / 0.296 rad). Because the explicit arm
+(positive control) failed, clock-vs-zret is UNINTERPRETABLE — E66 carries NO evidence
+for or against latent content on aperiodic motion.
+
+Root cause (from train logs, runs/e66_aperiodic/*/[ac]_*_train_log.jsonl): the
+divergence is SMOOTHNESS-LED. Explicit arm: l_action healthy (0.07-0.16) through round
+~600 while l_smooth explodes 39 -> 1.9e3 -> 1.4e5; l_action only follows after.
+Terminal: l_action 10.05, l_kl 1.0e11, l_smooth 7.0e14. Mechanism = stale-target
+positive feedback: prev_mu stored under collection-time params, compared against a
+network updated 5 epochs x minibatches per round; unnormalized 64-dim sum makes the
+weighted gradient dominate (~60x l_action at l_smooth~2e3). Clock arm was HEALTHY at
+round 1600 (l_action 0.196), zret healthy through ~1200 — best-checkpoint selection
+would likely have rescued them, but no intermediate ckpts were saved. Contributing:
+p_teacher hits 0 at round 200/2000 with no survival gate; per-round buffer discarded
+(no aggregation); no finite-loss abort.
+
+ALSO INVALID BY DESIGN (codex review P0.1, accepted): a single aperiodic clip does not
+break the time-index confound — absolute time memorizes an aperiodic trajectory too.
+The valid instrument is multi-trajectory with a shared time code (E67, registered).
+Fix list + full response: docs/FABLE_REVIEW_RESPONSE_2026-08-07.md.
+
+### E54 - FAILED TWICE (2026-08-06/07): CUDA OOM from external GPU tenant + false success marker
+Attempt 1 (07:00 queue slot after E66): Warp CUDA OOM during terrain gen; external
+ray::WorkerDict.actor_rollout_generate_sequences held 13.3/23 GiB. teacher_ckpt.txt
+EMPTY, eval attempted ckpt "." and failed, yet TEACHER_DONE was written —
+protocol.sh:44 stamps the marker unconditionally under `set -uo pipefail` (no -e).
+Attempt 2 (2026-08-07 07:00 UTC, 20260807_070011): same OOM ("Failed to acquire
+primary context for device cuda:0") — the queue retried into the still-occupied GPU.
+REQUIRED before any rerun: set -euo pipefail; success marker only after validating
+nonempty ckpt + parsable eval JSON; GPU-free precondition check; commit T1 configs as
+a patch (currently uncommitted clone edits, see docs/E54_T1_PORT_STATUS.md).
