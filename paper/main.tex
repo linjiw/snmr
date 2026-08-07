@@ -4,7 +4,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,decorations.pathreplacing}
 \usepackage{xcolor}
 \usepackage[colorlinks=true,allcolors=blue!60!black]{hyperref}
 
@@ -97,30 +97,34 @@ clear.
 \node at ($(z2.north)+(0,4.5mm)$) [font=\bfseries\small] {(b) The interface learned: the policy's only motion command};
 \end{scope}
 % ---------- panel (c): the gap, measured ----------
-\begin{scope}[xshift=125mm, yshift=-4mm]
+\begin{scope}[xshift=124mm, yshift=-4mm]
 \node[font=\bfseries\small, anchor=west] at (-2mm, 6mm) {(c) 10-s completion, one recipe};
 % simple horizontal bar chart, hand-drawn
-\foreach \y/\lab/\v/\c in {0/{no goal}/0.001/corange, -5/{$z_{\mathrm{ret}}$ only}/0.656/cgreen!70!black, -10/{clock control}/0.754/corange!70!black, -15/{ours (explicit)}/0.955/cgreen, -20/{teacher}/0.954/cblue}{
+% bars ordered by value, worst at bottom; clock (orange) sits visibly ABOVE the
+% latent (green) — the panel's point in one glance. min-width keeps 0.001 visible.
+\foreach \y/\lab/\v/\c in {-20/{no goal}/0.001/corange, -15/{$z_{\mathrm{ret}}$ only}/0.656/cgreen!70!black, -10/{clock control}/0.754/corange!70!black, -5/{ours (explicit)}/0.955/cgreen, 0/{teacher}/0.954/cblue}{
   \node[anchor=east, font=\footnotesize] at (0mm, \y mm) {\lab};
-  \fill[\c, rounded corners=1pt] (1mm, \y mm - 1.4mm) rectangle ({1mm + \v*38mm}, \y mm + 1.4mm);
-  \node[anchor=west, font=\footnotesize\bfseries] at ({1.5mm + \v*38mm}, \y mm) {\v};
+  \fill[\c, rounded corners=1pt] (1mm, \y mm - 1.4mm) rectangle ({max(1.6mm, 1mm + \v*36mm)}, \y mm + 1.4mm);
+  \node[anchor=west, font=\footnotesize\bfseries] at ({max(2.1mm, 1.5mm + \v*36mm)}, \y mm) {\v};
 }
+\draw[decorate, decoration={brace, amplitude=1.5mm}, cink2]
+  (31mm,-14.6mm) -- (31mm,-10.4mm);
+\node[font=\footnotesize, text=cink2, align=left, anchor=west] at (32.2mm,-12.5mm)
+  {clock $>$ latent};
 \draw[cgrid] (1mm,-24mm) -- (1mm,4mm);
 \node[font=\footnotesize, text=cink2, anchor=west, align=left] at (-2mm,-28.5mm)
   {one recipe, 3 seeds $\times$ 1{,}024 rollouts\\(teacher: 1 seed $\times$ 1{,}024); the clock\\control caps single-clip latent claims};
 \end{scope}
 \end{tikzpicture}
-\caption{\textbf{The retarget-to-track interface, learned (single-clip scope; see
-\S\ref{sec:limits}).} (a)~The standard humanoid
-stack passes per-frame joint targets between retargeting and tracking, discarding the
-retargeter's contact reasoning, its uncertainty, and the cross-embodiment structure it
-learned. (b)~We replace that interface with a learned 64-d command latent: the goal
-reaches the goal-conditioned prior but \emph{never} the decoder, so \zcmd{} is the
-tracking policy's only motion command. (c)~Under one training regime (3 training seeds,
-1{,}024 rollouts per evaluation): the learned code with the explicit goal \emph{matches}
-its teacher (0.955 vs 0.954); the frozen human-side retargeting latent alone reaches
-0.656---but a phase-only clock control reaches 0.754, capping what the latent can claim
-on a single cyclic clip.}
+\caption{\textbf{Measuring the retarget-to-track interface} (single-clip scope; see
+\S\ref{sec:limits}). (a)~The standard humanoid stack passes per-frame joint targets
+between retargeting and tracking, discarding the retargeter's contact reasoning,
+uncertainty, and cross-embodiment structure. (b)~The instrument: a learned 64-d
+command code---the goal reaches the code's prior but \emph{never} the decoder, so
+\zcmd{} is the policy's only motion command. (c)~The anatomy: the code with the
+explicit goal is within seed noise of its teacher (0.955 vs 0.954, one teacher seed);
+the frozen retargeting latent alone reaches 0.656---below a phase-only clock at 0.754,
+which caps what any latent can claim on a single cyclic clip.}
 \label{fig:teaser}
 \end{figure*}
 
@@ -433,8 +437,8 @@ valid test (the leak-era version noised dimensions the decoder never read): acro
 three seeds and three corruption levels ($1{,}024$ rollouts per cell), the paired gap
 straddles zero at usable noise ($\sigma{\le}0.5$) and reaches only $+1.7$ to
 $+4.1$\,pp where both arms are already broken ($\sigma{=}1.0$), below the
-pre-specified $+5$\,pp gate---the second sub-gate trend our promotion discipline has
-correctly rejected. The right reading of the interface program is therefore
+$+5$\,pp promotion gate---the second sub-threshold trend our discipline has correctly
+rejected. The right reading of the interface program is therefore
 substitution, not addition: the latent matters where an explicit command is
 unavailable or unshareable---multi-clip and cross-embodiment settings, where a 29-DoF
 target stream cannot command a 23-DoF robot at all. Those settings remain out of reach
@@ -476,10 +480,10 @@ when supervised in.
 
 \textbf{Control: dominated, not inert.} Concatenated beside the explicit
 reference, the latent is ignored or harmful ($-10$\,pp)---when a more informative
-channel to the goal exists, the policy takes it. Remove that channel, and the frozen latent alone
-carries $0.656\pm0.044$ completion through a co-trained prior (\S\ref{sec:exp}). The audit is the
-specification for \S\ref{sec:method}: the latent becomes an interface only when it is
-made the sole channel and a prior is co-trained to read it.
+channel to the goal exists, the policy takes it. Together the probes explain the
+anatomy's middle rungs: a latent that aligns instances but holds neither semantics nor
+contact has little to offer a tracker beyond its time course---and it delivers even
+that (\S\ref{sec:exp}) more noisily than clean sinusoids.
 
 
 \section{Scaling the Interface}
@@ -541,8 +545,8 @@ CI $[-3.1, +4.9]\%$). This matrix predates the reward repair (\S\ref{sec:defect}
 under the identical defect. A sensitivity control now validates the assay itself: a
 tracker trained on a deliberately corrupted reference (i.i.d.\ joint noise,
 $\sigma{=}0.05$\,rad --- the scale of known retargeting artifacts) drops to 0.48
-completion against its own reference, a 46-point fall that is $9\times$ our
-pre-specified detection gate. The completion assay is therefore sensitive to
+completion against its own reference, a 46-point fall that is $9\times$ the detection
+gate we set in advance. The completion assay is therefore sensitive to
 reference-quality differences of the relevant magnitude, and the observed point-equality
 is informative rather than an instrument blind spot. The registered post-repair rerun
 on harder clips is now done and answers the saturation worry directly: on dance2,
