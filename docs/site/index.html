@@ -131,26 +131,30 @@
   <p class="sub">The interface between humanoid motion retargeting and tracking is a per-frame
   stack of joint targets — a format every pipeline passes and none has measured. We make it
   measurable: a 64-d learned code under an <em>exclusivity contract</em> (goal visible to the
-  code's prior, never to the actor) performs within seed noise of its explicit-command teacher
-  (0.955 vs 0.954). Ablating what feeds the code yields the interface's <strong>anatomy</strong>:
-  explicit goal ≈ teacher · <strong>a clock 0.754</strong> · frozen retargeting latent 0.656 ·
-  nothing 0.001. On the single-clip cyclic tracking that dominates today's demos, a trivially
-  constructed clock recovers 79% of teacher performance — the bar any "the latent carries motion"
-  claim must now clear.</p>
+  code encoder, never to the action decoder) is the tracking policy's <strong>only</strong>
+  motion command. A single-trajectory test turns out to be confounded: an absolute time-index
+  control (<strong>0.754</strong>) beats the frozen retargeting latent (0.656), because on one
+  clip time alone identifies the target. So we preregistered a <strong>two-walk paired
+  assay</strong> — 69 starts that match the present but diverge in the future. In the frozen
+  seed-0 endpoint the latent reaches <strong>0.765</strong> ambiguity-start completion vs
+  <strong>0.608</strong> for time and <strong>0.576</strong> for shuffled content (paired 95%
+  CIs exclude zero), and destroying the exclusive command collapses the explicit student from
+  0.925 to <strong>0.000</strong>.</p>
   <div class="badges">
     <span class="badge">5 humanoid embodiments, one network</span>
     <span class="badge">MuJoCo-Warp RL tracking</span>
-    <span class="badge">CVAE + DAgger act-through-latent</span>
-    <span class="badge">Everything preregistered &amp; logged</span>
+    <span class="badge">Deterministic act-through-latent distillation</span>
+    <span class="badge">Preregistered gates · negative-results ledger</span>
+    <span class="badge">Seeds 1–2 confirmation running</span>
   </div>
 </header>
 
 <!-- ============================ KPI ROW ============================ -->
 <section>
   <div class="kpis">
-    <div class="kpi hero-kpi"><div class="eyebrow">HEADLINE RESULT — 3 SEEDS, POST-FIX</div><div class="v">0.955</div><div class="l">10-s completion with a 64-d latent as the policy's <strong>only</strong> motion command — <strong>matching its teacher</strong> (0.954 at equal eval precision)</div><div class="d">z_ret as sole goal: 0.656 — but the <strong>phase-clock control reaches 0.754</strong>: on single-clip cyclic motion the latent's deployable value is at most timing (our own pre-specified control retired our favored reading — the third self-kill)</div></div>
+    <div class="kpi hero-kpi"><div class="eyebrow">E70 TWO-WALK ASSAY — FROZEN SEED-0 ENDPOINT · SEEDS 1–2 CONFIRMING</div><div class="v">+0.154</div><div class="l">SNMR-minus-time paired gain at ambiguity starts (95% CI [0.093, 0.215]); vs phase-matched shuffled content <strong>+0.187</strong> [0.137, 0.236] — <strong>every preregistered content gate passes</strong></div><div class="d">ambiguity completion by arm: explicit 0.979 · frozen z_ret 0.765 · time 0.608 · shuffled 0.576 · proprio 0.518 — the final claim waits for the frozen three-seed analyzer</div></div>
     <div class="kpi"><div class="v">3.66 cm</div><div class="l">retargeting MPJPE, held-out clips (G1 specialist) — <a href="benchmark.html">full benchmark</a></div><div class="d">CI [3.46, 3.86] · shared 5-robot net: 2.9–6.0 cm · limits by construction</div></div>
-    <div class="kpi"><div class="v">0.98</div><div class="l">explicit tracker after our stack fixes</div><div class="d">from 0.90 — matches external calibration</div></div>
+    <div class="kpi"><div class="v">0.925 → 0.000</div><div class="l">explicit student when its exclusive command is zeroed, shuffled, or marginal-resampled</div><div class="d">causal use, not just structural exclusivity · explicit tracker 0.98 after stack repairs</div></div>
   </div>
 </section>
 
@@ -159,10 +163,11 @@
   <h2>The framework</h2>
   <p class="lede">Two coupled systems. <strong>Stage 1 (distill):</strong> a graph-attention
   encoder maps human motion to a per-frame latent <code>z</code>; embodiment-conditioned decoders
-  emit joint trajectories for any of five robots. <strong>Stage 2 (co-train):</strong> a CVAE
-  compresses the reference into a command latent <code>z_cmd</code> that an RL-trained tracking
-  policy consumes as its only motion input — trained by DAgger from an explicit-command teacher
-  inside the physics simulator.</p>
+  emit joint trajectories for any of five robots. <strong>Stage 2 (co-train):</strong> a code
+  encoder compresses the reference into a command latent <code>z_cmd</code> that the tracking
+  policy consumes as its only motion input — trained by online distillation from an
+  explicit-command RL teacher inside the physics simulator. The frozen E70 recipe is
+  deterministic; CVAE variants served earlier calibration.</p>
 
   <figure>
   <div class="figscroll">
@@ -294,7 +299,7 @@
   A frozen latent as the <em>sole</em> command tops out at 0.72 (our E37, replicated 0.72–0.77
   across 3 seeds); RL-from-scratch through a latent collapses in the literature (UniTracker,
   BFM). The latent must be <strong>co-trained under the control objective by
-  distillation</strong> — pure DAgger, no RL gradient mixed in.</p></div>
+  distillation</strong> — online distillation on the student's own rollouts, no RL gradient mixed in.</p></div>
 
   <div class="card"><h4>2 · The posterior must be a residual on the prior; train on the path you deploy.</h4>
   <p>The encoder's mean is <code>μ_prior + residual</code> with a tied fixed σ, giving a closed-form
@@ -342,10 +347,10 @@
     <!-- step 3 -->
     <rect x="620" y="52" width="252" height="104" rx="10" fill="var(--wash1)" stroke="var(--s1)" stroke-width="1.4"/>
     <text x="746" y="78" font-size="13.5" font-weight="650" text-anchor="middle" fill="var(--ink-1)">③ Update (5 epochs)</text>
-    <text x="746" y="100" font-size="12.5" text-anchor="middle" fill="var(--ink-1)">L = ‖a − a*‖²  +  β·KL  +  α·smooth</text>
-    <text x="746" y="119" font-size="12" text-anchor="middle" fill="var(--ink-2)">KL = ‖residual‖² / 2σ² (closed form)</text>
-    <text x="746" y="134" font-size="12" text-anchor="middle" fill="var(--ink-2)">smooth: ‖μ(t) − μ(t−1)‖² (PULSE)</text>
-    <text x="746" y="149" font-size="11.5" text-anchor="middle" fill="var(--ink-3)">β = 0.1 · α = 0.005 · Adam 3e-4</text>
+    <text x="746" y="100" font-size="12.5" text-anchor="middle" fill="var(--ink-1)">L = ‖a − a*‖²  (frozen E70 recipe: deterministic)</text>
+    <text x="746" y="119" font-size="12" text-anchor="middle" fill="var(--ink-2)">β·KL + α·smooth: CVAE calibration variants only</text>
+    <text x="746" y="134" font-size="12" text-anchor="middle" fill="var(--ink-2)">validation-selected checkpoints · 4-round FIFO replay</text>
+    <text x="746" y="149" font-size="11.5" text-anchor="middle" fill="var(--ink-3)">teacher-mix floor 0.1 · Adam 3e-4</text>
 
     <line x1="280" y1="104" x2="318" y2="104" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr2)"/>
     <line x1="576" y1="104" x2="614" y2="104" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr2)"/>
@@ -369,11 +374,46 @@
 <!-- ============================ RESULTS ============================ -->
 <section id="results">
   <h2>Results</h2>
-  <p class="lede">All numbers: 10-second phase-stratified rollouts on the walk1 clip (Unitree G1,
-  MuJoCo-Warp), 1,024 rollouts per evaluation for the latent arms (100 for teacher/L1 reference policies), deterministic deployment path. Multi-clip and
-  cross-embodiment stages are running now.</p>
+  <p class="lede">All numbers: 10-second rollouts on Unitree G1 in MuJoCo-Warp, deterministic
+  deployment path, 1,024 rollouts per arm. First the preregistered two-walk assay (E70); then
+  the single-clip calibration that exposed the clock confound and forced that design. Seed-0
+  shown throughout; the seed-1/2 confirmation queue and the frozen three-seed analyzer are
+  running now.</p>
 
-  <h3>Completion by command interface</h3>
+  <h3>The two-walk ambiguity assay (E70) — content beyond time</h3>
+  <p class="lede">69 reference-only paired starts across two LAFAN1 walks where the present
+  matches but the futures diverge. A command that encodes only progress-through-clip cannot
+  pick the right future. Five arms, one frozen student recipe, gates registered before any
+  result was seen.</p>
+  <div class="legend">
+    <span class="key"><span class="swatch" style="background:var(--s1)"></span>explicit goal (capability control)</span>
+    <span class="key"><span class="swatch" style="background:var(--s3)"></span>frozen retargeting latent (ours)</span>
+    <span class="key"><span class="swatch" style="background:var(--s2)"></span>matched controls</span>
+  </div>
+  <figure>
+    <svg id="e70Chart" viewBox="0 0 900 300" role="img" aria-labelledby="figE70Title" style="width:100%;height:auto">
+      <title id="figE70Title">Ambiguity-start completion by arm, E70 frozen seed-0 endpoint</title>
+    </svg>
+    <figcaption>Fig. 3 — Ambiguity-start completion, frozen seed-0 endpoint. Registered gates:
+    the explicit control passes its capability rule; SNMR−time ≥ +0.10 with a paired 95% CI
+    excluding zero; SNMR−shuffled CI excluding zero; SNMR−time positive on each clip. All pass
+    at seed 0. Descriptive per-seed SNMR−time so far: +0.156 / +0.275 / +0.145 — but the final
+    aggregate comes only from the frozen three-seed analyzer, not from these previews.</figcaption>
+  </figure>
+  <details><summary>Table view</summary>
+    <table class="data">
+      <thead><tr><th>Arm</th><th>General</th><th>Ambiguity</th><th>Amb. survival</th></tr></thead>
+      <tbody>
+        <tr><td>C: explicit goal (capability control)</td><td>0.925</td><td>0.979</td><td>9.91 s</td></tr>
+        <tr><td>A: frozen z_ret (ours)</td><td>0.685</td><td>0.765</td><td>8.87 s</td></tr>
+        <tr><td>T: absolute time index</td><td>0.604</td><td>0.608</td><td>7.59 s</td></tr>
+        <tr><td>S: matched-phase shuffled content</td><td>0.555</td><td>0.576</td><td>7.49 s</td></tr>
+        <tr><td>B: proprioception only</td><td>0.487</td><td>0.518</td><td>7.29 s</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <h3>Single-clip calibration: the clock confound</h3>
   <div class="legend">
     <span class="key"><span class="swatch" style="background:var(--s1)"></span>explicit command (upper bound)</span>
     <span class="key"><span class="swatch" style="background:var(--s3)"></span>latent-only command (ours)</span>
@@ -383,11 +423,13 @@
     <svg id="barChart" viewBox="0 0 900 300" role="img" aria-labelledby="figBarsTitle" style="width:100%;height:auto">
       <title id="figBarsTitle">10-second completion rate by command interface</title>
     </svg>
-    <figcaption>Fig. 3 — Post-fix command-interface factorial (E52 v4, mean ± sd over 3 training seeds,
+    <figcaption>Fig. 4 — Post-fix command-interface factorial (E52 v4, mean ± sd over 3 training seeds,
     1,024 rollouts per evaluation, one recipe): completion is monotone in what the prior sees. The 64-d
     bottleneck costs 2.5pp against its teacher; the frozen human-side retargeting latent alone retains
-    0.656 where the goal-free control collapses; corrupting z_ret collapses the latent-only arm to 0.000
-    (causal dependence). Exact values in the table below.</figcaption>
+    0.656 where the goal-free control collapses. But a pre-specified time-index control reaches
+    <strong>0.754</strong> — beating z_ret and retiring the single-clip latent claim. On one clip, time
+    identifies the target; only paired ambiguous starts (Fig. 3) can separate content from progress.
+    Exact values in the table below.</figcaption>
   </figure>
   <details><summary>Table view</summary>
     <table class="data">
@@ -407,7 +449,7 @@
     <svg id="ladderChart" viewBox="0 0 900 260" role="img" aria-labelledby="figLadderTitle" style="width:100%;height:auto">
       <title id="figLadderTitle">Tracking fidelity ladder: joint RMSE reduction by fix</title>
     </svg>
-    <figcaption>Fig. 4 — Joint tracking error of the explicit G1 tracker as the stack was repaired.
+    <figcaption>Fig. 5 — Joint tracking error of the explicit G1 tracker as the stack was repaired.
     The dominant lever was a <em>bug we found in the training framework</em>: a world-body indexing
     off-by-one silently zeroed the body-position reward in every MuJoCo-Warp run (verified: the raw
     reward term logged exactly 0.0 for 8,000 iterations). One line of interpretation: measure your
@@ -475,15 +517,18 @@
       <tr><td>Zero-shot transfer to an unseen robot via embodiment code</td><td>Failed (5.2× error)</td><td>embodiment augmentation as future work</td></tr>
       <tr><td><strong>DEFECT-2 (2026-08-02, self-caught & repaired):</strong> the E52 trainer's obs slicing assumed config order, but holosoma concatenates observation terms alphabetically — the decoder saw the explicit reference inside "proprio" in all E52 v1–v3 runs (causal probe: blanking the leaked dims drops 0.93 → 0.00)</td><td>Post-fix rerun moved results in BOTH directions: explicit-goal arm 0.935 → <strong>0.955 ± 0.008</strong>; frozen-z_ret-only arm 0.004 → <strong>0.656 ± 0.044</strong> (3 seeds) — a logged negative OVERTURNED (the leaked shortcut had suppressed latent learning)</td><td>red flag was a 90pp gap between arms with identical goal information; incoherence between arms is a leak detector</td></tr>
       <tr><td>Frozen z_ret as the sole command fails (leak-era E58: 0.004–0.016)</td><td><strong>OVERTURNED post-DEFECT-2</strong> (0.656 vs 0.001 goal-free) — <strong>then RETIRED by the E63 clock control</strong>: frame-index sinusoids through the identical fetch path reach 0.754 > 0.656, so the latent's single-clip value is at most phase</td><td>the clock is now the published null model every single-clip act-through-latent claim must beat</td></tr>
-      <tr><td>The z_ret-only arm's 0.656 means the latent "carries deployable goal content"</td><td><strong>KILLED by pre-specified control (E63, 3 seeds)</strong>: clock 0.754 ± 0.010 beats z_ret 0.656 ± 0.044, non-overlapping seed ranges — third favored result retired by our own gates</td><td>live forms of the question: aperiodic/multi-clip (teacher gate-blocked), cross-embodiment, encoder gradients</td></tr>
+      <tr><td>The z_ret-only arm's 0.656 means the latent "carries deployable goal content"</td><td><strong>KILLED by pre-specified control (E63, 3 seeds)</strong>: clock 0.754 ± 0.010 beats z_ret 0.656 ± 0.044, non-overlapping seed ranges — third favored result retired by our own gates</td><td>the question moved to ambiguous two-trajectory starts, where time cannot identify the target</td></tr>
+      <tr><td>A single <em>aperiodic</em> clip (push1) can break the time confound</td><td><strong>INVALID assay (E66)</strong>: the teacher passed its gate (0.514) but every student — including the explicit positive control — collapsed to 0.000; and one clip cannot break a one-to-one time↔target map by design</td><td>two-trajectory ambiguity design; fail-closed launchers; explicit capability gate must pass before any representation comparison counts</td></tr>
+      <tr><td>walk3_subject1 can serve as the second specialist teacher</td><td>Failed twice (E67 gate: 0.56 vs 0.80; E68 +8k-iteration resume: 0.65) — budget closed by the preregistered rule</td><td>reference-only pair screening (E69) with no student in the loop: walk1_subject1 passes at 0.987</td></tr>
+      <tr><td><strong>E70 (live)</strong>: the frozen latent carries control-usable content beyond absolute time at ambiguous starts</td><td><strong>Seed 0: every preregistered content gate passes</strong> — SNMR−time +0.154 [0.093, 0.215], SNMR−shuffled +0.187 [0.137, 0.236], positive on each clip; command destruction 0.925 → 0.000</td><td>seeds 1–2 confirmation running unchanged; the only quotable final numbers will come from the frozen three-seed analyzer</td></tr>
     </tbody>
   </table>
 </section>
 
 <footer>
-  SNMR research project · results generated 2026-07 on a single A10G GPU ·
+  SNMR research project · results generated 2026-07/08 on a single-GPU workstation ·
   <a href="https://github.com/linjiw/snmr">github.com/linjiw/snmr</a> ·
-  full provenance in <code>docs/EXPERIMENT_LOG.md</code> (E01–E53, every run committed with revision hashes)
+  full provenance in <code>docs/EXPERIMENT_LOG.md</code> (E01–E70, every run logged with revision hashes)
 </footer>
 
 </div>
@@ -609,7 +654,7 @@ function drawTwoTeacher() {
   svg.querySelectorAll(':scope > *').forEach(n => n.remove());
   const rows = [
     { label: 'Locomotion (LAFAN1 val)', base: 3.31, tt: 4.36 },
-    { label: 'Object interaction (val)', base: 28.95, tt: 12.2 (free root) },
+    { label: 'Object interaction (val)', base: 28.95, tt: 12.2 },
     { label: 'Terrain interaction (val)', base: 25.06, tt: 8.16 },
   ];
   const left = 250, right = 90, top = 14, rowH = 62, barH = 16, maxV = 30;
@@ -632,7 +677,42 @@ function drawTwoTeacher() {
   svg.setAttribute('viewBox', `0 0 900 ${top + rows.length * rowH + 46}`);
   svg.addEventListener('mouseleave', hideTip);
 }
-function drawAll() { drawBars(); drawLadder(); drawTwoTeacher(); }
+// ---- Fig 3: E70 ambiguity-start completion --------------------------------
+const e70Data = [
+  { label: 'C: explicit goal (capability control)', v: 0.979, c: '--s1', note: 'general 0.925 · destruction collapses to 0.000' },
+  { label: 'A: frozen z_ret (ours)', v: 0.765, c: '--s3', note: 'A−T +0.154 [0.093, 0.215] · A−S +0.187 [0.137, 0.236]' },
+  { label: 'T: absolute time index', v: 0.608, c: '--s2', note: 'matched null: progress-through-clip only' },
+  { label: 'S: matched-phase shuffled content', v: 0.576, c: '--s2', note: 'other walk’s latent at the same normalized time' },
+  { label: 'B: proprioception only', v: 0.518, c: '--s2', note: 'no goal channel at all' },
+];
+function drawE70() {
+  const svg = document.getElementById('e70Chart');
+  if (!svg) return;
+  svg.querySelectorAll(':scope > :not(title)').forEach(n => n.remove());
+  const W = 900, left = 250, right = 60, top = 24, rowH = 50, barH = 22;
+  const x = v => left + v * (W - left - right);
+  for (const g of [0, 0.25, 0.5, 0.75, 1.0]) {
+    el('line', { x1: x(g), y1: top - 8, x2: x(g), y2: top + e70Data.length * rowH, stroke: css('--grid'), 'stroke-width': 1 }, svg);
+    el('text', { x: x(g), y: top + e70Data.length * rowH + 22, 'text-anchor': 'middle', 'font-size': 12, fill: css('--ink-3') }, svg).textContent = g.toFixed(2);
+  }
+  el('line', { x1: x(0), y1: top - 8, x2: x(0), y2: top + e70Data.length * rowH, stroke: css('--axisline'), 'stroke-width': 1 }, svg);
+  e70Data.forEach((d, i) => {
+    const y = top + i * rowH + (rowH - barH) / 2;
+    const color = css(d.c);
+    const w = x(d.v) - x(0);
+    el('path', {
+      d: `M ${x(0)} ${y} H ${x(0) + w - 4} Q ${x(0) + w} ${y} ${x(0) + w} ${y + 4} V ${y + barH - 4} Q ${x(0) + w} ${y + barH} ${x(0) + w - 4} ${y + barH} H ${x(0)} Z`,
+      fill: color, cursor: 'default',
+    }, svg).addEventListener('mousemove', e =>
+      showTip(e, `<strong>${d.label}</strong><br>ambiguity completion ${d.v.toFixed(3)}<br><span class="t">${d.note}</span>`));
+    el('text', { x: left - 12, y: y + barH / 2 + 4.5, 'text-anchor': 'end', 'font-size': 13.5, fill: css('--ink-1') }, svg).textContent = d.label;
+    el('text', { x: x(d.v) + 8, y: y + barH / 2 + 4.5, 'font-size': 13.5, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = d.v.toFixed(3);
+  });
+  svg.setAttribute('viewBox', `0 0 900 ${top + e70Data.length * rowH + 36}`);
+  svg.addEventListener('mouseleave', hideTip);
+}
+
+function drawAll() { drawE70(); drawBars(); drawLadder(); drawTwoTeacher(); }
 drawAll();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawAll);
 </script>
