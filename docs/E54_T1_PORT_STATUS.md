@@ -4,6 +4,15 @@ Date: 2026-08-06. Unblocks E54 (cross-embodiment latent command). All work verif
 pinned holosoma clone rev 9fb2b57 (clone stays untracked/dirty by design — the config files
 below live in the clone, NOT in this repo; this doc + the exporter are the committed record).
 
+> **2026-08-08 portability audit:** the current local Holosoma checkout is
+> `20699ffa20f494b9563aa68601940c53397bf088` and no longer contains the uncommitted
+> `wbt/t1/` files or aggregator registrations described below.  The generated T1 reference
+> remains valid, but `exp:t1-29dof-wbt` is unavailable.  `scripts/run_e54_t1_teacher.sh` now
+> fails before GPU allocation when this registration is absent, requires >=20 GiB free GPU
+> memory, validates the checkpoint and evaluation gates, and writes `TEACHER_DONE` only after
+> success.  Restoring/exporting the historical T1 config patch remains supporting work after
+> E67; the older successful smoke report below applies specifically to revision `9fb2b57`.
+
 ## What was created
 
 In the holosoma clone (`holosoma/src/holosoma/holosoma/config_values/`):

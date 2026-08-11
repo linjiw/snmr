@@ -1,0 +1,904 @@
+{
+  "protocol": "E67 reference-only ambiguity precheck v1",
+  "thresholds": {
+    "time_bins": 100,
+    "future_seconds": 1.0,
+    "rollout_seconds": 10.0,
+    "future_samples": 11,
+    "max_state_distance_rms_z": 0.75,
+    "min_future_distance_rms_z": 0.75,
+    "min_spacing_seconds": 0.5,
+    "min_windows": 20
+  },
+  "state_proxy": "previous_dof_target + root_angular_velocity + dof_pos + dof_vel",
+  "future_goal": "dof_pos + dof_vel, globally standardized across each candidate pair",
+  "pairs": {
+    "walk1_subject5,walk3_subject1": {
+      "num_nearest_candidates": 7540,
+      "num_threshold_eligible": 1082,
+      "num_selected_windows": 66,
+      "source_fps": 30.0,
+      "rollout_frames": 300,
+      "nearest_state_distance": {
+        "min": 0.4766752727059227,
+        "p10": 0.701323232309491,
+        "median": 1.1289304143521763,
+        "p90": 1.5762814546416133,
+        "max": 3.111154308404597
+      },
+      "nearest_future_distance": {
+        "min": 0.6102710154328993,
+        "p10": 0.8806229072227673,
+        "median": 1.331927080746966,
+        "p90": 1.7413235268644902,
+        "max": 2.2700328009569652
+      },
+      "eligible_state_distance": {
+        "min": 0.4851596472632711,
+        "p10": 0.5661401301182282,
+        "median": 0.6782208462373727,
+        "p90": 0.7352280593763936,
+        "max": 0.7499528364192108
+      },
+      "eligible_future_distance": {
+        "min": 0.7509056541735346,
+        "p10": 0.7901248847156322,
+        "median": 0.9271091468629633,
+        "p90": 1.0937117539535337,
+        "max": 1.3136979286442583
+      },
+      "windows": [
+        {
+          "frame_first": 62,
+          "frame_second": 2,
+          "time_seconds_first": 2.066666666666667,
+          "time_seconds_second": 0.06666666666666667,
+          "time_bin": 0,
+          "normalized_time_first": 0.008223902374320202,
+          "normalized_time_second": 0.0002817695125387433,
+          "state_distance": 0.7130551689545681,
+          "future_distance": 1.07159753283854
+        },
+        {
+          "frame_first": 83,
+          "frame_second": 77,
+          "time_seconds_first": 2.7666666666666666,
+          "time_seconds_second": 2.566666666666667,
+          "time_bin": 1,
+          "normalized_time_first": 0.011009417694654463,
+          "normalized_time_second": 0.010848126232741617,
+          "state_distance": 0.619352208140223,
+          "future_distance": 0.7716265039515262
+        },
+        {
+          "frame_first": 115,
+          "frame_second": 124,
+          "time_seconds_first": 3.8333333333333335,
+          "time_seconds_second": 4.133333333333334,
+          "time_bin": 1,
+          "normalized_time_first": 0.015254012468497148,
+          "normalized_time_second": 0.017469709777402084,
+          "state_distance": 0.682742550492383,
+          "future_distance": 1.142022496329463
+        },
+        {
+          "frame_first": 169,
+          "frame_second": 174,
+          "time_seconds_first": 5.633333333333334,
+          "time_seconds_second": 5.8,
+          "time_bin": 2,
+          "normalized_time_first": 0.022416766149356677,
+          "normalized_time_second": 0.024513947590870666,
+          "state_distance": 0.7061179815539572,
+          "future_distance": 0.9070647195777249
+        },
+        {
+          "frame_first": 194,
+          "frame_second": 210,
+          "time_seconds_first": 6.466666666666667,
+          "time_seconds_second": 7.0,
+          "time_bin": 2,
+          "normalized_time_first": 0.025732855816421277,
+          "normalized_time_second": 0.029585798816568046,
+          "state_distance": 0.6938570058979968,
+          "future_distance": 1.0184721200273865
+        },
+        {
+          "frame_first": 212,
+          "frame_second": 191,
+          "time_seconds_first": 7.066666666666666,
+          "time_seconds_second": 6.366666666666666,
+          "time_bin": 2,
+          "normalized_time_first": 0.028120440376707787,
+          "normalized_time_second": 0.026908988447449985,
+          "state_distance": 0.7030207364595515,
+          "future_distance": 1.087418265648767
+        },
+        {
+          "frame_first": 281,
+          "frame_second": 263,
+          "time_seconds_first": 9.366666666666667,
+          "time_seconds_second": 8.766666666666667,
+          "time_bin": 3,
+          "normalized_time_first": 0.037272847857806074,
+          "normalized_time_second": 0.03705269089884475,
+          "state_distance": 0.5890754700371194,
+          "future_distance": 0.8981731859359291
+        },
+        {
+          "frame_first": 296,
+          "frame_second": 244,
+          "time_seconds_first": 9.866666666666667,
+          "time_seconds_second": 8.133333333333333,
+          "time_bin": 3,
+          "normalized_time_first": 0.03926250165804483,
+          "normalized_time_second": 0.034375880529726684,
+          "state_distance": 0.6203345834596486,
+          "future_distance": 0.9835443557975394
+        },
+        {
+          "frame_first": 323,
+          "frame_second": 350,
+          "time_seconds_first": 10.766666666666667,
+          "time_seconds_second": 11.666666666666666,
+          "time_bin": 4,
+          "normalized_time_first": 0.0428438784984746,
+          "normalized_time_second": 0.04930966469428008,
+          "state_distance": 0.7316482495073727,
+          "future_distance": 0.8081647616385859
+        },
+        {
+          "frame_first": 338,
+          "frame_second": 316,
+          "time_seconds_first": 11.266666666666667,
+          "time_seconds_second": 10.533333333333333,
+          "time_bin": 4,
+          "normalized_time_first": 0.044833532298713355,
+          "normalized_time_second": 0.04451958298112144,
+          "state_distance": 0.7320117841837795,
+          "future_distance": 0.9230097197978256
+        },
+        {
+          "frame_first": 353,
+          "frame_second": 295,
+          "time_seconds_first": 11.766666666666667,
+          "time_seconds_second": 9.833333333333334,
+          "time_bin": 4,
+          "normalized_time_first": 0.04682318609895211,
+          "normalized_time_second": 0.04156100309946464,
+          "state_distance": 0.6270947920796193,
+          "future_distance": 0.9321112042552581
+        },
+        {
+          "frame_first": 399,
+          "frame_second": 369,
+          "time_seconds_first": 13.3,
+          "time_seconds_second": 12.3,
+          "time_bin": 5,
+          "normalized_time_first": 0.052924791086350974,
+          "normalized_time_second": 0.05198647506339814,
+          "state_distance": 0.6421867360974711,
+          "future_distance": 0.839875108173743
+        },
+        {
+          "frame_first": 427,
+          "frame_second": 405,
+          "time_seconds_first": 14.233333333333333,
+          "time_seconds_second": 13.5,
+          "time_bin": 5,
+          "normalized_time_first": 0.056638811513463325,
+          "normalized_time_second": 0.05705832628909552,
+          "state_distance": 0.6023808267620094,
+          "future_distance": 0.8138567723074577
+        },
+        {
+          "frame_first": 443,
+          "frame_second": 384,
+          "time_seconds_first": 14.766666666666667,
+          "time_seconds_second": 12.8,
+          "time_bin": 5,
+          "normalized_time_first": 0.05876110890038467,
+          "normalized_time_second": 0.05409974640743871,
+          "state_distance": 0.5143661492800824,
+          "future_distance": 0.9151642683801806
+        },
+        {
+          "frame_first": 459,
+          "frame_second": 495,
+          "time_seconds_first": 15.3,
+          "time_seconds_second": 16.5,
+          "time_bin": 6,
+          "normalized_time_first": 0.060883406287306006,
+          "normalized_time_second": 0.06973795435333897,
+          "state_distance": 0.6449061102539705,
+          "future_distance": 0.9912163318898181
+        },
+        {
+          "frame_first": 508,
+          "frame_second": 477,
+          "time_seconds_first": 16.933333333333334,
+          "time_seconds_second": 15.9,
+          "time_bin": 6,
+          "normalized_time_first": 0.06738294203475262,
+          "normalized_time_second": 0.06720202874049028,
+          "state_distance": 0.6866371282034099,
+          "future_distance": 0.8147600775895569
+        },
+        {
+          "frame_first": 559,
+          "frame_second": 558,
+          "time_seconds_first": 18.633333333333333,
+          "time_seconds_second": 18.6,
+          "time_bin": 7,
+          "normalized_time_first": 0.0741477649555644,
+          "normalized_time_second": 0.07861369399830938,
+          "state_distance": 0.5291658164525781,
+          "future_distance": 1.03567929203427
+        },
+        {
+          "frame_first": 574,
+          "frame_second": 516,
+          "time_seconds_first": 19.133333333333333,
+          "time_seconds_second": 17.2,
+          "time_bin": 7,
+          "normalized_time_first": 0.07613741875580315,
+          "normalized_time_second": 0.07269653423499578,
+          "state_distance": 0.5662909250334472,
+          "future_distance": 1.0052198500232359
+        },
+        {
+          "frame_first": 632,
+          "frame_second": 588,
+          "time_seconds_first": 21.066666666666666,
+          "time_seconds_second": 19.6,
+          "time_bin": 8,
+          "normalized_time_first": 0.08383074678339303,
+          "normalized_time_second": 0.08284023668639054,
+          "state_distance": 0.6054321645158447,
+          "future_distance": 1.033288352138723
+        },
+        {
+          "frame_first": 653,
+          "frame_second": 573,
+          "time_seconds_first": 21.766666666666666,
+          "time_seconds_second": 19.1,
+          "time_bin": 8,
+          "normalized_time_first": 0.08661626210372729,
+          "normalized_time_second": 0.08072696534234995,
+          "state_distance": 0.7019062973133785,
+          "future_distance": 1.1605543204336475
+        },
+        {
+          "frame_first": 686,
+          "frame_second": 675,
+          "time_seconds_first": 22.866666666666667,
+          "time_seconds_second": 22.5,
+          "time_bin": 9,
+          "normalized_time_first": 0.09099350046425256,
+          "normalized_time_second": 0.09509721048182587,
+          "state_distance": 0.6328188466511508,
+          "future_distance": 1.0419074062272908
+        },
+        {
+          "frame_first": 701,
+          "frame_second": 650,
+          "time_seconds_first": 23.366666666666667,
+          "time_seconds_second": 21.666666666666668,
+          "time_bin": 9,
+          "normalized_time_first": 0.09298315426449132,
+          "normalized_time_second": 0.09157509157509157,
+          "state_distance": 0.6588389852435128,
+          "future_distance": 1.2116523335343277
+        },
+        {
+          "frame_first": 759,
+          "frame_second": 766,
+          "time_seconds_first": 25.3,
+          "time_seconds_second": 25.533333333333335,
+          "time_bin": 10,
+          "normalized_time_first": 0.10067648229208118,
+          "normalized_time_second": 0.10791772330233869,
+          "state_distance": 0.7236745691176311,
+          "future_distance": 1.104570050254019
+        },
+        {
+          "frame_first": 831,
+          "frame_second": 825,
+          "time_seconds_first": 27.7,
+          "time_seconds_second": 27.5,
+          "time_bin": 11,
+          "normalized_time_first": 0.11022682053322722,
+          "normalized_time_second": 0.11622992392223161,
+          "state_distance": 0.6326387470301136,
+          "future_distance": 1.1040738797050547
+        },
+        {
+          "frame_first": 904,
+          "frame_second": 798,
+          "time_seconds_first": 30.133333333333333,
+          "time_seconds_second": 26.6,
+          "time_bin": 11,
+          "normalized_time_first": 0.11990980236105585,
+          "normalized_time_second": 0.11242603550295859,
+          "state_distance": 0.6505052027924993,
+          "future_distance": 1.164105103234258
+        },
+        {
+          "frame_first": 965,
+          "frame_second": 900,
+          "time_seconds_first": 32.166666666666664,
+          "time_seconds_second": 30.0,
+          "time_bin": 12,
+          "normalized_time_first": 0.12800106114869347,
+          "normalized_time_second": 0.12679628064243448,
+          "state_distance": 0.552403475029851,
+          "future_distance": 1.1284670631176412
+        },
+        {
+          "frame_first": 980,
+          "frame_second": 879,
+          "time_seconds_first": 32.666666666666664,
+          "time_seconds_second": 29.3,
+          "time_bin": 12,
+          "normalized_time_first": 0.12999071494893222,
+          "normalized_time_second": 0.12383770076077769,
+          "state_distance": 0.6629098470941734,
+          "future_distance": 1.270066862488156
+        },
+        {
+          "frame_first": 1018,
+          "frame_second": 992,
+          "time_seconds_first": 33.93333333333333,
+          "time_seconds_second": 33.06666666666667,
+          "time_bin": 13,
+          "normalized_time_first": 0.1350311712428704,
+          "normalized_time_second": 0.13975767821921667,
+          "state_distance": 0.5722369021209385,
+          "future_distance": 0.9617918500610599
+        },
+        {
+          "frame_first": 1038,
+          "frame_second": 974,
+          "time_seconds_first": 34.6,
+          "time_seconds_second": 32.46666666666667,
+          "time_bin": 13,
+          "normalized_time_first": 0.1376840429765221,
+          "normalized_time_second": 0.13722175260636799,
+          "state_distance": 0.5984752477671841,
+          "future_distance": 1.0308542299256407
+        },
+        {
+          "frame_first": 1053,
+          "frame_second": 951,
+          "time_seconds_first": 35.1,
+          "time_seconds_second": 31.7,
+          "time_bin": 13,
+          "normalized_time_first": 0.13967369677676084,
+          "normalized_time_second": 0.13398140321217245,
+          "state_distance": 0.5537332755258082,
+          "future_distance": 1.0653736032677055
+        },
+        {
+          "frame_first": 1128,
+          "frame_second": 1014,
+          "time_seconds_first": 37.6,
+          "time_seconds_second": 33.8,
+          "time_bin": 14,
+          "normalized_time_first": 0.14962196577795464,
+          "normalized_time_second": 0.14285714285714285,
+          "state_distance": 0.5479512454033268,
+          "future_distance": 0.8611224219366389
+        },
+        {
+          "frame_first": 1143,
+          "frame_second": 1123,
+          "time_seconds_first": 38.1,
+          "time_seconds_second": 37.43333333333333,
+          "time_bin": 15,
+          "normalized_time_first": 0.15161161957819339,
+          "normalized_time_second": 0.15821358129050436,
+          "state_distance": 0.713566355664318,
+          "future_distance": 1.1138094939553722
+        },
+        {
+          "frame_first": 1222,
+          "frame_second": 1199,
+          "time_seconds_first": 40.733333333333334,
+          "time_seconds_second": 39.96666666666667,
+          "time_bin": 16,
+          "normalized_time_first": 0.16209046292611753,
+          "normalized_time_second": 0.16892082276697662,
+          "state_distance": 0.6746118232913119,
+          "future_distance": 0.9187087057190418
+        },
+        {
+          "frame_first": 1243,
+          "frame_second": 1184,
+          "time_seconds_first": 41.43333333333333,
+          "time_seconds_second": 39.46666666666667,
+          "time_bin": 16,
+          "normalized_time_first": 0.16487597824645178,
+          "normalized_time_second": 0.16680755142293605,
+          "state_distance": 0.6184511576497844,
+          "future_distance": 0.9190807361434534
+        },
+        {
+          "frame_first": 1263,
+          "frame_second": 1167,
+          "time_seconds_first": 42.1,
+          "time_seconds_second": 38.9,
+          "time_bin": 16,
+          "normalized_time_first": 0.16752884998010345,
+          "normalized_time_second": 0.16441251056635672,
+          "state_distance": 0.6301807965043887,
+          "future_distance": 1.0135181734986096
+        },
+        {
+          "frame_first": 1302,
+          "frame_second": 1266,
+          "time_seconds_first": 43.4,
+          "time_seconds_second": 42.2,
+          "time_bin": 17,
+          "normalized_time_first": 0.17270194986072424,
+          "normalized_time_second": 0.17836010143702452,
+          "state_distance": 0.7352295418859928,
+          "future_distance": 1.0842662725664365
+        },
+        {
+          "frame_first": 1325,
+          "frame_second": 1251,
+          "time_seconds_first": 44.166666666666664,
+          "time_seconds_second": 41.7,
+          "time_bin": 17,
+          "normalized_time_first": 0.17575275235442367,
+          "normalized_time_second": 0.17624683009298395,
+          "state_distance": 0.7318815096347246,
+          "future_distance": 1.1998529286606379
+        },
+        {
+          "frame_first": 1370,
+          "frame_second": 1287,
+          "time_seconds_first": 45.666666666666664,
+          "time_seconds_second": 42.9,
+          "time_bin": 18,
+          "normalized_time_first": 0.18172171375513993,
+          "normalized_time_second": 0.1813186813186813,
+          "state_distance": 0.7169206742997836,
+          "future_distance": 1.0819795489866093
+        },
+        {
+          "frame_first": 1487,
+          "frame_second": 1374,
+          "time_seconds_first": 49.56666666666667,
+          "time_seconds_second": 45.8,
+          "time_bin": 19,
+          "normalized_time_first": 0.19724101339700226,
+          "normalized_time_second": 0.19357565511411665,
+          "state_distance": 0.6747223476904873,
+          "future_distance": 1.0354012406923518
+        },
+        {
+          "frame_first": 1674,
+          "frame_second": 1572,
+          "time_seconds_first": 55.8,
+          "time_seconds_second": 52.4,
+          "time_bin": 22,
+          "normalized_time_first": 0.22204536410664544,
+          "normalized_time_second": 0.22147083685545224,
+          "state_distance": 0.7077272433030999,
+          "future_distance": 0.9185302745379197
+        },
+        {
+          "frame_first": 1695,
+          "frame_second": 1613,
+          "time_seconds_first": 56.5,
+          "time_seconds_second": 53.766666666666666,
+          "time_bin": 22,
+          "normalized_time_first": 0.2248308794269797,
+          "normalized_time_second": 0.22724711186249646,
+          "state_distance": 0.6849163664868074,
+          "future_distance": 1.0137966240013658
+        },
+        {
+          "frame_first": 1722,
+          "frame_second": 1628,
+          "time_seconds_first": 57.4,
+          "time_seconds_second": 54.266666666666666,
+          "time_bin": 22,
+          "normalized_time_first": 0.22841225626740946,
+          "normalized_time_second": 0.22936038320653707,
+          "state_distance": 0.732020854612305,
+          "future_distance": 0.9834649788869906
+        },
+        {
+          "frame_first": 1795,
+          "frame_second": 1644,
+          "time_seconds_first": 59.833333333333336,
+          "time_seconds_second": 54.8,
+          "time_bin": 23,
+          "normalized_time_first": 0.23809523809523808,
+          "normalized_time_second": 0.231614539306847,
+          "state_distance": 0.7410096487635163,
+          "future_distance": 1.2761608627085317
+        },
+        {
+          "frame_first": 1900,
+          "frame_second": 1810,
+          "time_seconds_first": 63.333333333333336,
+          "time_seconds_second": 60.333333333333336,
+          "time_bin": 25,
+          "normalized_time_first": 0.2520228146969094,
+          "normalized_time_second": 0.25500140884756267,
+          "state_distance": 0.7425485272582432,
+          "future_distance": 1.2055929489799715
+        },
+        {
+          "frame_first": 4503,
+          "frame_second": 4206,
+          "time_seconds_first": 150.1,
+          "time_seconds_second": 140.2,
+          "time_bin": 59,
+          "normalized_time_first": 0.5972940708316753,
+          "normalized_time_second": 0.5925612848689772,
+          "state_distance": 0.738707593999783,
+          "future_distance": 1.3136979286442583
+        },
+        {
+          "frame_first": 4717,
+          "frame_second": 4470,
+          "time_seconds_first": 157.23333333333332,
+          "time_seconds_second": 149.0,
+          "time_bin": 62,
+          "normalized_time_first": 0.6256797983817483,
+          "normalized_time_second": 0.6297548605240912,
+          "state_distance": 0.7406735492438501,
+          "future_distance": 1.1958224436300469
+        },
+        {
+          "frame_first": 4800,
+          "frame_second": 4516,
+          "time_seconds_first": 160.0,
+          "time_seconds_second": 150.53333333333333,
+          "time_bin": 63,
+          "normalized_time_first": 0.6366892160764027,
+          "normalized_time_second": 0.6362355593124824,
+          "state_distance": 0.7397144095106745,
+          "future_distance": 1.2675903418457994
+        },
+        {
+          "frame_first": 5768,
+          "frame_second": 5420,
+          "time_seconds_first": 192.26666666666668,
+          "time_seconds_second": 180.66666666666666,
+          "time_bin": 76,
+          "normalized_time_first": 0.7650882079851439,
+          "normalized_time_second": 0.7635953789799944,
+          "state_distance": 0.7343641915317463,
+          "future_distance": 1.1349923034923544
+        },
+        {
+          "frame_first": 6060,
+          "frame_second": 5679,
+          "time_seconds_first": 202.0,
+          "time_seconds_second": 189.3,
+          "time_bin": 80,
+          "normalized_time_first": 0.8038201352964585,
+          "normalized_time_second": 0.8000845308537616,
+          "state_distance": 0.7498792363795627,
+          "future_distance": 1.0870378953099322
+        },
+        {
+          "frame_first": 6274,
+          "frame_second": 5903,
+          "time_seconds_first": 209.13333333333333,
+          "time_seconds_second": 196.76666666666668,
+          "time_bin": 83,
+          "normalized_time_first": 0.8322058628465314,
+          "normalized_time_second": 0.8316427162581008,
+          "state_distance": 0.6246653182041074,
+          "future_distance": 0.9856122686435218
+        },
+        {
+          "frame_first": 6526,
+          "frame_second": 6152,
+          "time_seconds_first": 217.53333333333333,
+          "time_seconds_second": 205.06666666666666,
+          "time_bin": 86,
+          "normalized_time_first": 0.8656320466905425,
+          "normalized_time_second": 0.8667230205691744,
+          "state_distance": 0.714953416892701,
+          "future_distance": 0.9151961177813964
+        },
+        {
+          "frame_first": 6839,
+          "frame_second": 6448,
+          "time_seconds_first": 227.96666666666667,
+          "time_seconds_second": 214.93333333333334,
+          "time_bin": 90,
+          "normalized_time_first": 0.9071494893221913,
+          "normalized_time_second": 0.9084249084249084,
+          "state_distance": 0.5942119793072066,
+          "future_distance": 0.7975769662073129
+        },
+        {
+          "frame_first": 6896,
+          "frame_second": 6479,
+          "time_seconds_first": 229.86666666666667,
+          "time_seconds_second": 215.96666666666667,
+          "time_bin": 91,
+          "normalized_time_first": 0.9147101737630986,
+          "normalized_time_second": 0.9127923358692589,
+          "state_distance": 0.4955605446003714,
+          "future_distance": 1.0704540615374407
+        },
+        {
+          "frame_first": 7067,
+          "frame_second": 6671,
+          "time_seconds_first": 235.56666666666666,
+          "time_seconds_second": 222.36666666666667,
+          "time_bin": 93,
+          "normalized_time_first": 0.9373922270858204,
+          "normalized_time_second": 0.9398422090729783,
+          "state_distance": 0.5106792464918033,
+          "future_distance": 0.9711571965676133
+        },
+        {
+          "frame_first": 7082,
+          "frame_second": 6656,
+          "time_seconds_first": 236.06666666666666,
+          "time_seconds_second": 221.86666666666667,
+          "time_bin": 93,
+          "normalized_time_first": 0.9393818808860591,
+          "normalized_time_second": 0.9377289377289377,
+          "state_distance": 0.7028644298912029,
+          "future_distance": 0.9619535138494094
+        },
+        {
+          "frame_first": 7103,
+          "frame_second": 6696,
+          "time_seconds_first": 236.76666666666668,
+          "time_seconds_second": 223.2,
+          "time_bin": 94,
+          "normalized_time_first": 0.9421673962063934,
+          "normalized_time_second": 0.9433643279797126,
+          "state_distance": 0.6945565237082293,
+          "future_distance": 0.8572847135368872
+        },
+        {
+          "frame_first": 7161,
+          "frame_second": 6738,
+          "time_seconds_first": 238.7,
+          "time_seconds_second": 224.6,
+          "time_bin": 94,
+          "normalized_time_first": 0.9498607242339833,
+          "normalized_time_second": 0.9492814877430262,
+          "state_distance": 0.7213645766135505,
+          "future_distance": 0.7658563621514208
+        },
+        {
+          "frame_first": 7195,
+          "frame_second": 6806,
+          "time_seconds_first": 239.83333333333334,
+          "time_seconds_second": 226.86666666666667,
+          "time_bin": 95,
+          "normalized_time_first": 0.9543706061811912,
+          "normalized_time_second": 0.9588616511693435,
+          "state_distance": 0.5308385099785333,
+          "future_distance": 0.801623146251634
+        },
+        {
+          "frame_first": 7247,
+          "frame_second": 6849,
+          "time_seconds_first": 241.56666666666666,
+          "time_seconds_second": 228.3,
+          "time_bin": 96,
+          "normalized_time_first": 0.9612680726886855,
+          "normalized_time_second": 0.9649196956889264,
+          "state_distance": 0.6140324498198804,
+          "future_distance": 0.9144315474892206
+        },
+        {
+          "frame_first": 7281,
+          "frame_second": 6830,
+          "time_seconds_first": 242.7,
+          "time_seconds_second": 227.66666666666666,
+          "time_bin": 96,
+          "normalized_time_first": 0.9657779546358933,
+          "normalized_time_second": 0.9622428853198084,
+          "state_distance": 0.5346247231144996,
+          "future_distance": 1.0554150083424416
+        },
+        {
+          "frame_first": 7323,
+          "frame_second": 6946,
+          "time_seconds_first": 244.1,
+          "time_seconds_second": 231.53333333333333,
+          "time_bin": 97,
+          "normalized_time_first": 0.9713489852765619,
+          "normalized_time_second": 0.9785855170470555,
+          "state_distance": 0.6765398853164122,
+          "future_distance": 0.8751712840756642
+        },
+        {
+          "frame_first": 7383,
+          "frame_second": 6886,
+          "time_seconds_first": 246.1,
+          "time_seconds_second": 229.53333333333333,
+          "time_bin": 97,
+          "normalized_time_first": 0.9793076004775169,
+          "normalized_time_second": 0.9701324316708932,
+          "state_distance": 0.6157858882420473,
+          "future_distance": 1.087692855316708
+        },
+        {
+          "frame_first": 7425,
+          "frame_second": 7011,
+          "time_seconds_first": 247.5,
+          "time_seconds_second": 233.7,
+          "time_bin": 98,
+          "normalized_time_first": 0.9848786311181854,
+          "normalized_time_second": 0.9877430262045647,
+          "state_distance": 0.5844295135505019,
+          "future_distance": 0.8404865274432239
+        },
+        {
+          "frame_first": 7455,
+          "frame_second": 6988,
+          "time_seconds_first": 248.5,
+          "time_seconds_second": 232.93333333333334,
+          "time_bin": 98,
+          "normalized_time_first": 0.9888579387186629,
+          "normalized_time_second": 0.9845026768103691,
+          "state_distance": 0.5809790998373073,
+          "future_distance": 1.0937126776530675
+        },
+        {
+          "frame_first": 7492,
+          "frame_second": 7091,
+          "time_seconds_first": 249.73333333333332,
+          "time_seconds_second": 236.36666666666667,
+          "time_bin": 99,
+          "normalized_time_first": 0.9937657514259186,
+          "normalized_time_second": 0.9990138067061144,
+          "state_distance": 0.5607093722260074,
+          "future_distance": 0.8396933049774633
+        },
+        {
+          "frame_first": 7539,
+          "frame_second": 7032,
+          "time_seconds_first": 251.3,
+          "time_seconds_second": 234.4,
+          "time_bin": 99,
+          "normalized_time_first": 1.0,
+          "normalized_time_second": 0.9907016060862215,
+          "state_distance": 0.6166607216796335,
+          "future_distance": 0.9712253258195193
+        }
+      ],
+      "clips": [
+        "walk1_subject5",
+        "walk3_subject1"
+      ],
+      "inputs": [
+        {
+          "path": "/data/robotixx/pairs/unitree_g1/walk1_subject5.npz",
+          "sha256": "e8e10aebc35774ebc1a56498be4b2fd7b10922c9c147fece2a59d7f2784d86ae"
+        },
+        {
+          "path": "/data/robotixx/pairs/unitree_g1/walk3_subject1.npz",
+          "sha256": "8eecd3335f401f66308a5e12cf4845101197b44fa635c13e02cb77bb56dbfabd"
+        }
+      ],
+      "passes_floor": true
+    },
+    "walk1_subject5,run1_subject2": {
+      "num_nearest_candidates": 7540,
+      "num_threshold_eligible": 30,
+      "num_selected_windows": 5,
+      "source_fps": 30.0,
+      "rollout_frames": 300,
+      "nearest_state_distance": {
+        "min": 0.6766954733104903,
+        "p10": 0.9585693176049952,
+        "median": 1.1752372957064234,
+        "p90": 1.419006414762132,
+        "max": 2.5240943159273286
+      },
+      "nearest_future_distance": {
+        "min": 0.8006860149738022,
+        "p10": 1.0641262659132524,
+        "median": 1.3631107715551505,
+        "p90": 1.6714165336318452,
+        "max": 2.48863539397922
+      },
+      "eligible_state_distance": {
+        "min": 0.6766954733104903,
+        "p10": 0.6950293968227623,
+        "median": 0.7168465690715433,
+        "p90": 0.7469917258165316,
+        "max": 0.7493989954889044
+      },
+      "eligible_future_distance": {
+        "min": 0.8706693156442586,
+        "p10": 0.9005092049556529,
+        "median": 1.338817537410038,
+        "p90": 1.5761966272445036,
+        "max": 1.5967459736669343
+      },
+      "windows": [
+        {
+          "frame_first": 84,
+          "frame_second": 121,
+          "time_seconds_first": 2.8,
+          "time_seconds_second": 4.033333333333333,
+          "time_bin": 1,
+          "normalized_time_first": 0.011142061281337047,
+          "normalized_time_second": 0.017705589698565994,
+          "state_distance": 0.7013712382232321,
+          "future_distance": 0.9123179031096559
+        },
+        {
+          "frame_first": 5473,
+          "frame_second": 4940,
+          "time_seconds_first": 182.43333333333334,
+          "time_seconds_second": 164.66666666666666,
+          "time_bin": 72,
+          "normalized_time_first": 0.7259583499137817,
+          "normalized_time_second": 0.7228563067017852,
+          "state_distance": 0.6766954733104903,
+          "future_distance": 1.1785989659537661
+        },
+        {
+          "frame_first": 6950,
+          "frame_second": 6290,
+          "time_seconds_first": 231.66666666666666,
+          "time_seconds_second": 209.66666666666666,
+          "time_bin": 92,
+          "normalized_time_first": 0.9218729274439581,
+          "normalized_time_second": 0.9203980099502488,
+          "state_distance": 0.7493989954889044,
+          "future_distance": 1.0598762667698154
+        },
+        {
+          "frame_first": 7103,
+          "frame_second": 6435,
+          "time_seconds_first": 236.76666666666668,
+          "time_seconds_second": 214.5,
+          "time_bin": 94,
+          "normalized_time_first": 0.9421673962063934,
+          "normalized_time_second": 0.9416154521510096,
+          "state_distance": 0.7436303252807519,
+          "future_distance": 0.9857731583909692
+        },
+        {
+          "frame_first": 7127,
+          "frame_second": 6456,
+          "time_seconds_first": 237.56666666666666,
+          "time_seconds_second": 215.2,
+          "time_bin": 94,
+          "normalized_time_first": 0.9453508422867755,
+          "normalized_time_second": 0.9446883230904302,
+          "state_distance": 0.6953381452721046,
+          "future_distance": 1.5967459736669343
+        }
+      ],
+      "clips": [
+        "walk1_subject5",
+        "run1_subject2"
+      ],
+      "inputs": [
+        {
+          "path": "/data/robotixx/pairs/unitree_g1/walk1_subject5.npz",
+          "sha256": "e8e10aebc35774ebc1a56498be4b2fd7b10922c9c147fece2a59d7f2784d86ae"
+        },
+        {
+          "path": "/data/robotixx/pairs/unitree_g1/run1_subject2.npz",
+          "sha256": "ff5adee5cd41ee1db2e181e59e7f91684c575ae27112b16d22646b1d8009d00b"
+        }
+      ],
+      "passes_floor": false
+    }
+  },
+  "preferred_pair": "walk1_subject5,walk3_subject1",
+  "gate_passed": true
+}

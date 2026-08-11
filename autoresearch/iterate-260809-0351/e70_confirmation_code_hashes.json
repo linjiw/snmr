@@ -1,0 +1,12 @@
+{
+  "protocol": "E70 confirmation code freeze v1",
+  "recorded_utc": "2026-08-09T17:23:00Z",
+  "note": "Recorded before the seed-2 round-0 recovery and before any post-confirmation video-capture edits.",
+  "sha256": {
+    "scripts/train_e52_dagger.py": "87bde1214d459d430a1bd35d04733ecc6096eb963b8f0d814c69bca13167f140",
+    "snmr/integration/distillation.py": "483508f90baea5abef0110be170918650d4d5f1fd0611a2faa4ffbe758855af2",
+    "scripts/run_e70_multitraj.sh": "1d79b196637e1081dc56826eab54996eced3c3777abd188cc887400a386998f8",
+    "scripts/analyze_e67_results.py": "7a822648a0639dba0fb8745ea36ddd729b2784b4522fdab937038ecf58a94cea",
+    "autoresearch/iterate-260808-0338/e70_ambiguity_precheck.json": "3c03b89e2bda939e9a8c5a6dd58caeb771944bb9e5755b14eb37ab75ed9c502e"
+  }
+}

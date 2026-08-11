@@ -14,6 +14,51 @@ This is a from-scratch, dependency-light (torch + numpy + scipy; mujoco to load 
 codebase, built and validated against the real Unitree G1 model and a real holosoma whole-body-tracking
 motion that ship in this repo.
 
+## Environment setup
+
+The core retargeter/GMR data environment and the Holosoma WBT environment should remain separate.
+For a local Python 3.10 environment:
+
+```bash
+uv venv --python 3.10 .venv
+uv pip install --python .venv/bin/python -e ".[dev,robot,data,video]"
+uv pip install --python .venv/bin/python -e ../GMR --no-deps
+source scripts/activate_snmr.sh
+python -m pytest -q
+```
+
+The optional paper-video pipeline additionally requires the `ffmpeg` and `ffprobe`
+system executables; `scripts/compose_e70_video.py` checks for both before encoding.
+
+`scripts/activate_snmr.sh` sets the external/data roots, headless MuJoCo rendering, and isolates
+pytest from host-level ROS plugins. The GMR editable install should point at the commit recorded in
+`THIRD_PARTY.md`; `scripts/fetch_externals.sh` provisions that layout on a fresh machine. GMR is
+needed only to regenerate teacher pairs, not for ordinary SNMR training or inference.
+
+The next-stage controller uses Holosoma's separate MuJoCo/MJWarp environment (created by
+`holosoma/scripts/setup_mujoco_via_uv.sh` or `setup_mujoco.sh`). Isaac Lab and SONIC are not SNMR
+dependencies and should not be installed into `.venv`.
+
+The activation script also exposes the portable Tectonic installation on the data disk. Build the
+current six-page draft without adding host packages using:
+
+```bash
+source scripts/activate_snmr.sh
+mkdir -p /data/robotixx/snmr-research/paper-build
+XDG_CACHE_HOME="$SNMR_CACHE_ROOT/tectonic" \
+  tectonic --outdir /data/robotixx/snmr-research/paper-build paper/main.tex
+```
+
+The original multi-trajectory E67 pair and its bounded E68 extension are closed because the
+`walk3_subject1` specialist missed the frozen quality gate. The reference-only E69 screen then
+selected `walk1_subject1`; its new specialist passed with 0.987 completion and 9.94 s survival.
+The fresh, loader-order-safe two-walk comparison is preregistered in
+`docs/E70_MULTITRAJ_PROTOCOL.md` and launched with `bash scripts/run_e70_multitraj.sh`. Seed 0
+passes every registered content gate; seeds 1--2 are the frozen confirmation queue. The video
+and hardware boundaries are recorded in `docs/E70_VIDEO_PROTOCOL.md` and
+`docs/REAL_WORLD_DEPLOYMENT_PLAN.md`. All large artifacts remain under
+`/data/robotixx/snmr-research/`.
+
 ## What is implemented and validated
 
 | Module | Role | Validated by |
@@ -88,10 +133,13 @@ implementation; the other — silently dropping slide/ball joints instead of rai
 - **Multi-robot SNMR is implemented and trained.** Phase 2 covers five trained robots with `L_z`
   consistency. Zero-shot decoding to a held-out robot currently fails, so embodiment augmentation
   and robot-source decode training remain deferred experiments.
-- **Holosoma WBT Stage A is implemented and has run locally on MuJoCo/Warp.** The matched GMR/SNMR
-  pilot is complete, but the formal comparison remains unresolved because the 1,000-iteration GMR
-  control was undertrained. Latent-command WBT, a shared multi-robot policy, and RL-to-retargeter
-  feedback remain proposed extensions.
+- **The Holosoma latent-command instrument is implemented and validated on MuJoCo/Warp.** On the
+  single cyclic clip, the explicit 64-d interface matches its evaluated teacher, while an absolute
+  time-index control outperforms the frozen SNMR latent; see `paper/main.tex`. In the frozen E70
+  two-walk assay, the seed-0 explicit control passes and SNMR exceeds time by +0.154 completion
+  (69-cluster 95% CI [0.093, 0.215]) and matched-phase shuffled SNMR by +0.187
+  ([0.137, 0.236]); seeds 1 and 2 are the predeclared confirmation runs. Shared multi-robot control
+  and RL-to-retargeter feedback remain proposed extensions.
 
 ## Conventions (fixed package-wide)
 

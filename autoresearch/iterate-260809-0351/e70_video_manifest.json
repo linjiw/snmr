@@ -1,0 +1,138 @@
+{
+  "protocol": "E70 paper-video rollout selection v1",
+  "selection_uses_policy_outcomes": false,
+  "training_seed": 0,
+  "pair": "walk1_subject1,walk1_subject5",
+  "pair_id": 1,
+  "reference_window": {
+    "frame_first": 20,
+    "frame_second": 61,
+    "time_seconds_first": 0.6666666666666666,
+    "time_seconds_second": 2.033333333333333,
+    "time_bin": 0,
+    "normalized_time_first": 0.002652871733651678,
+    "normalized_time_second": 0.008091258787637617,
+    "state_distance": 0.5005088083184525,
+    "future_distance": 1.1885447147746169,
+    "selection": {
+      "rule": "nearest to median reference future distance, then median reference state distance, then lexical frame index",
+      "state_distance_median": 0.6819480699309554,
+      "future_distance_median": 1.1885447147746169
+    }
+  },
+  "sides": [
+    {
+      "side": 0,
+      "clip": "walk1_subject1",
+      "start_step": 33,
+      "time_seconds": 0.6666666666666666
+    },
+    {
+      "side": 1,
+      "clip": "walk1_subject5",
+      "start_step": 13168,
+      "time_seconds": 2.033333333333333
+    }
+  ],
+  "captures": [
+    {
+      "name": "snmr_walk1_subject1",
+      "tag": "snmr",
+      "arm": "a_prior_snmr",
+      "phase_only": false,
+      "shuffle_latent": false,
+      "destroy_zcmd": "none",
+      "checkpoint": "/data/robotixx/snmr-research/e70/students/seed0_snmr/a_prior_snmr_student.pt",
+      "checkpoint_sha256": "f88984971c3435e3c377f038ed2ef5abef788aa1a0f68a80ad7011b23bb9b93a",
+      "side": 0,
+      "clip": "walk1_subject1",
+      "start_step": 33,
+      "time_seconds": 0.6666666666666666
+    },
+    {
+      "name": "snmr_walk1_subject5",
+      "tag": "snmr",
+      "arm": "a_prior_snmr",
+      "phase_only": false,
+      "shuffle_latent": false,
+      "destroy_zcmd": "none",
+      "checkpoint": "/data/robotixx/snmr-research/e70/students/seed0_snmr/a_prior_snmr_student.pt",
+      "checkpoint_sha256": "f88984971c3435e3c377f038ed2ef5abef788aa1a0f68a80ad7011b23bb9b93a",
+      "side": 1,
+      "clip": "walk1_subject5",
+      "start_step": 13168,
+      "time_seconds": 2.033333333333333
+    },
+    {
+      "name": "time_walk1_subject1",
+      "tag": "time",
+      "arm": "a_prior_snmr",
+      "phase_only": true,
+      "shuffle_latent": false,
+      "destroy_zcmd": "none",
+      "checkpoint": "/data/robotixx/snmr-research/e70/students/seed0_time/a_prior_snmr_student.pt",
+      "checkpoint_sha256": "6f975c7f5c5856acf4e8785aad4203acf45389d7d0bc2dd3015a74ead79162a5",
+      "side": 0,
+      "clip": "walk1_subject1",
+      "start_step": 33,
+      "time_seconds": 0.6666666666666666
+    },
+    {
+      "name": "time_walk1_subject5",
+      "tag": "time",
+      "arm": "a_prior_snmr",
+      "phase_only": true,
+      "shuffle_latent": false,
+      "destroy_zcmd": "none",
+      "checkpoint": "/data/robotixx/snmr-research/e70/students/seed0_time/a_prior_snmr_student.pt",
+      "checkpoint_sha256": "6f975c7f5c5856acf4e8785aad4203acf45389d7d0bc2dd3015a74ead79162a5",
+      "side": 1,
+      "clip": "walk1_subject5",
+      "start_step": 13168,
+      "time_seconds": 2.033333333333333
+    },
+    {
+      "name": "explicit_clean_walk1_subject1",
+      "tag": "explicit",
+      "arm": "c_prior_explicit",
+      "phase_only": false,
+      "shuffle_latent": false,
+      "destroy_zcmd": "none",
+      "checkpoint": "/data/robotixx/snmr-research/e70/students/seed0_explicit/c_prior_explicit_student.pt",
+      "checkpoint_sha256": "8fb6f2e1645d8070e978c34f642f82b5be8b43a67c3f11e0adf87ea1fa272916",
+      "side": 0,
+      "clip": "walk1_subject1",
+      "start_step": 33,
+      "time_seconds": 0.6666666666666666
+    },
+    {
+      "name": "explicit_destroy_marginal_walk1_subject1",
+      "tag": "explicit",
+      "arm": "c_prior_explicit",
+      "phase_only": false,
+      "shuffle_latent": false,
+      "destroy_zcmd": "marginal_random",
+      "checkpoint": "/data/robotixx/snmr-research/e70/students/seed0_explicit/c_prior_explicit_student.pt",
+      "checkpoint_sha256": "8fb6f2e1645d8070e978c34f642f82b5be8b43a67c3f11e0adf87ea1fa272916",
+      "side": 0,
+      "clip": "walk1_subject1",
+      "start_step": 33,
+      "time_seconds": 0.6666666666666666
+    }
+  ],
+  "precheck": {
+    "path": "/home/robotixx/snmr/autoresearch/iterate-260808-0338/e70_ambiguity_precheck.json",
+    "sha256": "3c03b89e2bda939e9a8c5a6dd58caeb771944bb9e5755b14eb37ab75ed9c502e"
+  },
+  "start_step_source": {
+    "path": "/data/robotixx/snmr-research/e70/students/seed0_explicit/c_prior_explicit_eval_ambiguity.json",
+    "sha256": "562fd7527433ec5e5d8e90353a942949290f972265cf0857f845349d54602034",
+    "fields_used": [
+      "start_steps",
+      "motion_ids",
+      "ambiguity_pair_ids",
+      "ambiguity_sides"
+    ],
+    "outcome_fields_used": []
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "protocol": "E70 external-interruption audit v1",
+  "cell": "seed2_proprio",
+  "process_exit_code": 143,
+  "last_logged_round_index": 1550,
+  "last_periodic_completed_rounds": 1550,
+  "canonical_student_written": false,
+  "behavioral_evaluation_run": false,
+  "partial_resume_allowed": false,
+  "reason_partial_resume_is_invalid": "checkpoint omits simulator state, RNG state, round replay, and the frozen validation tensors",
+  "resolution": "preserve the incomplete directory and restart the cell from round 0 with the identical frozen E70 command",
+  "preserved_directory": "/data/robotixx/snmr-research/e70/interrupted/seed2_proprio_round1550_20260809T125601",
+  "last_periodic_checkpoint": {
+    "path": "/data/robotixx/snmr-research/e70/interrupted/seed2_proprio_round1550_20260809T125601/checkpoints/b_prior_proprio_round_01550.pt",
+    "sha256": "4ed8ff70299fda5bc9d8abe50f81ef5ca254367b22583ff202a125bc68f2665d"
+  },
+  "best_checkpoint_at_interruption": {
+    "path": "/data/robotixx/snmr-research/e70/interrupted/seed2_proprio_round1550_20260809T125601/checkpoints/b_prior_proprio_best.pt",
+    "sha256": "50eb41ded4da45fdbeff6b7bb0370954f29fc293ea790208b58f233d343a82e9",
+    "selected_round_index": 149
+  }
+}

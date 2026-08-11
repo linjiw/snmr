@@ -2013,3 +2013,107 @@ primary context for device cuda:0") — the queue retried into the still-occupie
 REQUIRED before any rerun: set -euo pipefail; success marker only after validating
 nonempty ckpt + parsable eval JSON; GPU-free precondition check; commit T1 configs as
 a patch (currently uncommitted clone edits, see docs/E54_T1_PORT_STATUS.md).
+
+### E67 - STOPPED AT TEACHER GATE (2026-08-08): one of two specialists failed; no representation conclusion
+Reference-only ambiguity selection passed for `walk1_subject5 + walk3_subject1`: 66
+non-overlapping starts spanning both clips under the amended requirement that every start
+retain a full 10-s same-clip rollout.  The alternative `walk1_subject5 + run1_subject2`
+had only 5 starts and failed the frozen floor of 20.  The five-arm student comparison was
+therefore correctly frozen to walk1 + walk3 before any representation result.
+
+Both specialists trained for 8,000 PPO iterations and were evaluated on the exact
+1,024-start, 10-s, seed-404 grid:
+
+| specialist | completion | survival | joint RMSE | gate |
+|---|---:|---:|---:|---|
+| walk1_subject5 | 0.8467 | 9.1138 s | 0.1807 rad | PASS |
+| walk3_subject1 | 0.5615 | 7.2881 s | 0.2233 rad | **FAIL** |
+
+Per the preregistration, E67 stops without evidence for or against SNMR content beyond
+time.  A Bash failure-propagation defect masked the failing evaluator and allowed the
+explicit positive-control student to train 2,000 rounds, but it received no general or
+ambiguity-start behavioral evaluation.  Its checkpoint is invalid and excluded.  The
+launcher now independently reads the persisted `passes_gate` value and returns status 2
+before manifest/student creation; replaying the failed report verifies the fail-closed
+path.  Protocol and artifacts: `docs/E67_MULTITRAJ_PROTOCOL.md`,
+`/data/robotixx/snmr-research/e67/`.  Reproduce/resume with
+`bash scripts/run_e67_multitraj.sh` (currently exits at the persisted failed gate).
+
+### E68 - REGISTERED+LAUNCHED (2026-08-08): bounded walk3 specialist feasibility extension
+The failed specialist's learning curve was still improving at 8k (training mean episode
+length approximately 100/111/128/211 steps at 2k/4k/6k/8k).  E68 therefore resumes the
+exact 8k checkpoint (SHA-256
+`12f3e92b2d58a748dea768fcf9e442329470348d54c06af63041df5d2a6db32d`) for one additional
+8,000-iteration budget, with all other settings fixed.  No intermediate checkpoint is
+evaluated or selected; only `model_15998.pt` receives the original 1,024-rollout gate.
+This nuisance-model calibration cannot retroactively rescue E67 and launches no student.
+If it passes, a fresh E69 must retrain every student in a new output root.  Protocol:
+`docs/E68_TEACHER_FEASIBILITY_PROTOCOL.md`; command:
+`bash scripts/run_e68_teacher_extension.sh`; output:
+`/data/robotixx/snmr-research/e68/`.
+
+### E68 - ENDPOINT (2026-08-08): improved but failed; walk1 + walk3 pair closed
+The exact `model_15998.pt` endpoint (SHA-256
+`ee8f69161d299516a6144964c6ed98194cf1f26c1aa9dc91356337774d07d32d`)
+reached 0.6543 completion, 7.9747 s survival, and 0.2024 rad joint RMSE on the frozen
+1,024-rollout seed-404 grid.  Relative to the 8k source this is +9.3 completion points,
++0.69 s survival, and -0.021 rad RMSE, but it still misses the unchanged 0.80/9.0 gates.
+Decision: stop this clip pair, evaluate no intermediate checkpoint, add no E68 budget,
+and run no student.  The result localizes the current block to specialist feasibility
+rather than yielding a representation comparison.
+
+### E69 - ENDPOINT (2026-08-09): reference-selected walk specialist passed
+The exhaustive reference-only screen selected `walk1_subject1` against the fixed
+`walk1_subject5` anchor: 69 ambiguity windows, median eligible future distance 1.113 pooled
+SD, and difficulty ratio 0.852.  Its aligned GMR + 128-d SNMR motion is finite and preserves all
+non-latent reference arrays bit-exactly.
+
+The one registered 8k specialist endpoint passed the unchanged 1,024-rollout, seed-404 gate:
+0.9873 completion, 9.9376 s mean survival, and 0.1815 rad joint RMSE.  Checkpoint SHA-256:
+`8f884cfbf742bfd106766ed95114a3389d7e36c18008b11f850ca2a4a8f0d9fd`.
+E69 is closed as a teacher-feasibility pass; it is not a representation result.
+
+### E70 - PREREGISTERED (2026-08-09): fresh two-walk student comparison
+E70 pairs the passing `walk1_subject1` and `walk1_subject5` specialists in exact lexical loader
+order.  A deterministic transform swapped all E69 ambiguity sides into that order, yielding 69
+paired windows.  The fresh five-arm sequence is explicit positive control, SNMR, time, proprio,
+and same-phase shuffled SNMR, with clean explicit-command zero/shuffle/marginal interventions.  It retains
+the E67 2,000-round recipe, seed-0 fail-fast control gate, 1,024-rollout seed-404 evaluation, and
+paired cluster-bootstrap content gate.  No E67 student can be reused.  Protocol:
+`docs/E70_MULTITRAJ_PROTOCOL.md`; launcher: `scripts/run_e70_multitraj.sh`.
+
+Launch is currently infrastructure-blocked: the host driver/modules expose the RTX 5090 in
+`/proc`, but `/dev/nvidia*` device nodes are absent, so `nvidia-smi` cannot open the GPU.  This is
+not a scientific stop or gate outcome.
+
+### E70 - SEED-0 POSITIVE CONTROL (2026-08-09): PASS; representation arms licensed
+GPU access returned without a host modification.  The fresh explicit student completed all 2,000
+rounds with finite losses; its best held-out action loss was 0.0431 at round 1,949.  On the frozen
+1,024-rollout seed-404 general grid it reached 0.9248 completion, 9.5846 s survival, and 0.1807 rad
+joint RMSE.  The teacher macro is 0.9170, so C passes.  Per-clip completion was 0.9824 on
+`walk1_subject1` and 0.8672 on `walk1_subject5`.  At the 69 paired ambiguity starts C reached
+0.9785 completion.
+
+Clean causal interventions collapse general completion from 0.9248 to 0.000 when `z_cmd` is
+zeroed and 0.000 when it is batch-shuffled.  This establishes that the current, structurally
+exclusive student actually uses its command channel; it is not the old leak diagnostic.  The
+frozen launcher has therefore advanced to A/T/B/S.  No latent-content conclusion is made yet.
+
+### E70 - SEED-0 CONTENT ENDPOINT (2026-08-09): ALL PREREGISTERED GATES PASS
+All four representation arms completed the fixed 2,000-round budget and deterministic 1,024-
+rollout general and ambiguity-start evaluations.  Ambiguity completion is 0.7646 for SNMR,
+0.6084 for absolute time, 0.5176 for proprio-only, and 0.5762 for matched-phase shuffled SNMR.
+The 69-cluster paired bootstrap gives SNMR-minus-time +0.1544 (95% CI [0.0932, 0.2147]) and
+SNMR-minus-shuffled +0.1871 ([0.1368, 0.2358]).  SNMR-minus-time is positive on both clips:
++0.1517 [0.0851, 0.2223] on `walk1_subject1` and +0.1571 [0.0639, 0.2461] on
+`walk1_subject5`.  Together with the passing explicit control, this satisfies every frozen
+content gate.
+
+The third clean-channel intervention also completed: independently drawing each explicit command
+dimension from its observed batch marginal collapses general completion to 0.000 (0.927 s mean
+survival), matching the zero and batch-shuffle conclusions.  The initial live launcher exited
+after writing the final shuffled ambiguity report because its file had been amended while Bash
+was still reading it; an idempotent rerun executed the missing marginal control and analyzer
+without retraining or overwriting any completed report.  Machine-readable endpoint:
+`/data/robotixx/snmr-research/e70/analysis_seed0.json`.  Decision: freeze seed 0 and run the
+predeclared training seeds 1 and 2; do not tune the recipe or gates.

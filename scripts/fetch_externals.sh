@@ -4,7 +4,7 @@
 set -euo pipefail
 
 GMR_SHA="bb1bbe40774794fceb2a7c579a3464a28e68c844"
-HOLO_SHA="38009aad61851d59277fa4ebaf4f54c44ec483f7"
+HOLO_SHA="20699ffa20f494b9563aa68601940c53397bf088"
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # snmr repo root
 DEST="${SNMR_EXTERNALS_DIR:-$(dirname "$HERE")}"          # default: sibling of the repo
@@ -12,7 +12,15 @@ DEST="${SNMR_EXTERNALS_DIR:-$(dirname "$HERE")}"          # default: sibling of 
 clone_pin () {
   local url="$1" dir="$2" sha="$3"
   if [ -d "$dir/.git" ]; then
-    echo "[fetch_externals] $dir exists; leaving as-is (HEAD $(git -C "$dir" rev-parse --short HEAD))"
+    local current
+    current="$(git -C "$dir" rev-parse HEAD)"
+    if [[ "$current" != "$sha" ]]; then
+      printf '[fetch_externals] ERROR: %s exists at %s, expected %s.\n' \
+        "$dir" "$current" "$sha" >&2
+      printf '[fetch_externals] Use a different SNMR_EXTERNALS_DIR or reconcile that clone explicitly; it was not modified.\n' >&2
+      return 2
+    fi
+    echo "[fetch_externals] $dir already pinned at $sha"
   else
     git clone "$url" "$dir"
     git -C "$dir" checkout --quiet "$sha"
@@ -27,8 +35,8 @@ cat <<EOF
 
 Next steps:
   # teacher package (needed only for data generation):
-  pip install -e "$DEST/GMR" --no-deps
-  pip install mink "qpsolvers[daqp]" loop_rate_limiters rich tqdm natsort psutil imageio opencv-python-headless
+  uv pip install --python "$HERE/.venv/bin/python" -e "$DEST/GMR" --no-deps
+  uv pip install --python "$HERE/.venv/bin/python" mink "qpsolvers[daqp]" loop_rate_limiters rich tqdm natsort psutil imageio opencv-python-headless
 
   # regenerate the paired dataset (see docs/DATA.md):
   python scripts/make_pairs_lafan1.py --robots unitree_g1 booster_t1_29dof fourier_n1 engineai_pm01 stanford_toddy

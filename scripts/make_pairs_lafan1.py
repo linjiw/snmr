@@ -21,6 +21,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
+import multiprocessing
 import pathlib
 import sys
 import time
@@ -63,8 +65,11 @@ def process_clip(bvh_path: pathlib.Path, robot: str, out_dir: pathlib.Path) -> d
 
     out = out_dir / robot / (bvh_path.stem + ".npz")
     out.parent.mkdir(parents=True, exist_ok=True)
+    # Write atomically so an interrupted multi-hour generation run never leaves a
+    # corrupt file that looks complete to a resume pass.
+    tmp = out.with_name(f"{out.name}.tmp.npz")
     np.savez_compressed(
-        out,
+        tmp,
         human_pos=human_pos,
         human_quat=human_quat,
         human_names=np.array(LAFAN1_BODIES),
@@ -73,7 +78,12 @@ def process_clip(bvh_path: pathlib.Path, robot: str, out_dir: pathlib.Path) -> d
         robot=np.array(robot),
         human_height=np.array(human_height),
     )
+    tmp.replace(out)
     return {"clip": bvh_path.stem, "robot": robot, "frames": T, "out": str(out)}
+
+
+def _process_task(task: tuple[pathlib.Path, str, pathlib.Path]) -> dict:
+    return process_clip(*task)
 
 
 def main() -> None:
@@ -82,26 +92,52 @@ def main() -> None:
     ap.add_argument("--out_dir", default=str(data_root() / "pairs"))
     ap.add_argument("--robots", nargs="+", default=["unitree_g1"])
     ap.add_argument("--max_clips", type=int, default=0, help="0 = all clips")
+    ap.add_argument("--workers", type=int, default=1,
+                    help="parallel clip/robot workers; 1 preserves sequential behavior")
+    ap.add_argument("--skip_existing", action="store_true",
+                    help="resume without regenerating pair files that already exist")
     args = ap.parse_args()
+    if args.workers < 1:
+        ap.error("--workers must be >= 1")
 
     bvh_files = sorted(pathlib.Path(args.bvh_dir).glob("*.bvh"))
     if args.max_clips:
         bvh_files = bvh_files[: args.max_clips]
     out_dir = pathlib.Path(args.out_dir)
+    tasks = []
+    skipped = 0
+    for robot in args.robots:
+        for bvh in bvh_files:
+            out = out_dir / robot / f"{bvh.stem}.npz"
+            if args.skip_existing and out.exists():
+                skipped += 1
+                continue
+            tasks.append((bvh, robot, out_dir))
 
     t0 = time.time()
     total_frames = 0
-    for robot in args.robots:
-        for bvh in bvh_files:
-            info = process_clip(bvh, robot, out_dir)
+    if args.workers == 1:
+        results = map(_process_task, tasks)
+    else:
+        executor = concurrent.futures.ProcessPoolExecutor(
+            max_workers=args.workers,
+            mp_context=multiprocessing.get_context("spawn"),
+        )
+        results = executor.map(_process_task, tasks)
+
+    try:
+        for info in results:
             total_frames += info["frames"]
             elapsed = time.time() - t0
             print(
                 f"[{elapsed:7.1f}s] {info['robot']:18s} {info['clip']:28s} "
                 f"{info['frames']:6d} frames -> {info['out']}"
             )
+    finally:
+        if args.workers != 1:
+            executor.shutdown()
     dt = time.time() - t0
-    print(f"\nDone: {len(bvh_files)} clips x {len(args.robots)} robots, "
+    print(f"\nDone: {len(tasks)} generated, {skipped} skipped, "
           f"{total_frames} teacher frames in {dt:.0f}s ({total_frames/max(dt,1e-9):.0f} fps)")
 
 

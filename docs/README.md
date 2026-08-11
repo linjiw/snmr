@@ -7,6 +7,10 @@ the map. **Reading order for a newcomer: ①→②→③.**
 
 | Doc | Role |
 |---|---|
+| `E70_MULTITRAJ_PROTOCOL.md` | Current two-walk command-interface experiment, frozen gates, and seed-0 endpoint |
+| `ICRA_READINESS_AUDIT_2026-08-09.md` | Current paper-critical path and submission compliance audit |
+| `E70_VIDEO_PROTOCOL.md` | Policy-independent simulation-video selection, storyboard, and encoding checks |
+| `REAL_WORLD_DEPLOYMENT_PLAN.md` | ONNX/runtime status plus hard safety gates before Unitree G1 deployment |
 | `RESEARCH_PROPOSAL_RETARGET_TO_TRACKING.md` | **The active research program**: goal, hypotheses H1–H4, staged plan (B1 matrix → E49 → SSL refinement → act-through-latent CVAE → multi-clip/cross-embodiment), kill criteria |
 | `PROGRAM_CONSOLIDATION.md` | Evidence map of everything built/learned/analyzed through 2026-07-20; the through-line; ranked open questions |
 | `E49_ACT_THROUGH_LATENT_PROTOCOL.md` | Next registered experiment (config-only co-trained latent readout; Stage-0 wiring gate; stop rules) |

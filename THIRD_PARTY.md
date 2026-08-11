@@ -8,7 +8,7 @@ pinned SHAs into the expected sibling layout (override locations with `SNMR_GMR_
 | Project | URL | Pinned SHA | License | How we use it |
 |---|---|---|---|---|
 | GMR (General Motion Retargeting) | https://github.com/YanjieZe/GMR | `bb1bbe40774794fceb2a7c579a3464a28e68c844` | MIT | Teacher retargeter (`pip install -e`, unmodified); LAFAN1 BVH loader; robot MJCF assets |
-| holosoma | https://github.com/amazon-far/holosoma | `38009aad61851d59277fa4ebaf4f54c44ec483f7` | Apache-2.0 (see its NOTICE) | G1 MJCF with hardware joint limits; WBT training-NPZ format reference + sample fixture |
+| holosoma | https://github.com/amazon-far/holosoma | `20699ffa20f494b9563aa68601940c53397bf088` | Apache-2.0 (see its NOTICE) | G1 MJCF with hardware joint limits; WBT training-NPZ format; verified MuJoCo/MJWarp research runtime |
 
 ## Robot models read at runtime (per-robot licenses in `GMR/assets/<robot>/`)
 

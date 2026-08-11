@@ -40,6 +40,7 @@ def patch() -> None:
         return
 
     orig_setup = MotionCommand.setup
+    orig_reset = MotionCommand.reset
 
     def setup(self):
         orig_setup(self)
@@ -60,6 +61,77 @@ def patch() -> None:
         )
 
     MotionCommand.setup = setup
+
+    def set_evaluation_start_steps(self, starts):
+        """Freeze the next evaluation resets to explicit global motion frames.
+
+        Current Holosoma evaluation resets otherwise place every environment at the
+        beginning of a randomly selected clip.  The SNMR studies require paired,
+        phase-stratified starts.  Store the requested global frame for each environment;
+        the patched reset below applies it before BaseTask flushes state to the simulator.
+        """
+        import torch
+
+        starts = torch.as_tensor(starts, device=self.device, dtype=torch.long)
+        if starts.shape != (self.num_envs,):
+            raise ValueError(
+                f"evaluation starts must have shape ({self.num_envs},), got "
+                f"{tuple(starts.shape)}"
+            )
+        if torch.any(starts < 1) or torch.any(starts >= self.motion.time_step_total - 1):
+            raise ValueError("evaluation starts fall outside the loaded motion frames")
+        self._snmr_evaluation_start_steps = starts.clone()
+
+    def reset(self, env_ids):
+        import torch
+
+        orig_reset(self, env_ids)
+        requested = getattr(self, "_snmr_evaluation_start_steps", None)
+        if requested is None or not self._env.is_evaluating:
+            return
+
+        env_ids = self._ensure_index_tensor(env_ids)
+        requested_starts = requested[env_ids]
+        motion_ids = torch.searchsorted(
+            self.motion.motion_end_idx, requested_starts, right=True
+        )
+        if torch.any(motion_ids >= self.motion.num_motions):
+            raise ValueError("evaluation start maps beyond the final motion")
+        lower = self.motion.motion_start_idx[motion_ids]
+        upper = self.motion.motion_end_idx[motion_ids]
+        if torch.any((requested_starts <= lower) | (requested_starts >= upper - 1)):
+            raise ValueError("evaluation start does not map inside a valid motion")
+
+        # BaseTask.reset_all performs one zero-action transition before returning the
+        # first observation. Initialize at the preceding reference frame so that the
+        # observation delivered to the evaluator is exactly at ``requested_starts``.
+        starts = requested_starts - 1
+
+        self.motion_ids[env_ids] = motion_ids
+        self.time_steps[env_ids] = starts
+
+        # Reinitialize exactly at the requested reference state.  Phase diversity comes
+        # from the frozen start grid itself; avoiding reset noise makes paired policy
+        # comparisons share identical physical initial conditions.
+        sim = self._env.simulator
+        sim.dof_pos[env_ids] = self.joint_pos[env_ids]
+        sim.dof_vel[env_ids] = self.joint_vel[env_ids]
+        sim.robot_root_states[env_ids, :3] = self.root_pos_w[env_ids]
+        sim.robot_root_states[env_ids, 3:7] = self.root_quat_w[env_ids]
+        sim.robot_root_states[env_ids, 7:10] = self.root_lin_vel_w[env_ids]
+        sim.robot_root_states[env_ids, 10:13] = self.root_ang_vel_w[env_ids]
+
+        if self.motion.has_object:
+            object_pos = self.object_pos_w[env_ids]
+            object_quat = self.object_quat_w[env_ids]
+            object_vel = self.object_lin_vel_w[env_ids]
+            object_states = torch.cat(
+                (object_pos, object_quat, object_vel, torch.zeros_like(object_vel)), dim=-1
+            )
+            sim.set_actor_states([self.object_name], env_ids, object_states)
+
+    MotionCommand.set_evaluation_start_steps = set_evaluation_start_steps
+    MotionCommand.reset = reset
 
     def robot_body_pos_w(self):
         return self._env.simulator._rigid_body_pos[:, self._snmr_sim_tracked_body_indexes, :]

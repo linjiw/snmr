@@ -16,7 +16,28 @@ dependencies = [
 [project.optional-dependencies]
 # mujoco is needed to load MJCF robot models and to validate FK; not required for pure model math.
 robot = ["mujoco>=3.0"]
-dev = ["pytest>=7"]
+dev = [
+    "pytest>=7",
+    # Required by scripts/analyze_latent.py and its regression tests.
+    "scikit-learn>=1.3",
+]
+# Runtime used by scripts/make_pairs_lafan1.py after installing the pinned local GMR
+# checkout editable with --no-deps.  SMPL-X/video dependencies are intentionally excluded.
+data = [
+    "daqp>=0.7",
+    "imageio>=2",
+    "loop-rate-limiters>=1",
+    "mink>=1.2",
+    "natsort>=8",
+    "opencv-python-headless>=4",
+    "psutil>=5",
+    "qpsolvers>=4",
+    "rich>=13",
+    "tqdm>=4",
+]
+# Paper-video composition runs in the lightweight SNMR environment.  FFmpeg and
+# ffprobe are system executables and are checked explicitly by the composer.
+video = ["pillow>=10"]
 
 [tool.setuptools.packages.find]
 include = ["snmr*"]

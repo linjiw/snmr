@@ -1,0 +1,19 @@
+{
+  "protocol": "E70 paper-video code freeze v1",
+  "recorded_utc": "2026-08-11T21:25:18Z",
+  "note": "Intentionally refrozen before final analysis and raw simulator rendering after an independent research and writing review clarified the paper's claims, controls, and limitations; experiment endpoints, registered gates, and capture selection are unchanged.",
+  "sha256": {
+    "scripts/eval_e70_video.py": "d34efc290e4a2b5cc1827287408e02e04a7cfe594979d42ac877cbe40359d8ce",
+    "scripts/e70_video_runtime.py": "602ba690ce31e31ab771a57cdcf6754fabdc42fde554636b76eb3c66bb54ab46",
+    "scripts/index_e70_video_captures.py": "362ecc0e9c5695fd77dc91040754c5de080a57cc22fdc59f19077a95da7dd83d",
+    "scripts/compose_e70_video.py": "c2146b8fb0a3a06aa2043c70e590c1a56cb8eb17fcbe359f9e2607612ed0a919",
+    "scripts/render_e70_paper_values.py": "13b942ad76a82526b1e35c253e71b4a05f3b5a5bb2ab1e89766a0c3f9cd66e56",
+    "scripts/run_e70_video.sh": "c1103ace092f6c827b4e453c3968f5fb0598e65a5f220679ef26cc6574536f3f",
+    "scripts/run_e70_postprocess_supervisor.sh": "3e76139702a19026f1b5c5a147dda95bfce2800852db62b1527e9d2c93b2e697",
+    "scripts/check_e70_video_code_hashes.py": "87146e860e419572312989c8060fd43f2c5c44841ff9c827f42225efd6e38a70",
+    "scripts/audit_e70_final_bundle.py": "0b5c1be6fbb72f4389a7edfdd0d30d4fe0cbd6002122bc105d7b24c9441e6dee",
+    "scripts/record_e70_visual_review.py": "330b9ec416058cef7f952a2c2dc0630b8571115081cb1d0cafc477f8e98e3442",
+    "paper/main.tex": "e31fbf9fdef5b753cf0314c5c7faa0fa65b2549b4c9a158ad60331d59b7606f2",
+    "autoresearch/iterate-260809-0351/e70_video_manifest.json": "945251dc3a58d369a31dd27f1d5605e1ca3181719fa630965a13e8a122f4b61d"
+  }
+}
