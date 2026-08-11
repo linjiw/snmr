@@ -78,27 +78,23 @@
 \maketitle
 
 \begin{abstract}
-Humanoid motion pipelines commonly pass robot-space joint targets from retargeting to
-tracking.  This makes a learned retargeting representation difficult to evaluate: a
-tracker can ignore it whenever explicit targets remain available.  We turn the
-interface into a controlled assay with a 64-d command code distilled from an
-explicit-command RL teacher under an exclusivity contract: the goal signal reaches the
-code encoder but never the action decoder.  On one simulated Unitree~G1 walk, a frozen
-retargeting latent achieves $0.656\pm0.044$ completion but is outperformed by an absolute
-time-index control at $0.754\pm0.010$, showing that a deterministic single-trajectory
-test cannot separate motion content from progress through the clip.  We therefore
-preregister a two-walk assay with two passing specialists, 69 reference-only pairs that
-match the present but diverge in the future, and time-index, proprioception-only, and
-matched-phase other-trajectory controls.  In the \EEndpointLabel, the retargeting latent
-reaches \ESnmrAmb{} ambiguity-start completion, versus \ETimeAmb{} for time and
-\EShuffledAmb{} for other-trajectory content; paired 95\% intervals for the two gains are
-[\EATCILow, \EATCIHigh] and [\EASCILow, \EASCIHigh].  In the seed-0 positive
-control, zeroing, shuffling, or matched-marginal resampling of the exclusive command
+Humanoid retargeting pipelines usually hand trackers explicit robot-space targets, so a
+learned representation can be ignored.  We make this interface measurable: a 64-d code
+is the decoder's exclusive motion command, while matched upstream controls vary what can
+cross it.  A single simulated Unitree~G1 walk exposes the confound: a frozen retargeting
+latent reaches $0.656\pm0.044$, below absolute time at $0.754\pm0.010$, so one
+deterministic clip cannot separate content from progress.  We therefore preregister a
+two-walk assay with two passing specialists, 69 reference-only pairs matching present
+states but diverging in the future, and time, proprioception, and phase-matched
+other-trajectory controls.  In the \EEndpointLabel, ambiguity completion is \ESnmrAmb{}
+for the retargeting latent, \ETimeAmb{} for time, and \EShuffledAmb{} for shuffled
+content; paired 95\% intervals for A--T and A--S are [\EATCILow, \EATCIHigh] and
+[\EASCILow, \EASCIHigh].  Destroying the seed-0 explicit student's exclusive command
 collapses completion from 0.925 to zero.
 \ifeexplicitvalid
   \ifepositivecontent The assay identifies control-usable trajectory information beyond
-  absolute within-clip time, within the precise scope of two walks, one simulated robot,
-  one frozen representation, and one controller class.
+  absolute within-clip time, scoped to two walks, one simulated robot, one frozen representation,
+  and one controller class.
   \else The explicit capability control passes, but the registered content gate does
   not; this is a scoped interface-extraction null, not evidence that the frozen code
   supplies content beyond time.\fi
@@ -265,8 +261,10 @@ physics characters~\cite{pulse,maskedmimic,controlvae} establish code-mediated c
 our calibration ablation instead selects a deterministic encoder for the frozen assay.
 Behavioral foundation models~\cite{bfmzero} reach a promptable
 latent from the opposite entry point---unsupervised RL without a retargeting stage.
-Contemporaneous systems make latent control more capable without asking our measurement
-question: RoboGhost bypasses explicit retargeting by conditioning control on a
+Capability benchmarking in the HOVER/ULTRA class~\cite{hover,ultra} asks how broadly or
+accurately a controller can be commanded; that axis is orthogonal to representation
+measurement---what information crosses an exclusive interface and is used. RoboGhost
+bypasses explicit retargeting by conditioning control on a
 language-grounded motion latent~\cite{roboghost}, while ULTRA distills a tracker into a
 multimodal latent controller~\cite{ultra}, AnyBody distills a tracker into a
 keypoint-addressable latent~\cite{anybody}, and HANDOFF engineers a compact task-space
