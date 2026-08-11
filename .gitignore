@@ -15,6 +15,7 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 .venv/
+/.codex/
 # scratch training logs at repo root (per-run logs live in runs/<name>/)
 runs_*.log
 
