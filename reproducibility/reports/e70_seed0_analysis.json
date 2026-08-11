@@ -1,0 +1,147 @@
+{
+  "protocol": "E70 preregistered analysis v1",
+  "seeds": [
+    0
+  ],
+  "arms": {
+    "explicit": {
+      "ambiguity_completion": 0.978515625,
+      "ambiguity_survival_s": 9.91201114654541,
+      "teacher_action_rmse": 0.0179092139005661,
+      "general_completion": 0.9248046875
+    },
+    "snmr": {
+      "ambiguity_completion": 0.7646484375,
+      "ambiguity_survival_s": 8.870429039001465,
+      "teacher_action_rmse": 0.4922950863838196,
+      "general_completion": 0.6845703125
+    },
+    "time": {
+      "ambiguity_completion": 0.6083984375,
+      "ambiguity_survival_s": 7.590683460235596,
+      "teacher_action_rmse": 0.5900561809539795,
+      "general_completion": 0.6044921875
+    },
+    "proprio": {
+      "ambiguity_completion": 0.517578125,
+      "ambiguity_survival_s": 7.292870998382568,
+      "teacher_action_rmse": 0.6946592330932617,
+      "general_completion": 0.4873046875
+    },
+    "shuffled": {
+      "ambiguity_completion": 0.576171875,
+      "ambiguity_survival_s": 7.491542816162109,
+      "teacher_action_rmse": 0.6687808036804199,
+      "general_completion": 0.5546875
+    }
+  },
+  "teacher_macro_completion": 0.9169921875,
+  "snmr_minus_time": {
+    "difference": 0.15437370600414077,
+    "ci95_low": 0.09472049689440995,
+    "ci95_high": 0.21376811594202896,
+    "clusters": 69,
+    "training_seeds": 1,
+    "per_seed_difference": [
+      0.15437370600414077
+    ]
+  },
+  "snmr_minus_shuffled": {
+    "difference": 0.187111801242236,
+    "ci95_low": 0.13651656314699795,
+    "ci95_high": 0.2375776397515528,
+    "clusters": 69,
+    "training_seeds": 1,
+    "per_seed_difference": [
+      0.187111801242236
+    ]
+  },
+  "snmr_minus_time_per_clip": {
+    "first": {
+      "difference": 0.15165631469979296,
+      "ci95_low": 0.08436853002070394,
+      "ci95_high": 0.22282608695652173,
+      "clusters": 69,
+      "training_seeds": 1,
+      "per_seed_difference": [
+        0.15165631469979296
+      ]
+    },
+    "second": {
+      "difference": 0.1570910973084886,
+      "ci95_low": 0.06728778467908904,
+      "ci95_high": 0.2458592132505176,
+      "clusters": 69,
+      "training_seeds": 1,
+      "per_seed_difference": [
+        0.1570910973084886
+      ]
+    }
+  },
+  "per_seed_differences": {
+    "0": {
+      "snmr_minus_time": 0.15437370600414077,
+      "snmr_minus_shuffled": 0.187111801242236,
+      "snmr_minus_time_first_clip": 0.15165631469979296,
+      "snmr_minus_time_second_clip": 0.1570910973084886
+    }
+  },
+  "explicit_general_gate": true,
+  "positive_content_gate": true,
+  "interpretation": "control-usable content beyond time",
+  "inputs": [
+    {
+      "path": "artifacts/e70/students/seed0_explicit/c_prior_explicit_eval.json",
+      "sha256": "746d76b7aaa3e181a08856abd4077d3172408c630ede08d2a8c90fd27ac57e42"
+    },
+    {
+      "path": "artifacts/e70/students/seed0_explicit/c_prior_explicit_eval_ambiguity.json",
+      "sha256": "562fd7527433ec5e5d8e90353a942949290f972265cf0857f845349d54602034"
+    },
+    {
+      "path": "artifacts/e70/students/seed0_snmr/a_prior_snmr_eval.json",
+      "sha256": "d7c9b8256ee8901353c3726e4c54574f5e32407574c557226698fbec3c864d72"
+    },
+    {
+      "path": "artifacts/e70/students/seed0_snmr/a_prior_snmr_eval_ambiguity.json",
+      "sha256": "775a811daeb6616843b7e50d3fbc90f8803b4f1781a020385ada2d45011291c5"
+    },
+    {
+      "path": "artifacts/e70/students/seed0_time/a_prior_snmr_eval.json",
+      "sha256": "d89cee7cbbcc0c466a2a46e1af6f185d0cfb18d4ab2dcd902b769fabceef5d6c"
+    },
+    {
+      "path": "artifacts/e70/students/seed0_time/a_prior_snmr_eval_ambiguity.json",
+      "sha256": "5dacaedd9580e12392130ee1e41aedf560a8619584119097693969c9ce37fff7"
+    },
+    {
+      "path": "artifacts/e70/students/seed0_proprio/b_prior_proprio_eval.json",
+      "sha256": "8858c0ecf141aac33e9c64458681651c87c2571a39d62ae1d89baf5393b783a2"
+    },
+    {
+      "path": "artifacts/e70/students/seed0_proprio/b_prior_proprio_eval_ambiguity.json",
+      "sha256": "a247374abe9204f53167d2d8e98a7ded7c16100fa067a4a5d5537f15adbcc47e"
+    },
+    {
+      "path": "artifacts/e70/students/seed0_shuffled/a_prior_snmr_eval.json",
+      "sha256": "bc9a475cc0312e6c7f35583c6950e29fd4476bdbd51a84dbdd7d07f4a503e0c7"
+    },
+    {
+      "path": "artifacts/e70/students/seed0_shuffled/a_prior_snmr_eval_ambiguity.json",
+      "sha256": "e0b2c6cf8434bf9f459a85af092a9470d6233070529317d06eebca73a7a3c137"
+    },
+    {
+      "path": "artifacts/e69/teacher_reports/walk1_subject1_eval404.json",
+      "sha256": "60a151c007f1fa5f806120a684110dac5c3e991ed42e6d6b68abe9a78cca8f86"
+    },
+    {
+      "path": "artifacts/e67/teacher_reports/walk1_subject5_eval404.json",
+      "sha256": "8e768491128af8edbf32e106fd74a2edde7b542148a3628acdd22d8a48c856a7"
+    }
+  ],
+  "reproducibility_copy": {
+    "anonymous_paths": true,
+    "source_analysis_sha256": "9059575b3e7d983e695b93a364da5e06eafb609576d52e7806d170a553ac13f7",
+    "note": "Numbers are unchanged; only host-local input path prefixes were replaced."
+  }
+}

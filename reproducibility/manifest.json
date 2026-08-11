@@ -1,0 +1,91 @@
+{
+  "protocol": "SNMR ICRA 2027 anonymous reproducibility bundle v1",
+  "state": "seed-0 report plus frozen three-seed execution contract; final aggregate pending",
+  "entries": [
+    {
+      "path": "reproducibility/README.md",
+      "sha256": "a7ea30a6f00e63f22de834942843db52e2d926c6d0f47f77481a1eea2f90b870",
+      "role": "bundle index"
+    },
+    {
+      "path": "reproducibility/environment.md",
+      "sha256": "a368991b8640be94fc8995f1cfa89fb4fc30011377f07e6b50d96d3a6a46aab9",
+      "role": "software pins and data counts"
+    },
+    {
+      "path": "reproducibility/commands.md",
+      "sha256": "5ac00517c74a3754edf83c7a6d901929d19f28fbf7597415df47a5f95cef99f5",
+      "role": "exact queue, cell, analyzer, and paper commands"
+    },
+    {
+      "path": "reproducibility/reports/e70_seed0_analysis.json",
+      "sha256": "84d56a5815e29eed9d64ac8ceb3a1c2fa295ea2ddd786c1c77ace1e0e6c98ab8",
+      "role": "anonymous small frozen seed-0 report"
+    },
+    {
+      "path": "docs/E70_MULTITRAJ_PROTOCOL.md",
+      "sha256": "24bf92333c45bf83a6d2c1e8f517d9de289ad2f1556720184638eb328a0940c9",
+      "role": "primary protocol and gate"
+    },
+    {
+      "path": "scripts/analyze_e67_results.py",
+      "sha256": "7a822648a0639dba0fb8745ea36ddd729b2784b4522fdab937038ecf58a94cea",
+      "role": "frozen primary analyzer"
+    },
+    {
+      "path": "scripts/run_e70_multitraj.sh",
+      "sha256": "1d79b196637e1081dc56826eab54996eced3c3777abd188cc887400a386998f8",
+      "role": "frozen queue launcher"
+    },
+    {
+      "path": "scripts/train_e52_dagger.py",
+      "sha256": "87bde1214d459d430a1bd35d04733ecc6096eb963b8f0d814c69bca13167f140",
+      "role": "frozen student trainer"
+    },
+    {
+      "path": "snmr/integration/distillation.py",
+      "sha256": "483508f90baea5abef0110be170918650d4d5f1fd0611a2faa4ffbe758855af2",
+      "role": "frozen student model and control helpers"
+    },
+    {
+      "path": "autoresearch/iterate-260808-0338/e70_ambiguity_precheck.json",
+      "sha256": "3c03b89e2bda939e9a8c5a6dd58caeb771944bb9e5755b14eb37ab75ed9c502e",
+      "role": "69-pair reference-only manifest"
+    },
+    {
+      "path": "autoresearch/iterate-260809-0351/e70_confirmation_code_hashes.json",
+      "sha256": "26a9579ae17f7ef84841033445ad49b2aa54d9dc9bf4557253067a148f2df956",
+      "role": "pre-recovery confirmation freeze"
+    },
+    {
+      "path": "scripts/render_e70_paper_values.py",
+      "sha256": "13b942ad76a82526b1e35c253e71b4a05f3b5a5bb2ab1e89766a0c3f9cd66e56",
+      "role": "fail-closed Table I macro generator"
+    },
+    {
+      "path": "docs/E70_SECONDARY_TEMPORAL_BLOCK_ANALYSIS.md",
+      "sha256": "8a1e911416f3502f792520160e09bb63eef5cb3d333ba73675e16641847cd782",
+      "role": "secondary dependence preregistration"
+    },
+    {
+      "path": "scripts/analyze_e70_temporal_blocks.py",
+      "sha256": "ed9ed8a1374d75056e4df72801bb8d931446e3c06b67c8bcdbeb99eb7fd69d6d",
+      "role": "secondary dependence analyzer"
+    },
+    {
+      "path": "scripts/render_e70_effect_figure.py",
+      "sha256": "05dcd9e1dc0a055e6dadfbe5efbc7081386e5a50e6fdce58473a715e4b841129",
+      "role": "hash-bound effect figure generator"
+    },
+    {
+      "path": "scripts/build_reproducibility_report.py",
+      "sha256": "a3f55971d33e4ae2939618c9313787d6964184b936a4ac2f46cddb82fb041197",
+      "role": "anonymous analyzer-report copier"
+    },
+    {
+      "path": "scripts/audit_reproducibility_bundle.py",
+      "sha256": "33dccc215294870d99256ffe289f3c6f7169bf95c2dc6bcc5e8e2bd372adae6b",
+      "role": "hash, link, and anonymity auditor"
+    }
+  ]
+}
