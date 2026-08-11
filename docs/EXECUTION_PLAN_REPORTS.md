@@ -39,3 +39,31 @@
 - Validation judgment: yes — a third party with the repository and hash-bound licensed artifact tree can replay the analyzer and its 12 input hashes, reproduce the included snapshot exactly, and use the documented final-seed renderer path to regenerate Table I without hand transcription.
 - Deviations: The preserved `/data/robotixx/snmr-research/e70/analysis_seed0.json` predates the frozen hierarchical multi-seed output schema, so it does not byte-match the current analyzer despite matching the registered point effects and verdict. It was left untouched; the bundled seed-0 snapshot was instead generated twice from the current manifest-bound analyzer, and the distinction plus exact replay hash is documented.
 - Next step: A6
+
+## A6 — PaperPlaza dry run (web-facing portion) — 2026-08-11T23:12:00Z — by Fable (plan author)
+- Status: DONE (web-verifiable portion); remaining actions are human/login-gated by design
+- What was done: Re-verified every submission constraint against the live ICRA 2027 CFP and
+  assessed the three selected keywords against the RAS conference taxonomy. Also spot-verified
+  the A1–A4 reports as plan author: A2 script SHA-256 matches its preregistration doc exactly;
+  banned-phrase grep on `paper/main.tex` = 0; the A3 fragment guard is present; the current PDF
+  is 6 letter pages.
+- Verification evidence: Live CFP (fetched 2026-08-11): 8-page limit including references;
+  double-anonymous with authors entered only in the system; deadline September 15, 2026, 11:59
+  PST, "no plan to extend"; at least three keywords from the official list; video optional, up
+  to 20 MB, mpeg/mp4/mpg, max 180 s, min height 480, min 20 fps; upload windows Aug 5–Sep 9 and
+  Sep 17–22; submission via ras.papercept.net. The current build and the frozen video storyboard
+  (70 s, 1080p, 30 fps, H.264 mp4, ≤19 MB local gate) satisfy every stated constraint.
+- Keyword finding (ACTION REQUIRED at metadata entry): "Human and Humanoid Motion Analysis and
+  Synthesis" and "Machine Learning for Robot Control" are longstanding RAS conference keywords
+  and safe. A keyword literally named "Motion Retargeting" does NOT appear to exist in the RAS
+  taxonomy (the exact list is login-gated; public sources and prior-year taxonomies show no such
+  entry). Replacement candidates, in recommended order: "Representation Learning" (matches the
+  thesis), "Imitation Learning" (matches the DAgger distillation core), "Whole-Body Motion
+  Planning and Control", "Humanoid Robot Systems". Confirm the exact strings inside PaperPlaza
+  before saving metadata.
+- Validation judgment: yes for the web-verifiable scope — all constraints are confirmed against
+  the live CFP, and the one taxonomy risk is identified with ranked replacements.
+- Deviations: The exact ICRA 2027 keyword list is only visible after PaperPlaza login, so final
+  keyword confirmation is folded into the existing human metadata step (B5).
+- Next step: Phase A complete pending human PaperPlaza login; then hold for Phase B (gate at
+  ~22.2 GiB free vs 26,000 MiB at report time).
