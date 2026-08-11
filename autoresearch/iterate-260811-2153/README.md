@@ -21,3 +21,9 @@ The A5 replay found that the preserved August 9 seed-0 JSON predates the hierarc
 schema now frozen in the analyzer.  The original artifact remains untouched; the anonymous bundle
 contains a newly replayed, deterministic seed-0 snapshot whose non-anonymous source hash reproduced
 exactly twice.  This is source-version provenance, not a change to a result, gate, or E70 input.
+
+The public ICRA 2027 PaperPlaza test accepts the current six-page PDF with no critical issue.  The
+live official taxonomy does not contain any of the execution plan's three proposed keyword phrases;
+the dry-run record stages three exact replacements but leaves the routing choice to the human.  The
+final generated B3 PDF must be tested again, and the official AI-disclosure policy requires a human
+classification before submission.
