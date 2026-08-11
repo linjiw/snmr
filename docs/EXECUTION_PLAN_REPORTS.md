@@ -61,17 +61,15 @@
   to 20 MB, mpeg/mp4/mpg, max 180 s, min height 480, min 20 fps; upload windows Aug 5–Sep 9 and
   Sep 17–22; submission via ras.papercept.net. The current build and the frozen video storyboard
   (70 s, 1080p, 30 fps, H.264 mp4, ≤19 MB local gate) satisfy every stated constraint.
-- Keyword finding (ACTION REQUIRED at metadata entry): "Human and Humanoid Motion Analysis and
-  Synthesis" and "Machine Learning for Robot Control" are longstanding RAS conference keywords
-  and safe. A keyword literally named "Motion Retargeting" does NOT appear to exist in the RAS
-  taxonomy (the exact list is login-gated; public sources and prior-year taxonomies show no such
-  entry). Replacement candidates, in recommended order: "Representation Learning" (matches the
-  thesis), "Imitation Learning" (matches the DAgger distillation core), "Whole-Body Motion
-  Planning and Control", "Humanoid Robot Systems". Confirm the exact strings inside PaperPlaza
-  before saving metadata.
+- Keyword finding (ACTION REQUIRED at metadata entry): A subsequent direct check of the public
+  official ICRA list corrected this preliminary assessment: none of the three planned phrases is
+  an exact current entry. The staged exact replacements are `Simulation and Animation`,
+  `Humanoid Robots`, and `Learning and Adaptive Systems`; `Humanoid and Bipedal Locomotion` is a
+  valid alternate. Confirm the routing choice before saving metadata.
 - Validation judgment: yes for the web-verifiable scope — all constraints are confirmed against
   the live CFP, and the one taxonomy risk is identified with ranked replacements.
-- Deviations: The exact ICRA 2027 keyword list is only visible after PaperPlaza login, so final
-  keyword confirmation is folded into the existing human metadata step (B5).
+- Deviations: The preliminary search did not reach the public official list and incorrectly
+  treated two legacy-looking phrases as safe. The later public-list and actual PDF-test run in the
+  preceding A6 entry supersedes that taxonomy claim; final keyword selection remains human-owned.
 - Next step: Phase A complete pending human PaperPlaza login; then hold for Phase B (gate at
   ~22.2 GiB free vs 26,000 MiB at report time).

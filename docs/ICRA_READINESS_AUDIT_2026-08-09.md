@@ -124,12 +124,11 @@ Recommended final structure:
   SHA-256 into generated LaTeX macros.
 - [x] Manuscript claims and Figure 1 updated from the frozen seed-0 E70 outcome.
 - [x] Local PDF rebuilt: six letter pages, all fonts embedded; PaperPlaza check remains.
-- [x] Recommended PaperPlaza keywords selected: `Human and Humanoid Motion Analysis and
-  Synthesis` and `Machine Learning for Robot Control` (both verified as longstanding RAS
-  keywords). **2026-08-11 A6 finding:** `Motion Retargeting` does not appear to exist in the RAS
-  taxonomy; replace it at metadata entry with one of `Representation Learning` (recommended),
-  `Imitation Learning`, `Whole-Body Motion Planning and Control`, or `Humanoid Robot Systems`,
-  confirming exact strings inside PaperPlaza.
+- [ ] PaperPlaza keywords require human confirmation. **2026-08-11 A6 live-list finding:** none
+  of the three planned phrases is an exact entry in the public official ICRA taxonomy.  The staged
+  exact replacements are `Simulation and Animation`, `Humanoid Robots`, and `Learning and
+  Adaptive Systems`; `Humanoid and Bipedal Locomotion` is a valid alternate.  See
+  `docs/PAPERPLAZA_DRY_RUN_2026-08-11.md`.
 - [x] Optional video protocol and policy-independent exemplar manifest frozen.
 - [x] Video composer binds its labels to the raw-capture index and visibly distinguishes completed
   from terminated rollouts; the local size gate is a stricter 19 MB.
