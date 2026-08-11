@@ -493,6 +493,18 @@ $\EATSeedTwo$, and A--S $\EASSeedZero$, $\EASSeedOne$, and $\EASSeedTwo$ for see
 aggregate alone.
 \fi
 
+\ifethreeseed
+  \IfFileExists{e70_effect_figure.tex}{\input{e70_effect_figure.tex}}{%
+    \PackageWarning{snmr}{Final E70 effect figure fragment is absent}%
+  }
+\else
+  % A wrapper may define this only for the seed-0 layout check. Normal and submission
+  % builds never render a non-final fragment.
+  \ifdefined\EEffectFigurePreviewFile
+    \input{\EEffectFigurePreviewFile}
+  \fi
+\fi
+
 Table~\ref{tab:main} reports \EExplicitGate{} for the registered explicit capability
 gate and \EPositiveGate{} for the registered content gate.  The per-clip A--T estimates
 are $\EATFirst$ [\EATFirstLow, \EATFirstHigh] and $\EATSecond$
