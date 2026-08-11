@@ -36,6 +36,47 @@ This plan is self-contained. It assumes no memory of prior conversations. Read
 
 ---
 
+## 0b. Update — 2026-08-11 evening (status deltas, cross-project findings, codex review)
+
+**Status deltas since the plan was authored:**
+
+- **A1 is DONE.** Commits `061cdec` (E67–E70 pipeline/docs/tests), `f3d6a44` (paper related-work
+  + bibliography upgrade), `cf1f76e` (site E70 update + chart-bug fix) are pushed to
+  `origin/main`; working tree clean. The `.venv/`, artifacts, and `.codex/` stay ignored.
+- **Literature review and positioning are DONE** (`docs/LIT_REVIEW_AND_POSITIONING_2026-08-11.md`):
+  no scoop exists as of 2026-08-11; 16 verified citations added to the paper (2026 landscape +
+  measurement-methodology lineage); five venue upgrades applied. **A4 scope is now reduced to:**
+  abstract trim toward ≤180 words, claim-language sweep, and the three branch builds. A4(b)
+  (orthogonality sentence) is discharged.
+- Paper rebuilt and verified after the citation upgrade: 6 pages, 0 overfull, 0 undefined
+  references, fonts embedded, outcome-branch machinery untouched.
+
+**H1 sharpened — the GPU tenants are now identified and are not equivalent:**
+
+1. The **traversal-critic-research frozen 3-seed × 3-arm PPO matrix** (plus its scorer/sequencers).
+   Its own frozen protocol and its 2026-08-11 execution report require outcome-blind, untouched
+   completion — **interrupting or rescheduling any part of it now carries scientific cost to that
+   project. It is off-limits**, exactly as tenant processes always were under Constraint 1.
+   Note: its orchestration snapshot shows multi-day *scheduled waits* (one lane ~7 days, the
+   policy-eval sequencer ~26 days), so natural free-memory windows may occur; the SNMR recovery
+   supervisor will catch any window that crosses 26,000 MiB without anyone acting.
+2. A **cosmos-framework job holding ~7,350 MiB** that is *not* part of any frozen protocol.
+   This is the clean lever: pausing it at a checkpoint frees ≈30 GiB total — above the 26,000-MiB
+   gate — for the ~2–4 h SNMR needs. **Recommended H1 decision: pause cosmos, never the matrix.**
+   The decision and the pause itself remain human-only.
+
+**Codex traversal-critic report — reviewed and verified.** The report
+(`traversal-critic-research/docs/reviews/claude_fable_plan_execution_report_2026-08-11.md`) was
+independently checked on 2026-08-11: all four SHA-256 hashes match on disk; every headline number
+(0.2681 / 0.6661 / 0.6827 / 0.0402 / 0.5646; ratios 0.4749 / 1.2093) reproduces from
+`temporal_shortcut_results.json`; `semantic_alignment_passed=false` confirmed over all 5 audited
+strata; the E1 comparator protocol is genuinely prospective with correct guardrails. Verdict:
+**accepted in full** — the E5 interface-mismatch finding is decisive, the reframing of Pearson
+0.5646 as historical mismatched-interface evidence is correct, and leaving the frozen matrix
+untouched is the right call. Directed next steps for that workstream are in Phase D below.
+
+---
+
 ## 1. Global constraints (binding on the executing agent)
 
 1. **Never weaken the 26,000-MiB launch gate. Never kill, pause, or nice any GPU tenant process.**
@@ -90,7 +131,7 @@ entry without explicit human approval recorded in the same file.
 
 ## Phase A — GPU-blocked work (zero influence on E70; do all of these now, in order)
 
-### A1. Commit and back up the repository
+### A1. Commit and back up the repository — **DONE 2026-08-11 (see §0b)**
 
 - **Objective:** eliminate the single-disk risk covering all E67–E70 work and the paper rewrite.
 - **Design:** commit source, docs, scripts, tests, and paper to git; large generated artifacts
@@ -286,6 +327,75 @@ Listed only so the agent does not misinterpret them as current work:
 4. Deployment robustness matrix preregistration (latency/dropout, encoder bias, gains, friction,
    mass/CoM, pushes) with the same safety handoff; hardware stages remain separately approved.
 5. E54/T1 Holosoma config restore.
+
+---
+
+## Phase D — Codex workstream guidance (traversal-critic-research)
+
+Review basis: the verified 2026-08-11 execution report (§0b). These steps direct that project's
+agent; they are ordered so all CPU-only integrity work lands before any GPU spend, and so that
+project's GPU use never collides with SNMR's E70 window. The same reporting protocol as §2
+applies, written to that repo's `docs/reviews/` directory.
+
+### D1. Canonical E5 amendment (CPU, do first)
+
+- **Objective:** freeze the record of the temporal-interface mismatch before any critic code
+  changes, exactly as the report's action 2 proposes.
+- **Design:** one dated amendment doc: the four-frame v5 SFT reality vs the 4–48-frame historical
+  validation vs the 5–32-frame policy-scorer interface; C1 wording flagged as requiring revision;
+  the historical 0.5646 preserved verbatim as "historical mismatched-interface evidence," never
+  overwritten. Bind the three evidence hashes from `autoresearch/run-260811-1753/`.
+- **Verification:** amendment committed; no critic source file modified before its commit
+  timestamp; hashes restated and re-checked in the doc.
+- **Validation:** a reader of the amendment alone can state what the 0.5646 does and does not
+  estimate.
+
+### D2. Preregister the expanded shortcut battery BEFORE running it (CPU)
+
+- **Objective:** convert the post-hoc 8×8 ridge finding into registered evidence (report
+  action 6) with the same discipline SNMR's E70 used.
+- **Design:** freeze in one doc, before execution: readout set (duration-only, terminal-frame-only,
+  duration+terminal, onset-aligned prefix, endpoint-masked, shuffled-label floor),
+  scene-clustered interval method, train-only lambda selection, and the exact comparison language
+  against any critic. State explicitly that cross-model-class ratios (e.g., "120.9%") are
+  descriptive, not variance-explained, and that the corrected critic generation must be
+  re-benchmarked against this same frozen battery.
+- **Verification:** doc + script SHA-256 recorded before the first registered run; the current
+  8×8 row remains labeled post-hoc descriptive everywhere it appears.
+- **Validation:** the battery becomes the paper's "readout challenge" table — main text, not
+  appendix.
+
+### D3. Shared temporal materializer + tensor-equality tests (CPU)
+
+- Report action 3, unchanged: one materializer returning selected frames plus original source
+  indices and source fps; every route calls the processor with `do_sample_frames=False` and
+  explicit metadata; tensor-equality tests cover the five E5 strata. **Verification:** tests
+  green; byte-identical tensors across routes on all five strata.
+
+### D4. E1 factorial re-evaluation of the eight exports (GPU — scheduled, small)
+
+- Report action 4 under the frozen 2×2 protocol. **Scheduling rule:** inference-only, so run it
+  opportunistically, but never start a chunk that would hold GPU memory during (a) a frozen-matrix
+  lane run or (b) an open SNMR E70 window (the E70 supervisor needs 26,000 MiB free for ~2–4 h
+  and has first claim on the first available window — it is submission-deadline-bound;
+  E1 re-evaluation is not).
+
+### D5. Corrected critic generation (GPU — after the matrix completes and E70's cells finish)
+
+- Report action 5: separately named generation through the shared materializer; one-batch tensor
+  audit sealed before training; never mixed into v5 tables; benchmarked against the D2 frozen
+  battery. This is the largest GPU consumer in either project — it goes last.
+
+### D6. Sequencing and venue
+
+- E2 / E6 only after D1 and the matrix-critical path (report action 7). Venue: ICLR primary,
+  as the report concludes; an ICRA branch-A submission only if the frozen policy result closes
+  early *and* the corrected temporal story is complete — and it must not contend with SNMR's
+  E70/paper window for GPU or attention before 2026-09-15.
+
+**Cross-project GPU rule (binding on both agents):** the frozen traversal-critic matrix is
+untouchable; the SNMR E70 supervisor has first claim on the first ≥26,000-MiB window; new
+discretionary GPU work in either project must check both conditions before starting.
 
 ---
 
