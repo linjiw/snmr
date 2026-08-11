@@ -16,3 +16,8 @@ subsequent validation commands; it changes no test or scientific artifact.
 The configured GitHub remote is public, so the plan's private-remote condition is not satisfied
 and no push is allowed.  A local Git bundle under `/data/robotixx/snmr-research/backups/` is the
 authoritative A1 off-worktree backup.
+
+The A5 replay found that the preserved August 9 seed-0 JSON predates the hierarchical multi-seed
+schema now frozen in the analyzer.  The original artifact remains untouched; the anonymous bundle
+contains a newly replayed, deterministic seed-0 snapshot whose non-anonymous source hash reproduced
+exactly twice.  This is source-version provenance, not a change to a result, gate, or E70 input.
