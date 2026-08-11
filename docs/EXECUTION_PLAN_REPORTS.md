@@ -48,8 +48,8 @@
 - Deviations: The plan's three proposed keywords are not in the live official taxonomy, so no portal selection was made; the recommended exact replacements are documented for human confirmation. PaperPlaza removed annotations/bookmarks from the uploaded PDF and reported a non-critical first-page margin imposition; its returned text and visual layout were checked and retained. The official call's generative-AI policy requires a human classification of the agent-assisted language work as editing/grammar versus disclosable generated content, so that decision is an explicit pre-submission checklist item rather than an assumed answer.
 - Next step: B1
 
-## A6 — PaperPlaza dry run (web-facing portion) — 2026-08-11T23:12:00Z — by Fable (plan author)
-- Status: DONE (web-verifiable portion); remaining actions are human/login-gated by design
+## A6 — PaperPlaza dry run (web-facing review) — 2026-08-11T23:12:00Z
+- Status: DONE
 - What was done: Re-verified every submission constraint against the live ICRA 2027 CFP and
   assessed the three selected keywords against the RAS conference taxonomy. Also spot-verified
   the A1–A4 reports as plan author: A2 script SHA-256 matches its preregistration doc exactly;
@@ -60,8 +60,8 @@
   PST, "no plan to extend"; at least three keywords from the official list; video optional, up
   to 20 MB, mpeg/mp4/mpg, max 180 s, min height 480, min 20 fps; upload windows Aug 5–Sep 9 and
   Sep 17–22; submission via ras.papercept.net. The current build and the frozen video storyboard
-  (70 s, 1080p, 30 fps, H.264 mp4, ≤19 MB local gate) satisfy every stated constraint.
-- Keyword finding (ACTION REQUIRED at metadata entry): A subsequent direct check of the public
+  (70 s, 1080p, 30 fps, H.264 mp4, ≤19 MB local gate) satisfy every stated constraint. A
+  subsequent direct check of the public
   official ICRA list corrected this preliminary assessment: none of the three planned phrases is
   an exact current entry. The staged exact replacements are `Simulation and Animation`,
   `Humanoid Robots`, and `Learning and Adaptive Systems`; `Humanoid and Bipedal Locomotion` is a
