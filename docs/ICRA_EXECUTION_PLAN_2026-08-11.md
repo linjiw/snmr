@@ -439,6 +439,13 @@ SNMR → **seed 1** (0.7021 of 0.6846/0.7021/0.7090). No visual selection at any
 
 ## Positioning notes for any writing step (context, not tasks)
 
+- **The benchmark question is settled — do not relitigate.** "Explicit + latent combined
+  command" was run (E52 v3/v4 arm D: three-seed null; E36-era screens: harmful) and the explicit
+  student is already at teacher parity (0.923 vs 0.917), so no combined arm can beat the
+  baseline. Full analysis and decision: `docs/BENCHMARK_QUESTION_2026-08-12.md`. Any agent asked
+  to "beat the benchmark" before submission should point there and continue B-phase work.
+
+
 - **Thesis:** the contribution is a *measurement instrument* — the exclusivity contract plus
   matched controls (time, proprioception, phase-matched shuffle) plus causal command destruction
   plus preregistration. Not a capability claim. Do not widen it.
