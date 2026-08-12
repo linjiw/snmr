@@ -3,765 +3,699 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SNMR — What Crosses the Boundary? Measuring the Retarget-to-Track Interface</title>
+<title>SNMR — Measuring the Humanoid Command Interface</title>
+<meta name="description" content="An exclusive retarget-to-track interface makes latent content measurable. Preregistered two-walk ambiguity assay on Unitree G1: +0.191 [0.124, 0.274] beyond a matched clock.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
 <style>
-  :root {
-    color-scheme: light;
-    --surface-1: #fcfcfb; --page: #f9f9f7; --node: #fcfcfb;
-    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #6b6963;
-    --grid: #e1e0d9; --axisline: #c3c2b7; --border: rgba(11,11,11,0.10);
-    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
-    --good: #087508; --crit: #d03b3b;
-    --wash1: rgba(42,120,214,0.10); --wash2: rgba(235,104,52,0.10); --wash3: rgba(27,175,122,0.10);
-    --seq-1: #173f6f; --seq-2: #1f5fa8; --seq-3: #2a78d6; --seq-4: #4a8ce0;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:where(:not([data-theme="light"])) {
-      color-scheme: dark;
-      --surface-1: #1a1a19; --page: #0d0d0d; --node: #232322;
-      --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
-      --grid: #2c2c2a; --axisline: #383835; --border: rgba(255,255,255,0.20);
-      --s1: #3987e5; --s2: #d95926; --s3: #199e70;
-      --good: #0ca30c;
-      --wash1: rgba(57,135,229,0.18); --wash2: rgba(217,89,38,0.18); --wash3: rgba(25,158,112,0.18);
-      --seq-1: #bcd7f7; --seq-2: #93bdf1; --seq-3: #6da7ec; --seq-4: #3987e5;
-    }
-  }
-  :root[data-theme="dark"] {
-    color-scheme: dark;
-    --surface-1: #1a1a19; --page: #0d0d0d; --node: #232322;
-    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
-    --grid: #2c2c2a; --axisline: #383835; --border: rgba(255,255,255,0.20);
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
-    --good: #0ca30c;
-    --wash1: rgba(57,135,229,0.18); --wash2: rgba(217,89,38,0.18); --wash3: rgba(25,158,112,0.18);
-    --seq-1: #bcd7f7; --seq-2: #93bdf1; --seq-3: #6da7ec; --seq-4: #3987e5;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--page); color: var(--ink-1);
-    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px 96px; }
-  header.hero { padding: 72px 0 32px; }
-  .hero h1 { font-size: 34px; line-height: 1.2; margin: 0 0 12px; letter-spacing: -0.01em; }
-  .hero p.sub { font-size: 18px; color: var(--ink-2); max-width: 46em; margin: 0 0 20px; }
-  .badges { display: flex; gap: 8px; flex-wrap: wrap; }
-  .badge {
-    font-size: 13px; padding: 4px 12px; border-radius: 999px;
-    border: 1px solid var(--border); background: var(--surface-1); color: var(--ink-2);
-  }
-  .toggle {
-    position: fixed; top: 16px; right: 16px; font-size: 13px; cursor: pointer;
-    border: 1px solid var(--border); background: var(--surface-1); color: var(--ink-2);
-    border-radius: 999px; padding: 5px 12px;
-  }
-  section { margin-top: 72px; }
-  h2 { font-size: 28px; margin: 0 0 6px; letter-spacing: -0.01em; padding-bottom: 8px; border-bottom: 1px solid var(--grid); }
-  nav.mini {
-    position: sticky; top: 0; z-index: 5; background: var(--page);
-    border-bottom: 1px solid var(--border); margin: 0 -24px; padding: 10px 24px;
-    display: flex; gap: 18px; font-size: 13.5px;
-  }
-  nav.mini a { color: var(--ink-2); text-decoration: none; }
-  nav.mini a:hover { color: var(--ink-1); }
-  .figscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .figscroll svg { min-width: 760px; width: 100%; height: auto; display: block; }
-  @media (max-width: 700px) {
-    .hero h1 { font-size: 27px; }
-    .figscroll { margin: 0 -24px; padding: 0 24px; }
-    .figscroll + figcaption::before, figure .figscroll ~ figcaption::before { content: "scroll the diagram sideways to explore → "; color: var(--ink-3); }
-    table.data thead { display: none; }
-    table.data tr { display: block; border-bottom: 1px solid var(--grid); padding: 10px 0; }
-    table.data td { display: block; border: 0; padding: 2px 0; }
-    table.data td:nth-child(2) { color: var(--ink-2); font-weight: 600; }
-  }
-  h3 { font-size: 17px; margin: 28px 0 8px; }
-  p.lede { color: var(--ink-2); margin: 0 0 20px; max-width: 46em; }
-  .card {
-    background: var(--surface-1); border: 1px solid var(--border);
-    border-radius: 12px; padding: 20px 22px; margin-top: 16px;
-  }
-  .card h4 { margin: 0 0 4px; font-size: 15px; }
-  .card p { margin: 0; font-size: 14px; color: var(--ink-2); }
-  figure { margin: 20px 0 0; }
-  figcaption { font-size: 13px; color: var(--ink-3); margin-top: 10px; max-width: 46em; }
-  svg text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 20px; }
-  .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
-  .kpi .v { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
-  .kpi .l { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
-  .kpi .d { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
-  .kpi .eyebrow { font-size: 11px; letter-spacing: 0.08em; color: var(--ink-3); font-weight: 650; margin-bottom: 4px; }
-  .kpi.hero-kpi { grid-column: span 2; }
-  .kpi.hero-kpi .v { font-size: 56px; font-weight: 650; }
-  @media (max-width: 520px) { .kpi.hero-kpi { grid-column: span 1; } }
-  table.data { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 12px; }
-  table.data th { text-align: left; color: var(--ink-2); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--axisline); }
-  table.data td { padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
-  details { margin-top: 12px; }
-  details summary {
-    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-    font-size: 13px; color: var(--ink-2); padding: 5px 12px;
-    border: 1px solid var(--border); border-radius: 999px; background: var(--surface-1);
-  }
-  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); margin: 14px 0 4px; }
-  .legend .key { display: inline-flex; align-items: center; gap: 7px; }
-  .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-  .tooltip {
-    position: fixed; pointer-events: none; z-index: 10; display: none;
-    background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
-    padding: 8px 12px; font-size: 13px; color: var(--ink-1); box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  }
-  .tooltip .t { color: var(--ink-2); }
-  footer { margin-top: 72px; font-size: 13px; color: var(--ink-3); border-top: 1px solid var(--grid); padding-top: 20px; }
-  a { color: var(--s1); }
-  code { font-size: 0.92em; background: var(--surface-1); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+:root{
+  --bg:#06080c; --bg2:#0a0e14; --panel:#0e141d; --panel2:#121a26;
+  --line:#1d2836; --line2:#2a3a50;
+  --ink:#e6edf6; --ink2:#9fb0c3; --ink3:#5f7288;
+  --cyan:#38e1ff; --blue:#3b82f6; --amber:#fbbf24; --red:#ff5d5d; --green:#3ddc97;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.65;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(56,225,255,.028) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(56,225,255,.028) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+a{color:var(--cyan);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.mono{font-family:var(--mono)}
+
+/* ---------- nav ---------- */
+nav{
+  position:sticky;top:0;z-index:50;background:rgba(6,8,12,.82);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+nav .wrap{display:flex;align-items:center;gap:22px;height:54px}
+nav .logo{font-family:var(--mono);font-weight:700;color:var(--ink);letter-spacing:.08em}
+nav .logo b{color:var(--cyan)}
+nav .links{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}
+nav .links a{color:var(--ink2);font-size:13px;font-family:var(--mono);letter-spacing:.04em}
+nav .links a:hover{color:var(--cyan);text-decoration:none}
+
+/* ---------- hero ---------- */
+header{position:relative;padding:72px 0 40px;overflow:hidden}
+.scanline{
+  position:absolute;left:0;right:0;height:120px;top:-120px;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,transparent,rgba(56,225,255,.05),transparent);
+  animation:scan 7s linear infinite;
+}
+@keyframes scan{0%{top:-120px}100%{top:110%}}
+.status-chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.chip{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;padding:5px 12px;
+  border:1px solid var(--line2);border-radius:3px;color:var(--ink2);background:var(--panel);
+}
+.chip.green{color:var(--green);border-color:rgba(61,220,151,.4)}
+.chip.cyan{color:var(--cyan);border-color:rgba(56,225,255,.4)}
+.chip.amber{color:var(--amber);border-color:rgba(251,191,36,.4)}
+h1{
+  font-size:clamp(28px,4.6vw,52px);line-height:1.12;font-weight:800;letter-spacing:-.015em;
+  max-width:940px;
+}
+h1 .hl{color:var(--cyan)}
+.sub{color:var(--ink2);max-width:820px;margin-top:18px;font-size:17.5px}
+.sub .mono{color:var(--cyan);font-size:15.5px}
+.cta{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
+.btn{
+  font-family:var(--mono);font-size:13.5px;letter-spacing:.05em;padding:11px 20px;
+  border:1px solid var(--line2);border-radius:4px;color:var(--ink);background:var(--panel);
+  transition:border-color .2s,transform .2s;
+}
+.btn:hover{border-color:var(--cyan);text-decoration:none;transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(135deg,rgba(56,225,255,.14),rgba(59,130,246,.14));border-color:rgba(56,225,255,.5)}
+
+/* pipeline canvas */
+.pipeline{
+  margin-top:46px;border:1px solid var(--line);border-radius:8px;background:var(--bg2);
+  position:relative;overflow:hidden;
+}
+.pipeline canvas{display:block;width:100%;height:auto}
+.pipeline .corner{position:absolute;width:14px;height:14px;border-color:var(--cyan);border-style:solid;opacity:.7}
+.corner.tl{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.corner.tr{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.corner.bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+.corner.br{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.pipeline .cap{
+  position:absolute;top:10px;left:14px;font-family:var(--mono);font-size:11px;color:var(--ink3);
+}
+
+/* stat strip */
+.strip{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  margin:40px 0 0;
+}
+.stat{background:var(--panel);padding:18px 16px}
+.stat .v{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--cyan)}
+.stat .v.green{color:var(--green)} .stat .v.red{color:var(--red)} .stat .v.amber{color:var(--amber)}
+.stat .k{font-size:12px;color:var(--ink3);margin-top:4px;letter-spacing:.03em}
+
+/* ---------- sections ---------- */
+section{padding:76px 0 8px}
+.kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.22em;color:var(--cyan);margin-bottom:12px}
+.kicker::before{content:"// "}
+h2{font-size:clamp(22px,3vw,34px);font-weight:750;letter-spacing:-.01em;max-width:900px}
+.lede{color:var(--ink2);max-width:860px;margin-top:14px;font-size:16.5px}
+.panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:26px;
+  margin-top:26px;position:relative;
+}
+.panel2{background:var(--panel2)}
+
+/* reveal animation */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.rv.on{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .rv{opacity:1;transform:none;transition:none}
+  .scanline{display:none}
+}
+
+/* quote cards */
+.quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:26px}
+.q{
+  background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
+  border-radius:6px;padding:18px;
+}
+.q p{font-size:14.5px;color:var(--ink2);font-style:italic}
+.q .who{font-family:var(--mono);font-size:12px;color:var(--ink3);margin-top:10px}
+.q .ev{font-family:var(--mono);font-size:11.5px;color:var(--amber);margin-top:4px}
+.q.us{border-left-color:var(--cyan)}
+.q.us p{color:var(--ink);font-style:normal;font-weight:600}
+.q.us .ev{color:var(--cyan)}
+
+/* five arm bars */
+.arm{display:grid;grid-template-columns:minmax(170px,240px) 1fr 74px;gap:14px;align-items:center;margin:15px 0}
+.arm .nm{font-size:14px;color:var(--ink2);text-align:right}
+.arm .nm b{color:var(--ink);display:block;font-size:14.5px}
+.arm .track{height:26px;background:#0a0f16;border:1px solid var(--line);border-radius:4px;overflow:hidden;position:relative}
+.arm .fill{
+  height:100%;width:0;border-radius:3px 0 0 3px;
+  transition:width 1.2s cubic-bezier(.2,.7,.2,1);
+  background:linear-gradient(90deg,#243447,#3a5068);
+}
+.arm.snmr .fill{background:linear-gradient(90deg,#0e7490,var(--cyan));box-shadow:0 0 18px rgba(56,225,255,.35)}
+.arm.expl .fill{background:linear-gradient(90deg,#334155,#64748b)}
+.arm .val{font-family:var(--mono);font-size:15px;color:var(--ink);font-weight:700}
+.clockline{position:relative;height:0}
+.clockline .rule{
+  position:absolute;top:-232px;bottom:8px;left:0;border-left:2px dashed rgba(251,191,36,.55);
+  height:246px;
+}
+.clockline .lbl{
+  position:absolute;top:14px;transform:translateX(-50%);font-family:var(--mono);
+  font-size:11px;color:var(--amber);white-space:nowrap;
+}
+
+/* forest plot svg */
+.forest{width:100%;height:auto;display:block;margin-top:8px}
+.forest .row-label{font-family:var(--mono);font-size:12.5px;fill:var(--ink2)}
+.forest .row-val{font-family:var(--mono);font-size:12.5px;fill:var(--ink)}
+.forest .ci{stroke-linecap:round}
+.forest .ci-line{stroke-dasharray:400;stroke-dashoffset:400;transition:stroke-dashoffset 1.4s ease}
+.on .forest .ci-line{stroke-dashoffset:0}
+
+/* destruction */
+.destroy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-top:24px}
+.dcell{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:16px;text-align:center}
+.dcell .dv{font-family:var(--mono);font-size:30px;font-weight:800}
+.dcell.alive .dv{color:var(--green)}
+.dcell.dead .dv{color:var(--red)}
+.dcell .dk{font-size:12px;color:var(--ink3);margin-top:6px}
+.dbar{height:8px;border-radius:4px;background:#0a0f16;margin-top:12px;overflow:hidden}
+.dbar i{display:block;height:100%;background:var(--green);width:0;transition:width 1.1s ease .2s}
+.dcell.dead .dbar i{background:var(--red)}
+
+/* videos */
+.vidgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:26px}
+.vid{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.vid video{width:100%;display:block;background:#000}
+.vid .vc{padding:13px 16px;font-size:13px;color:var(--ink2)}
+.vid .vc b{color:var(--ink);font-family:var(--mono);font-size:12.5px;display:block;margin-bottom:3px;letter-spacing:.03em}
+.vid .badge{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:3px;margin-left:6px}
+.badge.pass{color:var(--green);border:1px solid rgba(61,220,151,.4)}
+.badge.warn{color:var(--amber);border:1px solid rgba(251,191,36,.4)}
+
+/* comparison table */
+table{width:100%;border-collapse:collapse;margin-top:24px;font-size:14px}
+th{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink3);
+  text-align:left;padding:10px 12px;border-bottom:1px solid var(--line2);text-transform:uppercase;
+}
+td{padding:12px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td b{color:var(--ink)}
+tr.us td{background:linear-gradient(90deg,rgba(56,225,255,.07),transparent);color:var(--ink)}
+tr.us td:first-child{border-left:3px solid var(--cyan)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin-top:26px}
+.tbl-wrap table{margin-top:0}
+.no{color:var(--red);font-family:var(--mono)}
+.yes{color:var(--green);font-family:var(--mono)}
+.meh{color:var(--amber);font-family:var(--mono)}
+
+/* ledger */
+.ledger .l{
+  display:grid;grid-template-columns:110px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);
+}
+.ledger .tag{font-family:var(--mono);font-size:12px;color:var(--red);letter-spacing:.05em;padding-top:2px}
+.ledger .tag.win{color:var(--green)}
+.ledger .tag.fix{color:var(--amber)}
+.ledger p{font-size:14.5px;color:var(--ink2)}
+.ledger p b{color:var(--ink)}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:26px}
+.rd{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px}
+.rd .st{font-family:var(--mono);font-size:11px;letter-spacing:.12em;margin-bottom:10px}
+.rd .st.done{color:var(--green)} .rd .st.live{color:var(--cyan)} .rd .st.next{color:var(--amber)}
+.rd h4{font-size:15.5px;margin-bottom:6px}
+.rd p{font-size:13.5px;color:var(--ink2)}
+
+/* figure */
+.figbox{margin-top:26px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.figbox img{width:100%;display:block}
+.figcap{font-size:13px;color:var(--ink3);padding:12px 16px;background:var(--panel)}
+
+footer{
+  margin-top:90px;border-top:1px solid var(--line);padding:34px 0 46px;
+  color:var(--ink3);font-size:13px;font-family:var(--mono);
+}
+footer a{color:var(--ink2)}
+.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);
+  animation:pulse 2s ease infinite;margin-right:7px;vertical-align:1px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 </style>
 </head>
 <body>
-<button class="toggle" id="themeToggle" aria-label="Toggle color theme">◐ theme</button>
-<div class="wrap">
-<nav class="mini" aria-label="Sections">
-  <a href="#framework">Framework</a><a href="#integration">RL integration</a><a href="#results">Results</a><a href="#ledger">Negative results</a><a href="paper_draft.pdf" style="margin-left:auto">Paper draft (PDF)</a><a href="benchmark.html" style="font-weight:600">Benchmark →</a>
+
+<nav>
+  <div class="wrap">
+    <span class="logo"><b>SNMR</b>//E70</span>
+    <div class="links">
+      <a href="#problem">PROBLEM</a>
+      <a href="#instrument">INSTRUMENT</a>
+      <a href="#results">RESULTS</a>
+      <a href="#causal">CAUSAL</a>
+      <a href="#deploy">SIM2SIM</a>
+      <a href="#compare">VS&nbsp;FIELD</a>
+      <a href="#ledger">LEDGER</a>
+      <a href="#bench">BENCHMARK</a>
+    </div>
+  </div>
 </nav>
 
-<header class="hero">
-  <h1 style="text-wrap:balance">What Crosses the Boundary?</h1>
-  <p class="sub">The interface between humanoid motion retargeting and tracking is a per-frame
-  stack of joint targets — a format every pipeline passes and none has measured. We make it
-  measurable: a 64-d learned code under an <em>exclusivity contract</em> (goal visible to the
-  code encoder, never to the action decoder) is the tracking policy's <strong>only</strong>
-  motion command. A single-trajectory test turns out to be confounded: an absolute time-index
-  control (<strong>0.754</strong>) beats the frozen retargeting latent (0.656), because on one
-  clip time alone identifies the target. So we preregistered a <strong>two-walk paired
-  assay</strong> — 69 starts that match the present but diverge in the future. In the frozen
-  three-seed aggregate the latent reaches <strong>0.754</strong> ambiguity-start completion vs
-  <strong>0.562</strong> for time and <strong>0.552</strong> for shuffled content (hierarchical
-  95% CIs exclude zero), and destroying the exclusive command collapses the explicit student
-  from 0.925 to <strong>0.000</strong>.</p>
-  <div class="badges">
-    <span class="badge">5 humanoid embodiments, one network</span>
-    <span class="badge">MuJoCo-Warp RL tracking</span>
-    <span class="badge">Deterministic act-through-latent distillation</span>
-    <span class="badge">Preregistered gates · negative-results ledger</span>
-    <span class="badge">Three seeds · every registered gate passes</span>
+<header>
+  <div class="scanline"></div>
+  <div class="wrap">
+    <div class="status-chips">
+      <span class="chip green"><span class="pulse"></span>E70 CLOSED · POSITIVE AT 3 SEEDS</span>
+      <span class="chip cyan">PREREGISTERED · FAIL-CLOSED</span>
+      <span class="chip cyan">SIM2SIM DEPLOY-QUALIFIED</span>
+      <span class="chip amber">ICRA 2027 SUBMISSION TRACK</span>
+    </div>
+    <h1>Every humanoid stack routes control through a learned bottleneck.<br>
+    <span class="hl">We built the instrument that measures what crosses it.</span></h1>
+    <p class="sub">
+      A frozen 64-d retarget-to-track command latent on Unitree&nbsp;G1, measured with an exclusivity
+      contract, matched nulls, a ceiling control, and causal channel destruction. Verdict:
+      <span class="mono">+0.191&nbsp;[0.124,&nbsp;0.274]</span> of ambiguity-resolving completion
+      beyond a matched clock — content no capability score could attribute, erased to
+      <span class="mono">0.000</span> when the channel is destroyed.
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="paper_draft.pdf">READ THE PAPER ▸</a>
+      <a class="btn" href="#deploy">WATCH IT WALK ▸</a>
+      <a class="btn" href="https://github.com/linjiw/snmr">SOURCE + PROVENANCE ▸</a>
+    </div>
+
+    <div class="pipeline">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <canvas id="pipe" width="1160" height="330"></canvas>
+      <span class="cap">human motion → retargeter → z_cmd ∈ ℝ⁶⁴ (the only channel) → tracking policy → G1</span>
+    </div>
+
+    <div class="strip">
+      <div class="stat"><div class="v" data-count="0.191" data-dec="3" data-plus="1">+0.000</div><div class="k">content-over-clock margin (95% CI excludes 0)</div></div>
+      <div class="stat"><div class="v" data-count="0.199" data-dec="3" data-plus="1">+0.000</div><div class="k">content-over-shuffle margin (95% CI excludes 0)</div></div>
+      <div class="stat"><div class="v red" data-count="0.000" data-dec="3">0.000</div><div class="k">completion after channel destruction (3 seeds × 3 modes)</div></div>
+      <div class="stat"><div class="v green" data-count="0.923" data-dec="3">0.000</div><div class="k">explicit student ≈ teacher 0.917 — interface costs nothing</div></div>
+      <div class="stat"><div class="v" data-count="69" data-dec="0">0</div><div class="k">paired ambiguous starts × 3 training seeds</div></div>
+      <div class="stat"><div class="v" data-count="70" data-dec="0">0</div><div class="k">experiments logged E01–E70, every negative kept</div></div>
+    </div>
   </div>
 </header>
 
-<!-- ============================ KPI ROW ============================ -->
-<section>
-  <div class="kpis">
-    <div class="kpi hero-kpi"><div class="eyebrow">E70 TWO-WALK ASSAY — FROZEN THREE-SEED AGGREGATE (SEEDS 0–2)</div><div class="v">+0.191</div><div class="l">SNMR-minus-time paired gain at ambiguity starts (hierarchical 95% CI [0.124, 0.274]); vs phase-matched shuffled content <strong>+0.199</strong> [0.127, 0.279] — <strong>every preregistered content gate passes</strong></div><div class="d">ambiguity completion by arm: explicit 0.973 · frozen z_ret 0.754 · time 0.562 · shuffled 0.552 · proprio 0.437 · per-seed A−T +0.154 / +0.278 / +0.140 · secondary temporal-block analysis consistent, CIs exclude zero</div></div>
-    <div class="kpi"><div class="v">3.66 cm</div><div class="l">retargeting MPJPE, held-out clips (G1 specialist) — <a href="benchmark.html">full benchmark</a></div><div class="d">CI [3.46, 3.86] · shared 5-robot net: 2.9–6.0 cm · limits by construction</div></div>
-    <div class="kpi"><div class="v">0.925 → 0.000</div><div class="l">explicit student when its exclusive command is zeroed, shuffled, or marginal-resampled</div><div class="d">causal use, not just structural exclusivity · explicit tracker 0.98 after stack repairs</div></div>
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap rv">
+    <div class="kicker">INTERFACE OPACITY</div>
+    <h2>The field asserts what its command latents carry. Nobody measures it.</h2>
+    <p class="lede">
+      2025–26 humanoid systems compress human motion into learned command interfaces — then
+      describe those interfaces in words. The evidence behind the words is a t-SNE plot at best.
+      A tracking score cannot tell you <i>why</i> the robot tracked: because the command carried
+      the motion — or because the command is a legible clock and the clip was memorized.
+    </p>
+    <div class="quotes">
+      <div class="q"><p>"…leaving the latent to capture mainly ambiguity and multimodality under sparse goals."</p>
+        <div class="who">ULTRA — same robot, same 64-d distilled latent</div><div class="ev">evidence: t-SNE + KMeans coloring</div></div>
+      <div class="q"><p>"…captures the inherent ambiguity in the mapping from observations to actions."</p>
+        <div class="who">UniTracker — CVAE command latent (RA-L 2026)</div><div class="ev">evidence: none given</div></div>
+      <div class="q"><p>"…an objective-centric, explainable, and smooth latent representation."</p>
+        <div class="who">BFM-Zero (ICLR 2026)</div><div class="ev">evidence: asserted</div></div>
+      <div class="q us"><p>We give these assertions their first controlled measurement — matched nulls, ceiling control, causal destruction, preregistered gates.</p>
+        <div class="who">SNMR / E70 — this work</div><div class="ev">evidence: +0.191 [0.124, 0.274], destroyed to 0.000</div></div>
+    </div>
   </div>
 </section>
 
-<!-- ============================ FRAMEWORK DIAGRAM ============================ -->
-<section id="framework">
-  <h2>The framework</h2>
-  <p class="lede">Two coupled systems. <strong>Stage 1 (distill):</strong> a graph-attention
-  encoder maps human motion to a per-frame latent <code>z</code>; embodiment-conditioned decoders
-  emit joint trajectories for any of five robots. <strong>Stage 2 (co-train):</strong> a code
-  encoder compresses the reference into a command latent <code>z_cmd</code> that the tracking
-  policy consumes as its only motion input — trained by online distillation from an
-  explicit-command RL teacher inside the physics simulator. The frozen E70 recipe is
-  deterministic; CVAE variants served earlier calibration.</p>
-
-  <figure>
-  <div class="figscroll">
-  <svg viewBox="0 0 900 562" role="img" aria-labelledby="figArchTitle">
-    <title id="figArchTitle">SNMR architecture: retargeting network feeding the act-through-latent tracking stack</title>
-    <defs>
-      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-        <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
-      </marker>
-      <marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-        <path d="M0,0 L10,5 L0,10 z" fill="var(--s1)"/>
-      </marker>
-    </defs>
-
-    <!-- ======== STAGE 1 band ======== -->
-    <rect x="8" y="8" width="884" height="240" rx="12" fill="var(--wash1)"/>
-    <text x="28" y="36" font-size="13" font-weight="700" fill="var(--ink-2)" letter-spacing="0.06em">STAGE 1 — NEURAL RETARGETING (distilled from a classical IK teacher)</text>
-
-    <!-- human motion -->
-    <rect x="28" y="60" width="150" height="72" rx="10" fill="var(--node)" stroke="var(--border)"/>
-    <text x="103" y="90" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Human motion</text>
-    <text x="103" y="110" font-size="12" text-anchor="middle" fill="var(--ink-2)">LAFAN1 mocap, 30 fps</text>
-
-    <!-- encoder -->
-    <rect x="222" y="60" width="160" height="72" rx="10" fill="var(--node)" stroke="var(--s1)" stroke-width="1.5"/>
-    <text x="302" y="86" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">GAT encoder</text>
-    <text x="302" y="104" font-size="12" text-anchor="middle" fill="var(--ink-2)">graph attention over the</text>
-    <text x="302" y="119" font-size="12" text-anchor="middle" fill="var(--ink-2)">skeleton · max-pool</text>
-
-    <!-- latent z -->
-    <rect x="426" y="66" width="120" height="60" rx="30" fill="var(--s1)"/>
-    <text x="486" y="92" font-size="15" font-weight="700" text-anchor="middle" fill="#fff">z (128-d)</text>
-    <text x="486" y="110" font-size="11" text-anchor="middle" fill="#fff" opacity="0.9">shared motion latent</text>
-
-    <!-- decoder -->
-    <rect x="590" y="60" width="170" height="72" rx="10" fill="var(--node)" stroke="var(--s1)" stroke-width="1.5"/>
-    <text x="675" y="84" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">GAT decoder</text>
-    <text x="675" y="102" font-size="12" text-anchor="middle" fill="var(--ink-2)">AdaLN embodiment code</text>
-    <text x="675" y="117" font-size="12" text-anchor="middle" fill="var(--ink-2)">tanh ⇒ joint limits built-in</text>
-
-    <!-- robots -->
-    <rect x="796" y="52" width="88" height="26" rx="7" fill="var(--node)" stroke="var(--border)"/>
-    <text x="840" y="69" font-size="11" text-anchor="middle" fill="var(--ink-1)">Unitree G1</text>
-    <rect x="796" y="84" width="88" height="26" rx="7" fill="var(--node)" stroke="var(--border)"/>
-    <text x="840" y="101" font-size="11" text-anchor="middle" fill="var(--ink-1)">Booster T1</text>
-    <rect x="796" y="116" width="88" height="26" rx="7" fill="var(--node)" stroke="var(--border)"/>
-    <text x="840" y="133" font-size="11" text-anchor="middle" fill="var(--ink-1)">+ 3 more</text>
-
-    <line x1="178" y1="96" x2="216" y2="96" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
-    <line x1="382" y1="96" x2="420" y2="96" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
-    <line x1="546" y1="96" x2="584" y2="96" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
-    <line x1="760" y1="80" x2="790" y2="66" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
-    <line x1="760" y1="96" x2="790" y2="97" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
-    <line x1="760" y1="112" x2="790" y2="128" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
-
-    <!-- distillation note -->
-    <rect x="192" y="160" width="272" height="64" rx="10" fill="var(--node)" stroke="var(--border)" stroke-dasharray="none"/>
-    <text x="328" y="184" font-size="12.5" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Supervision: GMR (per-frame IK teacher)</text>
-    <text x="328" y="202" font-size="12" text-anchor="middle" fill="var(--ink-2)">+ optional contact head (BCE; ~1.5 cm fidelity price)</text>
-    <text x="328" y="217" font-size="12" text-anchor="middle" fill="var(--ink-2)">77 clips × 5 robots, 2.48M paired frames</text>
-    <line x1="328" y1="160" x2="315" y2="136" stroke="var(--ink-3)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arr)"/>
-
-    <!-- z tap down to stage 2 -->
-    <path d="M 486 126 L 486 300" stroke="var(--s1)" stroke-width="2.5" marker-end="url(#arrB)"/>
-    <text x="498" y="270" font-size="12" fill="var(--s1)" font-weight="650">frozen z stream (goal context)</text>
-
-    <!-- ======== STAGE 2 band ======== -->
-    <rect x="8" y="308" width="884" height="244" rx="12" fill="var(--wash3)"/>
-    <text x="28" y="336" font-size="13" font-weight="700" fill="var(--ink-2)" letter-spacing="0.06em">STAGE 2 — ACT-THROUGH-LATENT TRACKING (CVAE + DAgger, inside MuJoCo-Warp)</text>
-
-    <!-- prior -->
-    <rect x="28" y="360" width="196" height="88" rx="10" fill="var(--node)" stroke="var(--s3)" stroke-width="1.5"/>
-    <text x="126" y="384" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Prior ρ (deployable)</text>
-    <text x="126" y="402" font-size="12" text-anchor="middle" fill="var(--ink-2)">proprioception</text>
-    <text x="126" y="417" font-size="12" text-anchor="middle" fill="var(--ink-2)">+ reference goal window</text>
-    <text x="126" y="432" font-size="12" text-anchor="middle" fill="var(--ink-2)">+ z stream (arm D)</text>
-
-    <!-- z_cmd -->
-    <rect x="268" y="374" width="128" height="60" rx="30" fill="var(--s3)"/>
-    <text x="332" y="400" font-size="15" font-weight="700" text-anchor="middle" fill="#fff">z_cmd (64-d)</text>
-    <text x="332" y="418" font-size="11" text-anchor="middle" fill="#fff" opacity="0.9">the ONLY command</text>
-
-    <!-- decoder policy -->
-    <rect x="440" y="360" width="180" height="88" rx="10" fill="var(--node)" stroke="var(--s3)" stroke-width="1.5"/>
-    <text x="530" y="386" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Decoder policy</text>
-    <text x="530" y="404" font-size="12" text-anchor="middle" fill="var(--ink-2)">MLP(proprio, z_cmd)</text>
-    <text x="530" y="419" font-size="12" text-anchor="middle" fill="var(--ink-2)">→ PD targets, 50 Hz</text>
-    <text x="530" y="434" font-size="12" text-anchor="middle" fill="var(--ink-2)">never sees the reference</text>
-
-    <!-- sim -->
-    <rect x="664" y="360" width="220" height="88" rx="10" fill="var(--node)" stroke="var(--border)"/>
-    <text x="774" y="386" font-size="14" font-weight="650" text-anchor="middle" fill="var(--ink-1)">Physics (MuJoCo-Warp)</text>
-    <text x="774" y="404" font-size="12" text-anchor="middle" fill="var(--ink-2)">1,024 parallel G1 environments</text>
-    <text x="774" y="419" font-size="12" text-anchor="middle" fill="var(--ink-2)">contacts · limits · gravity</text>
-    <text x="774" y="434" font-size="12" text-anchor="middle" fill="var(--ink-2)">phase-stratified evaluation</text>
-
-    <line x1="224" y1="404" x2="262" y2="404" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
-    <line x1="396" y1="404" x2="434" y2="404" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
-    <line x1="620" y1="404" x2="658" y2="404" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr)"/>
-
-    <!-- proprio feedback loop -->
-    <path d="M 774 448 L 774 500 L 126 500 L 126 448" fill="none" stroke="var(--ink-3)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arr)"/>
-    <text x="450" y="492" font-size="12" text-anchor="middle" fill="var(--ink-2)" paint-order="stroke fill" stroke="var(--surface-1)" stroke-width="5">simulated state → proprioception (closed loop)</text>
-
-    <!-- teacher -->
-    <rect x="248" y="516" width="392" height="32" rx="8" fill="var(--node)" stroke="var(--s2)" stroke-width="1.4"/>
-    <text x="444" y="537" font-size="12.5" text-anchor="middle" fill="var(--ink-1)">DAgger labels from a frozen explicit-command RL teacher (0.98)</text>
-    <line x1="252" y1="516" x2="180" y2="452" stroke="var(--s2)" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr)"/>
-  </svg>
+<!-- ================= INSTRUMENT ================= -->
+<section id="instrument">
+  <div class="wrap rv">
+    <div class="kicker">THE INSTRUMENT</div>
+    <h2>Five students. One exclusive interface. The differences are the measurement.</h2>
+    <p class="lede">
+      An exclusivity contract guarantees the reference reaches the actor <b>only</b> through the
+      64-d channel (a causal leak detector caught and repaired the one violation — DEFECT-2).
+      Five students train under an identical frozen recipe; only the channel's content differs.
+      Evaluated on 69 reference-only paired starts where the present matches but the futures
+      diverge — a command encoding only progress-through-clip cannot pick the right future.
+    </p>
+    <div class="panel" id="armpanel">
+      <div class="arm expl"><div class="nm"><b>explicit reference</b>assay-validity ceiling</div>
+        <div class="track"><div class="fill" data-w="97.3"></div></div><div class="val">0.973</div></div>
+      <div class="arm snmr"><div class="nm"><b>SNMR latent</b>the measured interface</div>
+        <div class="track"><div class="fill" data-w="75.4"></div></div><div class="val">0.754</div></div>
+      <div class="arm"><div class="nm"><b>time index only</b>matched clock null</div>
+        <div class="track"><div class="fill" data-w="56.2"></div></div><div class="val">0.562</div></div>
+      <div class="arm"><div class="nm"><b>shuffled latent</b>phase-matched null</div>
+        <div class="track"><div class="fill" data-w="55.2"></div></div><div class="val">0.552</div></div>
+      <div class="arm"><div class="nm"><b>proprioception only</b>no goal source</div>
+        <div class="track"><div class="fill" data-w="43.7"></div></div><div class="val">0.437</div></div>
+      <p style="margin-top:18px;font-size:13px;color:var(--ink3)">
+        Ambiguity completion, frozen three-seed aggregate. The dashed amber line in your head sits at
+        <span class="mono" style="color:var(--amber)">0.562</span> — anything below it is explainable
+        by the clock alone. The latent clears it by <span class="mono" style="color:var(--cyan)">+0.192</span>.
+      </p>
+    </div>
   </div>
-  <figcaption>Fig. 1 — The two-stage framework. The retargeting latent <code>z</code> (blue) is trained
-  once by distillation and frozen; the command latent <code>z_cmd</code> (green) is co-trained under the
-  control objective. The tracking policy's decoder receives <em>no explicit reference</em> — motion
-  intent reaches the robot only through the 64-d bottleneck. Orange: the teacher that supplies DAgger
-  action labels during training only.</figcaption>
-  </figure>
 </section>
 
-<!-- ============================ RL INTEGRATION ============================ -->
-<section id="integration">
-  <h2>How the latent integrates with RL training</h2>
-  <p class="lede">Three findings — each one forced by an experiment — fixed the design. The final
-  training loop alternates simulation rollouts (acting through the <em>prior</em> path, exactly as
-  deployed) with supervised updates against teacher labels.</p>
-
-  <div class="card"><h4>1 · A frozen latent is ignored; RL alone collapses.</h4>
-  <p>Concatenating frozen z beside the explicit command is null-to-harmful (our E36:
-  −10pp; the vanishing-influence mechanism independently replicated by UniTracker's ablation).
-  A frozen latent as the <em>sole</em> command tops out at 0.72 (our E37, replicated 0.72–0.77
-  across 3 seeds); RL-from-scratch through a latent collapses in the literature (UniTracker,
-  BFM). The latent must be <strong>co-trained under the control objective by
-  distillation</strong> — online distillation on the student's own rollouts, no RL gradient mixed in.</p></div>
-
-  <div class="card"><h4>2 · The posterior must be a residual on the prior; train on the path you deploy.</h4>
-  <p>The encoder's mean is <code>μ_prior + residual</code> with a tied fixed σ, giving a closed-form
-  KL <code>‖residual‖²/2σ²</code>. Rollouts are collected while acting through the <em>prior</em>
-  (deployment path) with episodic noise — when we collected along the privileged posterior path
-  instead, deployment collapsed to 0.001 while the posterior path scored 0.84. Fixing the
-  collection path alone recovered only 20× — the prior also needed the goal (finding 3).</p></div>
-
-  <div class="card"><h4>3 · The prior needs a goal — but z_ret IS a goal.</h4>
-  <p>Post-DEFECT-2 factorial (all clean measurement): a prior over proprioception alone collapses
-  (<strong>0.001</strong>). Conditioning it on the frozen retargeting latent — a channel computed purely from
-  <em>human</em> motion, with no robot-space reference anywhere in the student — lifts it to
-  <strong>0.656 ± 0.044</strong> (3 seeds). The explicit robot-space command reaches <strong>0.955 ± 0.008</strong>; adding z_ret
-  beside it is null (0.956, shortcut mechanism). Goal-conditioning is the load-bearing choice
-  (E60 factorial: ≈0.95 with it regardless of loss path, 0.000 without it). The information bottleneck stays honest: the goal enters only the prior, never
-  the decoder.</p></div>
-
-  <figure>
-  <div class="figscroll">
-  <svg viewBox="0 0 900 346" role="img" aria-labelledby="figLoopTitle">
-    <title id="figLoopTitle">DAgger training loop: collect along prior path, label with teacher, update CVAE</title>
-    <defs>
-      <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-        <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
-      </marker>
-    </defs>
-    <text x="28" y="30" font-size="13" font-weight="700" fill="var(--ink-2)" letter-spacing="0.06em">ONE TRAINING ROUND (× 2,000)</text>
-
-    <!-- step 1 -->
-    <rect x="28" y="52" width="252" height="104" rx="10" fill="var(--wash3)" stroke="var(--s3)" stroke-width="1.4"/>
-    <text x="154" y="78" font-size="13.5" font-weight="650" text-anchor="middle" fill="var(--ink-1)">① Collect (24 sim steps)</text>
-    <text x="154" y="98" font-size="12" text-anchor="middle" fill="var(--ink-2)">act with z = μ_prior + σ·ε</text>
-    <text x="154" y="113" font-size="12" text-anchor="middle" fill="var(--ink-2)">ε fixed per episode (episodic noise)</text>
-    <text x="154" y="128" font-size="12" text-anchor="middle" fill="var(--ink-2)">— the deployment path, exactly</text>
-    <text x="154" y="146" font-size="11.5" text-anchor="middle" fill="var(--ink-3)">1,024 envs · MuJoCo-Warp</text>
-
-    <!-- step 2 -->
-    <rect x="324" y="52" width="252" height="104" rx="10" fill="var(--wash2)" stroke="var(--s2)" stroke-width="1.4"/>
-    <text x="450" y="78" font-size="13.5" font-weight="650" text-anchor="middle" fill="var(--ink-1)">② Label</text>
-    <text x="450" y="98" font-size="12" text-anchor="middle" fill="var(--ink-2)">frozen explicit-command teacher</text>
-    <text x="450" y="113" font-size="12" text-anchor="middle" fill="var(--ink-2)">annotates every visited state</text>
-    <text x="450" y="128" font-size="12" text-anchor="middle" fill="var(--ink-2)">with its action a*</text>
-    <text x="450" y="146" font-size="11.5" text-anchor="middle" fill="var(--ink-3)">teacher-mix anneals 1 → 0 over 200 rounds</text>
-
-    <!-- step 3 -->
-    <rect x="620" y="52" width="252" height="104" rx="10" fill="var(--wash1)" stroke="var(--s1)" stroke-width="1.4"/>
-    <text x="746" y="78" font-size="13.5" font-weight="650" text-anchor="middle" fill="var(--ink-1)">③ Update (5 epochs)</text>
-    <text x="746" y="100" font-size="12.5" text-anchor="middle" fill="var(--ink-1)">L = ‖a − a*‖²  (frozen E70 recipe: deterministic)</text>
-    <text x="746" y="119" font-size="12" text-anchor="middle" fill="var(--ink-2)">β·KL + α·smooth: CVAE calibration variants only</text>
-    <text x="746" y="134" font-size="12" text-anchor="middle" fill="var(--ink-2)">validation-selected checkpoints · 4-round FIFO replay</text>
-    <text x="746" y="149" font-size="11.5" text-anchor="middle" fill="var(--ink-3)">teacher-mix floor 0.1 · Adam 3e-4</text>
-
-    <line x1="280" y1="104" x2="318" y2="104" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr2)"/>
-    <line x1="576" y1="104" x2="614" y2="104" stroke="var(--ink-3)" stroke-width="1.5" marker-end="url(#arr2)"/>
-    <path d="M 746 156 L 746 196 L 154 196 L 154 162" fill="none" stroke="var(--ink-3)" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#arr2)"/>
-    <text x="450" y="190" font-size="12" text-anchor="middle" fill="var(--ink-2)">updated prior/posterior/decoder → next round's rollouts</text>
-
-    <!-- deployment strip -->
-    <rect x="28" y="232" width="844" height="88" rx="10" fill="var(--node)" stroke="var(--border)"/>
-    <text x="48" y="258" font-size="13" font-weight="700" fill="var(--ink-2)" letter-spacing="0.05em">AT DEPLOYMENT</text>
-    <text x="48" y="282" font-size="13" fill="var(--ink-1)">z_cmd = μ_prior (deterministic) → decoder(proprio, z_cmd) → PD targets.</text>
-    <text x="48" y="302" font-size="13" fill="var(--ink-1)">No teacher, no posterior, no explicit reference to the actor — the 64-d latent is the entire motion interface.</text>
-  </svg>
-  </div>
-  <figcaption>Fig. 2 — The DAgger round. Green: rollouts collected on the deployment (prior) path.
-  Orange: the frozen teacher supplies labels. Blue: the supervised CVAE update. The dashed return
-  edge is what makes it DAgger rather than behavior cloning — the student's own mistakes enter the
-  training distribution.</figcaption>
-  </figure>
-</section>
-
-<!-- ============================ RESULTS ============================ -->
+<!-- ================= RESULTS ================= -->
 <section id="results">
-  <h2>Results</h2>
-  <p class="lede">All numbers: 10-second rollouts on Unitree G1 in MuJoCo-Warp, deterministic
-  deployment path, 1,024 rollouts per arm. First the preregistered two-walk assay (E70); then
-  the single-clip calibration that exposed the clock confound and forced that design. E70
-  numbers are the frozen three-seed aggregate, machine-generated from the analyzer
-  (SHA-256 05ca3176…); the single-clip factorial is historical calibration.</p>
-
-  <figure style="margin:18px 0">
-    <a href="media/e70_pitch_figure.png" target="_blank" rel="noopener">
-      <img src="media/e70_pitch_figure.png" alt="E70 headline figure: five-arm assay, paired effect intervals, command destruction"
-           style="width:100%;border-radius:10px;border:1px solid rgba(128,128,128,.25);background:#fff" />
-    </a>
-    <figcaption>The one-figure case: (A) the exclusive interface separates five goal sources on
-    identical ambiguous starts; (B) the latent's paired advantage over both matched nulls excludes
-    zero on both clips and under the preregistered robustness analysis; (C) destroying the 64-d
-    channel erases competence — the channel is used, not decorative. Generated by
-    <code>scripts/make_pitch_figure.py</code> from the frozen analysis files (
-    <a href="media/e70_pitch_figure.pdf">PDF</a>).</figcaption>
-  </figure>
-
-  <h3>The two-walk ambiguity assay (E70) — content beyond time</h3>
-  <p class="lede">69 reference-only paired starts across two LAFAN1 walks where the present
-  matches but the futures diverge. A command that encodes only progress-through-clip cannot
-  pick the right future. Five arms, one frozen student recipe, gates registered before any
-  result was seen.</p>
-  <div class="legend">
-    <span class="key"><span class="swatch" style="background:var(--s1)"></span>explicit goal (capability control)</span>
-    <span class="key"><span class="swatch" style="background:var(--s3)"></span>frozen retargeting latent (ours)</span>
-    <span class="key"><span class="swatch" style="background:var(--s2)"></span>matched controls</span>
+  <div class="wrap rv">
+    <div class="kicker">THE MEASUREMENT</div>
+    <h2>Every interval excludes zero. Both clips. Both nulls. Every seed.</h2>
+    <p class="lede">
+      Paired per-cluster effects with hierarchical 95% CIs; the preregistered temporal-block
+      bootstrap (12 blocks, 10,000 replicates) closes the autocorrelation door. All displayed
+      numbers are machine-generated from the frozen analyzer
+      — SHA-256 <span class="mono">05ca3176…</span> is stamped into the paper's macros.
+    </p>
+    <div class="panel">
+      <svg class="forest" viewBox="0 0 1080 330" role="img" aria-label="Forest plot of paired effects">
+        <line x1="330" y1="18" x2="330" y2="290" stroke="#ff5d5d" stroke-width="1.5"/>
+        <text x="330" y="312" text-anchor="middle" class="row-label" fill="#ff5d5d" style="fill:#ff5d5d">0 = nothing beyond time/phase</text>
+        <!-- scale: x = 330 + diff*1800 -->
+        <g><text x="310" y="48" text-anchor="end" class="row-label">vs time (primary)</text>
+          <line class="ci ci-line" x1="553" y1="43" x2="823" y2="43" stroke="#38e1ff" stroke-width="5"/>
+          <circle cx="674" cy="43" r="7" fill="#38e1ff"/><text x="850" y="48" class="row-val">+0.191 [0.124, 0.274]</text></g>
+        <g><text x="310" y="93" text-anchor="end" class="row-label">vs shuffled (primary)</text>
+          <line class="ci ci-line" x1="559" y1="88" x2="831" y2="88" stroke="#38e1ff" stroke-width="5"/>
+          <circle cx="689" cy="88" r="7" fill="#38e1ff"/><text x="850" y="93" class="row-val">+0.199 [0.127, 0.279]</text></g>
+        <g><text x="310" y="138" text-anchor="end" class="row-label">vs time · clip 1</text>
+          <line class="ci ci-line" x1="562" y1="133" x2="808" y2="133" stroke="#6b7f95" stroke-width="3.5"/>
+          <circle cx="674" cy="133" r="5" fill="#6b7f95"/><text x="850" y="138" class="row-val">+0.191 [0.129, 0.265]</text></g>
+        <g><text x="310" y="183" text-anchor="end" class="row-label">vs time · clip 2</text>
+          <line class="ci ci-line" x1="499" y1="178" x2="862" y2="178" stroke="#6b7f95" stroke-width="3.5"/>
+          <circle cx="673" cy="178" r="5" fill="#6b7f95"/><text x="850" y="183" class="row-val">+0.190 [0.094, 0.296]</text></g>
+        <g><text x="310" y="228" text-anchor="end" class="row-label">vs time · block bootstrap</text>
+          <line class="ci ci-line" x1="520" y1="223" x2="834" y2="223" stroke="#6b7f95" stroke-width="3.5"/>
+          <circle cx="674" cy="223" r="5" fill="#6b7f95"/><text x="850" y="228" class="row-val">+0.191 [0.106, 0.280]</text></g>
+        <g><text x="310" y="273" text-anchor="end" class="row-label">vs shuffled · block bootstrap</text>
+          <line class="ci ci-line" x1="540" y1="268" x2="837" y2="268" stroke="#6b7f95" stroke-width="3.5"/>
+          <circle cx="689" cy="268" r="5" fill="#6b7f95"/><text x="850" y="273" class="row-val">+0.199 [0.116, 0.282]</text></g>
+      </svg>
+      <p style="font-size:13px;color:var(--ink3);margin-top:8px">
+        Per-seed effects vs time: <span class="mono">+0.154 / +0.278 / +0.140</span> — positive at every training seed, on each clip.
+      </p>
+    </div>
+    <div class="figbox rv">
+      <a href="media/e70_pitch_figure.png" target="_blank" rel="noopener"><img src="media/e70_pitch_figure.png" alt="E70 headline figure"></a>
+      <div class="figcap">The one-figure case (click to enlarge): instrument · measurement · causal proof. Generated by
+      <span class="mono">scripts/make_pitch_figure.py</span> from the frozen analysis files (<a href="media/e70_pitch_figure.pdf">PDF</a>).</div>
+    </div>
   </div>
-  <figure>
-    <svg id="e70Chart" viewBox="0 0 900 300" role="img" aria-labelledby="figE70Title" style="width:100%;height:auto">
-      <title id="figE70Title">Ambiguity-start completion by arm, E70 frozen seed-0 endpoint</title>
-    </svg>
-    <figcaption>Fig. 3 — Ambiguity-start completion, frozen three-seed aggregate (seeds 0–2,
-    69 paired clusters). Registered gates: the explicit control passes its capability rule;
-    SNMR−time ≥ +0.10 with a 95% CI excluding zero; SNMR−shuffled CI excluding zero; SNMR−time
-    positive on each clip. <strong>All pass.</strong> Per-seed SNMR−time: +0.154 / +0.278 /
-    +0.140; per-clip: +0.13 to +0.27 and +0.09 to +0.30. A preregistered secondary
-    temporal-block analysis (12 non-overlapping-block clusters) is directionally consistent
-    with block-level CIs excluding zero.</figcaption>
-  </figure>
-  <details><summary>Table view</summary>
-    <table class="data">
-      <thead><tr><th>Arm</th><th>General</th><th>Ambiguity</th><th>Amb. survival</th></tr></thead>
-      <tbody>
-        <tr><td>C: explicit goal (capability control)</td><td>0.923</td><td>0.973</td><td>9.89 s</td></tr>
-        <tr><td>A: frozen z_ret (ours)</td><td>0.699</td><td>0.754</td><td>8.73 s</td></tr>
-        <tr><td>T: absolute time index</td><td>0.579</td><td>0.562</td><td>7.35 s</td></tr>
-        <tr><td>S: matched-phase shuffled content</td><td>0.536</td><td>0.552</td><td>7.45 s</td></tr>
-        <tr><td>B: proprioception only</td><td>0.431</td><td>0.437</td><td>6.83 s</td></tr>
-      </tbody>
-    </table>
-  </details>
-
-  <h3>Single-clip calibration: the clock confound</h3>
-  <div class="legend">
-    <span class="key"><span class="swatch" style="background:var(--s1)"></span>explicit command (upper bound)</span>
-    <span class="key"><span class="swatch" style="background:var(--s3)"></span>latent-only command (ours)</span>
-    <span class="key"><span class="swatch" style="background:var(--s2)"></span>frozen-latent baseline (ours)</span>
-  </div>
-  <figure>
-    <svg id="barChart" viewBox="0 0 900 300" role="img" aria-labelledby="figBarsTitle" style="width:100%;height:auto">
-      <title id="figBarsTitle">10-second completion rate by command interface</title>
-    </svg>
-    <figcaption>Fig. 4 — Post-fix command-interface factorial (E52 v4, mean ± sd over 3 training seeds,
-    1,024 rollouts per evaluation, one recipe): completion is monotone in what the prior sees. The 64-d
-    bottleneck costs 2.5pp against its teacher; the frozen human-side retargeting latent alone retains
-    0.656 where the goal-free control collapses. But a pre-specified time-index control reaches
-    <strong>0.754</strong> — beating z_ret and retiring the single-clip latent claim. On one clip, time
-    identifies the target; only paired ambiguous starts (Fig. 3) can separate content from progress.
-    Exact values in the table below.</figcaption>
-  </figure>
-  <details><summary>Table view</summary>
-    <table class="data">
-      <thead><tr><th>Interface</th><th>Prior sees</th><th>Completion</th><th>Joint RMSE (rad)</th><th>Seeds</th></tr></thead>
-      <tbody>
-        <tr><td>Explicit command (teacher)</td><td>—</td><td>0.980</td><td>0.122</td><td>1</td></tr>
-        <tr><td>C: latent-only, explicit goal</td><td>proprio + cmd</td><td>0.955 ± 0.008</td><td>0.127</td><td>3</td></tr>
-        <tr><td>D: latent-only, explicit goal + SNMR z</td><td>proprio + cmd + z_ret</td><td>0.956 ± 0.003</td><td>0.127</td><td>3</td></tr>
-        <tr><td>A: latent-only, z_ret as sole goal</td><td>proprio + z_ret</td><td>0.656 ± 0.044</td><td>0.161</td><td>3</td></tr>
-        <tr><td>B: no goal (control)</td><td>proprio</td><td>0.001 ± 0.001</td><td>0.254</td><td>3</td></tr>
-      </tbody>
-    </table>
-  </details>
-
-  <h3>What it took to get a trustworthy tracker</h3>
-  <figure>
-    <svg id="ladderChart" viewBox="0 0 900 260" role="img" aria-labelledby="figLadderTitle" style="width:100%;height:auto">
-      <title id="figLadderTitle">Tracking fidelity ladder: joint RMSE reduction by fix</title>
-    </svg>
-    <figcaption>Fig. 5 — Joint tracking error of the explicit G1 tracker as the stack was repaired.
-    The dominant lever was a <em>bug we found in the training framework</em>: a world-body indexing
-    off-by-one silently zeroed the body-position reward in every MuJoCo-Warp run (verified: the raw
-    reward term logged exactly 0.0 for 8,000 iterations). One line of interpretation: measure your
-    reward channels before tuning them.</figcaption>
-  </figure>
-  <details><summary>Table view</summary>
-    <table class="data">
-      <thead><tr><th>Stack state</th><th>Joint RMSE (rad)</th><th>Completion</th><th>Heading-local MPJPE</th></tr></thead>
-      <tbody>
-        <tr><td>As-shipped (dead body-position reward)</td><td>0.263</td><td>0.90</td><td>9.7 cm</td></tr>
-        <tr><td>+ body-index fix (DEFECT-1)</td><td>0.142</td><td>0.94</td><td>6.8 cm</td></tr>
-        <tr><td>+ joint-space tracking reward</td><td>0.122</td><td>0.98</td><td>6.7 cm</td></tr>
-        <tr><td>+ tighter reward kernels (σ)</td><td>0.111</td><td>0.96</td><td>6.2 cm</td></tr>
-      </tbody>
-    </table>
-  </details>
-
-  <h3>Trackability parity (GMR-paper protocol)</h3>
-  <p class="lede">Matched tracking policies trained on SNMR references vs the IK teacher's:
-  <strong>86.7% = 86.7%</strong> completion (point-equal; 3 seeds per source × 2 eval seeds ×
-  100 rollouts), joint RMSE noninferior (+0.33%, CI [−3.1%, +4.9%]). Formal noninferiority on
-  completion was not established — the ±6pp CI exceeds the preregistered −5pp margin at this
-  seed count; a power statement, not a quality gap. <a href="benchmark.html#downstream">Details</a>.</p>
-
-  <h3>One latent, two teachers, three skeletons (interaction absorption)</h3>
-  <div class="legend">
-    <span class="key"><span class="swatch" style="background:var(--s2)"></span>LAFAN1-only training</span>
-    <span class="key"><span class="swatch" style="background:var(--s3)"></span>+ OmniRetarget (two-teacher)</span>
-  </div>
-  <figure>
-    <svg id="ttChart" viewBox="0 0 900 240" role="img" aria-label="Two-teacher interaction absorption" style="width:100%;height:auto"></svg>
-    <figcaption>Held-out retargeting error before/after adding the interaction-rich second
-    teacher (1,938 OmniRetarget clips; 52/53-joint human skeletons ingested with inferred
-    topology and synthetic orientations). Interaction clips improve 3–5×; locomotion pays
-    +1.05 cm at this capacity — and a sampling-diet ablation attributes 61% of the naive
-    run's larger interference to data balance, not representational conflict. The terrain
-    plateau is the measured signature of a hidden conditioning variable (terrain scale),
-    under test now (E56-D).</figcaption>
-  </figure>
-
-  <h3>Physics-repaired references (ReActor-inspired)</h3>
-  <div class="kpis">
-    <div class="kpi"><div class="v">2–3×</div><div class="l">less foot-skate in rollouts than in the references they tracked (post-fix tracker; 3–6× on pre-fix policies)</div></div>
-    <div class="kpi"><div class="v">0.000</div><div class="l">ground-penetration fraction in rollouts (a simulator property — we don't claim it)</div></div>
-    <div class="kpi"><div class="v">6.2 cm</div><div class="l">fidelity price of the repair (heading-local MPJPE, same post-fix tracker)</div></div>
-  </div>
-  <p class="lede" style="margin-top:16px">The simulated rollout of a competent tracker is a
-  physically consistent version of its reference. We record those rollouts (with true contact
-  forces read from the simulator) as candidate repaired supervision for the retargeter — the
-  cheap alternative to bilevel physics-aware retargeting, reusing policies we train anyway.</p>
 </section>
 
-<!-- ============================ HONEST LEDGER ============================ -->
+<!-- ================= CAUSAL ================= -->
+<section id="causal">
+  <div class="wrap rv">
+    <div class="kicker">CAUSAL PROOF</div>
+    <h2>Destroy the channel. Competence vanishes.</h2>
+    <p class="lede">
+      Zero it, shuffle it, or replace it with marginal-random samples: general completion collapses
+      from 0.923 to exactly <b>0.000</b> — at all three seeds, in all three destruction modes.
+      The interface is not decorative telemetry; every bit of competence flows through it.
+    </p>
+    <div class="destroy-grid" id="destroygrid">
+      <div class="dcell alive"><div class="dv">0.923</div><div class="dk">intact channel</div><div class="dbar"><i data-w="92.3"></i></div></div>
+      <div class="dcell dead"><div class="dv">0.000</div><div class="dk">zeroed</div><div class="dbar"><i data-w="0.5"></i></div></div>
+      <div class="dcell dead"><div class="dv">0.000</div><div class="dk">shuffled</div><div class="dbar"><i data-w="0.5"></i></div></div>
+      <div class="dcell dead"><div class="dv">0.000</div><div class="dk">marginal random</div><div class="dbar"><i data-w="0.5"></i></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEPLOY / SIM2SIM ================= -->
+<section id="deploy">
+  <div class="wrap rv">
+    <div class="kicker">SIM2SIM · TOWARD THE REAL G1</div>
+    <h2>The production runtime walks in CPU MuJoCo — the deploy stack, minus the cable.</h2>
+    <p class="lede">
+      Frozen students → ONNX with a 95%-range safety envelope → driven by the <b>actual</b>
+      Holosoma inference process over the loopback DDS interface into CPU MuJoCo. Candidates
+      picked by a recorded median-completion rule, never visually. Tracking survives the engine
+      hop: <span class="mono">0.17–0.23&nbsp;rad</span> unassisted joint RMSE, matching the frozen
+      GPU-eval values. The deployment configuration passes the three-repeat safety-handoff gate
+      <b>3/3</b>. All in simulation — sim-to-real remains unvalidated and unclaimed.
+    </p>
+    <div class="vidgrid">
+      <div class="vid"><video controls preload="metadata" src="media/sim2sim/e70_seed2_explicit_walk1_subject1_safe95.mp4"></video>
+        <div class="vc"><b>EXPLICIT · walk1_subject1<span class="badge pass">GATE 3/3</span></b>
+        Deployment candidate (seed 2). Gantry start, upright release, 10 s unassisted walking, clean safety handoff.</div></div>
+      <div class="vid"><video controls preload="metadata" src="media/sim2sim/e70_seed1_snmr_walk1_subject1_safe95.mp4"></video>
+        <div class="vc"><b>SNMR LATENT · walk1_subject1<span class="badge warn">2/3</span></b>
+        The research interface walking through the 64-d exclusive channel — the measured 0.754 made physical.</div></div>
+      <div class="vid"><video controls preload="metadata" src="media/sim2sim/e70_seed2_explicit_walk1_subject5_safe95.mp4"></video>
+        <div class="vc"><b>EXPLICIT · walk1_subject5<span class="badge warn">1/3</span></b>
+        Motion tracks; the fixed 27-s safety handoff lands mid-stride on this clip — the identified fix is a clip-specific double-support handoff.</div></div>
+      <div class="vid"><video controls preload="metadata" src="media/sim2sim/e70_seed1_snmr_walk1_subject5_safe95.mp4"></video>
+        <div class="vc"><b>SNMR LATENT · walk1_subject5<span class="badge warn">1/3</span></b>
+        The harder clip for the research interface — faithful to the measured capability gap (0.70 vs 0.92).</div></div>
+    </div>
+    <p style="margin-top:16px;font-size:13px;color:var(--ink3)">
+      Full campaign with hashes: <span class="mono">docs/SIM2SIM_VALIDATION_2026-08-12.md</span> ·
+      hard-gated path to hardware in <span class="mono">docs/REAL_WORLD_DEPLOYMENT_PLAN.md</span> — not cleared for hardware; stages 4–7 remain.
+    </p>
+  </div>
+</section>
+
+<!-- ================= COMPARISON ================= -->
+<section id="compare">
+  <div class="wrap rv">
+    <div class="kicker">POSITION IN THE FIELD</div>
+    <h2>They design, scale, or clean the interface. We measure it.</h2>
+    <p class="lede">
+      Verified against primary sources, August 2026. Capability systems are complementary — this
+      row-by-row contrast is about one question only: <i>what evidence exists for what the
+      command interface actually carries?</i>
+    </p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>System</th><th>Command interface</th><th>Claim about content</th><th>Evidence</th></tr></thead>
+        <tbody>
+          <tr><td><b>ULTRA</b> <span class="mono" style="font-size:11px">2603.03279</span></td><td>64-d latent distilled from tracker (G1)</td><td>"captures mainly ambiguity and multimodality"</td><td class="meh">t-SNE + KMeans</td></tr>
+          <tr><td><b>UniTracker</b> <span class="mono" style="font-size:11px">RA-L 2026</span></td><td>CVAE global motion latent</td><td>"captures the inherent ambiguity"</td><td class="no">none</td></tr>
+          <tr><td><b>BFM-Zero</b> <span class="mono" style="font-size:11px">ICLR 2026</span></td><td>Forward-Backward shared latent</td><td>"explainable and smooth"</td><td class="no">asserted</td></tr>
+          <tr><td><b>RoboGhost</b> <span class="mono" style="font-size:11px">ICLR 2026</span></td><td>language-grounded motion latents</td><td>latents as first-class conditioning</td><td class="meh">outcome ablation only</td></tr>
+          <tr><td><b>HANDOFF</b> <span class="mono" style="font-size:11px">2606.06493</span></td><td>compact explicit task-space</td><td>"intuitive, general, modular, expressive"</td><td class="no">designed, not measured</td></tr>
+          <tr><td><b>GMT / SONIC / Humanoid-GPT</b></td><td>explicit references / token space</td><td>scale ⇒ generality</td><td class="meh">tracking scores</td></tr>
+          <tr class="us"><td><b>SNMR / E70</b> (this work)</td><td>exclusive 64-d retarget-to-track latent (G1)</td><td><b>measured:</b> control-usable content beyond time</td><td class="yes">matched nulls + ceiling + destruction + prereg CIs</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:16px;font-size:13.5px;color:var(--ink2)">
+      The honest capability line: our explicit student reaches <span class="mono">0.923</span> vs its teacher's
+      <span class="mono">0.917</span> — teacher parity through a production interface, deploy-qualified in sim2sim.
+      No SOTA claim; the contribution is the instrument, and the instrument is what none of the systems above have.
+    </p>
+  </div>
+</section>
+
+<!-- ================= LEDGER ================= -->
 <section id="ledger">
-  <h2>The negative-results ledger</h2>
-  <p class="lede">Every closed line is preregistered, logged, and kept. These are load-bearing:
-  they are why the design above looks the way it does.</p>
-  <table class="data">
-    <thead><tr><th>Claim tested</th><th>Verdict</th><th>What it forced</th></tr></thead>
-    <tbody>
-      <tr><td>Frozen z concatenated beside the explicit command helps tracking</td><td>Null-to-harmful (E36 −10pp; mechanism replicated by UniTracker)</td><td>co-training under the control objective</td></tr>
-      <tr><td>Inference-time correction can fix retargeting foot-skate</td><td>Closed, theory-grade (5 corrector families)</td><td>physics-repaired supervision instead</td></tr>
-      <tr><td>Proprio-only prior can carry a deployed latent command</td><td>Failed (0.05)</td><td>goal-conditioned prior</td></tr>
-      <tr><td>SNMR z adds completion on single-clip walk</td><td>Null across seeds (+0.8pp, straddles 0)</td><td>the additive claim moves to multi-clip / cross-embodiment</td></tr>
-      <tr><td>Zero-shot transfer to an unseen robot via embodiment code</td><td>Failed (5.2× error)</td><td>embodiment augmentation as future work</td></tr>
-      <tr><td><strong>DEFECT-2 (2026-08-02, self-caught & repaired):</strong> the E52 trainer's obs slicing assumed config order, but holosoma concatenates observation terms alphabetically — the decoder saw the explicit reference inside "proprio" in all E52 v1–v3 runs (causal probe: blanking the leaked dims drops 0.93 → 0.00)</td><td>Post-fix rerun moved results in BOTH directions: explicit-goal arm 0.935 → <strong>0.955 ± 0.008</strong>; frozen-z_ret-only arm 0.004 → <strong>0.656 ± 0.044</strong> (3 seeds) — a logged negative OVERTURNED (the leaked shortcut had suppressed latent learning)</td><td>red flag was a 90pp gap between arms with identical goal information; incoherence between arms is a leak detector</td></tr>
-      <tr><td>Frozen z_ret as the sole command fails (leak-era E58: 0.004–0.016)</td><td><strong>OVERTURNED post-DEFECT-2</strong> (0.656 vs 0.001 goal-free) — <strong>then RETIRED by the E63 clock control</strong>: frame-index sinusoids through the identical fetch path reach 0.754 > 0.656, so the latent's single-clip value is at most phase</td><td>the clock is now the published null model every single-clip act-through-latent claim must beat</td></tr>
-      <tr><td>The z_ret-only arm's 0.656 means the latent "carries deployable goal content"</td><td><strong>KILLED by pre-specified control (E63, 3 seeds)</strong>: clock 0.754 ± 0.010 beats z_ret 0.656 ± 0.044, non-overlapping seed ranges — third favored result retired by our own gates</td><td>the question moved to ambiguous two-trajectory starts, where time cannot identify the target</td></tr>
-      <tr><td>A single <em>aperiodic</em> clip (push1) can break the time confound</td><td><strong>INVALID assay (E66)</strong>: the teacher passed its gate (0.514) but every student — including the explicit positive control — collapsed to 0.000; and one clip cannot break a one-to-one time↔target map by design</td><td>two-trajectory ambiguity design; fail-closed launchers; explicit capability gate must pass before any representation comparison counts</td></tr>
-      <tr><td>walk3_subject1 can serve as the second specialist teacher</td><td>Failed twice (E67 gate: 0.56 vs 0.80; E68 +8k-iteration resume: 0.65) — budget closed by the preregistered rule</td><td>reference-only pair screening (E69) with no student in the loop: walk1_subject1 passes at 0.987</td></tr>
-      <tr><td><strong>E70 (closed)</strong>: the frozen latent carries control-usable content beyond absolute time at ambiguous starts</td><td><strong>POSITIVE at three seeds — every preregistered content gate passes</strong>: SNMR−time +0.191 [0.124, 0.274], SNMR−shuffled +0.199 [0.127, 0.279], positive on each clip and each seed; command destruction 0.925 → 0.000; preregistered secondary temporal-block analysis directionally consistent with CIs excluding zero</td><td>all displayed numbers machine-generated from the frozen analyzer (SHA-256 05ca3176…); scope: two LAFAN1 walks, simulated Unitree G1, frozen SNMR endpoint, this controller class</td></tr>
-    </tbody>
-  </table>
+  <div class="wrap rv">
+    <div class="kicker">THE NEGATIVE-RESULTS LEDGER</div>
+    <h2>An instrument you can trust is one that has ruled against its makers.</h2>
+    <p class="lede">Every closed line is preregistered, logged, and kept. Three of our own favored claims died by our own gates — that is why the one that survived is believable.</p>
+    <div class="panel ledger">
+      <div class="l"><div class="tag">KILLED</div><p><b>"The latent's 0.656 means deployable goal content."</b> The pre-specified clock control (E63) reached 0.754 with frame-index sinusoids — our third favored result retired by our own controls. The clock became the published null model.</p></div>
+      <div class="l"><div class="tag fix">CAUGHT</div><p><b>DEFECT-2:</b> an observation-ordering leak let the decoder see the reference inside "proprio". Red flag: a 90pp gap between arms with identical goal information. Causal blanking probe confirmed; post-fix rerun moved results in <i>both</i> directions and overturned a logged negative.</p></div>
+      <div class="l"><div class="tag">NULL</div><p><b>"Latent beside explicit helps."</b> E36: −10pp (mechanism independently replicated by UniTracker's ablation). E52 v4 three-seed replication of the additive claim: paired deltas straddle zero. The explicit command saturates the goal channel on these clips.</p></div>
+      <div class="l"><div class="tag">INVALID</div><p><b>"One aperiodic clip can break the time confound."</b> E66: every student including the explicit positive control collapsed to 0.000 — invalid assay by its own gate; forced the two-trajectory ambiguity design that E70 used.</p></div>
+      <div class="l"><div class="tag win">POSITIVE</div><p><b>E70 (closed):</b> the frozen latent carries control-usable content beyond absolute time at ambiguous starts — <span class="mono">+0.191 [0.124, 0.274]</span> vs time, <span class="mono">+0.199 [0.127, 0.279]</span> vs shuffle, positive per clip and per seed, destruction to 0.000. Scope: two LAFAN1 walks, simulated G1, frozen SNMR endpoint, this controller class.</p></div>
+    </div>
+  </div>
 </section>
 
-<!-- ============================ SIM2SIM ============================ -->
-<section id="sim2sim">
-  <h2>Sim2sim: the production runtime walks in CPU MuJoCo</h2>
-  <p class="lede">Toward real-G1 deployment (2026-08-12): the frozen students, exported to ONNX
-  with a 95%-range safety envelope, driven by the <em>actual</em> Holosoma inference process over
-  the loopback DDS interface into CPU MuJoCo — the same stack that would command hardware, with
-  only the physical link swapped out. Candidates picked by a recorded median-completion rule, never
-  visually. Tracking error transfers across the engine hop (0.17–0.23 rad unassisted RMSE,
-  matching the frozen Warp evals); the deployment configuration (explicit, walk1_subject1) passes
-  the three-repeat safety-handoff gate 3/3. Full campaign: <code>docs/SIM2SIM_VALIDATION_2026-08-12.md</code>.</p>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:12px">
-    <figure style="margin:0">
-      <video controls preload="metadata" style="width:100%;border-radius:8px" src="media/sim2sim/e70_seed2_explicit_walk1_subject1_safe95.mp4"></video>
-      <figcaption>Explicit (deployment candidate, seed 2) · walk1_subject1 — qualification gate 3/3</figcaption>
-    </figure>
-    <figure style="margin:0">
-      <video controls preload="metadata" style="width:100%;border-radius:8px" src="media/sim2sim/e70_seed1_snmr_walk1_subject1_safe95.mp4"></video>
-      <figcaption>SNMR latent (research interface, seed 1) · walk1_subject1 — walks upright through the 64-d exclusive channel</figcaption>
-    </figure>
-    <figure style="margin:0">
-      <video controls preload="metadata" style="width:100%;border-radius:8px" src="media/sim2sim/e70_seed2_explicit_walk1_subject5_safe95.mp4"></video>
-      <figcaption>Explicit · walk1_subject5 — motion tracks; the fixed 27-s safety handoff is the marginal step on this clip (1/3 strict gate)</figcaption>
-    </figure>
-    <figure style="margin:0">
-      <video controls preload="metadata" style="width:100%;border-radius:8px" src="media/sim2sim/e70_seed1_snmr_walk1_subject5_safe95.mp4"></video>
-      <figcaption>SNMR latent · walk1_subject5 — the harder clip for the research interface (1/3 strict gate)</figcaption>
-    </figure>
+<!-- ================= BENCHMARK ================= -->
+<section id="bench">
+  <div class="wrap rv">
+    <div class="kicker">FROM ONE PAPER TO THE STANDARD</div>
+    <h2>The Interface Content Assay: a benchmark you run, not a leaderboard you chase.</h2>
+    <p class="lede">
+      Fixed probe, variable subject: any retarget-to-track stack with a command bottleneck plugs
+      in. The reported scalar is the <b>Content-over-Null Margin (CNM)</b> — the paired advantage
+      of the real command over its strongest matched null. This page documents its founding
+      measurement: <span class="mono">CNM = +0.191 [0.124, 0.274]</span>.
+    </p>
+    <div class="road">
+      <div class="rd"><div class="st done">■ COMPLETE</div><h4>E70 · founding measurement</h4><p>Exclusivity contract, ambiguity-pair recipe, null battery, destruction battery, fail-closed hierarchical analysis — all built, hash-stamped, and closed positive.</p></div>
+      <div class="rd"><div class="st live">■ PREREGISTERED (DRAFT)</div><h4>E72 · sensitivity curve</h4><p>Calibrated noise titration of the command channel — eval-only, zero frozen-code changes. A graded dose–response is what separates an instrument from a demo.</p></div>
+      <div class="rd"><div class="st next">■ NEXT</div><h4>E73 · known-content calibration</h4><p>Students trained on PCA-k compressions of the explicit reference: channels whose content is known by construction. Assay-vs-k monotonicity = classic instrument validation.</p></div>
+      <div class="rd"><div class="st next">■ NEXT</div><h4>E74 · second subject + assay kit</h4><p>The unchanged assay applied to an external latent, plus the contract spec, prereg template, and one-page assay card — the standalone benchmark release.</p></div>
+    </div>
   </div>
-  <p style="margin-top:10px"><small>Engineering validation only: CPU-loopback evidence, not hardware safety, not sim-to-real —
-  the paper's simulation-only boundary is unchanged, and none of these numbers enters the paper.</small></p>
 </section>
 
 <footer>
-  SNMR research project · results generated 2026-07/08 on a single-GPU workstation ·
-  <a href="https://github.com/linjiw/snmr">github.com/linjiw/snmr</a> ·
-  full provenance in <code>docs/EXPERIMENT_LOG.md</code> (E01–E70, every run logged with revision hashes)
+  <div class="wrap">
+    SNMR research · single-GPU workstation · 2026-07/08 ·
+    <a href="https://github.com/linjiw/snmr">github.com/linjiw/snmr</a> ·
+    full provenance in <span class="mono">docs/EXPERIMENT_LOG.md</span> (E01–E70) ·
+    analyzer SHA-256 <span class="mono">05ca3176…</span> ·
+    all displayed E70 numbers machine-generated · sim-to-real unvalidated and unclaimed
+  </div>
 </footer>
 
-</div>
-<div class="tooltip" id="tip"></div>
-
 <script>
-// ---- theme via URL (?theme=dark|light) ----------------------------------
-const urlTheme = new URLSearchParams(location.search).get('theme');
-if (urlTheme === 'dark' || urlTheme === 'light') document.documentElement.dataset.theme = urlTheme;
+(function(){
+"use strict";
+var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// ---- theme toggle -------------------------------------------------------
-const toggle = document.getElementById('themeToggle');
-toggle.addEventListener('click', () => {
-  const cur = document.documentElement.dataset.theme;
-  const osDark = matchMedia('(prefers-color-scheme: dark)').matches;
-  const effective = cur || (osDark ? 'dark' : 'light');
-  document.documentElement.dataset.theme = effective === 'dark' ? 'light' : 'dark';
-  drawAll();
+/* ---------- scroll reveals ---------- */
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){ e.target.classList.add("on"); io.unobserve(e.target); }
+  });
+},{threshold:0.15});
+document.querySelectorAll(".rv").forEach(function(el){ io.observe(el); });
+
+/* ---------- count-up stats ---------- */
+function animateCount(el){
+  var target = parseFloat(el.dataset.count), dec = parseInt(el.dataset.dec||"0",10);
+  var plus = el.dataset.plus === "1", t0 = null, dur = 1400;
+  function fmt(v){ return (plus? "+":"") + v.toFixed(dec); }
+  if(reduced){ el.textContent = fmt(target); return; }
+  function step(ts){
+    if(!t0) t0 = ts;
+    var p = Math.min((ts-t0)/dur, 1), ease = 1-Math.pow(1-p,3);
+    el.textContent = fmt(target*ease);
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+var io2 = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){ animateCount(e.target); io2.unobserve(e.target); }
+  });
+},{threshold:0.4});
+document.querySelectorAll("[data-count]").forEach(function(el){ io2.observe(el); });
+
+/* ---------- bar fills ---------- */
+var io3 = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){
+      e.target.querySelectorAll("[data-w]").forEach(function(b){ b.style.width = b.dataset.w + "%"; });
+      io3.unobserve(e.target);
+    }
+  });
+},{threshold:0.3});
+["armpanel","destroygrid"].forEach(function(id){
+  var el = document.getElementById(id); if(el) io3.observe(el);
 });
 
-// ---- shared helpers -----------------------------------------------------
-const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const tip = document.getElementById('tip');
-function showTip(e, html) {
-  tip.innerHTML = html; tip.style.display = 'block';
-  tip.style.left = Math.min(e.clientX + 14, innerWidth - 220) + 'px';
-  tip.style.top = (e.clientY + 14) + 'px';
-}
-function hideTip() { tip.style.display = 'none'; }
-const SVGNS = 'http://www.w3.org/2000/svg';
-function el(tag, attrs, parent) {
-  const n = document.createElementNS(SVGNS, tag);
-  for (const k in attrs) n.setAttribute(k, attrs[k]);
-  if (parent) parent.appendChild(n);
-  return n;
-}
-function roundBarH(svg, x0, y, w, h, fill) {
-  return el('path', { d: `M ${x0} ${y} H ${x0 + w - 4} Q ${x0 + w} ${y} ${x0 + w} ${y + 4} V ${y + h - 4} Q ${x0 + w} ${y + h} ${x0 + w - 4} ${y + h} H ${x0} Z`, fill }, svg);
-}
+/* ---------- hero pipeline: human walker -> z stream -> robot ---------- */
+var cv = document.getElementById("pipe");
+if(cv && cv.getContext){
+  var ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height;
 
-// ---- Fig 3: completion bars ---------------------------------------------
-const barData = [
-  { label: 'Explicit command (teacher)', v: 0.980, sd: null, c: '--s1', note: 'the upper bound the student distills from' },
-  { label: 'C: latent-only, explicit goal (ours)', v: 0.955, sd: 0.008, c: '--s3', note: '3 seeds · post-DEFECT-2 · joint RMSE 0.127 rad' },
-  { label: 'D: + SNMR z beside explicit goal', v: 0.956, sd: 0.003, c: '--s3', note: 'additive value null (shortcut mechanism)' },
-  { label: 'A: frozen z_ret as SOLE goal (human-side)', v: 0.656, sd: 0.044, c: '--s2', note: 'causal: corrupting z_ret collapses to 0.000' },
-  { label: 'B: no goal (control)', v: 0.001, sd: 0.001, c: '--s2', note: 'goal-free prior collapses' },
-];
-function drawBars() {
-  const svg = document.getElementById('barChart');
-  svg.querySelectorAll(':scope > :not(title)').forEach(n => n.remove());
-  const W = 900, left = 250, right = 60, top = 24, rowH = 58, barH = 22;
-  const x = v => left + v * (W - left - right);
-  // gridlines + axis
-  for (const g of [0, 0.25, 0.5, 0.75, 1.0]) {
-    el('line', { x1: x(g), y1: top - 8, x2: x(g), y2: top + barData.length * rowH, stroke: css('--grid'), 'stroke-width': 1 }, svg);
-    el('text', { x: x(g), y: top + barData.length * rowH + 22, 'text-anchor': 'middle', 'font-size': 12, fill: css('--ink-3') }, svg).textContent = g.toFixed(2);
-  }
-  el('line', { x1: x(0), y1: top - 8, x2: x(0), y2: top + barData.length * rowH, stroke: css('--axisline'), 'stroke-width': 1 }, svg);
-  barData.forEach((d, i) => {
-    const y = top + i * rowH + (rowH - barH) / 2;
-    const color = css(d.c);
-    const w = x(d.v) - x(0);
-    // bar: square baseline, rounded data end (right)
-    el('path', {
-      d: `M ${x(0)} ${y} H ${x(0) + w - 4} Q ${x(0) + w} ${y} ${x(0) + w} ${y + 4} V ${y + barH - 4} Q ${x(0) + w} ${y + barH} ${x(0) + w - 4} ${y + barH} H ${x(0)} Z`,
-      fill: color, cursor: 'default',
-    }, svg).addEventListener('mousemove', e =>
-      showTip(e, `<strong>${d.label}</strong><br>completion ${d.v.toFixed(3)}${d.sd ? ' ± ' + d.sd.toFixed(3) : ''}<br><span class="t">${d.note}</span>`));
-    // sd whisker (only when visually resolvable)
-    if (d.sd && d.sd >= 0.01) {
-      const cy = y + barH / 2;
-      el('line', { x1: x(d.v - d.sd), y1: cy, x2: x(d.v + d.sd), y2: cy, stroke: css('--ink-1'), 'stroke-width': 1.5 }, svg);
-      el('line', { x1: x(d.v - d.sd), y1: cy - 5, x2: x(d.v - d.sd), y2: cy + 5, stroke: css('--ink-1'), 'stroke-width': 1.5 }, svg);
-      el('line', { x1: x(d.v + d.sd), y1: cy - 5, x2: x(d.v + d.sd), y2: cy + 5, stroke: css('--ink-1'), 'stroke-width': 1.5 }, svg);
+  // shared parametric gait (walking in place), returns joint map
+  function gait(t, cx, cy, s){
+    var hip = 0.62*Math.sin(t), hip2 = 0.62*Math.sin(t+Math.PI);
+    var knee = Math.max(0, 0.9*Math.sin(t+0.6)), knee2 = Math.max(0, 0.9*Math.sin(t+Math.PI+0.6));
+    var arm = 0.5*Math.sin(t+Math.PI), arm2 = 0.5*Math.sin(t);
+    var bob = 0.045*Math.cos(2*t);
+    var pelvis = {x:cx, y:cy - s*(1.02+bob)};
+    var chest  = {x:cx, y:pelvis.y - s*0.52};
+    var head   = {x:cx + s*0.03*Math.sin(t), y:chest.y - s*0.34};
+    function limb(ox,oy,a1,l1,a2,l2){
+      var kx = ox + l1*Math.sin(a1), ky = oy + l1*Math.cos(a1);
+      var ex = kx + l2*Math.sin(a1+a2), ey = ky + l2*Math.cos(a1+a2);
+      return [{x:kx,y:ky},{x:ex,y:ey}];
     }
-    // labels: text tokens, never series color
-    el('text', { x: left - 12, y: y + barH / 2 + 4.5, 'text-anchor': 'end', 'font-size': 13.5, fill: css('--ink-1') }, svg).textContent = d.label;
-    el('text', { x: x(d.v + (d.sd || 0)) + 8, y: y + barH / 2 + 4.5, 'font-size': 13.5, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = d.v.toFixed(3) + (d.sd ? ' ±' + d.sd.toFixed(3) : '');
-  });
-  svg.setAttribute('viewBox', `0 0 900 ${top + barData.length * rowH + 36}`);
-  svg.addEventListener('mouseleave', hideTip);
-}
-
-// ---- Fig 4: fidelity ladder (dumbbell-ish descending bars) ---------------
-const ladder = [
-  { label: 'As-shipped stack', v: 0.263, note: 'body-position reward silently dead (DEFECT-1)' },
-  { label: '+ body-index fix', v: 0.142, note: '−46% — the dominant lever' },
-  { label: '+ joint-space reward', v: 0.122, note: 'completion 0.98 — external calibration band' },
-  { label: '+ tighter σ kernels', v: 0.111, note: 'best fidelity; slight completion trade (0.96)' },
-];
-function drawLadder() {
-  const svg = document.getElementById('ladderChart');
-  svg.querySelectorAll(':scope > :not(title)').forEach(n => n.remove());
-  const W = 900, left = 250, right = 90, top = 20, rowH = 50, barH = 20;
-  const max = 0.3;
-  const x = v => left + (v / max) * (W - left - right);
-  for (const g of [0, 0.1, 0.2, 0.3]) {
-    el('line', { x1: x(g), y1: top - 6, x2: x(g), y2: top + ladder.length * rowH, stroke: css('--grid'), 'stroke-width': 1 }, svg);
-    el('text', { x: x(g), y: top + ladder.length * rowH + 20, 'text-anchor': 'middle', 'font-size': 12, fill: css('--ink-3') }, svg).textContent = g.toFixed(1);
+    var L1 = limb(pelvis.x, pelvis.y, hip,  s*0.52, knee,  s*0.50);
+    var L2 = limb(pelvis.x, pelvis.y, hip2, s*0.52, knee2, s*0.50);
+    var shoulderL = {x:chest.x - s*0.16, y:chest.y + s*0.03};
+    var shoulderR = {x:chest.x + s*0.16, y:chest.y + s*0.03};
+    var A1 = limb(shoulderL.x, shoulderL.y, arm,  s*0.34, 0.45, s*0.30);
+    var A2 = limb(shoulderR.x, shoulderR.y, arm2, s*0.34, 0.45, s*0.30);
+    return {pelvis:pelvis, chest:chest, head:head,
+            kneeL:L1[0], footL:L1[1], kneeR:L2[0], footR:L2[1],
+            shL:shoulderL, shR:shoulderR, elL:A1[0], haL:A1[1], elR:A2[0], haR:A2[1]};
   }
-  el('line', { x1: x(0), y1: top - 6, x2: x(0), y2: top + ladder.length * rowH, stroke: css('--axisline'), 'stroke-width': 1 }, svg);
-  el('text', { x: x(0.15), y: top + ladder.length * rowH + 38, 'text-anchor': 'middle', 'font-size': 12, fill: css('--ink-2') }, svg).textContent = 'joint tracking RMSE (rad) — lower is better';
-  const seq = [css('--seq-1'), css('--seq-2'), css('--seq-3'), css('--seq-4')];
-  ladder.forEach((d, i) => {
-    const y = top + i * rowH + (rowH - barH) / 2;
-    const w = x(d.v) - x(0);
-    el('path', {
-      d: `M ${x(0)} ${y} H ${x(0) + w - 4} Q ${x(0) + w} ${y} ${x(0) + w} ${y + 4} V ${y + barH - 4} Q ${x(0) + w} ${y + barH} ${x(0) + w - 4} ${y + barH} H ${x(0)} Z`,
-      fill: seq[i],
-    }, svg).addEventListener('mousemove', e =>
-      showTip(e, `<strong>${d.label}</strong><br>joint RMSE ${d.v.toFixed(3)} rad<br><span class="t">${d.note}</span>`));
-    el('text', { x: left - 12, y: y + barH / 2 + 4.5, 'text-anchor': 'end', 'font-size': 13.5, fill: css('--ink-1') }, svg).textContent = d.label;
-    el('text', { x: x(d.v) + 8, y: y + barH / 2 + 4.5, 'font-size': 13.5, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = d.v.toFixed(3);
-  });
-  svg.setAttribute('viewBox', `0 0 900 ${top + ladder.length * rowH + 48}`);
-  svg.addEventListener('mouseleave', hideTip);
-}
-
-function drawTwoTeacher() {
-  const svg = document.getElementById('ttChart');
-  if (!svg) return;
-  svg.querySelectorAll(':scope > *').forEach(n => n.remove());
-  const rows = [
-    { label: 'Locomotion (LAFAN1 val)', base: 3.31, tt: 4.36 },
-    { label: 'Object interaction (val)', base: 28.95, tt: 12.2 },
-    { label: 'Terrain interaction (val)', base: 25.06, tt: 8.16 },
-  ];
-  const left = 250, right = 90, top = 14, rowH = 62, barH = 16, maxV = 30;
-  const x = v => left + (v / maxV) * (900 - left - right);
-  for (const g of [0, 10, 20, 30]) {
-    el('line', { x1: x(g), y1: top - 6, x2: x(g), y2: top + rows.length * rowH, stroke: css('--grid') }, svg);
-    el('text', { x: x(g), y: top + rows.length * rowH + 18, 'text-anchor': 'middle', 'font-size': 11.5, fill: css('--ink-3') }, svg).textContent = g;
+  function bones(j){
+    return [[j.pelvis,j.chest],[j.chest,j.head],
+            [j.pelvis,j.kneeL],[j.kneeL,j.footL],
+            [j.pelvis,j.kneeR],[j.kneeR,j.footR],
+            [j.shL,j.shR],[j.shL,j.elL],[j.elL,j.haL],
+            [j.shR,j.elR],[j.elR,j.haR]];
   }
-  el('text', { x: x(15), y: top + rows.length * rowH + 36, 'text-anchor': 'middle', 'font-size': 12, fill: css('--ink-2') }, svg).textContent = 'held-out MPJPE (cm) — lower is better';
-  rows.forEach((r, i) => {
-    const y0 = top + i * rowH + 6;
-    roundBarH(svg, x(0), y0, Math.max(x(r.base) - x(0), 4), barH, css('--s2'))
-      .addEventListener('mousemove', e => showTip(e, `<strong>${r.label}</strong><br>LAFAN1-only: ${r.base} cm`));
-    roundBarH(svg, x(0), y0 + barH + 2, Math.max(x(r.tt) - x(0), 4), barH, css('--s3'))
-      .addEventListener('mousemove', e => showTip(e, `<strong>${r.label}</strong><br>two-teacher: ${r.tt} cm`));
-    el('text', { x: left - 12, y: y0 + barH + 3, 'text-anchor': 'end', 'font-size': 13, fill: css('--ink-1') }, svg).textContent = r.label;
-    el('text', { x: x(r.base) + 8, y: y0 + barH / 2 + 4, 'font-size': 12.5, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = r.base.toFixed(2);
-    el('text', { x: x(r.tt) + 8, y: y0 + barH + 2 + barH / 2 + 4, 'font-size': 12.5, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = r.tt.toFixed(2);
-  });
-  svg.setAttribute('viewBox', `0 0 900 ${top + rows.length * rowH + 46}`);
-  svg.addEventListener('mouseleave', hideTip);
-}
-// ---- Fig 3: E70 ambiguity-start completion --------------------------------
-const e70Data = [
-  { label: 'C: explicit goal (capability control)', v: 0.973, c: '--s1', note: 'general 0.923 · seed-0 destruction collapses to 0.000' },
-  { label: 'A: frozen z_ret (ours)', v: 0.754, c: '--s3', note: 'A−T +0.191 [0.124, 0.274] · A−S +0.199 [0.127, 0.279]' },
-  { label: 'T: absolute time index', v: 0.562, c: '--s2', note: 'matched null: progress-through-clip only' },
-  { label: 'S: matched-phase shuffled content', v: 0.552, c: '--s2', note: 'other walk’s latent at the same normalized time' },
-  { label: 'B: proprioception only', v: 0.437, c: '--s2', note: 'no goal channel at all' },
-];
-function drawE70() {
-  const svg = document.getElementById('e70Chart');
-  if (!svg) return;
-  svg.querySelectorAll(':scope > :not(title)').forEach(n => n.remove());
-  const W = 900, left = 250, right = 60, top = 24, rowH = 50, barH = 22;
-  const x = v => left + v * (W - left - right);
-  for (const g of [0, 0.25, 0.5, 0.75, 1.0]) {
-    el('line', { x1: x(g), y1: top - 8, x2: x(g), y2: top + e70Data.length * rowH, stroke: css('--grid'), 'stroke-width': 1 }, svg);
-    el('text', { x: x(g), y: top + e70Data.length * rowH + 22, 'text-anchor': 'middle', 'font-size': 12, fill: css('--ink-3') }, svg).textContent = g.toFixed(2);
+  function dots(j){
+    return [j.head,j.chest,j.pelvis,j.shL,j.shR,j.elL,j.elR,j.haL,j.haR,
+            j.kneeL,j.kneeR,j.footL,j.footR];
   }
-  el('line', { x1: x(0), y1: top - 8, x2: x(0), y2: top + e70Data.length * rowH, stroke: css('--axisline'), 'stroke-width': 1 }, svg);
-  e70Data.forEach((d, i) => {
-    const y = top + i * rowH + (rowH - barH) / 2;
-    const color = css(d.c);
-    const w = x(d.v) - x(0);
-    el('path', {
-      d: `M ${x(0)} ${y} H ${x(0) + w - 4} Q ${x(0) + w} ${y} ${x(0) + w} ${y + 4} V ${y + barH - 4} Q ${x(0) + w} ${y + barH} ${x(0) + w - 4} ${y + barH} H ${x(0)} Z`,
-      fill: color, cursor: 'default',
-    }, svg).addEventListener('mousemove', e =>
-      showTip(e, `<strong>${d.label}</strong><br>ambiguity completion ${d.v.toFixed(3)}<br><span class="t">${d.note}</span>`));
-    el('text', { x: left - 12, y: y + barH / 2 + 4.5, 'text-anchor': 'end', 'font-size': 13.5, fill: css('--ink-1') }, svg).textContent = d.label;
-    el('text', { x: x(d.v) + 8, y: y + barH / 2 + 4.5, 'font-size': 13.5, 'font-weight': 650, fill: css('--ink-1') }, svg).textContent = d.v.toFixed(3);
-  });
-  svg.setAttribute('viewBox', `0 0 900 ${top + e70Data.length * rowH + 36}`);
-  svg.addEventListener('mouseleave', hideTip);
-}
 
-function drawAll() { drawE70(); drawBars(); drawLadder(); drawTwoTeacher(); }
-drawAll();
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawAll);
+  var packets = [];
+  for(var i=0;i<26;i++) packets.push({p:Math.random(), lane:Math.random()*2-1, sp:0.004+0.004*Math.random()});
+
+  function draw(now){
+    var t = now*0.0032;
+    ctx.clearRect(0,0,W,H);
+    var groundY = H-38;
+    ctx.strokeStyle = "rgba(56,225,255,.14)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(40,groundY); ctx.lineTo(W-40,groundY); ctx.stroke();
+
+    var hx = 190, rx = W-190, midL = 400, midR = W-400, cyn = groundY;
+
+    // human: point-light walker (mocap style)
+    var hj = gait(t, hx, cyn, 92);
+    ctx.strokeStyle = "rgba(230,237,246,.22)"; ctx.lineWidth = 2;
+    bones(hj).forEach(function(b){ ctx.beginPath(); ctx.moveTo(b[0].x,b[0].y); ctx.lineTo(b[1].x,b[1].y); ctx.stroke(); });
+    dots(hj).forEach(function(d){
+      ctx.beginPath(); ctx.arc(d.x,d.y,4.4,0,7); ctx.fillStyle="#e6edf6"; ctx.fill();
+    });
+    ctx.fillStyle = "rgba(159,176,195,.9)"; ctx.font = "11px ui-monospace,monospace"; ctx.textAlign="center";
+    ctx.fillText("HUMAN MOTION (LAFAN1)", hx, groundY+24);
+
+    // robot: angular skeleton, tracked slightly behind in phase
+    var rj = gait(t-0.35, rx, cyn, 92);
+    ctx.strokeStyle = "rgba(56,225,255,.9)"; ctx.lineWidth = 3; ctx.lineJoin="round";
+    bones(rj).forEach(function(b){ ctx.beginPath(); ctx.moveTo(b[0].x,b[0].y); ctx.lineTo(b[1].x,b[1].y); ctx.stroke(); });
+    ctx.fillStyle = "#0a0e14"; ctx.strokeStyle = "rgba(56,225,255,.9)"; ctx.lineWidth=2;
+    dots(rj).forEach(function(d){ ctx.beginPath(); ctx.rect(d.x-3.5,d.y-3.5,7,7); ctx.fill(); ctx.stroke(); });
+    // square head
+    ctx.beginPath(); ctx.rect(rj.head.x-9, rj.head.y-11, 18, 18);
+    ctx.fillStyle="#0a0e14"; ctx.fill(); ctx.stroke();
+    ctx.fillStyle="rgba(56,225,255,.9)";
+    ctx.fillRect(rj.head.x-5, rj.head.y-4, 3.5, 3.5); ctx.fillRect(rj.head.x+2, rj.head.y-4, 3.5, 3.5);
+    ctx.fillStyle = "rgba(159,176,195,.9)"; ctx.font = "11px ui-monospace,monospace";
+    ctx.fillText("UNITREE G1 · TRACKING POLICY", rx, groundY+24);
+
+    // bottleneck: funnel walls
+    var midY = H*0.42;
+    ctx.strokeStyle = "rgba(56,225,255,.35)"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(midL-60, midY-74); ctx.lineTo((W/2)-46, midY-17); ctx.lineTo(midR+60, midY-74); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(midL-60, midY+74); ctx.lineTo((W/2)-46, midY+17); ctx.lineTo(midR+60, midY+74); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo((W/2)+46, midY-17); ctx.lineTo(midR+60, midY-74); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo((W/2)+46, midY+17); ctx.lineTo(midR+60, midY+74); ctx.stroke();
+
+    // z_cmd gate
+    var gx = W/2;
+    ctx.strokeStyle = "rgba(56,225,255,.85)"; ctx.lineWidth = 2;
+    ctx.strokeRect(gx-46, midY-17, 92, 34);
+    ctx.fillStyle = "#38e1ff"; ctx.font = "bold 13px ui-monospace,monospace";
+    ctx.fillText("z_cmd ∈ R⁶⁴", gx, midY+4.5);
+    ctx.fillStyle = "rgba(159,176,195,.85)"; ctx.font = "10.5px ui-monospace,monospace";
+    ctx.fillText("THE ONLY CHANNEL — EXCLUSIVITY CONTRACT", gx, midY+40);
+
+    // packets flowing through funnel
+    packets.forEach(function(pk){
+      pk.p += pk.sp; if(pk.p>1) pk.p = 0;
+      var x, y, a;
+      if(pk.p < 0.5){
+        var q = pk.p/0.5;
+        x = (midL-40) + q*((gx-46)-(midL-40));
+        y = midY + pk.lane*62*(1-q);
+        a = 0.35+0.5*q;
+      } else {
+        var q2 = (pk.p-0.5)/0.5;
+        x = (gx+46) + q2*((midR+40)-(gx+46));
+        y = midY + pk.lane*62*q2;
+        a = 0.85-0.5*q2;
+      }
+      ctx.beginPath(); ctx.arc(x,y,2.3,0,7);
+      ctx.fillStyle = "rgba(56,225,255,"+a.toFixed(2)+")"; ctx.fill();
+    });
+
+    if(!reduced) requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+}
+})();
 </script>
 </body>
 </html>
