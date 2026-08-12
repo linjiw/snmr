@@ -73,3 +73,33 @@
   preceding A6 entry supersedes that taxonomy claim; final keyword selection remains human-owned.
 - Next step: Phase A complete pending human PaperPlaza login; then hold for Phase B (gate at
   ~22.2 GiB free vs 26,000 MiB at report time).
+
+## B1 — Seed-2 completion under supervisors — 2026-08-12T05:05:00Z — by Fable
+- Status: DONE
+- What was done: After the human paused the cosmos-framework tenant (H1 decision), the gate opened and the recovery supervisor autonomously restarted seed2_proprio from round 0 under the unchanged launcher (round-0 log 2026-08-11T23:53Z, l_kl=0, l_smooth=0, p_teacher=1.0 — the registered deterministic recipe), then launched seed2_shuffled one minute after proprio's eval completed. No manual launches occurred; the quarantined round-1550 state was never touched.
+- Verification evidence: seed2_proprio: `b_prior_proprio_student.pt`, `b_prior_proprio_eval.json`, `b_prior_proprio_eval_ambiguity.json` written 2026-08-12T00:44 EDT; train.log ends "training complete", 0 Traceback/exit-143 markers. seed2_shuffled equivalently complete (its ambiguity eval hash `9db6e70f...` is bound as an input of the final analyzer). Frozen confirmation hash manifest (`autoresearch/iterate-260809-0351/e70_confirmation_code_hashes.json`): 5 ok, 0 drift.
+- Validation judgment: yes — both cells trained from round 0 to completion under the frozen launcher and the confirmation hash set is intact.
+- Deviations: NONE
+- Next step: B2
+
+## B2 — Frozen three-seed analyzer — 2026-08-12T05:10:00Z — by Fable
+- Status: DONE
+- What was done: The postprocess supervisor produced `/data/robotixx/snmr-research/e70/analysis_seed0-1-2.json` (SHA-256 `05ca3176c0a78eebc6ca49665ce092ddfe0ea423be51e7d61a0192d428ea9b5f`). It was inspected before any prose edit. Registered branch: POSITIVE CONTENT (explicit_general_gate=true, positive_content_gate=true).
+- Verification evidence: JSON contains exactly seeds [0,1,2], 69 paired clusters, all five arms, per-seed effects, per-clip A−T, hierarchical intervals, 32 input hashes, and interpretation "control-usable content beyond time". Aggregates: A−T +0.1908 [0.1239, 0.2741]; A−S +0.1994 [0.1270, 0.2786]; per-clip A−T [0.1291, 0.2654] and [0.0937, 0.2956]; teacher macro 0.9170. Preregistered A2 secondary temporal-block analysis run in FINAL mode (seeds 0-2, 12 blocks, 10,000 replicates, seed 7017) → `/data/robotixx/snmr-research/e70/secondary_temporal_block_final.json`: A−T +0.1908 [0.1058, 0.2803], A−S +0.1994 [0.1165, 0.2818], `directionally_consistent: true`, both block-level CIs exclude zero.
+- Validation judgment: yes — every registered element is present, the branch is determined, and the secondary analysis is directionally consistent with block-level intervals excluding zero.
+- Deviations: NONE
+- Next step: B3
+
+## B3 — Final paper generation — 2026-08-12T05:20:00Z — by Fable
+- Status: DONE
+- What was done: `scripts/render_e70_paper_values.py` generated `paper/e70_results.tex` (36 macros, analyzer SHA-256 stamped); `scripts/render_e70_effect_figure.py` generated the final (non-preview) `paper/e70_effect_figure.tex` with the same stamped hash. The paper rebuilt in the three-seed positive branch.
+- Verification evidence: 7 US-letter pages (under the 8-page cap), 0 overfull boxes, 0 unembedded fonts, 0 PREVIEW markers. Spot checks against the analyzer JSON: A−T +0.191 / [0.124, 0.274]; A−S [0.127, 0.279]; ambiguity completions 0.973/0.754/0.562/0.552/0.437; "frozen three-seed aggregate" label and positive-branch outcome language active; "seeds 0–2" wording in the three-seed branch. Both generated files carry `analysis_sha256=05ca3176...`, byte-identical to the analyzer file hash.
+- Validation judgment: yes — every displayed E70 number is machine-generated from the frozen analyzer, all spot checks pass, and the build is compliant.
+- Deviations: NONE
+- Next step: B4 — STOPPED (see next entry)
+
+## B4 — Video pipeline — 2026-08-12T05:25:00Z — by Fable
+- Status: STOPPED (stop-rule triggered) — awaiting human approval
+- What was done: The postprocess supervisor fail-closed before captures: `check_e70_video_code_hashes.py` reports drift for `paper/main.tex` (expected `e31fbf9f...` frozen 2026-08-11T17:25 EDT, observed current). Cause analysis: the paper-video manifest froze main.tex BEFORE the plan's authorized manuscript work (verified literature/citation upgrade f3d6a44, A3 figure guard 69310a4, A4 abstract trim f315014, B3 macro/figure activation). The 5 confirmation (science) hashes verify 5/5; the drift is confined to the presentation-layer freeze.
+- Proposed remedy (requires explicit human approval per §2): re-freeze the paper-video hash manifest to the current audited manuscript state (including the two generated, hash-stamped result files) with a dated amendment note recording old hash, new hash, and the authorizing commits — then let the supervisor proceed to raw captures. Reverting the manuscript would discard authorized, verified improvements and is not recommended. No captures, composition, or manifest edits will occur before approval is recorded here.
+- Next step: awaiting human approval for the manifest re-freeze; then B4 captures → composition → contact sheet → HUMAN watches full MP4 → record_e70_visual_review.py → audit_e70_final_bundle.py

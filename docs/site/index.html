@@ -136,23 +136,23 @@
   control (<strong>0.754</strong>) beats the frozen retargeting latent (0.656), because on one
   clip time alone identifies the target. So we preregistered a <strong>two-walk paired
   assay</strong> — 69 starts that match the present but diverge in the future. In the frozen
-  seed-0 endpoint the latent reaches <strong>0.765</strong> ambiguity-start completion vs
-  <strong>0.608</strong> for time and <strong>0.576</strong> for shuffled content (paired 95%
-  CIs exclude zero), and destroying the exclusive command collapses the explicit student from
-  0.925 to <strong>0.000</strong>.</p>
+  three-seed aggregate the latent reaches <strong>0.754</strong> ambiguity-start completion vs
+  <strong>0.562</strong> for time and <strong>0.552</strong> for shuffled content (hierarchical
+  95% CIs exclude zero), and destroying the exclusive command collapses the explicit student
+  from 0.925 to <strong>0.000</strong>.</p>
   <div class="badges">
     <span class="badge">5 humanoid embodiments, one network</span>
     <span class="badge">MuJoCo-Warp RL tracking</span>
     <span class="badge">Deterministic act-through-latent distillation</span>
     <span class="badge">Preregistered gates · negative-results ledger</span>
-    <span class="badge">Seeds 1–2 confirmation running</span>
+    <span class="badge">Three seeds · every registered gate passes</span>
   </div>
 </header>
 
 <!-- ============================ KPI ROW ============================ -->
 <section>
   <div class="kpis">
-    <div class="kpi hero-kpi"><div class="eyebrow">E70 TWO-WALK ASSAY — FROZEN SEED-0 ENDPOINT · SEEDS 1–2 CONFIRMING</div><div class="v">+0.154</div><div class="l">SNMR-minus-time paired gain at ambiguity starts (95% CI [0.093, 0.215]); vs phase-matched shuffled content <strong>+0.187</strong> [0.137, 0.236] — <strong>every preregistered content gate passes</strong></div><div class="d">ambiguity completion by arm: explicit 0.979 · frozen z_ret 0.765 · time 0.608 · shuffled 0.576 · proprio 0.518 — the final claim waits for the frozen three-seed analyzer</div></div>
+    <div class="kpi hero-kpi"><div class="eyebrow">E70 TWO-WALK ASSAY — FROZEN THREE-SEED AGGREGATE (SEEDS 0–2)</div><div class="v">+0.191</div><div class="l">SNMR-minus-time paired gain at ambiguity starts (hierarchical 95% CI [0.124, 0.274]); vs phase-matched shuffled content <strong>+0.199</strong> [0.127, 0.279] — <strong>every preregistered content gate passes</strong></div><div class="d">ambiguity completion by arm: explicit 0.973 · frozen z_ret 0.754 · time 0.562 · shuffled 0.552 · proprio 0.437 · per-seed A−T +0.154 / +0.278 / +0.140 · secondary temporal-block analysis consistent, CIs exclude zero</div></div>
     <div class="kpi"><div class="v">3.66 cm</div><div class="l">retargeting MPJPE, held-out clips (G1 specialist) — <a href="benchmark.html">full benchmark</a></div><div class="d">CI [3.46, 3.86] · shared 5-robot net: 2.9–6.0 cm · limits by construction</div></div>
     <div class="kpi"><div class="v">0.925 → 0.000</div><div class="l">explicit student when its exclusive command is zeroed, shuffled, or marginal-resampled</div><div class="d">causal use, not just structural exclusivity · explicit tracker 0.98 after stack repairs</div></div>
   </div>
@@ -376,9 +376,9 @@
   <h2>Results</h2>
   <p class="lede">All numbers: 10-second rollouts on Unitree G1 in MuJoCo-Warp, deterministic
   deployment path, 1,024 rollouts per arm. First the preregistered two-walk assay (E70); then
-  the single-clip calibration that exposed the clock confound and forced that design. Seed-0
-  shown throughout; the seed-1/2 confirmation queue and the frozen three-seed analyzer are
-  running now.</p>
+  the single-clip calibration that exposed the clock confound and forced that design. E70
+  numbers are the frozen three-seed aggregate, machine-generated from the analyzer
+  (SHA-256 05ca3176…); the single-clip factorial is historical calibration.</p>
 
   <h3>The two-walk ambiguity assay (E70) — content beyond time</h3>
   <p class="lede">69 reference-only paired starts across two LAFAN1 walks where the present
@@ -394,21 +394,23 @@
     <svg id="e70Chart" viewBox="0 0 900 300" role="img" aria-labelledby="figE70Title" style="width:100%;height:auto">
       <title id="figE70Title">Ambiguity-start completion by arm, E70 frozen seed-0 endpoint</title>
     </svg>
-    <figcaption>Fig. 3 — Ambiguity-start completion, frozen seed-0 endpoint. Registered gates:
-    the explicit control passes its capability rule; SNMR−time ≥ +0.10 with a paired 95% CI
-    excluding zero; SNMR−shuffled CI excluding zero; SNMR−time positive on each clip. All pass
-    at seed 0. Descriptive per-seed SNMR−time so far: +0.156 / +0.275 / +0.145 — but the final
-    aggregate comes only from the frozen three-seed analyzer, not from these previews.</figcaption>
+    <figcaption>Fig. 3 — Ambiguity-start completion, frozen three-seed aggregate (seeds 0–2,
+    69 paired clusters). Registered gates: the explicit control passes its capability rule;
+    SNMR−time ≥ +0.10 with a 95% CI excluding zero; SNMR−shuffled CI excluding zero; SNMR−time
+    positive on each clip. <strong>All pass.</strong> Per-seed SNMR−time: +0.154 / +0.278 /
+    +0.140; per-clip: +0.13 to +0.27 and +0.09 to +0.30. A preregistered secondary
+    temporal-block analysis (12 non-overlapping-block clusters) is directionally consistent
+    with block-level CIs excluding zero.</figcaption>
   </figure>
   <details><summary>Table view</summary>
     <table class="data">
       <thead><tr><th>Arm</th><th>General</th><th>Ambiguity</th><th>Amb. survival</th></tr></thead>
       <tbody>
-        <tr><td>C: explicit goal (capability control)</td><td>0.925</td><td>0.979</td><td>9.91 s</td></tr>
-        <tr><td>A: frozen z_ret (ours)</td><td>0.685</td><td>0.765</td><td>8.87 s</td></tr>
-        <tr><td>T: absolute time index</td><td>0.604</td><td>0.608</td><td>7.59 s</td></tr>
-        <tr><td>S: matched-phase shuffled content</td><td>0.555</td><td>0.576</td><td>7.49 s</td></tr>
-        <tr><td>B: proprioception only</td><td>0.487</td><td>0.518</td><td>7.29 s</td></tr>
+        <tr><td>C: explicit goal (capability control)</td><td>0.923</td><td>0.973</td><td>9.89 s</td></tr>
+        <tr><td>A: frozen z_ret (ours)</td><td>0.699</td><td>0.754</td><td>8.73 s</td></tr>
+        <tr><td>T: absolute time index</td><td>0.579</td><td>0.562</td><td>7.35 s</td></tr>
+        <tr><td>S: matched-phase shuffled content</td><td>0.536</td><td>0.552</td><td>7.45 s</td></tr>
+        <tr><td>B: proprioception only</td><td>0.431</td><td>0.437</td><td>6.83 s</td></tr>
       </tbody>
     </table>
   </details>
@@ -520,7 +522,7 @@
       <tr><td>The z_ret-only arm's 0.656 means the latent "carries deployable goal content"</td><td><strong>KILLED by pre-specified control (E63, 3 seeds)</strong>: clock 0.754 ± 0.010 beats z_ret 0.656 ± 0.044, non-overlapping seed ranges — third favored result retired by our own gates</td><td>the question moved to ambiguous two-trajectory starts, where time cannot identify the target</td></tr>
       <tr><td>A single <em>aperiodic</em> clip (push1) can break the time confound</td><td><strong>INVALID assay (E66)</strong>: the teacher passed its gate (0.514) but every student — including the explicit positive control — collapsed to 0.000; and one clip cannot break a one-to-one time↔target map by design</td><td>two-trajectory ambiguity design; fail-closed launchers; explicit capability gate must pass before any representation comparison counts</td></tr>
       <tr><td>walk3_subject1 can serve as the second specialist teacher</td><td>Failed twice (E67 gate: 0.56 vs 0.80; E68 +8k-iteration resume: 0.65) — budget closed by the preregistered rule</td><td>reference-only pair screening (E69) with no student in the loop: walk1_subject1 passes at 0.987</td></tr>
-      <tr><td><strong>E70 (live)</strong>: the frozen latent carries control-usable content beyond absolute time at ambiguous starts</td><td><strong>Seed 0: every preregistered content gate passes</strong> — SNMR−time +0.154 [0.093, 0.215], SNMR−shuffled +0.187 [0.137, 0.236], positive on each clip; command destruction 0.925 → 0.000</td><td>seeds 1–2 confirmation running unchanged; the only quotable final numbers will come from the frozen three-seed analyzer</td></tr>
+      <tr><td><strong>E70 (closed)</strong>: the frozen latent carries control-usable content beyond absolute time at ambiguous starts</td><td><strong>POSITIVE at three seeds — every preregistered content gate passes</strong>: SNMR−time +0.191 [0.124, 0.274], SNMR−shuffled +0.199 [0.127, 0.279], positive on each clip and each seed; command destruction 0.925 → 0.000; preregistered secondary temporal-block analysis directionally consistent with CIs excluding zero</td><td>all displayed numbers machine-generated from the frozen analyzer (SHA-256 05ca3176…); scope: two LAFAN1 walks, simulated Unitree G1, frozen SNMR endpoint, this controller class</td></tr>
     </tbody>
   </table>
 </section>
@@ -679,11 +681,11 @@ function drawTwoTeacher() {
 }
 // ---- Fig 3: E70 ambiguity-start completion --------------------------------
 const e70Data = [
-  { label: 'C: explicit goal (capability control)', v: 0.979, c: '--s1', note: 'general 0.925 · destruction collapses to 0.000' },
-  { label: 'A: frozen z_ret (ours)', v: 0.765, c: '--s3', note: 'A−T +0.154 [0.093, 0.215] · A−S +0.187 [0.137, 0.236]' },
-  { label: 'T: absolute time index', v: 0.608, c: '--s2', note: 'matched null: progress-through-clip only' },
-  { label: 'S: matched-phase shuffled content', v: 0.576, c: '--s2', note: 'other walk’s latent at the same normalized time' },
-  { label: 'B: proprioception only', v: 0.518, c: '--s2', note: 'no goal channel at all' },
+  { label: 'C: explicit goal (capability control)', v: 0.973, c: '--s1', note: 'general 0.923 · seed-0 destruction collapses to 0.000' },
+  { label: 'A: frozen z_ret (ours)', v: 0.754, c: '--s3', note: 'A−T +0.191 [0.124, 0.274] · A−S +0.199 [0.127, 0.279]' },
+  { label: 'T: absolute time index', v: 0.562, c: '--s2', note: 'matched null: progress-through-clip only' },
+  { label: 'S: matched-phase shuffled content', v: 0.552, c: '--s2', note: 'other walk’s latent at the same normalized time' },
+  { label: 'B: proprioception only', v: 0.437, c: '--s2', note: 'no goal channel at all' },
 ];
 function drawE70() {
   const svg = document.getElementById('e70Chart');
