@@ -527,6 +527,38 @@
   </table>
 </section>
 
+<!-- ============================ SIM2SIM ============================ -->
+<section id="sim2sim">
+  <h2>Sim2sim: the production runtime walks in CPU MuJoCo</h2>
+  <p class="lede">Toward real-G1 deployment (2026-08-12): the frozen students, exported to ONNX
+  with a 95%-range safety envelope, driven by the <em>actual</em> Holosoma inference process over
+  the loopback DDS interface into CPU MuJoCo — the same stack that would command hardware, with
+  only the physical link swapped out. Candidates picked by a recorded median-completion rule, never
+  visually. Tracking error transfers across the engine hop (0.17–0.23 rad unassisted RMSE,
+  matching the frozen Warp evals); the deployment configuration (explicit, walk1_subject1) passes
+  the three-repeat safety-handoff gate 3/3. Full campaign: <code>docs/SIM2SIM_VALIDATION_2026-08-12.md</code>.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:12px">
+    <figure style="margin:0">
+      <video controls preload="metadata" style="width:100%;border-radius:8px" src="media/sim2sim/e70_seed2_explicit_walk1_subject1_safe95.mp4"></video>
+      <figcaption>Explicit (deployment candidate, seed 2) · walk1_subject1 — qualification gate 3/3</figcaption>
+    </figure>
+    <figure style="margin:0">
+      <video controls preload="metadata" style="width:100%;border-radius:8px" src="media/sim2sim/e70_seed1_snmr_walk1_subject1_safe95.mp4"></video>
+      <figcaption>SNMR latent (research interface, seed 1) · walk1_subject1 — walks upright through the 64-d exclusive channel</figcaption>
+    </figure>
+    <figure style="margin:0">
+      <video controls preload="metadata" style="width:100%;border-radius:8px" src="media/sim2sim/e70_seed2_explicit_walk1_subject5_safe95.mp4"></video>
+      <figcaption>Explicit · walk1_subject5 — motion tracks; the fixed 27-s safety handoff is the marginal step on this clip (1/3 strict gate)</figcaption>
+    </figure>
+    <figure style="margin:0">
+      <video controls preload="metadata" style="width:100%;border-radius:8px" src="media/sim2sim/e70_seed1_snmr_walk1_subject5_safe95.mp4"></video>
+      <figcaption>SNMR latent · walk1_subject5 — the harder clip for the research interface (1/3 strict gate)</figcaption>
+    </figure>
+  </div>
+  <p style="margin-top:10px"><small>Engineering validation only: CPU-loopback evidence, not hardware safety, not sim-to-real —
+  the paper's simulation-only boundary is unchanged, and none of these numbers enters the paper.</small></p>
+</section>
+
 <footer>
   SNMR research project · results generated 2026-07/08 on a single-GPU workstation ·
   <a href="https://github.com/linjiw/snmr">github.com/linjiw/snmr</a> ·

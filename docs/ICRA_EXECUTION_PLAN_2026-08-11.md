@@ -399,6 +399,44 @@ discretionary GPU work in either project must check both conditions before start
 
 ---
 
+## Phase E — Sim2sim deployment validation (user-directed 2026-08-12; MuJoCo is the deploy target)
+
+Authorized by the owner on 2026-08-12: "our final target is to actually deploy our model in real
+G1 robot ... make sure our motion tracking works in sim2sim ... aim mujoco as the target deploy
+platform." This is engineering validation toward `docs/REAL_WORLD_DEPLOYMENT_PLAN.md` stages 2–4.
+It changes no paper claim (the paper boundary — simulation only, no sim-to-real claims — is
+unchanged), uses CPU only, and touches no file in either frozen hash manifest. The full
+preregistered robustness matrix stays in Phase C; Phase E extends the already-passed stage-2/3
+gates from one seed-0 candidate and one motion to the post-confirmation candidates and both
+registered walks.
+
+**E-rule (recorded before any run): deployment-candidate selection.** One candidate per arm,
+chosen by *median* `completion_rate` in the frozen per-seed general evals
+(`students/seed*_{explicit,snmr}/*_eval.json`, evaluation_seed 404, 1024 rollouts); ties break to
+the lower seed index. Applied: explicit → **seed 2** (0.9238 of 0.9248/0.9199/0.9238);
+SNMR → **seed 1** (0.7021 of 0.6846/0.7021/0.7090). No visual selection at any stage.
+
+- **E-1 Export.** `scripts/export_e70_policy_onnx.py --safety-limit-fraction 0.95` for
+  {explicit seed2, snmr seed1} × {walk1_subject1, walk1_subject5} →
+  `exports/sim2sim_2026-08-12/`. Gate: `onnx.checker` + ONNX Runtime parity ≤1e-5.
+- **E-2 Runtime contract.** `scripts/validate_e70_runtime_contract.py` per export; gate: zero
+  non-finite/deadline/hard-limit/envelope violations on the 500-step production contract.
+- **E-3 Loopback qualification.** `scripts/run_e70_loopback_qualification.py --safety-handoff`
+  ×3 identical repeats per (candidate × motion), serially (shared DDS domain), then
+  `scripts/summarize_e70_loopback_repeats.py` fail-closed summaries. Gate: all repeats pass all
+  phase safety checks. Expectation note recorded in advance: the SNMR arm is the research
+  interface at ~0.70 general completion; a loopback fall for SNMR is a *reportable measurement*,
+  not a campaign failure — deployment eligibility is only ever claimed for the explicit arm.
+- **E-4 Review videos + tracking metric.** New non-frozen capture script (separate from the
+  frozen paper-video pipeline, which stays untouched under the B4 STOPPED entry) reruns the same
+  loopback lifecycle with offscreen rendering → mp4 per candidate × motion in
+  `exports/sim2sim_review/`, and logs joint-position tracking RMSE against the embedded reference
+  (engineering metric, not preregistered, never enters the paper).
+- **E-5 Report.** `docs/SIM2SIM_VALIDATION_2026-08-12.md` with hashes for every ONNX, report, and
+  summary; update the stage table in `docs/REAL_WORLD_DEPLOYMENT_PLAN.md`; report per §2.
+
+---
+
 ## Positioning notes for any writing step (context, not tasks)
 
 - **Thesis:** the contribution is a *measurement instrument* — the exclusivity contract plus

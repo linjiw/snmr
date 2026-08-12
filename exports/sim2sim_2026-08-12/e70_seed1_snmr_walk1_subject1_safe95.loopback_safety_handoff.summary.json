@@ -1,0 +1,89 @@
+{
+  "protocol": "E70 repeated loopback qualification summary v1",
+  "required_repeats": 3,
+  "observed_repeats": 3,
+  "candidate_sha256": "0404c8bf7abd78f8528445b7aaa59171b468dd8e9fcd8139c6f62131f662e320",
+  "runtime_variant": "production WBT with default safety-policy handoff",
+  "thresholds": {
+    "minimum_base_height_m": 0.45,
+    "minimum_up_axis_z": 0.5,
+    "hard_joint_limit_tolerance_rad": 1e-06,
+    "torque_limit_tolerance_nm": 1e-05
+  },
+  "reports": [
+    {
+      "path": "/home/robotixx/snmr/exports/sim2sim_2026-08-12/e70_seed1_snmr_walk1_subject1_safe95.loopback_safety_handoff_r1.json",
+      "sha256": "8a3f64167f089c6d60e87a8cef1ee784935b0af67ee44c00aeaef20eaa5c00e9",
+      "passes": true,
+      "physical_robot_commands_sent": 0
+    },
+    {
+      "path": "/home/robotixx/snmr/exports/sim2sim_2026-08-12/e70_seed1_snmr_walk1_subject1_safe95.loopback_safety_handoff_r2.json",
+      "sha256": "70eabd1fa5c25d2804ad89fb21677664c720fddbb540e90cb96d95a2650bc1c0",
+      "passes": false,
+      "physical_robot_commands_sent": 0
+    },
+    {
+      "path": "/home/robotixx/snmr/exports/sim2sim_2026-08-12/e70_seed1_snmr_walk1_subject1_safe95.loopback_safety_handoff_r3.json",
+      "sha256": "bc580932d7a39a1322911bef92cc0d03d4033832708ae9866a411240a3953ebc",
+      "passes": true,
+      "physical_robot_commands_sent": 0
+    }
+  ],
+  "phase_worst_case": {
+    "gantry_assisted_initialization": {
+      "minimum_base_height_m": 0.7997071743011475,
+      "minimum_up_axis_z": 0.9898888468742371,
+      "minimum_measured_joint_limit_margin_rad": 0.05500379181933403,
+      "minimum_commanded_joint_limit_margin_rad": 0.05602348759305477,
+      "maximum_abs_joint_velocity_rad_s": 18.852340698242188,
+      "maximum_abs_torque_nm": 139.0,
+      "total_nonfinite_samples": 0,
+      "total_measured_joint_limit_violation_samples": 0,
+      "total_commanded_joint_limit_violation_samples": 0,
+      "total_velocity_limit_violation_samples": 0,
+      "total_torque_limit_violation_samples": 0
+    },
+    "gantry_assisted_motion": {
+      "minimum_base_height_m": 0.728489339351654,
+      "minimum_up_axis_z": 0.9149249196052551,
+      "minimum_measured_joint_limit_margin_rad": 0.04313563697338102,
+      "minimum_commanded_joint_limit_margin_rad": 0.013090023326873756,
+      "maximum_abs_joint_velocity_rad_s": 12.4930419921875,
+      "maximum_abs_torque_nm": 59.252742767333984,
+      "total_nonfinite_samples": 0,
+      "total_measured_joint_limit_violation_samples": 0,
+      "total_commanded_joint_limit_violation_samples": 0,
+      "total_velocity_limit_violation_samples": 0,
+      "total_torque_limit_violation_samples": 0
+    },
+    "unassisted_motion": {
+      "minimum_base_height_m": 0.7025323510169983,
+      "minimum_up_axis_z": 0.9426149129867554,
+      "minimum_measured_joint_limit_margin_rad": 0.039865934777259804,
+      "minimum_commanded_joint_limit_margin_rad": 0.013090023326873756,
+      "maximum_abs_joint_velocity_rad_s": 17.1359920501709,
+      "maximum_abs_torque_nm": 99.11957550048828,
+      "total_nonfinite_samples": 0,
+      "total_measured_joint_limit_violation_samples": 0,
+      "total_commanded_joint_limit_violation_samples": 0,
+      "total_velocity_limit_violation_samples": 0,
+      "total_torque_limit_violation_samples": 0
+    },
+    "safe_hold": {
+      "minimum_base_height_m": 0.6035428047180176,
+      "minimum_up_axis_z": 0.947637677192688,
+      "minimum_measured_joint_limit_margin_rad": -0.06891330189704897,
+      "minimum_commanded_joint_limit_margin_rad": -0.614685338218689,
+      "maximum_abs_joint_velocity_rad_s": 18.93239402770996,
+      "maximum_abs_torque_nm": 139.0,
+      "total_nonfinite_samples": 0,
+      "total_measured_joint_limit_violation_samples": 203,
+      "total_commanded_joint_limit_violation_samples": 360,
+      "total_velocity_limit_violation_samples": 0,
+      "total_torque_limit_violation_samples": 0
+    }
+  },
+  "passes": false,
+  "interpretation": "pre-hardware production loopback handoff gate fails"
+}

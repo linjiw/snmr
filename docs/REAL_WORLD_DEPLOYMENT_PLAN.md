@@ -1,6 +1,6 @@
 # E70 Real-World Deployment Readiness
 
-**Audit date:** 2026-08-10  
+**Audit date:** 2026-08-10 (Phase E update 2026-08-12 — see addendum at end)  
 **Robot target:** Unitree G1, 29 DOF, 50 Hz WBT runtime  
 **Verdict:** repeated production CPU loopback gate passed; **not cleared for hardware**
 
@@ -159,3 +159,25 @@ For ICRA, the defensible statement remains: all reported behavior is in simulati
 is unvalidated.  The ONNX export and production loopback can support a reproducibility or
 future-deployment paragraph, but they are not real-world results.  A hardware video belongs in the
 paper only after the staged gates above and must be labeled separately from simulation.
+
+## Addendum — 2026-08-12 Phase E campaign (post-confirmation candidates, both walks)
+
+Full results: `docs/SIM2SIM_VALIDATION_2026-08-12.md`; artifacts under
+`exports/sim2sim_2026-08-12/` and `exports/sim2sim_review/`.
+
+- **Stage 1 (frozen confirmation) is complete.** E70 closed positive at three seeds; the
+  deployment candidates were selected by the recorded median-completion rule (explicit →
+  seed 2, SNMR → seed 1), not visually.
+- **Stages 2–3 re-pass for the deployment configuration.** All four safe95 exports pass the
+  parity and 500-step production-contract gates; explicit × `walk1_subject1` passes the
+  three-repeat loopback safety-handoff gate 3/3 with phase minima matching the seed-0
+  record. The stage-2/3 result is seed-selection-robust.
+- **New finding: the registered terminal handoff is motion-specific.** On
+  `walk1_subject5` the fixed 27 s handoff lands at a marginal gait phase; most failures
+  are upright walking followed by collapse after the switch to the zero-velocity safety
+  policy. Before any hardware stage, the handoff frame must be chosen per clip at a
+  double-support/low-velocity reference point and requalified — a new recorded protocol
+  variant, not a threshold edit.
+- **Tracking transfers.** CPU-loopback joint tracking RMSE (0.17–0.23 rad unassisted)
+  matches the frozen Warp-eval values; the engine/runtime hop does not degrade tracking.
+- The hardware boundary is unchanged: **not cleared for hardware**; stages 4–7 remain.

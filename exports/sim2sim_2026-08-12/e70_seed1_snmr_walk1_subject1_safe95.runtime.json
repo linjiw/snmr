@@ -1,0 +1,130 @@
+{
+  "protocol": "E70 production WBT no-command validation v1",
+  "onnx": "/home/robotixx/snmr/exports/sim2sim_2026-08-12/e70_seed1_snmr_walk1_subject1_safe95.onnx",
+  "onnx_sha256": "0404c8bf7abd78f8528445b7aaa59171b468dd8e9fcd8139c6f62131f662e320",
+  "sdk_initialized": false,
+  "commands_sent": 0,
+  "python": "3.10.19",
+  "packages": {
+    "holosoma-inference": "0.1.0",
+    "onnx": "1.19.0",
+    "onnxruntime": "1.23.1",
+    "pinocchio": "unknown"
+  },
+  "runtime_files": {
+    "wbt_policy": {
+      "path": "/home/robotixx/holosoma/src/holosoma_inference/holosoma_inference/policies/wbt.py",
+      "sha256": "4aeccab9b6180e2c4bbed76a33bef71a2d135179afd310dff5d0f8a6fae10ab1"
+    },
+    "base_policy": {
+      "path": "/home/robotixx/holosoma/src/holosoma_inference/holosoma_inference/policies/base.py",
+      "sha256": "e392416e92f799052cc21b94e670ac27c1d97d96aad247014711c34ed8d0ef83"
+    }
+  },
+  "input_specs": [
+    {
+      "name": "obs",
+      "shape": [
+        1,
+        154
+      ],
+      "type": "tensor(float)"
+    },
+    {
+      "name": "time_step",
+      "shape": [
+        1,
+        1
+      ],
+      "type": "tensor(float)"
+    }
+  ],
+  "output_specs": [
+    {
+      "name": "actions",
+      "shape": [
+        1,
+        29
+      ],
+      "type": "tensor(float)"
+    },
+    {
+      "name": "joint_pos",
+      "shape": [
+        1,
+        29
+      ],
+      "type": "tensor(float)"
+    },
+    {
+      "name": "joint_vel",
+      "shape": [
+        1,
+        29
+      ],
+      "type": "tensor(float)"
+    },
+    {
+      "name": "ref_quat_xyzw",
+      "shape": [
+        1,
+        4
+      ],
+      "type": "tensor(float)"
+    }
+  ],
+  "observation_terms": [
+    "actions",
+    "base_ang_vel",
+    "dof_pos",
+    "dof_vel",
+    "motion_command",
+    "motion_ref_ori_b"
+  ],
+  "contract_checks": {
+    "deployment_protocol_v2": true,
+    "input_names": true,
+    "output_names": true,
+    "observation_terms": true,
+    "observation_dim_154": true,
+    "joint_count_29": true,
+    "joint_order": true,
+    "gain_lengths": true,
+    "action_scale_length": true,
+    "runtime_action_scale": true,
+    "hard_limits_match_urdf": true,
+    "default_pose_matches_runtime": true,
+    "safety_fraction": true,
+    "action_envelope_shape": true
+  },
+  "stationary_fault_injection": {
+    "steps": 500,
+    "deadline_ms": 20.0,
+    "latency_ms": {
+      "mean": 0.288568322,
+      "p50": 0.121834,
+      "p95": 0.4077111499999542,
+      "p99": 3.164443249999993,
+      "maximum": 7.160132
+    },
+    "deadline_misses": 0,
+    "nonfinite_steps": 0,
+    "runtime_action_clip_steps": 0,
+    "action_envelope_violation_steps": 0,
+    "hard_limit_violation_steps": 0,
+    "safety_envelope_violation_steps": 0,
+    "minimum_hard_limit_margin_rad": 0.013090014457702637,
+    "minimum_safety_limit_margin_rad": -2.9802322387695312e-08,
+    "maximum_abs_raw_action": 8.864272117614746,
+    "checks": {
+      "all_finite": true,
+      "no_20ms_deadline_miss": true,
+      "no_runtime_action_clip": true,
+      "no_hard_limit_violation": true,
+      "no_safety_envelope_violation": true,
+      "onnx_action_envelope_enforced": true
+    }
+  },
+  "passes": true,
+  "interpretation": "production computation contract and stationary-state safety fault pass"
+}

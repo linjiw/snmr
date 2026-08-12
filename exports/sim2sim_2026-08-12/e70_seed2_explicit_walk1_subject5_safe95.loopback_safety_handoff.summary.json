@@ -1,0 +1,89 @@
+{
+  "protocol": "E70 repeated loopback qualification summary v1",
+  "required_repeats": 3,
+  "observed_repeats": 3,
+  "candidate_sha256": "44e8cba19b3c34d14dc7bcc804c3e12af42fb26b9373cc093914fcc328220f19",
+  "runtime_variant": "production WBT with default safety-policy handoff",
+  "thresholds": {
+    "minimum_base_height_m": 0.45,
+    "minimum_up_axis_z": 0.5,
+    "hard_joint_limit_tolerance_rad": 1e-06,
+    "torque_limit_tolerance_nm": 1e-05
+  },
+  "reports": [
+    {
+      "path": "/home/robotixx/snmr/exports/sim2sim_2026-08-12/e70_seed2_explicit_walk1_subject5_safe95.loopback_safety_handoff_r1.json",
+      "sha256": "c7cd68cb84bc8f68f2c60a6fb8d625a5744e01d722a3130d9ab1cd3f08909b23",
+      "passes": false,
+      "physical_robot_commands_sent": 0
+    },
+    {
+      "path": "/home/robotixx/snmr/exports/sim2sim_2026-08-12/e70_seed2_explicit_walk1_subject5_safe95.loopback_safety_handoff_r2.json",
+      "sha256": "c0df20ff81903e34aff6d7a4b9a53faddd078d877a203b078818769c569cbf8a",
+      "passes": true,
+      "physical_robot_commands_sent": 0
+    },
+    {
+      "path": "/home/robotixx/snmr/exports/sim2sim_2026-08-12/e70_seed2_explicit_walk1_subject5_safe95.loopback_safety_handoff_r3.json",
+      "sha256": "37d2f4b3984ec35f90e51ab8f82ddcfc5b7d194dff809f36dda658bb7f7a0575",
+      "passes": false,
+      "physical_robot_commands_sent": 0
+    }
+  ],
+  "phase_worst_case": {
+    "gantry_assisted_initialization": {
+      "minimum_base_height_m": 0.7997071743011475,
+      "minimum_up_axis_z": 0.9849839806556702,
+      "minimum_measured_joint_limit_margin_rad": 0.027282872724533058,
+      "minimum_commanded_joint_limit_margin_rad": 0.013090023326873756,
+      "maximum_abs_joint_velocity_rad_s": 18.852340698242188,
+      "maximum_abs_torque_nm": 139.0,
+      "total_nonfinite_samples": 0,
+      "total_measured_joint_limit_violation_samples": 0,
+      "total_commanded_joint_limit_violation_samples": 0,
+      "total_velocity_limit_violation_samples": 0,
+      "total_torque_limit_violation_samples": 0
+    },
+    "gantry_assisted_motion": {
+      "minimum_base_height_m": 0.749383270740509,
+      "minimum_up_axis_z": 0.9701360464096069,
+      "minimum_measured_joint_limit_margin_rad": 0.03479439907073972,
+      "minimum_commanded_joint_limit_margin_rad": 0.025999982357025164,
+      "maximum_abs_joint_velocity_rad_s": 7.612180709838867,
+      "maximum_abs_torque_nm": 47.00884246826172,
+      "total_nonfinite_samples": 0,
+      "total_measured_joint_limit_violation_samples": 0,
+      "total_commanded_joint_limit_violation_samples": 0,
+      "total_velocity_limit_violation_samples": 0,
+      "total_torque_limit_violation_samples": 0
+    },
+    "unassisted_motion": {
+      "minimum_base_height_m": 0.5447629690170288,
+      "minimum_up_axis_z": 0.8423253297805786,
+      "minimum_measured_joint_limit_margin_rad": -0.1066874475002289,
+      "minimum_commanded_joint_limit_margin_rad": 0.013090023326873756,
+      "maximum_abs_joint_velocity_rad_s": 18.518877029418945,
+      "maximum_abs_torque_nm": 90.10942840576172,
+      "total_nonfinite_samples": 0,
+      "total_measured_joint_limit_violation_samples": 10,
+      "total_commanded_joint_limit_violation_samples": 0,
+      "total_velocity_limit_violation_samples": 0,
+      "total_torque_limit_violation_samples": 0
+    },
+    "safe_hold": {
+      "minimum_base_height_m": 0.11425582319498062,
+      "minimum_up_axis_z": -0.5964345932006836,
+      "minimum_measured_joint_limit_margin_rad": -0.061890658219337466,
+      "minimum_commanded_joint_limit_margin_rad": -1.0609822685317993,
+      "maximum_abs_joint_velocity_rad_s": 19.418556213378906,
+      "maximum_abs_torque_nm": 139.0,
+      "total_nonfinite_samples": 0,
+      "total_measured_joint_limit_violation_samples": 1459,
+      "total_commanded_joint_limit_violation_samples": 1514,
+      "total_velocity_limit_violation_samples": 0,
+      "total_torque_limit_violation_samples": 0
+    }
+  },
+  "passes": false,
+  "interpretation": "pre-hardware production loopback handoff gate fails"
+}

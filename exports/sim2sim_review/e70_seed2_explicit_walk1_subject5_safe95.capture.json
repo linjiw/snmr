@@ -1,0 +1,41 @@
+{
+  "protocol": "sim2sim review capture v1 (non-frozen engineering artifact)",
+  "onnx": "exports/sim2sim_2026-08-12/e70_seed2_explicit_walk1_subject5_safe95.onnx",
+  "onnx_sha256": "44e8cba19b3c34d14dc7bcc804c3e12af42fb26b9373cc093914fcc328220f19",
+  "states_out": "exports/sim2sim_review/e70_seed2_explicit_walk1_subject5_safe95.states.npz",
+  "model_mjb": "exports/sim2sim_review/e70_seed2_explicit_walk1_subject5_safe95.states.model.mjb",
+  "sample_hz": 200,
+  "events": [
+    {
+      "event": "first_pose_transition",
+      "time_s": 3.0001968038268387
+    },
+    {
+      "event": "policy_started",
+      "time_s": 12.000031085219234
+    },
+    {
+      "event": "motion_started",
+      "time_s": 13.000289202202111
+    },
+    {
+      "event": "gantry_released",
+      "time_s": 17.000391848850995
+    },
+    {
+      "event": "safety_handoff_requested",
+      "time_s": 27.00214851507917
+    }
+  ],
+  "samples": 6198,
+  "policy_exit_code": 0,
+  "exception": null,
+  "lifecycle": {
+    "first_pose_s": 3.0,
+    "policy_start_s": 12.0,
+    "motion_start_s": 13.0,
+    "gantry_release_s": 17.0,
+    "safety_handoff_s": 27.0,
+    "end_s": 31.0
+  }
+}

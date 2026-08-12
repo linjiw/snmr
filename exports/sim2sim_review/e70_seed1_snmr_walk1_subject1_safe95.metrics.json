@@ -1,0 +1,15 @@
+{
+  "reference_motion": "/data/robotixx/snmr-research/e70/motions/walk1_subject1_mj_z.npz",
+  "motion_started_s": 13.001384027767926,
+  "gantry_released_s": 17.000220857094973,
+  "safety_handoff_s": 27.00038353400305,
+  "note": "engineering tracking metric from a wall-clock-aligned replay; not preregistered, not a paper value",
+  "joint_rmse_rad_full_motion": 0.24786327696464686,
+  "joint_rmse_rad_assisted": 0.38284663183021805,
+  "joint_rmse_rad_unassisted": 0.17189247203443128,
+  "mean_abs_error_rad_unassisted": 0.12960984907896336,
+  "min_base_height_m_unassisted": 0.7653969526290894,
+  "min_up_axis_z_unassisted": 0.9689403518607429,
+  "min_base_height_m_safety_hold": 0.7508959174156189,
+  "min_up_axis_z_safety_hold": 0.9863945828642705
+}

@@ -72,3 +72,11 @@ runs/e48_ssl/probe_*.log
 # E48-100k raw stdout logs (regenerable)
 runs/e48_ssl_100k/*.log
 /.codex/
+
+# Phase E sim2sim artifacts: keep JSON evidence, ignore large regenerable binaries
+/exports/sim2sim_2026-08-12/*.onnx
+/exports/sim2sim_review/*.mjb
+/exports/sim2sim_review/*.npz
+/exports/**/*.policy.log
+MUJOCO_LOG.TXT
+/exports/sim2sim_review/*.mp4
