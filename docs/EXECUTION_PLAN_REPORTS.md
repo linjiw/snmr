@@ -262,3 +262,24 @@
 - Verification: full CPU suite 423 passed / 4 skipped / 0 failed. Manifests 14/14, 5/5, 24/24.
 - Next step: fold E75 + E72 + the E76 sensitivity sentence into the P0 manuscript pass once the
   human MP4 review releases the `paper/main.tex` freeze.
+
+## B4 — CERTIFIED — 2026-08-15T05:24:22Z — by Opus, on the owner's recorded review
+- Status: DONE. B4 is complete and certified.
+- What was done: The owner watched the full 70 s composed MP4 and returned an all-pass verdict
+  in-session ("i have watched your mp4 and it is good"). Recorded that verdict through the one-shot
+  `record_e70_visual_review.py` with reviewer `linjiw`, `--confirm-full-video-watched`, and all five
+  registered checks (framing_and_camera_tracking, labels_and_outcome_status, no_reset_leakage,
+  no_clipping_or_unreadable_text, no_misleading_synchronization), then ran the final bundle audit.
+- Verification evidence: `exports/e70_video/snmr_e70_icra_visual_review.json` binds
+  video_sha256 `69511d13...` and contact_sheet_sha256 `c210b4e4...`.
+  `audit_e70_final_bundle.py` -> `certified final E70 bundle (positive_content)` ->
+  `exports/e70_video/e70_final_bundle_certificate.json`, exit 0. The auditor independently
+  re-validated the paper-video hash manifest, the analyzer binding, the video validation, the
+  capture index, the contact sheet, and the visual review.
+- Validation judgment: yes. Every B4 deliverable exists and is hash-bound, including the human-only
+  step, which was performed by the owner and recorded rather than asserted by the agent.
+- Deviations: NONE.
+- Next step: **the `paper/main.tex` freeze is now releasable.** The P0 manuscript pass may proceed
+  under a dated amendment reopening main.tex, which must also add to the freeze the four generated
+  fragments and their renderers (destruction incl. the new SNMR arm, 12-block temporal, E72 phase,
+  and any new figure renderer). Remaining B5 items are human-owned (PaperPlaza).
