@@ -406,10 +406,20 @@ The δ arms carry the whole result, exactly as §7 anticipated.
 
 ## Scope — what this does NOT establish
 
-Time-aligned ≠ semantic. This shows the controller reads the command for *when in the trajectory it
-is*, not that the latent encodes motion category, contact, or intent. It remains conditional on two
-known walks, both in the student training set, one robot, one recipe, and three controllers. It
-says nothing about held-out motions or other embodiments.
+**Sensitivity is not yet steering.** The δ curve shows the controller's behaviour *depends on* the
+command's temporal alignment. It does not show the rollout moves *toward* the δ-shifted target. A
+policy that simply degrades under an internally inconsistent input would produce the same curve.
+Both readings defeat pure clip identity — a one-bit label reader would not notice a shift at all —
+so the identity rejection stands either way. But the stronger sentence, *the controller follows the
+commanded phase*, requires measuring whether the rollout tracks the shifted reference, which is a
+branch-coordinate measurement of exactly the kind E71 was built for. Do not write the stronger
+sentence on this evidence.
+
+**Time-aligned is not semantic.** This says nothing about whether the latent encodes motion
+category, contact, or intent.
+
+**Scope is unchanged otherwise**: two known walks, both in the student training set, one robot, one
+recipe, three controllers. Nothing here speaks to held-out motions or other embodiments.
 
 ## Provenance
 
