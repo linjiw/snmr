@@ -382,7 +382,10 @@ $0.001\pm0.001$.  Yet a fixed random projection of absolute frame-index sinusoid
 passed through the same command path, reaches $0.754\pm0.010$.  Because time
 uniquely identifies a deterministic clip, this null retires any single-clip claim that
 the latent supplies usable content beyond time; it does not bound information in the
-latent.  Adding $z_{\mathrm{ret}}$ beside the explicit goal is also null
+latent.  (This single-clip clock value coincides numerically with the two-walk latent
+completion in Table~\ref{tab:main}; the two are unrelated quantities measured on
+different start distributions, and we report the two-walk result through paired contrasts
+throughout to avoid the collision.)  Adding $z_{\mathrm{ret}}$ beside the explicit goal is also null
 ($0.956\pm0.003$), consistent with a stronger redundant channel being used instead.
 
 \subsection{Diagnostic 2: matched presents with different futures}
@@ -471,8 +474,9 @@ gate and \EPositiveGate{} for the registered content gate.  The per-clip A--T es
 are $\EATFirst$ [\EATFirstLow, \EATFirstHigh] and $\EATSecond$
 [\EATSecondLow, \EATSecondHigh].
 \ifeexplicitvalid
-  The explicit student verifies task and trainer feasibility, and destruction of its
-  exclusive \zcmd{} verifies causal command use.  \ifepositivecontent The registered
+  The explicit student verifies task and trainer feasibility, and \zcmd{} destruction
+  verifies within-policy command use on both arms, not only on the control arm.
+  \ifepositivecontent The registered
   contrasts show that neither absolute progress through a clip nor the matched-phase
   other-trajectory control is sufficient to match A.  Under this controller and
   two-walk assay, the frozen SNMR code therefore

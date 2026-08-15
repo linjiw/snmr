@@ -13,7 +13,7 @@
     "scripts/check_e70_video_code_hashes.py": "87146e860e419572312989c8060fd43f2c5c44841ff9c827f42225efd6e38a70",
     "scripts/audit_e70_final_bundle.py": "0b5c1be6fbb72f4389a7edfdd0d30d4fe0cbd6002122bc105d7b24c9441e6dee",
     "scripts/record_e70_visual_review.py": "330b9ec416058cef7f952a2c2dc0630b8571115081cb1d0cafc477f8e98e3442",
-    "paper/main.tex": "734cf25a08510d803a87be1e491e23dd22047f9ed32a30b450a56ab5d959d8f8",
+    "paper/main.tex": "bea5ea9b316f0aff6084361afcfbeabfea377696a37dd1d13bc42d473e29efea",
     "autoresearch/iterate-260809-0351/e70_video_manifest.json": "945251dc3a58d369a31dd27f1d5605e1ca3181719fa630965a13e8a122f4b61d",
     "paper/e70_results.tex": "b63e34ea7e2c0e4ce5bb078fb893480f4e803b8d066b8f818b2cc91682241b42",
     "paper/e70_effect_figure.tex": "73fb27f59d1ca0b4a058c891b16062e2b2f30cbe32e945d88dee461cdb4c9cbe",
@@ -99,8 +99,8 @@
       "human_approval": "owner (linjiw), 2026-08-15, in-session: 'go for your recommendation and write the paper and polish it'",
       "post_build_refresh": {
         "paper/main.tex": {
-          "old": "b06bdf4f4d7c5e99652c53da740d8df5ed9eb3c9633c899bca227d26ece2fcae",
-          "new": "734cf25a08510d803a87be1e491e23dd22047f9ed32a30b450a56ab5d959d8f8"
+          "old": "734cf25a08510d803a87be1e491e23dd22047f9ed32a30b450a56ab5d959d8f8",
+          "new": "bea5ea9b316f0aff6084361afcfbeabfea377696a37dd1d13bc42d473e29efea"
         },
         "paper/e70_teaser.tex": {
           "old": "4ae89499a3c696543fef14c70c6b66b1c51c753b88ea6c6fb6bc429267b12937",
