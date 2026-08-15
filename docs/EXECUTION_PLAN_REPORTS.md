@@ -116,3 +116,46 @@
 - Status: APPROVED by owner (linjiw), verbatim: "approved and continue you work" (2026-08-12, in-session)
 - Scope of approval: re-freeze the paper-video hash manifest to the current audited manuscript state (including the two generated, hash-stamped result files) with a dated amendment note; then proceed to B4 raw captures -> composition -> contact sheet. The two remaining human-only steps are unchanged: the owner watches the full composed MP4 before `record_e70_visual_review.py`, and PaperPlaza entry stays human-owned.
 - Next step: manifest amendment (recorded below in this entry's evidence once applied), supervisor relaunch; captures blocked on the frozen 26,000-MiB GPU gate until the discretionary cosmos-framework tenant (7,350 MiB, restarted since the 2026-08-11 pause) yields — surfacing to owner, per H1 this remains a human decision.
+
+## B4 — Capture attempt FAILED — 2026-08-15T02:35:00Z — by Opus (recorded 2026-08-14, audit session)
+- Status: STOPPED (crash) — awaiting owner approval for a presentation-layer amendment
+- What was done: Nothing was launched by this session. This entry records a failure that the
+  postprocess supervisor produced autonomously and that no prior entry captures. The supervisor
+  (started 2026-08-09T19:54Z) waited on the GPU capacity gate until `2026-08-15T02:34:59Z`, when it
+  observed 30,827 MiB free, passed `check_e70_video_code_hashes.py` 14/14, and entered capture 1 of 6
+  (`snmr_walk1_subject1`). It crashed ~90 seconds later and, under `set -euo pipefail`, died. No
+  supervisor process is now alive; nothing will auto-resume.
+- Verification evidence: `/tmp/snmr-e70-postprocess-supervisor.log` line 13677
+  `video capacity gate observed 30827 MiB`; line 13678 `validated 14 frozen E70 paper/video files`;
+  line 14095 `ValueError: Image width 1920 > framebuffer width 640. Either reduce the image width or
+  specify a larger offscreen framebuffer in the model XML`. Stack terminates in
+  `holosoma/simulator/mujoco/video_recorder.py:59` -> `mujoco/rendering/classic/renderer.py:60`.
+  `exports/e70_video/raw/` is EMPTY (no partial/unstable capture pair, so the `run_e70_video.sh`
+  exit-4 guard will not fire on relaunch); the only artifact is
+  `exports/e70_video/capture_attempts/snmr_walk1_subject1/20260815T023459Z/capture.log`.
+  `ls /data/robotixx/snmr-research/e70/POSTPROCESS_COMPLETE` -> absent.
+- Cause analysis: the G1 MJCF sets no `<visual><global offwidth/offheight>`, so MuJoCo defaults the
+  offscreen framebuffer to 640x480 while the registered protocol captures at 1920x1080
+  (`docs/E70_VIDEO_PROTOCOL.md:56-57`; `scripts/run_e70_video.sh:106`;
+  `scripts/compose_e70_video.py:24-26`). This is the same failure class already recorded and solved in
+  the Phase E deviations, where the fix is `model.vis.global_.offwidth/offheight = max(..., W/H)`
+  (`scripts/render_sim2sim_review_video.py:142-143`).
+- Corrections to the prior record (all verified this session): (a) the 2026-08-12 main.tex freeze
+  drift is RESOLVED — the amendment was applied and all 14 frozen paper/video files verify;
+  (b) B4 is NOT blocked on the 26,000-MiB gate — the gate opened and no competing GPU tenant is
+  present (1,277 MiB used, desktop only); (c) the assertion in
+  `docs/PAPER_STRENGTHENING_DESIGN_2026-08-13.md`, `docs/E71_COMMAND_SWAP_PROTOCOL.md` and
+  `autoresearch/iterate-260813-2350/scope.md` that `nvidia-smi` cannot reach the driver is STALE —
+  driver 590.48.01 responds and reports 30,827 MiB free. All three docs are corrected in the same
+  commit as this entry.
+- Validation judgment: no — B4 did not progress. The diagnosis is verified and the remedy is known,
+  but every candidate fix touches a file inside the paper-video freeze
+  (`scripts/eval_e70_video.py`, `scripts/run_e70_video.sh`), so there is no amendment-free path and
+  the 2026-08-12 approval does not cover it.
+- Deviations: NONE by this session; it launched nothing and modified no frozen file, manifest, or
+  artifact under `/data/robotixx/snmr-research/`.
+- Next step: owner decision on amendment #2 (presentation-layer offscreen-framebuffer sizing only;
+  no policy, checkpoint, capture selection, start step, intervention, horizon, metric, or report
+  field changed; confirmation manifest to be re-verified 5/5 before and after). Then patch, relaunch
+  the supervisor, and proceed to the unchanged human-only MP4 review. Full plan and the remaining
+  owner decisions: `docs/PLAN_2026-08-14.md`.
