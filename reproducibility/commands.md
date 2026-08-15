@@ -44,12 +44,24 @@ python scripts/analyze_e67_results.py \
 
 The final command must fail if any seed, arm, start grid, evaluation seed, or registered 69-pair
 cluster set is missing.  The final JSON's `inputs` array is the behavioral artifact hash manifest.
+With the manifest-bound analyzer and inputs, that non-anonymized three-seed JSON has SHA-256
+`05ca3176c0a78eebc6ca49665ce092ddfe0ea423be51e7d61a0192d428ea9b5f`, the digest carried in the
+`analysis_sha256` header of `paper/e70_results.tex`.
 
-For an exact replay of the included labeled seed-0 snapshot before the final seed set exists, use
-the same command with `--seeds 0` and a separate output path.  With the manifest-bound analyzer and
-inputs, the non-anonymized JSON has SHA-256
-`9059575b3e7d983e695b93a364da5e06eafb609576d52e7806d170a553ac13f7`; running
-`scripts/build_reproducibility_report.py` on it produces the anonymous report in this bundle.
+The anonymous report shipped in this bundle is produced from it, with no numeric edits:
+
+```bash
+python scripts/build_reproducibility_report.py \
+  --analysis "$ARTIFACT_ROOT/e70/analysis_seed0-1-2.json" \
+  --repo-root . \
+  --out reproducibility/reports/e70_seed0-1-2_analysis.json
+```
+
+For an exact replay of the retained seed-0 lineage snapshot, use the analyzer command with
+`--seeds 0` and a separate output path.  That non-anonymized JSON has SHA-256
+`9059575b3e7d983e695b93a364da5e06eafb609576d52e7806d170a553ac13f7`; the same builder command with
+`--out reproducibility/reports/e70_seed0_analysis.json` produces its anonymous copy.  The seed-0
+file is kept for lineage only and is not the source of any displayed paper value.
 
 ## Secondary dependence check and paper values
 

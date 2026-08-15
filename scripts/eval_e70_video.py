@@ -25,6 +25,7 @@ import tyro
 from scripts.e70_video_runtime import (
     capture_start_grid,
     expected_simulator_envs,
+    fit_offscreen_framebuffer,
     validate_capture_name,
 )
 from snmr.integration import wbt_bodyfix, wbt_latent
@@ -104,6 +105,7 @@ def main() -> None:
     tyro_cfg = tyro.cli(AnnotatedExperimentConfig, config=TYRO_CONIFG)
     env, device, sim_app = setup_simulation_environment(tyro_cfg)
     try:
+        fit_offscreen_framebuffer(env)
         n_envs = env.num_envs
         expected_envs = expected_simulator_envs(destroy_zcmd)
         if n_envs != expected_envs:

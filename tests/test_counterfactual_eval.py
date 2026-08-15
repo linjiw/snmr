@@ -7,7 +7,9 @@ from snmr.integration.counterfactual_eval import (
     E71_FULL_STATE_TENSOR_NAMES,
     E71_EVALUATION_CONDITIONS,
     E71_RUNTIME_CONTRACT,
+    FROZEN_ROOT_BODY_INDEX,
     _write_reference_state,
+    assert_frozen_root_convention,
     audit_same_state_proprio,
     audit_same_state_tensors,
     branch_start_steps_for_grid,
@@ -194,6 +196,204 @@ def test_write_reference_state_changes_physics_not_command_cursor() -> None:
     assert torch.equal(
         sim.robot_root_states[2, :3], motion.body_pos_w[4, 0] + sim.scene.env_origins[2]
     )
+
+
+# ---------------------------------------------------------------------------------------
+# Root-initialization convention.
+#
+# The frozen E70 reset (``wbt_bodyfix.reset``, lines 117-122) writes ``joint_pos``/
+# ``joint_vel`` and the ``root_*_w`` family into the simulator.  Those Holosoma properties
+# read motion body slot 0 (``wbt.py``:877-890) -- the pelvis, i.e. the free-joint body backing
+# ``robot_root_states`` -- not ``ref_body_index`` (``torso_link``), which belongs to the
+# unrelated ``ref_*`` family at ``wbt.py``:860-874 and drives tracking, never a reset.
+#
+# The mocks below use FOUR bodies with a per-body-distinguishable value and
+# ``ref_body_index == 2``, so any confusion between the two families is fatal to the
+# assertions.  The pre-existing one-body mock could not distinguish them.
+# ---------------------------------------------------------------------------------------
+
+_NUM_MOCK_BODIES = 4
+_MOCK_REF_BODY_INDEX = 2
+
+
+class _MockMotionCommand:
+    """Mock exposing the Holosoma ``MotionCommand`` reset contract verbatim.
+
+    ``joint_pos``/``joint_vel`` and ``root_*_w`` are transcribed from
+    ``holosoma/managers/command/terms/wbt.py`` so a test against this mock is a test against
+    the frozen reset's actual arithmetic.
+    """
+
+    root_body_index = 0
+
+    def __init__(self, motion, sim, time_steps: torch.Tensor) -> None:
+        self.motion = motion
+        self._env = SimpleNamespace(simulator=sim)
+        self.time_steps = time_steps
+        self.motion_ids = torch.zeros_like(time_steps)
+        self.ref_body_index = _MOCK_REF_BODY_INDEX
+
+    # wbt.py:834-838
+    @property
+    def joint_pos(self) -> torch.Tensor:
+        return self.motion.joint_pos[self.time_steps]
+
+    @property
+    def joint_vel(self) -> torch.Tensor:
+        return self.motion.joint_vel[self.time_steps]
+
+    # wbt.py:876-890
+    @property
+    def root_pos_w(self) -> torch.Tensor:
+        return (
+            self.motion.body_pos_w[self.time_steps, self.root_body_index]
+            + self._env.simulator.scene.env_origins
+        )
+
+    @property
+    def root_quat_w(self) -> torch.Tensor:
+        return self.motion.body_quat_w[self.time_steps, self.root_body_index]
+
+    @property
+    def root_lin_vel_w(self) -> torch.Tensor:
+        return self.motion.body_lin_vel_w[self.time_steps, self.root_body_index]
+
+    @property
+    def root_ang_vel_w(self) -> torch.Tensor:
+        return self.motion.body_ang_vel_w[self.time_steps, self.root_body_index]
+
+
+class _RefBodyRootMockCommand(_MockMotionCommand):
+    """Counterfactual upstream in which the ``root_*_w`` family moved to ``ref_body_index``."""
+
+    root_body_index = _MOCK_REF_BODY_INDEX
+
+
+def _multi_body_motion(frames: int = 8, dofs: int = 2):
+    bodies = _NUM_MOCK_BODIES
+    # Body slot b carries a value band of its own, so an index mistake cannot alias.
+    body_bias = (torch.arange(bodies, dtype=torch.float32) * 1000.0).reshape(1, bodies, 1)
+    frame_bias = (torch.arange(frames, dtype=torch.float32) * 10.0).reshape(frames, 1, 1)
+    axis = torch.tensor([0.1, 0.2, 0.3]).reshape(1, 1, 3)
+    base = body_bias + frame_bias + axis
+    quat = torch.nn.functional.normalize(base.repeat(1, 1, 2)[..., :4], dim=-1)
+    return SimpleNamespace(
+        joint_pos=torch.arange(frames * dofs, dtype=torch.float32).reshape(frames, dofs),
+        joint_vel=torch.arange(frames * dofs, dtype=torch.float32).reshape(frames, dofs) + 100,
+        body_pos_w=base.clone(),
+        body_quat_w=quat,
+        body_lin_vel_w=base.clone() + 0.5,
+        body_ang_vel_w=base.clone() - 0.5,
+        has_object=False,
+    )
+
+
+def _multi_body_sim(envs: int = 3, dofs: int = 2):
+    return SimpleNamespace(
+        dof_pos=torch.zeros(envs, dofs),
+        dof_vel=torch.zeros(envs, dofs),
+        robot_root_states=torch.zeros(envs, 13),
+        scene=SimpleNamespace(
+            env_origins=torch.tensor(
+                [[0.0, 0.0, 0.0], [10.0, -1.0, 0.5], [20.0, 2.0, -0.25]][:envs]
+            )
+        ),
+    )
+
+
+def test_write_reference_state_uses_the_frozen_root_body_on_a_multi_body_motion() -> None:
+    """Regression: the written root must be motion slot 0, never ``ref_body_index``."""
+
+    assert FROZEN_ROOT_BODY_INDEX == 0
+    motion = _multi_body_motion()
+    sim = _multi_body_sim()
+    command = _MockMotionCommand(motion, sim, torch.tensor([5, 2, 6]))
+    env_ids = torch.tensor([0, 2])
+    state_steps = torch.tensor([1, 4])
+    origins = sim.scene.env_origins[env_ids]
+
+    _write_reference_state(command, env_ids, state_steps)
+
+    root = sim.robot_root_states[env_ids]
+    assert torch.equal(root[:, :3], motion.body_pos_w[state_steps, 0] + origins)
+    assert torch.equal(root[:, 3:7], motion.body_quat_w[state_steps, 0])
+    assert torch.equal(root[:, 7:10], motion.body_lin_vel_w[state_steps, 0])
+    assert torch.equal(root[:, 10:13], motion.body_ang_vel_w[state_steps, 0])
+
+    # The origin offset applies to position only -- fixing an index must not add one.
+    assert not torch.equal(root[:, :3], motion.body_pos_w[state_steps, 0])
+    for columns, source in (
+        (slice(7, 10), motion.body_lin_vel_w),
+        (slice(10, 13), motion.body_ang_vel_w),
+    ):
+        assert not torch.allclose(root[:, columns], source[state_steps, 0] + origins)
+
+    # ... and the reference body is emphatically not what got written.
+    ref = command.ref_body_index
+    assert ref != FROZEN_ROOT_BODY_INDEX
+    assert not torch.allclose(root[:, :3], motion.body_pos_w[state_steps, ref] + origins)
+    assert not torch.allclose(root[:, 3:7], motion.body_quat_w[state_steps, ref])
+    assert not torch.allclose(root[:, 7:10], motion.body_lin_vel_w[state_steps, ref])
+    assert not torch.allclose(root[:, 10:13], motion.body_ang_vel_w[state_steps, ref])
+
+    # Untouched environments and the command cursor stay untouched.
+    assert torch.equal(sim.robot_root_states[1], torch.zeros(13))
+    assert command.time_steps.tolist() == [5, 2, 6]
+
+
+def _frozen_wbt_bodyfix_reset(command, sim, env_ids: torch.Tensor) -> None:
+    """Transcription of ``wbt_bodyfix.reset`` lines 117-122 (the frozen E70 write)."""
+
+    sim.dof_pos[env_ids] = command.joint_pos[env_ids]
+    sim.dof_vel[env_ids] = command.joint_vel[env_ids]
+    sim.robot_root_states[env_ids, :3] = command.root_pos_w[env_ids]
+    sim.robot_root_states[env_ids, 3:7] = command.root_quat_w[env_ids]
+    sim.robot_root_states[env_ids, 7:10] = command.root_lin_vel_w[env_ids]
+    sim.robot_root_states[env_ids, 10:13] = command.root_ang_vel_w[env_ids]
+
+
+def test_write_reference_state_is_byte_identical_to_frozen_reset_on_the_diagonal() -> None:
+    """On a diagonal cell (state side == command side) E71 must reproduce E70 exactly."""
+
+    motion = _multi_body_motion()
+    env_ids = torch.tensor([0, 1, 2])
+    # Diagonal cell: the state cursor and the command cursor coincide, so the frozen reset
+    # and the counterfactual reset are evaluated on identical inputs.
+    state_steps = torch.tensor([1, 4, 6])
+
+    frozen_sim = _multi_body_sim()
+    frozen_command = _MockMotionCommand(motion, frozen_sim, state_steps.clone())
+    _frozen_wbt_bodyfix_reset(frozen_command, frozen_sim, env_ids)
+
+    counterfactual_sim = _multi_body_sim()
+    counterfactual_command = _MockMotionCommand(motion, counterfactual_sim, state_steps.clone())
+    assert_frozen_root_convention(counterfactual_command, env_ids)
+    _write_reference_state(counterfactual_command, env_ids, state_steps)
+
+    for name in ("robot_root_states", "dof_pos", "dof_vel"):
+        frozen = getattr(frozen_sim, name)
+        counterfactual = getattr(counterfactual_sim, name)
+        assert frozen.dtype == counterfactual.dtype
+        assert torch.equal(frozen, counterfactual), name
+        assert frozen.numpy().tobytes() == counterfactual.numpy().tobytes(), name
+
+    # The frozen write must not be trivially zero, or the comparison proves nothing.
+    assert frozen_sim.robot_root_states.abs().sum() > 0
+
+
+def test_assert_frozen_root_convention_catches_a_root_family_redefinition() -> None:
+    """The runtime guard is what makes ``FROZEN_ROOT_BODY_INDEX`` non-assumptive."""
+
+    motion = _multi_body_motion()
+    env_ids = torch.tensor([0, 2])
+    time_steps = torch.tensor([5, 2, 6])
+
+    faithful = _MockMotionCommand(motion, _multi_body_sim(), time_steps.clone())
+    assert_frozen_root_convention(faithful, env_ids)
+
+    drifted = _RefBodyRootMockCommand(motion, _multi_body_sim(), time_steps.clone())
+    with pytest.raises(RuntimeError, match="frozen root convention broken"):
+        assert_frozen_root_convention(drifted, env_ids)
 
 
 def test_standardized_branch_error_uses_pooled_scale_and_handles_constant_dims() -> None:

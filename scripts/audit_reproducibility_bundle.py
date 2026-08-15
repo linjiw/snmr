@@ -139,18 +139,21 @@ def audit_bundle(
         raise ValueError("anonymity audit failed: " + "; ".join(anonymity))
     if links:
         raise ValueError("bundle links do not resolve: " + "; ".join(links))
-    artifact_hashes = (
-        validate_report_inputs(
-            bundle_root / "reports" / "e70_seed0_analysis.json",
-            repo_root=repo_root,
-            artifact_root=artifact_root,
-        )
-        if artifact_root is not None
-        else []
-    )
+    reports = sorted((bundle_root / "reports").glob("*.json"))
+    if not reports:
+        raise ValueError("bundle carries no anonymous analyzer report")
+    artifact_hashes: list[str] = []
+    if artifact_root is not None:
+        for report in reports:
+            artifact_hashes.extend(
+                validate_report_inputs(
+                    report, repo_root=repo_root, artifact_root=artifact_root
+                )
+            )
     return {
         "protocol": PROTOCOL,
         "hashes_verified": len(hashes),
+        "reports_checked": len(reports),
         "text_files_scanned": sum(
             path.is_file() and path.suffix in TEXT_SUFFIXES for path in bundle_root.rglob("*")
         ),

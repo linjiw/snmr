@@ -550,6 +550,93 @@ def audit_same_state_tensors(
     }
 
 
+# Body slot of ``motion.body_*_w`` that the frozen E70 reset writes into
+# ``simulator.robot_root_states``.
+#
+# Provenance, re-verified 2026-08-14 against the pinned Holosoma working tree
+# (``/home/robotixx/holosoma``, clean at ``20699ff``, 2026-04-17 -- i.e. the exact source
+# every frozen E70 student was trained and evaluated under):
+#
+#   ``wbt_bodyfix.reset`` (lines 119-122, the frozen reset) writes ``self.root_pos_w`` /
+#   ``root_quat_w`` / ``root_lin_vel_w`` / ``root_ang_vel_w``.  Those four Holosoma
+#   ``MotionCommand`` properties live at ``managers/command/terms/wbt.py``:876-890 and each
+#   reads ``self.motion.body_*_w[self.time_steps, 0]`` -- a literal ``0``.
+#
+# ``ref_body_index`` (``torso_link`` for G1, ``config_values/wbt/g1/command.py``:35) belongs to
+# the *``ref_*``* family one block earlier, ``wbt.py``:860-874.  That family drives the tracking
+# reference, the termination tube, and the ``motion_ref_ori_b`` observation -- it is never read
+# by any reset path.  Confusing ``wbt.py``:862 (``ref_pos_w``) for ``wbt.py``:877
+# (``root_pos_w``) is the trap this constant exists to close.
+#
+# Slot 0 is also the only physically admissible choice: ``MotionLoader.body_pos_w`` re-orders
+# the raw npz bodies into simulator order via ``_body_indexes``
+# (``wbt.py``:46/167), so slot 0 is ``simulator._body_list[0]`` -- ``pelvis``, the free-joint
+# body that *is* ``robot_root_states``.  (The raw npz for these clips carries 51 bodies with
+# ``world`` at 0, ``pelvis`` at 1 and ``torso_link`` at 29; those raw indices never reach this
+# code.)  Writing the torso pose into the pelvis free joint would both teleport the robot and
+# diverge from every frozen E70 rollout.
+#
+# The value is named rather than inlined, and ``assert_frozen_root_convention`` re-derives the
+# equality against the live ``root_*_w`` properties on every evaluation reset, so an upstream
+# change to that family fails closed instead of silently re-initializing E71 off-convention.
+FROZEN_ROOT_BODY_INDEX = 0
+
+_ROOT_STATE_FIELDS = ("pos", "quat", "lin_vel", "ang_vel")
+
+
+def frozen_root_state(
+    motion: Any, steps: torch.Tensor, origins: torch.Tensor
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Return ``(pos, quat, lin_vel, ang_vel)`` exactly as the frozen E70 reset computes them.
+
+    ``origins`` is added to the position only; the frozen ``root_*_w`` properties leave
+    orientation and both velocities in the raw motion frame (``wbt.py``:877-890).
+    """
+
+    index = FROZEN_ROOT_BODY_INDEX
+    return (
+        motion.body_pos_w[steps, index] + origins,
+        motion.body_quat_w[steps, index],
+        motion.body_lin_vel_w[steps, index],
+        motion.body_ang_vel_w[steps, index],
+    )
+
+
+def assert_frozen_root_convention(command: Any, env_ids: torch.Tensor) -> None:
+    """Fail closed unless :func:`frozen_root_state` reproduces the frozen reset bit for bit.
+
+    Evaluated at the *command* cursor -- the only cursor for which the Holosoma ``root_*_w``
+    properties are defined -- this is a pure identity: it compares two ways of spelling the
+    same frozen expression and is independent of the E71 state/command split.  It therefore
+    holds on every reset, diagonal or crossed, and detects any upstream redefinition of the
+    ``root_*_w`` family (for example a switch to ``ref_body_index``) before a single rollout
+    is recorded.
+    """
+
+    steps = command.time_steps[env_ids]
+    origins = command._env.simulator.scene.env_origins[env_ids]
+    expected = frozen_root_state(command.motion, steps, origins)
+    observed = (
+        command.root_pos_w[env_ids],
+        command.root_quat_w[env_ids],
+        command.root_lin_vel_w[env_ids],
+        command.root_ang_vel_w[env_ids],
+    )
+    for field, want, got in zip(_ROOT_STATE_FIELDS, expected, observed):
+        if want.shape != got.shape:
+            raise RuntimeError(
+                f"frozen root convention broken: root_{field}_w has shape "
+                f"{tuple(got.shape)}, expected {tuple(want.shape)}"
+            )
+        if not torch.equal(want, got):
+            raise RuntimeError(
+                f"frozen root convention broken: motion body slot {FROZEN_ROOT_BODY_INDEX} no "
+                f"longer reproduces root_{field}_w (max abs difference "
+                f"{float((want - got).abs().max())}); the frozen E70 reset and the E71 "
+                "counterfactual reset would initialize different bodies"
+            )
+
+
 def _write_reference_state(command: Any, env_ids: torch.Tensor, state_steps: torch.Tensor) -> None:
     """Overwrite simulator state from reference frames without changing command cursors."""
 
@@ -558,10 +645,13 @@ def _write_reference_state(command: Any, env_ids: torch.Tensor, state_steps: tor
     origins = sim.scene.env_origins[env_ids]
     sim.dof_pos[env_ids] = motion.joint_pos[state_steps]
     sim.dof_vel[env_ids] = motion.joint_vel[state_steps]
-    sim.robot_root_states[env_ids, :3] = motion.body_pos_w[state_steps, 0] + origins
-    sim.robot_root_states[env_ids, 3:7] = motion.body_quat_w[state_steps, 0]
-    sim.robot_root_states[env_ids, 7:10] = motion.body_lin_vel_w[state_steps, 0]
-    sim.robot_root_states[env_ids, 10:13] = motion.body_ang_vel_w[state_steps, 0]
+    root_pos, root_quat, root_lin_vel, root_ang_vel = frozen_root_state(
+        motion, state_steps, origins
+    )
+    sim.robot_root_states[env_ids, :3] = root_pos
+    sim.robot_root_states[env_ids, 3:7] = root_quat
+    sim.robot_root_states[env_ids, 7:10] = root_lin_vel
+    sim.robot_root_states[env_ids, 10:13] = root_ang_vel
 
     if motion.has_object:
         object_vel = motion.object_lin_vel_w[state_steps]
@@ -632,6 +722,9 @@ def patch() -> None:
         # ``wbt_bodyfix`` and BaseTask use a warm-up transition.  Initialize the physical
         # state one frame before the requested observation, just as the command cursor does.
         state_steps = requested[env_ids] - 1
+        # Prove, on the live runtime and before any state is written, that the body slot this
+        # module writes into ``robot_root_states`` is the one the frozen E70 reset used.
+        assert_frozen_root_convention(self, env_ids)
         _write_reference_state(self, env_ids, state_steps)
 
     MotionCommand.set_counterfactual_evaluation_start_steps = (

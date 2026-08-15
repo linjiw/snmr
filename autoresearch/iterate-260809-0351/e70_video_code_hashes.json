@@ -3,8 +3,8 @@
   "recorded_utc": "2026-08-11T21:25:18Z",
   "note": "Intentionally refrozen before final analysis and raw simulator rendering after an independent research and writing review clarified the paper's claims, controls, and limitations; experiment endpoints, registered gates, and capture selection are unchanged.",
   "sha256": {
-    "scripts/eval_e70_video.py": "d34efc290e4a2b5cc1827287408e02e04a7cfe594979d42ac877cbe40359d8ce",
-    "scripts/e70_video_runtime.py": "602ba690ce31e31ab771a57cdcf6754fabdc42fde554636b76eb3c66bb54ab46",
+    "scripts/eval_e70_video.py": "e5ced365a555b9918a178dea67957b86a37dbece09a99f45bb92bc043b2df4bf",
+    "scripts/e70_video_runtime.py": "5b397ddf7c0c2b405175d1490579a97fbcef924b17e0e87bfdfe8b3971c1fb67",
     "scripts/index_e70_video_captures.py": "362ecc0e9c5695fd77dc91040754c5de080a57cc22fdc59f19077a95da7dd83d",
     "scripts/compose_e70_video.py": "c2146b8fb0a3a06aa2043c70e590c1a56cb8eb17fcbe359f9e2607612ed0a919",
     "scripts/render_e70_paper_values.py": "13b942ad76a82526b1e35c253e71b4a05f3b5a5bb2ab1e89766a0c3f9cd66e56",
@@ -32,6 +32,23 @@
       ],
       "human_approval": "owner linjiw, 2026-08-12, recorded in docs/EXECUTION_PLAN_REPORTS.md (B4 approval entry)",
       "science_scope_note": "confirmation (science) hash manifest untouched and verifying 5/5 before and after this amendment"
+    },
+    {
+      "date_utc": "2026-08-15T03:46:42Z",
+      "what": "Re-freeze scripts/e70_video_runtime.py and scripts/eval_e70_video.py after a presentation-layer-only fix: grow the MuJoCo offscreen framebuffer to the realized recorder width/height before the first env.reset_all(). The G1 MJCF declares no <visual><global offwidth/offheight>, so MuJoCo defaulted to 640x480 and mujoco.Renderer raised 'Image width 1920 > framebuffer width 640', aborting B4 capture 1 of 6 at 2026-08-15T02:34:59Z.",
+      "old_sha256": {
+        "scripts/eval_e70_video.py": "d34efc290e4a2b5cc1827287408e02e04a7cfe594979d42ac877cbe40359d8ce",
+        "scripts/e70_video_runtime.py": "602ba690ce31e31ab771a57cdcf6754fabdc42fde554636b76eb3c66bb54ab46"
+      },
+      "new_sha256": {
+        "scripts/eval_e70_video.py": "e5ced365a555b9918a178dea67957b86a37dbece09a99f45bb92bc043b2df4bf",
+        "scripts/e70_video_runtime.py": "5b397ddf7c0c2b405175d1490579a97fbcef924b17e0e87bfdfe8b3971c1fb67"
+      },
+      "scope_note": "No policy, checkpoint, capture selection, start step, intervention, horizon, metric, report field, evaluation seed, or environment count changed. The clamp reads its dimensions from the realized recorder config rather than a constant, so it cannot disagree with the registered --logger.video.width/height (1920x1080, docs/E70_VIDEO_PROTOCOL.md). It never shrinks an existing framebuffer. Mirrors the already-proven clamp at scripts/render_sim2sim_review_video.py:142-143 recorded in the Phase E deviations.",
+      "regression_tests": "tests/test_e70_video_framebuffer.py (6 tests); tests/test_e70_video_runtime.py re-run green",
+      "science_scope_note": "confirmation (science) hash manifest untouched and verifying 5/5 before and after; deployment manifest 24/24 before and after",
+      "human_approval": "owner (linjiw), 2026-08-14, in-session: authorized the presentation-layer amendment",
+      "failure_record": "docs/EXECUTION_PLAN_REPORTS.md, B4 capture-attempt-FAILED entry dated 2026-08-15T02:35:00Z"
     }
   ]
 }

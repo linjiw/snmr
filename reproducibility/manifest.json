@@ -1,10 +1,26 @@
 {
   "protocol": "SNMR ICRA 2027 anonymous reproducibility bundle v1",
-  "state": "seed-0 report plus frozen three-seed execution contract; final aggregate pending",
+  "state": "final three-seed aggregate shipped and hash-bound to the rendered paper values; seed-0 report retained as append-only lineage",
+  "authoritative_report": {
+    "path": "reproducibility/reports/e70_seed0-1-2_analysis.json",
+    "seeds": [0, 1, 2],
+    "source_analysis_sha256": "05ca3176c0a78eebc6ca49665ce092ddfe0ea423be51e7d61a0192d428ea9b5f",
+    "paper_values_binding": "paper/e70_results.tex analysis_sha256",
+    "snmr_minus_time": "+0.191 [0.124, 0.274]",
+    "snmr_minus_shuffled": "+0.199 [0.127, 0.279]"
+  },
+  "superseded_reports": [
+    {
+      "path": "reproducibility/reports/e70_seed0_analysis.json",
+      "seeds": [0],
+      "source_analysis_sha256": "9059575b3e7d983e695b93a364da5e06eafb609576d52e7806d170a553ac13f7",
+      "note": "single-seed lineage snapshot; not the source of any displayed paper value"
+    }
+  ],
   "entries": [
     {
       "path": "reproducibility/README.md",
-      "sha256": "a7ea30a6f00e63f22de834942843db52e2d926c6d0f47f77481a1eea2f90b870",
+      "sha256": "7c6f0782cc85e3bc7e7e6c7703e38faa34829e8a9104af46d2b55eb2071e8f38",
       "role": "bundle index"
     },
     {
@@ -14,13 +30,18 @@
     },
     {
       "path": "reproducibility/commands.md",
-      "sha256": "5ac00517c74a3754edf83c7a6d901929d19f28fbf7597415df47a5f95cef99f5",
+      "sha256": "54b188debed75434f291ed3df0baea169daecd492e397cf42c93c24c65260f22",
       "role": "exact queue, cell, analyzer, and paper commands"
+    },
+    {
+      "path": "reproducibility/reports/e70_seed0-1-2_analysis.json",
+      "sha256": "011589514165eec82ca199825c20899bd70b6b7cd97e7b89ad2a48578cfd33ea",
+      "role": "anonymous authoritative three-seed report behind Table I"
     },
     {
       "path": "reproducibility/reports/e70_seed0_analysis.json",
       "sha256": "84d56a5815e29eed9d64ac8ceb3a1c2fa295ea2ddd786c1c77ace1e0e6c98ab8",
-      "role": "anonymous small frozen seed-0 report"
+      "role": "anonymous superseded seed-0 lineage report"
     },
     {
       "path": "docs/E70_MULTITRAJ_PROTOCOL.md",
@@ -84,7 +105,7 @@
     },
     {
       "path": "scripts/audit_reproducibility_bundle.py",
-      "sha256": "33dccc215294870d99256ffe289f3c6f7169bf95c2dc6bcc5e8e2bd372adae6b",
+      "sha256": "08208c3bab53730dd740769c6c78db672bae9500928e6cda036b17c0c8e67fc4",
       "role": "hash, link, and anonymity auditor"
     }
   ]

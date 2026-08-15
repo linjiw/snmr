@@ -72,6 +72,44 @@ def capture_start_grid(
     return result
 
 
+def fit_offscreen_framebuffer(env) -> dict[str, int] | None:
+    """Grow the MuJoCo offscreen framebuffer to the configured capture size.
+
+    Presentation layer only.  MuJoCo defaults ``offwidth``/``offheight`` to 640x480 when the
+    model XML declares no ``<visual><global>`` clause, and ``mujoco.Renderer`` raises rather
+    than downscaling, so the frozen 1920x1080 capture cannot start.  The dimensions are read
+    from the realized recorder config rather than hardcoded, so this can never disagree with
+    the registered ``--logger.video.width/height``.  Mirrors the already-proven clamp in
+    ``scripts/render_sim2sim_review_video.py``.  Touches no physics, policy, or report field.
+    """
+
+    simulator = getattr(env, "simulator", None)
+    recorder = getattr(simulator, "video_recorder", None)
+    model = getattr(simulator, "root_model", None)
+    if recorder is None or model is None:
+        return None
+    width = int(recorder.config.width)
+    height = int(recorder.config.height)
+    visual = model.vis.global_
+    before_width = int(visual.offwidth)
+    before_height = int(visual.offheight)
+    visual.offwidth = max(before_width, width)
+    visual.offheight = max(before_height, height)
+    if int(visual.offwidth) < width or int(visual.offheight) < height:
+        raise RuntimeError(
+            f"offscreen framebuffer {visual.offwidth}x{visual.offheight} cannot hold the "
+            f"requested {width}x{height} capture"
+        )
+    return {
+        "requested_width": width,
+        "requested_height": height,
+        "offwidth_before": before_width,
+        "offheight_before": before_height,
+        "offwidth": int(visual.offwidth),
+        "offheight": int(visual.offheight),
+    }
+
+
 def expected_simulator_envs(destroy_zcmd: str) -> int:
     """Return the frozen simulator batch size for an illustrative capture."""
     return 1024 if destroy_zcmd == "marginal_random" else 1

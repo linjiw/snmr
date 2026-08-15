@@ -159,3 +159,45 @@
   field changed; confirmation manifest to be re-verified 5/5 before and after). Then patch, relaunch
   the supervisor, and proceed to the unchanged human-only MP4 review. Full plan and the remaining
   owner decisions: `docs/PLAN_2026-08-14.md`.
+
+## B4 — Captures, composition, and postprocess COMPLETE — 2026-08-15T03:48:51Z — by Opus
+- Status: DONE (machine portion) — **awaiting the human MP4 review**, which is the only remaining B4 step
+- What was done: Owner authorized the presentation-layer amendment in-session (2026-08-14). Applied a
+  framebuffer clamp, amended the paper-video manifest, and relaunched the postprocess supervisor,
+  which ran to completion in ~2 minutes.
+  - `fit_offscreen_framebuffer(env)` added to `scripts/e70_video_runtime.py` and called from
+    `scripts/eval_e70_video.py` immediately after `setup_simulation_environment`, before the first
+    `env.reset_all()`. It grows `model.vis.global_.offwidth/offheight` to the **realized recorder
+    config** (never a hardcoded constant, so it cannot disagree with the registered
+    `--logger.video.width/height`), never shrinks an existing framebuffer, and raises if the
+    resulting buffer still cannot hold the request. Mirrors the proven clamp at
+    `scripts/render_sim2sim_review_video.py:142-143`.
+  - The helper lives in `e70_video_runtime.py` rather than `eval_e70_video.py` because the latter
+    imports `tyro`, which is absent from the CPU venv and would make the clamp untestable.
+  - Amendment #2 written into `autoresearch/iterate-260809-0351/e70_video_code_hashes.json`:
+    `scripts/eval_e70_video.py` `d34efc29...` -> `e5ced365...`;
+    `scripts/e70_video_runtime.py` `602ba690...` -> `5b397ddf...`. Scope note records that no policy,
+    checkpoint, capture selection, start step, intervention, horizon, metric, report field,
+    evaluation seed, or environment count changed.
+- Verification evidence: `check_e70_video_code_hashes.py` -> `validated 14 frozen E70 paper/video
+  files`. Science manifest re-verified **5/5, zero drift, before and after**; deployment manifest
+  24/24. New regression suite `tests/test_e70_video_framebuffer.py` (6 tests) plus
+  `tests/test_e70_video_runtime.py` -> `9 passed`. All six manifest captures wrote both an mp4 and a
+  report.json to `exports/e70_video/raw/`; `raw_capture_index.json`,
+  `snmr_e70_icra.mp4`, `snmr_e70_icra_contact_sheet.png`, and `snmr_e70_icra_validation.json` were
+  produced; `/data/robotixx/snmr-research/e70/POSTPROCESS_COMPLETE` = `2026-08-15T03:48:51Z`.
+  Video validation `passes: true` on every CFP gate: h264, yuv420p, 1920x1080, 30.0 fps, 70.0 s,
+  4,360,820 bytes (limits 180 s / 20 MB), progressive. Bound to `analysis_sha256 05ca3176...`,
+  `manifest_sha256 945251dc...`, `capture_index_sha256 b073380a...`.
+- Validation judgment: yes for the machine portion. **Not** a B4 acceptance: `POSTPROCESS_COMPLETE`
+  is explicitly not acceptance, and `audit_e70_final_bundle.py` refuses to certify without a visual
+  review record. The agent has NOT asserted any `--pass-*` flag.
+- Deviations: the fix touched two frozen files rather than the one originally scoped, because the
+  clamp was relocated into the importable runtime module so it could carry CPU regression tests.
+  Both are recorded in the same amendment. Holosoma was deliberately NOT patched: it is clean at
+  pinned commit `20699ff`, and that pin is bound in the A5 reproducibility index.
+- Next step: **HUMAN** — watch `exports/e70_video/snmr_e70_icra.mp4` end to end (70 s) and inspect
+  `snmr_e70_icra_contact_sheet.png` against the five frozen checks (framing_and_camera_tracking,
+  labels_and_outcome_status, no_reset_leakage, no_clipping_or_unreadable_text,
+  no_misleading_synchronization). Then `record_e70_visual_review.py` (one-shot, refuses to
+  overwrite) and `audit_e70_final_bundle.py`. The E71 cross-project gate is now satisfied.
