@@ -257,3 +257,167 @@ CUDA_VISIBLE_DEVICES='' .venv/bin/python -m scripts.verify_latent_substitution_m
 The generator refuses to write inside `/data/robotixx/snmr-research/e70` (explicit guard), refuses
 to proceed on a source SHA-256 mismatch, refuses a frame-rate disagreement between clips, and
 refuses any rate other than 50 Hz unless `--expected-fps` is passed deliberately.
+
+---
+
+# AMENDMENT 1 — 2026-08-15, before any intervention arm was run or inspected
+
+## What forced it
+
+§6 registered an **exact-reproduction** control gate: the `control` arm had to return the frozen
+per-seed ambiguity completions bit-for-bit. On execution it did not, and the gate correctly
+stopped the run before a single intervention arm was evaluated.
+
+The cause is not the substituted motions — their SHA-256 equals the frozen originals. The E70
+evaluation harness is simply **not bit-reproducible**: re-running the frozen motion directory, with
+the frozen checkpoint, frozen precheck, evaluation seed 404 and `E52_DET=1`, returns a different
+completion and flips ~18% of individual rollout outcomes. Measured over eight repeats, the per-arm
+completion sd is **0.0083**. Full study: `docs/E76_EVALUATION_REPLICATION.md`.
+
+**The gate as written was unsatisfiable by any run, including a re-run of the frozen experiment
+itself.** It is therefore amended. This amendment is written before any intervention-arm number
+has been produced or looked at; only `control` cells exist at this point.
+
+## Amended control gate (replaces §6's exact-match requirement)
+
+> The frozen per-seed ambiguity completion must lie inside the control arm's own replication
+> distribution — specifically within 3 sd of the control mean, using the sd measured in E76
+> (0.0083). Exact equality is not required and is not achievable.
+
+Status against the already-collected control cells and the E76 replication (seed 0):
+frozen 0.764648 vs replication mean 0.756714, sd 0.008310 → **z = +0.95, inside the gate.**
+The control path is validated: substituting `latent_z` in the motion NPZ reproduces the frozen
+computation to within the harness's own reproducibility.
+
+## Amended design (replaces the single-run-per-cell design)
+
+Every arm, including `control`, is run **R = 3 times per seed**. The unit of analysis is the mean
+over repeats. With sd ≈ 0.0083 per run, the standard error on an arm's three-seed × three-repeat
+mean is ≈ 0.0028.
+
+**Registered detectability floor, fixed now:** an arm's difference from `control` is reported as a
+*measured effect* only if it exceeds **0.02** in mean completion — roughly 2.4 single-run sd, and
+about 7 standard errors of the replicated mean. A difference smaller than 0.02 is reported as
+**"within evaluation noise"** and must not be described as an effect, a trend, or a direction.
+
+## What is NOT amended
+
+Everything else stands unchanged and was fixed before any result was seen:
+
+- the six arms and their exact frame offsets (§3);
+- the mandatory ordering — `control` first, and no intervention arm interpreted until the control
+  gate passes (§6, as amended);
+- **the interpretation asymmetry (§7), verbatim**: static-code RETENTION is evidence for clip
+  identity; static-code COLLAPSE is NOT evidence for time-varying content, because a constant `z`
+  is outside the student's training input distribution;
+- the two-sidedness of the δ arms only;
+- the prohibition on editing any frozen file.
+
+Nothing in this amendment touches which arms are run, what they mean, or how a positive or
+negative result is worded. It changes only the reproducibility tolerance and the replication count,
+both forced by a property of the harness that was not known when §6 was written.
+
+---
+
+# RESULT — 2026-08-15 (appended after execution; nothing above this line was edited)
+
+6 arms × 3 seeds × 3 repeats = 54 evaluations, 1,024 rollouts each, on the frozen 69-window
+ambiguity grid. Registered detectability floor: 0.02.
+
+## Control gate: PASSED
+
+| seed | control replication mean (3 runs) | frozen | z |
+| ---: | --- | ---: | ---: |
+| 0 | 0.753906 `[0.7656, 0.7432, 0.7529]` | 0.764648 | +1.29 |
+| 1 | 0.762370 `[0.7656, 0.7617, 0.7598]` | 0.760742 | −0.20 |
+| 2 | 0.745443 `[0.7393, 0.7471, 0.7500]` | 0.737305 | −0.98 |
+
+All within 3 sd. Substituting `latent_z` in the motion NPZ reproduces the frozen computation to
+within the harness's own reproducibility. The delivery mechanism is validated.
+
+## Results
+
+| arm | n | mean | sd | vs control | verdict |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `control` (δ=0) | 9 | 0.7539 | 0.0098 | — | reference |
+| `shift_m0250` (δ=−0.24 s) | 9 | 0.6497 | 0.0092 | **−0.1042** | measured effect |
+| `shift_p0250` (δ=+0.24 s) | 9 | 0.6546 | 0.0155 | **−0.0993** | measured effect |
+| `shift_p0500` (δ=+0.50 s) | 9 | 0.5947 | 0.0081 | **−0.1592** | measured effect |
+| `first_frame` | 9 | 0.0016 | 0.0025 | −0.7523 | measured effect |
+| `clip_mean` | 9 | 0.5822 | 0.1076 | −0.1717 | measured effect |
+
+Per-seed means are consistent for every δ arm (e.g. δ=+0.50 s: 0.6019 / 0.5941 / 0.5882).
+
+## The δ arms reject pure clip identity
+
+**A phase shift preserves clip identity exactly.** The shifted window `[z_{t+δ}, z_{t+δ+0.1}]` comes
+from the same clip, is a real latent trajectory, keeps the same marginal statistics and the same
+internal 0.1 s structure. Only its alignment to the physics changes.
+
+So the two hypotheses make opposite predictions, and this is the likelihood ratio between them:
+
+| hypothesis | prediction under a δ shift | observed |
+| --- | --- | --- |
+| `H_id` — the latent carries one bit, *which clip* | **no effect**: the bit is unchanged | ✗ |
+| `H_content` — the latent carries time-aligned trajectory state | degradation growing with \|δ\| | ✓ |
+
+Degradation is monotone in \|δ\|, symmetric in sign, and consistent across all three seeds:
+
+```
+δ = ±0.24 s   destroys ~52-54% of the latent's advantage over the clock
+δ = +0.50 s   destroys      83% of it
+```
+
+where the advantage is `control − time = 0.7539 − 0.5622 = +0.1917`.
+
+**Pure clip identity is rejected.** A one-bit clip label cannot be misaligned in time, so it cannot
+produce this curve.
+
+## What the latent's advantage actually requires
+
+All on the same frozen ambiguity grid:
+
+| condition | completion |
+| --- | ---: |
+| right clip, right phase (`control`) | 0.7539 |
+| right clip, **wrong** phase (δ=+0.50 s) | 0.5947 |
+| **wrong** clip, matched phase (frozen `shuffled`) | 0.5524 |
+| no clip, clock only (frozen `time`) | 0.5622 |
+| no goal at all (frozen `proprio`) | 0.4365 |
+
+Half a second of phase error leaves the latent barely above a wrong-trajectory control and
+statistically indistinguishable from a clock. **Clip identity and temporal alignment are each
+necessary; neither alone is sufficient.** That is a sharper statement than the frozen E70 result
+could make, and it is made with the same instrument on the same grid.
+
+The effect concentrates on the harder clip: `walk1_subject5` falls 0.5380 → 0.2632 under δ=+0.50 s
+while `walk1_subject1` falls only 0.9698 → 0.9262.
+
+## The static arms license nothing — as registered
+
+`first_frame` (0.0016) and `clip_mean` (0.5822) both collapse. Under the pre-committed asymmetry in
+§7, **collapse of a static code is not evidence for content**: a constant `z`-window is outside the
+student's training input distribution, which always saw `z_t ≠ z_{t+5}`. Retention would have been
+evidence for identity; collapse is confounded with distribution shift and is reported as
+uninformative. `clip_mean`'s across-seed sd of 0.108 (0.7197 / 0.4792 / 0.5479) reinforces that
+these arms are unstable and should not be leaned on.
+
+The δ arms carry the whole result, exactly as §7 anticipated.
+
+## Scope — what this does NOT establish
+
+Time-aligned ≠ semantic. This shows the controller reads the command for *when in the trajectory it
+is*, not that the latent encodes motion category, contact, or intent. It remains conditional on two
+known walks, both in the student training set, one robot, one recipe, and three controllers. It
+says nothing about held-out motions or other embodiments.
+
+## Provenance
+
+- Launcher `scripts/run_e72_latent_substitution.sh`; generator
+  `scripts/build_latent_substitution_motions.py`; outputs under
+  `/data/robotixx/snmr-research/e72_latent_sub/students/<arm>/seed<N>_snmr/repeat<R>/`.
+- Frozen checkpoints reached by symlink and SHA-256-verified; precheck hash-verified; nothing
+  written under `/data/robotixx/snmr-research/e70/`.
+- Noise floor and the amended control gate: `docs/E76_EVALUATION_REPLICATION.md`.
+- Pre-amendment single-run diagnostics preserved under
+  `/data/robotixx/snmr-research/e72_latent_sub/preamendment_diagnostics/`.

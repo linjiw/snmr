@@ -201,3 +201,64 @@
   labels_and_outcome_status, no_reset_leakage, no_clipping_or_unreadable_text,
   no_misleading_synchronization). Then `record_e70_visual_review.py` (one-shot, refuses to
   overwrite) and `audit_e70_final_bundle.py`. The E71 cross-project gate is now satisfied.
+
+## E75 / E76 / E72 — three evaluation-only experiments — 2026-08-15 — by Opus
+- Status: DONE. All three are evaluation-only on frozen E70 checkpoints, all preregistered before
+  execution, all written to new artifact roots. Nothing under
+  `/data/robotixx/snmr-research/e70/` was written except the B4 `POSTPROCESS_COMPLETE` marker.
+- Authority: `docs/PLAN_2026-08-14.md` Track C; owner authorized the plan in-session 2026-08-14 and
+  directed continued work toward the strongest submission on 2026-08-15.
+
+### E75 — command destruction on the SNMR arm (closes an open flank)
+- Preregistration `docs/E75_SNMR_DESTRUCTION_PREREG.md` written before execution, with three
+  registered outcome branches including an explicit "a non-zero residual is a publishable result,
+  not a failure" clause.
+- Result: **registered TOTAL COLLAPSE branch.** All nine cells (3 modes x 3 seeds) returned
+  `completion_rate` exactly 0.000000, matching the explicit arm. The behavioral-necessity rung now
+  holds for the arm the paper is about, not only for the control arm:
+  explicit 0.923 -> 0.000, SNMR 0.699 -> 0.000.
+- Note for the manuscript: destruction drives SNMR *below* the goal-blind proprioception arm
+  (0.431). The destroyed arm is not a stand-in for a goal-free controller and must not be presented
+  as one.
+- Machine-generated macros: `scripts/render_e70_destruction_values.py` now covers both arms
+  (`--snmr-destroy-root`), emitting `\EDestroySnmr*` alongside the explicit family with every input
+  SHA-256 stamped. 17 renderer tests pass.
+
+### E76 — the E70 evaluation harness is not bit-reproducible (discovered, not sought)
+- Found by the E72 control gate, which correctly stopped the run before any intervention arm.
+- Re-running the **frozen** motion directory with the frozen checkpoint, frozen precheck,
+  evaluation seed 404 and `E52_DET=1` returns 0.7451 against the recorded 0.7646, with 182/1024
+  rollout outcomes differing. Two runs in one session differ in 178/1024. The substituted motions
+  were exonerated by SHA-256 equality.
+- Measured over 8 repeats x 2 arms (`docs/E76_EVALUATION_REPLICATION.md`): per-arm completion
+  sd = 0.0083. The frozen record sits at z = +0.95 / +1.42 of its own replication distribution --
+  a typical draw, not a lucky one.
+- **The headline is unaffected and the finding is favourable.** Noise is largely common-mode, so
+  A-T from replication means (+0.1595) matches the frozen record (+0.1563) to 0.003. Propagating the
+  component widens the primary interval by **1.48%**, [0.124, 0.274] -> [0.114, 0.267]. It still
+  excludes zero by a wide margin. This belongs in the paper as one declared sentence.
+
+### E72 — latent substitution: pure clip identity is REJECTED
+- Delivered as substituted-`latent_z` motion NPZs, so the intervention runs on the frozen E70
+  instrument with zero edits to any hash-manifest file. Control gate passed at z = +1.29 / -0.20 /
+  -0.98 under Amendment 1.
+- Amendment 1 (dated, written before any intervention arm was run or inspected) replaced the
+  unsatisfiable exact-reproduction gate with a 3-sd distributional gate and added R=3 replication
+  per cell plus a registered 0.02 detectability floor. The interpretation asymmetry in section 7 was
+  left verbatim.
+- Result over 54 evaluations: monotone, symmetric, all-seed-consistent phase sensitivity.
+  delta = +/-0.24 s destroys ~52-54% of the latent's advantage over the clock; delta = +0.50 s
+  destroys 83% of it. A phase shift preserves clip identity exactly, so a one-bit clip label
+  predicts **no effect**; the observed curve therefore **rejects pure clip identity** and is the
+  likelihood ratio between identity and time-aligned content that the 2026-08-14 audit identified
+  as missing.
+- Ladder on one grid: right clip + right phase 0.7539; right clip + wrong phase 0.5947; wrong clip
+  + matched phase 0.5524; clock 0.5622; no goal 0.4365. **Clip identity and temporal alignment are
+  each necessary; neither alone suffices.**
+- The static arms (`first_frame` 0.0016, `clip_mean` 0.5822) collapsed and therefore license
+  nothing, exactly as the pre-committed asymmetry required. They are reported as uninformative.
+- Scope: time-aligned is not semantic. Still two known walks, both in training, one robot, one
+  recipe, three controllers.
+- Verification: full CPU suite 423 passed / 4 skipped / 0 failed. Manifests 14/14, 5/5, 24/24.
+- Next step: fold E75 + E72 + the E76 sensitivity sentence into the P0 manuscript pass once the
+  human MP4 review releases the `paper/main.tex` freeze.
