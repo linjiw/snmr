@@ -283,3 +283,53 @@
   under a dated amendment reopening main.tex, which must also add to the freeze the four generated
   fragments and their renderers (destruction incl. the new SNMR arm, 12-block temporal, E72 phase,
   and any new figure renderer). Remaining B5 items are human-owned (PaperPlaza).
+
+## P0 — Single post-B4 manuscript pass COMPLETE — 2026-08-15 — by Opus
+- Status: DONE. The paper is rewritten, rebuilt, compliance-checked, and re-certified.
+- Authority: owner, in-session 2026-08-15: "go for your recommendation and write the paper and
+  polish it". The recommendation adopted is `docs/DEGRADED_COMMAND_RESEARCH_2026-08-15.md` §6 --
+  run no further experiments for this submission and spend the days on the manuscript.
+- What was done, in one `main.tex` open under amendment #3:
+  - **Title** -> "A Clock Can Track: Why Motion-Tracking Success Does Not Identify What a Learned
+    Command Carries". States the finding, is supported by frozen data with no further experiment,
+    and claims nothing unearned.
+  - **Abstract** rewritten finding-first: the clock-beats-latent result is now sentence one. The two
+    distinct quantities previously both printed as 0.754 are disambiguated (the single-clip clock
+    keeps the number; the two-walk result is reported through the paired contrasts).
+  - **Figure 1 replaced** with three panels of the *argument* -- confound / construction /
+    measurement -- generated from frozen data by a new hash-stamping renderer. Panel (b) plots all
+    69 selected windows with both registered thresholds; panel (c) carries per-seed dots. The
+    architecture schematic is demoted. Previously the paper's most novel object, matched-present /
+    divergent-future, appeared in no panel of any figure.
+  - **Introduction** motivation replaced. The contact/uncertainty/cross-embodiment framing that
+    sections V and IX contradict is removed in favour of the identifiability point the paper owns.
+  - **Contribution bullet 1** no longer claims "a causal interface instrument".
+  - **Destruction rescoped** from the seed-0 explicit student to all seeds and all modes on BOTH
+    arms (E75), with the note that destruction drives the latent arm below the goal-blind floor.
+  - **New Diagnostic 3** (§IV-C) reporting the E72 time-shift battery: a shift preserves clip
+    identity exactly, so a one-bit label predicts no effect; degradation is monotone, symmetric and
+    all-seed consistent, destroying 83% of the clock advantage at +0.50 s. Includes the registered
+    one-sidedness of the static arms and the explicit "sensitivity, not steering" caveat.
+  - **Limitations**: the completed 12-block secondary result replaces the promise of one; a new
+    "Precision we do not claim" paragraph declares the seed-level t-interval [0.003, 0.379] and the
+    E76 replication floor (~18% of rollouts flip; per-arm sd 0.008; interval widens 1.5% to
+    [0.115, 0.267]); a new "What the instrument cannot see" paragraph states plainly that completion
+    is not a safety metric, explains the 0.437 goal-blind floor, and records null-arm instability.
+  - **Median future distance corrected** from 1.113 (the 675 threshold-eligible windows) to 1.189
+    (the 69 selected windows).
+  - CNM/NCR were never introduced and stay out; the evidence ladder is not used as a thesis.
+- Verification evidence: 8 US-letter pages (at the 8-page cap), **0 overfull boxes**, 22 fonts all
+  embedded, not encrypted, no author metadata. Anonymity sweep over the PDF text returns nothing.
+  All four new fragments plus five renderers are inside the freeze; `check_e70_video_code_hashes.py`
+  -> `validated 24 frozen E70 paper/video files`. `audit_e70_final_bundle.py` ->
+  `certified final E70 bundle (positive_content)` against the rebuilt PDF.
+  Full CPU suite: **433 passed, 4 skipped, 0 failed**. Confirmation (science) manifest 5/5 and
+  deployment manifest 24/24, untouched.
+- Validation judgment: yes. Every displayed quantity in the manuscript is emitted by a renderer from
+  a hash-stamped artifact; no number is hand-transcribed. No experimental endpoint, gate, threshold,
+  seed, analyzer, or registered interpretation branch was altered.
+- Deviations: the manuscript grew from 7 to 8 pages, which is at but not over the ICRA cap. No page
+  cuts were made -- Section VI and Table II are retained, as the earlier audit recommended.
+- Next step: **B5, human-owned.** PaperPlaza metadata (keyword trio, author PINs, affiliations,
+  order, presenter, conflicts, generative-AI disclosure), a fresh public pdftest on this exact
+  8-page build, and the supplementary-video upload before the **2026-09-09** window closes.

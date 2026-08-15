@@ -13,10 +13,20 @@
     "scripts/check_e70_video_code_hashes.py": "87146e860e419572312989c8060fd43f2c5c44841ff9c827f42225efd6e38a70",
     "scripts/audit_e70_final_bundle.py": "0b5c1be6fbb72f4389a7edfdd0d30d4fe0cbd6002122bc105d7b24c9441e6dee",
     "scripts/record_e70_visual_review.py": "330b9ec416058cef7f952a2c2dc0630b8571115081cb1d0cafc477f8e98e3442",
-    "paper/main.tex": "ba04f0e963b4023e75b44e6a41e765ed9a4820958e43c04a49afa9c9a054c712",
+    "paper/main.tex": "734cf25a08510d803a87be1e491e23dd22047f9ed32a30b450a56ab5d959d8f8",
     "autoresearch/iterate-260809-0351/e70_video_manifest.json": "945251dc3a58d369a31dd27f1d5605e1ca3181719fa630965a13e8a122f4b61d",
     "paper/e70_results.tex": "b63e34ea7e2c0e4ce5bb078fb893480f4e803b8d066b8f818b2cc91682241b42",
-    "paper/e70_effect_figure.tex": "73fb27f59d1ca0b4a058c891b16062e2b2f30cbe32e945d88dee461cdb4c9cbe"
+    "paper/e70_effect_figure.tex": "73fb27f59d1ca0b4a058c891b16062e2b2f30cbe32e945d88dee461cdb4c9cbe",
+    "paper/e70_destruction.tex": "3263108fe47239abc474949a69679a44a3f15b3537306bcf9c700a98e6550725",
+    "paper/e70_temporal.tex": "95de69f7942008b0a38aff5afe38d5f7f6bc71d71b4b9976eb6f1de200c8f84e",
+    "paper/e72_phase.tex": "21277b98c58dc96d3eeb83786aa55181fe8d5dd3e045db1e4119b5bb2dedcb49",
+    "paper/e70_validity.tex": "920c78fd8c674e38d2c75618c46a35ef56f6ffb51c03769096752583a8fc9f90",
+    "paper/e70_teaser.tex": "42615d5009c81040c778b0504f23d6d2b8bdb328e39be92e0971c3d3f7a25d3f",
+    "scripts/render_e70_destruction_values.py": "94451774975cee88cd84de9253915b6d02daed35138594bc325fb0cb09d80434",
+    "scripts/render_e70_temporal_block_values.py": "b31ede6f42efde56bb59aab8ac224ed629d67a04fe68dfb08ec846c0198c7f46",
+    "scripts/render_e72_phase_values.py": "e4f337b1f7cdf60c74b2ccde81cf9b18223315944537441204da945683306773",
+    "scripts/render_e70_validity_values.py": "2a07c9b74792d20a155254a5ec04ce391a0b4c19b76ced805ca2516553f45681",
+    "scripts/render_e70_teaser_figure.py": "eb548d40823bb57eacfdcf361ca87bf6c263897a7da1f66a535c860c27ea3216"
   },
   "amendments": [
     {
@@ -49,6 +59,59 @@
       "science_scope_note": "confirmation (science) hash manifest untouched and verifying 5/5 before and after; deployment manifest 24/24 before and after",
       "human_approval": "owner (linjiw), 2026-08-14, in-session: authorized the presentation-layer amendment",
       "failure_record": "docs/EXECUTION_PLAN_REPORTS.md, B4 capture-attempt-FAILED entry dated 2026-08-15T02:35:00Z"
+    },
+    {
+      "date_utc": "2026-08-15T16:19:32Z",
+      "what": "Reopen paper/main.tex for the single post-B4 manuscript pass, and bring the four new generated fragments and their five renderers into the freeze so that every displayed quantity in the manuscript remains machine-generated from a hash-stamped artifact.",
+      "manuscript_changes": [
+        "title -> 'A Clock Can Track: Why Motion-Tracking Success Does Not Identify What a Learned Command Carries'",
+        "abstract rewritten finding-first; the two distinct quantities previously both printed as 0.754 are disambiguated",
+        "Figure 1 replaced: three panels of the argument (confound / construction / measurement) generated from frozen data; the architecture schematic is demoted",
+        "introduction motivation replaced -- the contact/uncertainty/cross-embodiment framing the paper's own results contradict is removed in favour of the identifiability point it owns",
+        "contribution bullet 1 no longer claims 'a causal interface instrument'",
+        "destruction rescoped from the seed-0 explicit student to all seeds and modes on BOTH arms (E75)",
+        "new Diagnostic 3 reporting the E72 latent time-shift battery",
+        "Limitations: completed 12-block secondary result replaces the promise of one; declared seed-level t-interval; declared evaluation-replication floor (E76); the proprio-floor and null-instability explanations; an explicit statement that completion is not a safety metric",
+        "median future distance corrected from 1.113 (675 threshold-eligible windows) to 1.189 (the 69 selected windows)",
+        "CNM/NCR were never introduced and remain out"
+      ],
+      "old_main_tex_sha256": "ba04f0e963b4023e75b44e6a41e765ed9a4820958e43c04a49afa9c9a054c712",
+      "new_main_tex_sha256": "b06bdf4f4d7c5e99652c53da740d8df5ed9eb3c9633c899bca227d26ece2fcae",
+      "added_to_freeze": [
+        "paper/e70_destruction.tex",
+        "paper/e70_temporal.tex",
+        "paper/e72_phase.tex",
+        "paper/e70_validity.tex",
+        "paper/e70_teaser.tex",
+        "scripts/render_e70_destruction_values.py",
+        "scripts/render_e70_temporal_block_values.py",
+        "scripts/render_e72_phase_values.py",
+        "scripts/render_e70_validity_values.py",
+        "scripts/render_e70_teaser_figure.py"
+      ],
+      "changed_in_freeze": {
+        "paper/main.tex": {
+          "old": "ba04f0e963b4023e75b44e6a41e765ed9a4820958e43c04a49afa9c9a054c712",
+          "new": "b06bdf4f4d7c5e99652c53da740d8df5ed9eb3c9633c899bca227d26ece2fcae"
+        }
+      },
+      "science_scope_note": "No experimental endpoint, gate, threshold, seed, analyzer, or registered interpretation branch was altered. The E70 confirmation (science) manifest is untouched and verifies 5/5 before and after; the deployment manifest verifies 24/24. New results entering the manuscript (E75, E72, E76) were each preregistered before execution and live under their own artifact roots.",
+      "human_approval": "owner (linjiw), 2026-08-15, in-session: 'go for your recommendation and write the paper and polish it'",
+      "post_build_refresh": {
+        "paper/main.tex": {
+          "old": "b06bdf4f4d7c5e99652c53da740d8df5ed9eb3c9633c899bca227d26ece2fcae",
+          "new": "734cf25a08510d803a87be1e491e23dd22047f9ed32a30b450a56ab5d959d8f8"
+        },
+        "paper/e70_teaser.tex": {
+          "old": "4ae89499a3c696543fef14c70c6b66b1c51c753b88ea6c6fb6bc429267b12937",
+          "new": "42615d5009c81040c778b0504f23d6d2b8bdb328e39be92e0971c3d3f7a25d3f"
+        },
+        "scripts/render_e70_teaser_figure.py": {
+          "old": "826be791e99234cd8e958ae1a27d311d5119cd611de6ad7b2d4969cd8540cbac",
+          "new": "eb548d40823bb57eacfdcf361ca87bf6c263897a7da1f66a535c860c27ea3216"
+        }
+      },
+      "post_build_refresh_note": "Hashes refreshed within the same authorized manuscript pass after the figure-layout and phrasing fixes found during the build/proof loop. No additional file was reopened."
     }
   ]
 }
