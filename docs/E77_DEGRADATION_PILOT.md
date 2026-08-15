@@ -134,3 +134,40 @@ bottleneck noise is a lever available to either interface. It does not favour th
 Launcher `scripts/run_e77_degradation_pilot.sh`. Outputs under
 `/data/robotixx/snmr-research/e77_degradation_pilot/{explicit,snmr}/<label>/`. Frozen checkpoints
 reached by symlink; nothing written under `/data/robotixx/snmr-research/e70/`.
+
+---
+
+# ADDENDUM — 2026-08-15: the one apparent positive dissolves under paired analysis
+
+Section 4 above flagged the σ = 1.0 relative-retention advantage (+0.100) with three caveats. A
+paired re-analysis of the same arrays settles it: **it was a baseline-composition artifact, not an
+effect.**
+
+Both arms run identical `start_steps` and `motion_ids` (verified). Restricting to the **704 rollouts
+both arms complete cleanly at k=1**:
+
+| severity | marginal (E / S) | matched subset (E / S) | subset diff | McNemar E-only : S-only |
+| --- | --- | --- | ---: | --- |
+| hold 40 ms | 0.931 / 0.811 | 0.940 / 0.722 | −0.219 | 169 : 15 |
+| hold 100 ms | 0.241 / 0.006 | 0.295 / 0.004 | −0.291 | 207 : 2 |
+| noise σ 0.5 | 0.912 / 0.878 | 0.940 / 0.778 | −0.162 | 133 : 19 |
+| noise σ 1.0 | 0.424 / **0.524** | 0.520 / 0.500 | **−0.020** | 107 : 93 |
+
+The +0.100 at σ = 1.0 becomes **−0.020**, and its McNemar counts (107 : 93) are a coin flip. SNMR's
+lower clean baseline was excluding the easy rollouts from its own denominator.
+
+**Retention does not cancel the 22.4 pp clean gap; it launders it.** Any cross-arm severity claim
+must be reported on the paired matched subset, which is free from the per-rollout `completed` and
+`start_steps` arrays every frozen report already writes.
+
+This also strengthens §4's conclusion rather than softening it: on the matched-by-construction axis
+the asymmetry against the hypothesis is 11× at 40 ms and 100× at 100 ms.
+
+**Standing caveat on this axis, recorded so it is not forgotten:** `z_cmd = mu_prior(proprio, goal)`,
+so holding it also freezes proprioceptive feedback. It simulates "the policy stopped running" rather
+than "the command went stale". It is matched by construction and physically unfaithful — the
+deployment-faithful version freezes each arm's own *input* while the prior keeps reacting to fresh
+proprioception, and that needs a new evaluator. The reversal reported here is strong enough that it
+is unlikely to flip, but the axis should be described accurately if it is ever written up.
+
+Full analysis and recommendation: `docs/DEGRADED_COMMAND_RESEARCH_2026-08-15.md`.
