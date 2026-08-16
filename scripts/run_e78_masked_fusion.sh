@@ -11,7 +11,7 @@ set -euo pipefail
 # usage:
 #   scripts/run_e78_masked_fusion.sh train  <seed> <arm-tag>
 #   scripts/run_e78_masked_fusion.sh sweep  <seed> <arm-tag>      # clean + dropout severities
-#   scripts/run_e78_masked_fusion.sh frozen <seed> {explicit|snmr} # frozen E70 student, same sweep
+#   scripts/run_e78_masked_fusion.sh frozen <seed> {explicit|snmr|time|shuffled} # frozen E70 student, same sweep
 #
 # arm tags (all trained WITH reference dropout, scope=$E78_MASK_SCOPE, fraction $E78_MASK_FRAC,
 # and identical flag bits — including mE, so no arm's edge is "knowing when it is blind"):
@@ -83,9 +83,11 @@ case "$tag" in
           arm_mask_frac=0; arm_flag_dim=0 ;;
     explicit) arm=c_prior_explicit;  fusion=concat; phase=0; shuffle=0 ;;   # frozen only
     snmr)     arm=a_prior_snmr;      fusion=concat; phase=0; shuffle=0 ;;   # frozen only
+    time)     arm=a_prior_snmr;      fusion=concat; phase=1; shuffle=0 ;;   # frozen only (E70 T)
+    shuffled) arm=a_prior_snmr;      fusion=concat; phase=0; shuffle=1 ;;   # frozen only (E70 S)
     *) printf 'unknown E78 tag %s\n' "$tag" >&2; exit 64 ;;
 esac
-if [[ "$mode" != frozen && ( "$tag" == explicit || "$tag" == snmr ) ]]; then
+if [[ "$mode" != frozen && ( "$tag" == explicit || "$tag" == snmr || "$tag" == time || "$tag" == shuffled ) ]]; then
     printf 'tags explicit/snmr are frozen-only\n' >&2; exit 64
 fi
 

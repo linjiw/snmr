@@ -2160,3 +2160,18 @@ E54: the T1 WBT registration lost with the holosoma pin move is rebuilt as an sn
 now fails only on the GPU precondition (exit 3), not on registration (exit 2).  T1 reference NPZ
 present.  E1-proper label hook installed in `~/whole_body_tracking` (uncommitted there): the
 multi-motion runner writes `bin_failed_ema_<iter>.npz` per checkpoint; applies to future runs.
+
+### E78-F FROZEN DROPOUT BASELINE (2026-08-16): a stale reference is tolerated, a stale code is not
+Evaluation-only sweep of all six frozen E70 students (explicit/SNMR x seeds 0-2) under
+reference-stream dropout (hold last valid reference, proprioception live, seeded paired schedule),
+after the seed-exact sanity gate passed for every student (max |diff| 0.004).  Pooled over three
+seeds (n=3,072 paired rollouts): clean S 0.688 vs E 0.924 (-0.237); f=0.3/0.5-1 s outages S 0.522
+vs E 0.280 (+0.242 [+0.225,+0.260]); f=0.5/0.5-1 s S 0.473 vs E 0.108 (+0.365); matched-subset
+S 0.711 vs E 0.383 with McNemar 732:52; per-seed diffs at that cell +0.235/+0.250/+0.240;
+ambiguity grid +0.210.  Curves cross between f=0.1 and f=0.3.  Unlike E77 (z_cmd hold, which
+freezes the encoder's proprioceptive feedback), this axis holds only the upstream reference and
+the SNMR arm wins in absolute terms despite its 24 pp clean deficit.  Descriptive, unregistered;
+lookahead confound (+0.1 s sample in the held window) to be decided by the `cfut` control, which
+becomes the first E78 training job; E78 co-primary cell f=0.3/25-50 added before any masked arm
+trains.  Frozen time-code and shuffled-latent students (all seeds) queued as content controls.
+Full write-up: `docs/E78F_FROZEN_DROPOUT_BASELINE_2026-08-16.md`.

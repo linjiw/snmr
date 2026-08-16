@@ -165,6 +165,18 @@ corrected; pool-hook for E1-proper labels installed in `~/whole_body_tracking` (
 E54 T1 registration restored as an overlay so `run_e54_t1_teacher.sh` now only waits on ≥20 GB GPU.
 Plan §3 updated with the pre-committed reading of mGf and the registered GPU order.
 
+## 6c. Addendum (2026-08-16) — E78-F: the frozen students under reference dropout
+With the GPU partially free overnight, the E78 launcher's mandatory first step ran for all six
+frozen E70 students (evaluation only; sanity gate passed for each within 0.004). Result
+(`docs/E78F_FROZEN_DROPOUT_BASELINE_2026-08-16.md`): under reference-stream dropout with live
+proprioception the frozen SNMR replacement student keeps 0.52 / 0.47 completion at f = 0.3 / 0.5
+with 0.5–1 s outages where the explicit student keeps 0.28 / 0.11 — paired +0.24 [+0.23, +0.26] and
++0.37, three seeds within 0.03, matched-subset McNemar 732:52 and 1050:22, ambiguity grid +0.21 —
+at a −0.24 clean price. Reverses E77's reading (stale reference tolerated, stale code not); it is
+descriptive and unregistered, with a lookahead confound the `cfut` arm (now first in the E78 order)
+decides. E78's co-primary cell f = 0.3 / 25–50 was added before any masked arm trained. Frozen
+time/shuffled controls for all seeds are running. Default: keep out of the 2026-09-15 paper.
+
 ## 7. Bottom line
 No new capability number was produced today and none was promised: the GPU was unavailable, and
 E77 shows the naive robustness story is contradicted, not just unproven. What changed is that the

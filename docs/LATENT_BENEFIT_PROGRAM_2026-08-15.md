@@ -40,7 +40,15 @@ fail-closed style, and (d) records what was built today so the GPU work is one c
    harder severity cell are registered secondaries; frozen sanity is seed-exact; the analyzer
    reports mE − frozen_explicit clean as a descriptive endpoint. **No GPU night until these exist
    — they now do.**
-6. **GPU:** every GPU item is queued behind the owner's other tenants (28.4/32.6 GB in use as of
+6. **E78-F (2026-08-16, `docs/E78F_FROZEN_DROPOUT_BASELINE_2026-08-16.md`):** the frozen-student
+   sweep ran (evaluation only, ~1 GB, minutes per cell) and is far stronger than a baseline: under
+   reference-stream dropout with live proprioception the frozen SNMR *replacement* student degrades
+   far less than the explicit one — +0.24 [+0.23, +0.26] at f=0.3 / 0.5–1 s outages and +0.37 at
+   f=0.5, three seeds each within 0.03, matched-subset McNemar 732:52 / 1050:22, ambiguity grid
+   agrees — while paying −0.24 clean. It reverses E77's reading (*a stale reference is tolerated; a
+   stale code is not*), is descriptive and unregistered, and has an unresolved lookahead confound that
+   `cfut` decides. E78's job is now sharply posed: keep this robustness and remove the clean price.
+7. **GPU:** every GPU item is queued behind the owner's other tenants (28.4/32.6 GB in use as of
    this writing). Nothing below runs until a ≥26,000-MiB window opens; the SNMR rule that E70-class
    jobs take the first such window still holds. CPU-side deliverables are complete (§6).
 
@@ -131,17 +139,21 @@ window across the interface" finding — cleaner and more actionable than a repr
 and it will be reported as such. If mZf ≥ mGf the result is a genuine representation result. Either
 way the latent's *structural* monopoly retreats to cross-embodiment (E54, §7).
 
-**Registered GPU order:** frozen sanity (minutes) → mE, mZf trained + quick f-sweep (kill check) →
-if alive: mGf, mTf, mTl, mShf, mZc, mZg, mS. `cfut` in any gap.
+**Registered GPU order (amended 2026-08-16):** frozen sanity ✔ (done, all six students, all seeds;
+frozen time/shuffled controls added) → **`cfut` first** (one training: the lookahead-vs-representation
+control for E78-F *and* the paper's C-future arm) → mE, mZf trained + sweep (kill check) → if alive:
+mGf, mTf, mTl, mShf, mZc, mZg, mS.
 
 ### 3.3 Endpoints and gates
 
 Severity grid: masked-tick fraction f ∈ {0.1, 0.3, 0.5} × segment {5–25, 25–50} ticks, plus clean.
 Same `E78_EVAL_MASK_SEED=404` for every arm (identical dropout schedule ⇒ paired).
 
-- **Primary:** paired all-rollout completion difference (mZf − mE) at f = 0.3, seg 5–25,
-  cluster-bootstrap over start windows (`scripts/analyze_e78_dropout.py`).
-  Gate: **≥ +0.10 with CI excluding zero, three seeds, positive on both clips.**
+- **Primary (co-primary cells, amended 2026-08-16 before any E78 training, after the frozen
+  unmasked baseline E78-F showed the effect lives at 0.5–1 s outages):** paired all-rollout
+  completion difference (mZf − mE) at **f = 0.3, seg 5–25** and at **f = 0.3, seg 25–50**,
+  cluster-bootstrap over start windows (`scripts/analyze_e78_dropout.py`). Both cells are reported;
+  the gate applies to each: **≥ +0.10 with CI excluding zero, three seeds, positive on both clips.**
 - **Co-primary:** clean paired difference (mZf − mE) **≥ −0.01** (no clean regression). If this fails,
   the robustness result is reported but the "zero clean cost" sentence is not written.
 - **Matched-subset check (E77 discipline):** contrast on rollouts both arms complete cleanly must
