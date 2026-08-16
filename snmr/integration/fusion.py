@@ -31,7 +31,7 @@ from snmr.integration.distillation import CommandStudent, mlp
 FLAG_DIM = 2  # [is_masked, staleness / max_segment]
 
 VALID_SCOPES = frozenset({"all", "explicit", "snmr"})
-VALID_MODES = frozenset({"hold", "zero"})
+VALID_MODES = frozenset({"hold", "zero", "extrapolate", "cycle"})
 
 
 def dropout_hazard(target_fraction: float, mean_segment_ticks: float) -> float:
@@ -64,9 +64,23 @@ class ReferenceDropoutMasker:
     """Per-environment Bernoulli-segment dropout of a reference-derived signal.
 
     State is one segment countdown per environment plus the last valid value of each
-    masked tensor.  ``mode='hold'`` replays the last valid value (mocap/teleop stall);
-    ``mode='zero'`` blanks it.  The flag tensor returned by :meth:`step` is
-    ``[is_masked, staleness_ticks / max_segment]``.
+    masked tensor.  Fill modes:
+
+    * ``hold``        — replay the last valid value (a mocap/teleop stall; the naive default);
+    * ``zero``        — blank the channel (an explicit "no command" signal);
+    * ``cycle``       — replay the channel's own most recent matching cycle
+      (:class:`CycleContinuationExtrapolator`); the only fill that stays on the motion
+      manifold at long outages;
+    * ``extrapolate`` — advance the last valid value with a per-signal extrapolator
+      ``f(held, staleness_ticks) -> value``, registered via :meth:`set_extrapolator`.
+      Signals without one fall back to ``hold``.
+
+    The extrapolating mode exists because E78-F showed the harm under dropout comes from a
+    *stale* command conflicting with live proprioception, not from a missing one
+    (``docs/E78F_FROZEN_DROPOUT_BASELINE_2026-08-16.md``).  Extrapolation is causal: it uses
+    only what the channel delivered before it failed.
+
+    The flag tensor returned by :meth:`step` is ``[is_masked, staleness_ticks / max_segment]``.
     """
 
     num_envs: int
@@ -94,6 +108,7 @@ class ReferenceDropoutMasker:
         # Envs whose next tick must be clean (fresh episode: nothing valid to hold yet).
         self._force_clean = torch.ones(self.num_envs, dtype=torch.bool, device=self.device)
         self.last_masked = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
+        self._extrapolators: dict[str, object] = {}
         self.masked_ticks = 0
         self.total_ticks = 0
 
@@ -108,6 +123,13 @@ class ReferenceDropoutMasker:
         self.remaining[env_ids] = 0
         self.staleness[env_ids] = 0
         self._force_clean[env_ids] = True  # held value refreshes on that clean tick
+        for extrapolator in self._extrapolators.values():
+            if hasattr(extrapolator, "reset"):
+                extrapolator.reset(env_ids)
+
+    def set_extrapolator(self, name: str, fn) -> None:
+        """Register ``f(held_value, staleness_ticks) -> value`` for one signal (mode='extrapolate')."""
+        self._extrapolators[name] = fn
 
     def set_hazard(self, hazard: float) -> None:
         if hazard < 0.0 or hazard > 1.0:
@@ -151,10 +173,16 @@ class ReferenceDropoutMasker:
             held = self._held.get(name)
             if held is None or held.shape != value.shape:
                 held = value.detach().clone()
-            if self.mode == "hold":
-                shown = torch.where(m, held, value)
-            else:
+            if self.mode == "zero":
                 shown = torch.where(m, torch.zeros_like(value), value)
+            elif self.mode in ("extrapolate", "cycle") and name in self._extrapolators:
+                extrapolator = self._extrapolators[name]
+                if hasattr(extrapolator, "observe"):
+                    extrapolator.observe(value, masked)
+                filled = extrapolator(held, self.staleness)
+                shown = torch.where(m, filled, value)
+            else:  # hold (and extrapolate fallback for signals without an extrapolator)
+                shown = torch.where(m, held, value)
             # Refresh the held copy on clean ticks only.
             self._held[name] = torch.where(m, held, value.detach())
             out[name] = shown
@@ -310,6 +338,147 @@ class FusionCommandStudent(CommandStudent):
         if self.fusion != "gated":
             return None
         return float(torch.sigmoid(self.gate_logit.detach()))
+
+
+def constant_velocity_goal_extrapolator(
+    mean: torch.Tensor, std: torch.Tensor, eps: float, dt: float,
+    pos_slice: slice = slice(0, 29), vel_slice: slice = slice(29, 58),
+):
+    """Dead-reckon a held explicit goal with the joint velocities it already carries.
+
+    The 64-d WBT goal is ``[q_ref (29), qdot_ref (29), R_rel (6)]``: a stale sample already
+    contains the reference's own velocity field, so ``q_ref + qdot_ref * staleness*dt`` is a
+    strictly causal first-order prediction of where the reference went — free, no model.
+    Velocities and the relative orientation block are held (they cannot be integrated from
+    the goal alone).  Operates on the normalised tensor the student consumes.
+    """
+    def extrapolate(held_norm: torch.Tensor, staleness: torch.Tensor) -> torch.Tensor:
+        raw = held_norm * (std + eps) + mean
+        out = raw.clone()
+        out[:, pos_slice] = raw[:, pos_slice] + raw[:, vel_slice] * (
+            staleness.to(raw.dtype).unsqueeze(-1) * dt
+        )
+        return (out - mean) / (std + eps)
+
+    return extrapolate
+
+
+def window_linear_extrapolator(sample_dim: int, offset_ticks: int):
+    """Linearly continue a two-sample window ``[u_t0, u_{t0+k}]`` past its own horizon.
+
+    The held window already states where the signal was heading; at staleness ``s`` the
+    first-order continuation is ``u_t0 + (u_{t0+k} - u_t0) * s / k`` for the current sample,
+    and one step further for the lookahead sample.  Causal: uses only the last valid window.
+    """
+    def extrapolate(held: torch.Tensor, staleness: torch.Tensor) -> torch.Tensor:
+        u0, u1 = held[:, :sample_dim], held[:, sample_dim:2 * sample_dim]
+        slope = (u1 - u0) / float(offset_ticks)
+        s = staleness.to(held.dtype).unsqueeze(-1)
+        cur = u0 + slope * s
+        nxt = u0 + slope * (s + offset_ticks)
+        out = held.clone()
+        out[:, :sample_dim] = cur
+        out[:, sample_dim:2 * sample_dim] = nxt
+        return out
+
+    return extrapolate
+
+
+class CycleContinuationExtrapolator:
+    """Continue a signal by replaying its own most recent matching cycle.
+
+    Strictly causal and model-free: keeps a per-environment ring buffer of the values the
+    channel actually delivered, and at the start of an outage picks the lag ``L`` in
+    ``[min_lag, max_lag]`` whose past ``match_ticks`` window best matches the most recent
+    ``match_ticks`` window. During the outage it emits ``value[t - L]``.
+
+    Motivation (`docs/COMMAND_INTERFACE_SYNTHESIS_2026-08-16.md`): on the E70 walks the
+    reference-prediction error of a held sample drifts to 0.22–0.31 rad and of a
+    constant-velocity extrapolation to 0.93–1.39 rad at a 1 s outage, while cycle
+    continuation stays **flat at 0.155–0.250 rad from 0.1 s to 1.5 s**. A fill that stays on
+    the motion manifold turns an unbounded-horizon problem into a bounded one.
+
+    Falls back to holding whenever an environment has not yet accumulated enough valid
+    history (fresh episode, or a long outage that consumed the buffer).
+    """
+
+    def __init__(
+        self,
+        num_envs: int,
+        dim: int,
+        *,
+        device: torch.device | str = "cpu",
+        min_lag: int = 25,
+        max_lag: int = 80,
+        match_ticks: int = 20,
+    ) -> None:
+        if not 1 <= min_lag <= max_lag or match_ticks < 1:
+            raise ValueError("require 1 <= min_lag <= max_lag and match_ticks >= 1")
+        self.num_envs, self.dim = num_envs, dim
+        self.device = torch.device(device)
+        self.min_lag, self.max_lag, self.match_ticks = min_lag, max_lag, match_ticks
+        self.capacity = max_lag + match_ticks + 1
+        self.buffer = torch.zeros(num_envs, self.capacity, dim, device=self.device)
+        self.head = torch.zeros(num_envs, dtype=torch.long, device=self.device)   # next write slot
+        self.valid = torch.zeros(num_envs, dtype=torch.long, device=self.device)  # consecutive valid ticks
+        self.lag = torch.full((num_envs,), max_lag, dtype=torch.long, device=self.device)
+        self.fallbacks = 0
+        self.uses = 0
+
+    def reset(self, env_ids: torch.Tensor | None = None) -> None:
+        if env_ids is None:
+            self.valid.zero_()
+        else:
+            self.valid[env_ids] = 0
+
+    def _gather(self, offsets_back: torch.Tensor) -> torch.Tensor:
+        """Values ``offsets_back`` ticks before the newest write, per environment."""
+        index = (self.head - 1 - offsets_back) % self.capacity
+        return self.buffer[torch.arange(self.num_envs, device=self.device), index]
+
+    def observe(self, value: torch.Tensor, masked: torch.Tensor, emitted: torch.Tensor | None = None) -> None:
+        """Advance the timeline by one tick for every environment.
+
+        The buffer must stay **contiguous in time** or a lag in samples is not a lag in
+        ticks: with 30 % of ticks masked, a clean-only buffer time-compresses by 1/0.7 and
+        the matched cycle is wrong. Clean ticks record the delivered value; masked ticks
+        record what was emitted in their place (self-consistent recursion), so index
+        arithmetic stays in control ticks throughout.
+        """
+        write = value.detach() if emitted is None else torch.where(masked.unsqueeze(-1), emitted.detach(), value.detach())
+        index = self.head % self.capacity
+        rows = torch.arange(self.num_envs, device=self.device)
+        self.buffer[rows, index] = write
+        self.head += 1
+        self.valid = torch.clamp(self.valid + 1, max=self.capacity)
+        onset = masked & (self.valid >= self.max_lag + self.match_ticks)
+        if bool(onset.any()):
+            recent = torch.stack([self._gather(torch.full_like(self.head, k))
+                                  for k in range(self.match_ticks)], dim=1)      # (N, M, D)
+            best = torch.full((self.num_envs,), float("inf"), device=self.device)
+            for lag in range(self.min_lag, self.max_lag + 1):
+                past = torch.stack([self._gather(torch.full_like(self.head, k + lag))
+                                    for k in range(self.match_ticks)], dim=1)
+                err = (recent - past).square().mean(dim=(1, 2))
+                better = onset & (err < best)
+                best = torch.where(better, err, best)
+                self.lag = torch.where(better, torch.full_like(self.lag, lag), self.lag)
+
+    def __call__(self, held: torch.Tensor, staleness: torch.Tensor) -> torch.Tensor:
+        """Emit ``value[t - lag]`` where history allows, else the held value.
+
+        The emitted value is written into the buffer slot for this tick, keeping the
+        timeline contiguous (see :meth:`observe`).
+        """
+        usable = self.valid >= self.max_lag + self.match_ticks
+        offsets = torch.clamp(self.lag, min=1)   # lag is measured from the current tick
+        candidate = self._gather(offsets)
+        self.uses += int(usable.sum())
+        self.fallbacks += int((~usable).sum())
+        out = torch.where(usable.unsqueeze(-1), candidate, held)
+        rows = torch.arange(self.num_envs, device=self.device)
+        self.buffer[rows, (self.head - 1) % self.capacity] = out.detach()
+        return out
 
 
 def paired_dropout_summary(

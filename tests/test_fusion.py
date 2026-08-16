@@ -1,5 +1,7 @@
 """CPU tests for the E78 masking + fusion primitives (snmr/integration/fusion.py)."""
 
+import math
+
 import pytest
 import torch
 
@@ -160,3 +162,118 @@ def test_flag_dim_zero_is_shape_compatible_with_frozen_command_student():
     p, z, c = torch.randn(4, 90), torch.randn(4, 256), torch.randn(4, 64)
     assert torch.allclose(compat.mu_prior(p, z, c, torch.zeros(4, 0)), frozen.mu_prior(p, z, c))
     assert torch.allclose(compat.mu_prior(p, z, c), frozen.mu_prior(p, z, c))
+
+
+def test_constant_velocity_extrapolator_dead_reckons_positions_only():
+    from snmr.integration.fusion import constant_velocity_goal_extrapolator
+
+    mean = torch.zeros(64); std = torch.ones(64)
+    f = constant_velocity_goal_extrapolator(mean, std, eps=0.0, dt=0.02,
+                                            pos_slice=slice(0, 29), vel_slice=slice(29, 58))
+    held = torch.zeros(2, 64)
+    held[:, 0] = 1.0        # q_ref[0] = 1.0
+    held[:, 29] = 0.5       # qdot_ref[0] = 0.5 rad/s
+    held[:, 58] = 7.0       # R_rel block
+    out = f(held, torch.tensor([0, 10]))
+    assert out[0, 0] == pytest.approx(1.0)                 # zero staleness -> unchanged
+    assert out[1, 0] == pytest.approx(1.0 + 0.5 * 10 * 0.02)   # 0.2 s of dead reckoning
+    assert out[1, 29] == pytest.approx(0.5) and out[1, 58] == pytest.approx(7.0)  # held
+
+
+def test_constant_velocity_extrapolator_respects_normalisation():
+    from snmr.integration.fusion import constant_velocity_goal_extrapolator
+
+    mean = torch.full((64,), 3.0); std = torch.full((64,), 2.0)
+    f = constant_velocity_goal_extrapolator(mean, std, eps=0.0, dt=0.02)
+    held_norm = torch.zeros(1, 64)          # normalised zero == raw 3.0 everywhere
+    out = f(held_norm, torch.tensor([5]))
+    raw_q = out[0, 0] * 2.0 + 3.0
+    assert raw_q == pytest.approx(3.0 + 3.0 * 5 * 0.02)     # q + qdot*dt with raw values
+
+
+def test_window_linear_extrapolator_continues_the_window_slope():
+    from snmr.integration.fusion import window_linear_extrapolator
+
+    f = window_linear_extrapolator(sample_dim=2, offset_ticks=5)
+    held = torch.tensor([[0.0, 10.0, 5.0, 20.0]])   # u_t0 = (0,10), u_t0+5 = (5,20)
+    out = f(held, torch.tensor([5]))
+    assert out[0, 0] == pytest.approx(5.0) and out[0, 1] == pytest.approx(20.0)   # current -> old lookahead
+    assert out[0, 2] == pytest.approx(10.0) and out[0, 3] == pytest.approx(30.0)  # lookahead one step on
+    assert torch.allclose(f(held, torch.tensor([0])), held)
+
+
+def test_extrapolate_mode_uses_registered_fill_and_falls_back_to_hold():
+    masker = ReferenceDropoutMasker(2, hazard=0.0, min_segment=3, max_segment=3, mode="extrapolate")
+    masker.set_extrapolator("g", lambda held, stale: held + stale.unsqueeze(-1).float())
+    masker.step(g=torch.ones(2, 1), z=torch.ones(2, 1))
+    masker.remaining[:] = 3
+    out, _ = masker.step(g=torch.full((2, 1), 9.0), z=torch.full((2, 1), 9.0))
+    assert out["g"].flatten().tolist() == [2.0, 2.0]   # held 1.0 + staleness 1
+    assert out["z"].flatten().tolist() == [1.0, 1.0]   # no extrapolator -> hold
+
+
+def test_cycle_continuation_replays_the_matching_cycle_on_a_periodic_signal():
+    from snmr.integration.fusion import CycleContinuationExtrapolator
+
+    period, n, dim = 30, 2, 3
+    ext = CycleContinuationExtrapolator(n, dim, min_lag=25, max_lag=40, match_ticks=10)
+    signal = lambda t: torch.tensor(  # noqa: E731
+        [[math.sin(2 * math.pi * t / period), math.cos(2 * math.pi * t / period), 0.5]] * n
+    )
+    clean = torch.zeros(n, dtype=torch.bool)
+    for t in range(200):                       # fill the buffer with clean history
+        ext.observe(signal(t), clean)
+    masked = torch.ones(n, dtype=torch.bool)
+    held = signal(199)
+    errs = []
+    for s in range(1, 26):                     # a 0.5 s outage at 50 Hz; t0 = 199
+        ext.observe(signal(199 + s), masked)   # timeline advances; the emitted value is stored
+        pred = ext(held, torch.full((n,), s))
+        errs.append(float((pred - signal(199 + s)).abs().max()))
+    assert max(errs) < 0.05                    # cycle continuation tracks the true signal
+    assert float((held - signal(224)).abs().max()) > 0.5   # holding would not have
+    assert ext.lag.tolist() == [period, period]            # it found the true period
+
+
+def test_cycle_buffer_stays_contiguous_in_time_under_intermittent_dropout():
+    """A lag in samples must equal a lag in ticks even when 30 % of ticks are masked."""
+    from snmr.integration.fusion import CycleContinuationExtrapolator
+
+    period = 30
+    ext = CycleContinuationExtrapolator(1, 1, min_lag=25, max_lag=40, match_ticks=10)
+    sig = lambda t: torch.tensor([[math.sin(2 * math.pi * t / period)]])  # noqa: E731
+    rng = torch.Generator().manual_seed(0)
+    t = 0
+    for _ in range(400):                       # burn-in with intermittent masking
+        masked = torch.rand(1, generator=rng) < 0.3
+        ext.observe(sig(t), masked)
+        if bool(masked):
+            ext(sig(t), torch.tensor([1]))
+        t += 1
+    errs = []
+    for s in range(1, 21):
+        ext.observe(sig(t), torch.ones(1, dtype=torch.bool))
+        errs.append(float((ext(sig(t - s), torch.tensor([s])) - sig(t)).abs().max()))
+        t += 1
+    assert max(errs) < 0.2                     # phase stays locked despite the punched holes
+
+
+def test_cycle_continuation_falls_back_to_hold_without_enough_history():
+    from snmr.integration.fusion import CycleContinuationExtrapolator
+
+    ext = CycleContinuationExtrapolator(2, 3, min_lag=25, max_lag=40, match_ticks=10)
+    held = torch.full((2, 3), 7.0)
+    out = ext(held, torch.tensor([1, 1]))
+    assert torch.equal(out, held) and ext.fallbacks == 2
+
+
+def test_cycle_continuation_reset_clears_history_for_named_envs():
+    from snmr.integration.fusion import CycleContinuationExtrapolator
+
+    ext = CycleContinuationExtrapolator(3, 2, min_lag=5, max_lag=8, match_ticks=2)
+    clean = torch.zeros(3, dtype=torch.bool)
+    for t in range(60):
+        ext.observe(torch.full((3, 2), float(t % 7)), clean)  # noqa: E501
+    assert (ext.valid >= ext.max_lag + ext.match_ticks).all()
+    ext.reset(torch.tensor([1]))
+    assert ext.valid[1] == 0 and ext.valid[0] > 0

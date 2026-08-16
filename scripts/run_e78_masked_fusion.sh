@@ -59,6 +59,7 @@ NUM_ENVS="${E78_NUM_ENVS:-1024}"
 MIN_FREE_MB="${E78_MIN_FREE_MB:-26000}"
 MASK_FRAC="${E78_MASK_FRAC:-0.3}"
 MASK_SCOPE="${E78_MASK_SCOPE:-all}"
+EVAL_MASK_MODE="${E78_EVAL_MASK_MODE:-hold}"   # hold | zero | extrapolate (fill during an outage)
 SWEEP_FRACS="${E78_SWEEP_FRACS:-0.1 0.3 0.5}"
 SWEEP_SEGS="${E78_SWEEP_SEGS:-5-25 25-50}"
 AMB_SEVERITIES="${E78_AMB_SEVERITIES:-0.3:5-25 0.5:5-25 0.3:25-50}"   # registered secondaries
@@ -161,20 +162,22 @@ case "$mode" in
         fi
         for f in $SWEEP_FRACS; do for seg in $SWEEP_SEGS; do
             lo="${seg%-*}"; hi="${seg#*-}"
-            report="$out/${arm}_eval_mask${MASK_SCOPE}_hold_f${f}_s${lo}-${hi}.json"
+            report="$out/${arm}_eval_mask${MASK_SCOPE}_${EVAL_MASK_MODE}_f${f}_s${lo}-${hi}.json"
             [[ -e "$report" ]] && continue
-            run_cell 404 "$out/eval_mask_f${f}_s${seg}.log" E52_EVAL_ONLY=1 \
+            run_cell 404 "$out/eval_${EVAL_MASK_MODE}_f${f}_s${seg}.log" E52_EVAL_ONLY=1 \
                 E78_EVAL_MASK_FRAC="$f" E78_EVAL_MASK_SEG_MIN="$lo" E78_EVAL_MASK_SEG_MAX="$hi" \
-                E78_EVAL_MASK_SCOPE="$MASK_SCOPE" E78_EVAL_MASK_SEED=404
+                E78_EVAL_MASK_SCOPE="$MASK_SCOPE" E78_EVAL_MASK_SEED=404 \
+                E78_EVAL_MASK_MODE="$EVAL_MASK_MODE"
         done; done
         for fs in $AMB_SEVERITIES; do
             f="${fs%%:*}"; seg="${fs#*:}"; lo="${seg%-*}"; hi="${seg#*-}"
-            report="$out/${arm}_eval_ambiguity_mask${MASK_SCOPE}_hold_f${f}_s${lo}-${hi}.json"
+            report="$out/${arm}_eval_ambiguity_mask${MASK_SCOPE}_${EVAL_MASK_MODE}_f${f}_s${lo}-${hi}.json"
             [[ -e "$report" ]] && continue
-            run_cell 404 "$out/eval_amb_mask_f${f}_s${seg}.log" E52_EVAL_ONLY=1 \
+            run_cell 404 "$out/eval_amb_${EVAL_MASK_MODE}_f${f}_s${seg}.log" E52_EVAL_ONLY=1 \
                 E52_EVAL_STARTS_JSON="$PRECHECK" \
                 E78_EVAL_MASK_FRAC="$f" E78_EVAL_MASK_SEG_MIN="$lo" E78_EVAL_MASK_SEG_MAX="$hi" \
-                E78_EVAL_MASK_SCOPE="$MASK_SCOPE" E78_EVAL_MASK_SEED=404
+                E78_EVAL_MASK_SCOPE="$MASK_SCOPE" E78_EVAL_MASK_SEED=404 \
+                E78_EVAL_MASK_MODE="$EVAL_MASK_MODE"
         done
         ;;
     *) printf 'unknown mode %s\n' "$mode" >&2; exit 64 ;;

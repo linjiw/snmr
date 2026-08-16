@@ -33,7 +33,7 @@ import re
 
 import numpy as np
 
-SEVERITY_RE = re.compile(r"_eval_(?:ambiguity_)?(mask\w+?_hold_f(?P<frac>[0-9.]+)_s(?P<lo>\d+)-(?P<hi>\d+))\.json$")
+SEVERITY_RE = re.compile(r"_eval_(?:ambiguity_)?(mask\w+?_(?:hold|zero|extrapolate|cycle)_f(?P<frac>[0-9.]+)_s(?P<lo>\d+)-(?P<hi>\d+))\.json$")
 GRID_PREFIX = {"general": "", "ambiguity": "ambiguity_"}
 
 

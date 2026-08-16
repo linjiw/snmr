@@ -47,7 +47,10 @@ rep("from snmr.integration import wbt_bodyfix, wbt_latent\n",
     "from snmr.integration.fusion import (  # noqa: E402\n"
     "    FLAG_DIM,\n    FusionCommandStudent,\n    ReferenceDropoutMasker,\n"
     "    dropout_hazard,\n    ramp,\n)\n"
-    "from snmr.integration.goal_window import GoalWindow, goal_stats_from_normalizer  # noqa: E402\n")
+    "from snmr.integration.goal_window import GoalWindow, goal_stats_from_normalizer  # noqa: E402\n"
+    "from snmr.integration.fusion import (  # noqa: E402\n"
+    "    CycleContinuationExtrapolator,\n"
+    "    constant_velocity_goal_extrapolator,\n    window_linear_extrapolator,\n)\n")
 
 rep('''    if phase_only and shuffle_latent:
         raise ValueError("time-index and shuffled-latent controls are mutually exclusive")''',
@@ -298,6 +301,33 @@ rep('''    hold_z = int(os.environ.get("E52_EVAL_HOLD_Z", "0"))  # E65: refresh 
         eval_mask_seg_min, eval_mask_seg_max,
         device=device, mode=eval_mask_mode, seed=eval_mask_seed,
     )
+    if eval_mask_mode == "cycle":
+        # Model-free periodic continuation from each channel's own delivered history.
+        for signal_name, signal_dim in (("cmd", MOTION_CMD_DIM), ("zwin", upstream_dim)):
+            eval_masker.set_extrapolator(
+                signal_name,
+                CycleContinuationExtrapolator(
+                    n_envs, signal_dim, device=device,
+                    min_lag=int(os.environ.get("E78_CYCLE_MIN_LAG", "25")),
+                    max_lag=int(os.environ.get("E78_CYCLE_MAX_LAG", "80")),
+                    match_ticks=int(os.environ.get("E78_CYCLE_MATCH", "20")),
+                ),
+            )
+    if eval_mask_mode == "extrapolate":
+        # Causal fills: the explicit goal dead-reckons with the joint velocities it already
+        # carries; a two-sample window continues its own slope.  E78-F showed the harm comes
+        # from a stale command, not a missing one, so how the gap is filled is the lever.
+        g_mean, g_std, g_eps = goal_stats_from_normalizer(actor_norm, GOAL_SLICE)
+        eval_masker.set_extrapolator(
+            "cmd",
+            constant_velocity_goal_extrapolator(g_mean, g_std, g_eps, float(env.dt)),
+        )
+        eval_masker.set_extrapolator(
+            "zwin",
+            window_linear_extrapolator(
+                upstream_dim // len(Z_OFFSETS), Z_OFFSETS[1] - Z_OFFSETS[0]
+            ),
+        )
     masked_ticks_by_env = torch.zeros(n_envs, device=device)''')
 
 rep('''            if hold_z > 1 and step % hold_z != 0:
