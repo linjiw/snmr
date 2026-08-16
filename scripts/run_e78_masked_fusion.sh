@@ -85,9 +85,12 @@ case "$tag" in
     snmr)     arm=a_prior_snmr;      fusion=concat; phase=0; shuffle=0 ;;   # frozen only
     time)     arm=a_prior_snmr;      fusion=concat; phase=1; shuffle=0 ;;   # frozen only (E70 T)
     shuffled) arm=a_prior_snmr;      fusion=concat; phase=0; shuffle=1 ;;   # frozen only (E70 S)
+    proprio)  arm=b_prior_proprio;   fusion=concat; phase=0; shuffle=0 ;;   # frozen only (E70 B):
+    # goal-blind floor.  Dropout is a structural no-op for this arm (its encoder reads no
+    # reference at all), so its curve is the flat line every other arm must be read against.
     *) printf 'unknown E78 tag %s\n' "$tag" >&2; exit 64 ;;
 esac
-if [[ "$mode" != frozen && ( "$tag" == explicit || "$tag" == snmr || "$tag" == time || "$tag" == shuffled ) ]]; then
+if [[ "$mode" != frozen && ( "$tag" == explicit || "$tag" == snmr || "$tag" == time || "$tag" == shuffled || "$tag" == proprio ) ]]; then
     printf 'tags explicit/snmr are frozen-only\n' >&2; exit 64
 fi
 

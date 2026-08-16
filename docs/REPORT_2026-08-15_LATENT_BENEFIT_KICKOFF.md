@@ -165,17 +165,26 @@ corrected; pool-hook for E1-proper labels installed in `~/whole_body_tracking` (
 E54 T1 registration restored as an overlay so `run_e54_t1_teacher.sh` now only waits on ≥20 GB GPU.
 Plan §3 updated with the pre-committed reading of mGf and the registered GPU order.
 
-## 6c. Addendum (2026-08-16) — E78-F: the frozen students under reference dropout
-With the GPU partially free overnight, the E78 launcher's mandatory first step ran for all six
-frozen E70 students (evaluation only; sanity gate passed for each within 0.004). Result
-(`docs/E78F_FROZEN_DROPOUT_BASELINE_2026-08-16.md`): under reference-stream dropout with live
-proprioception the frozen SNMR replacement student keeps 0.52 / 0.47 completion at f = 0.3 / 0.5
-with 0.5–1 s outages where the explicit student keeps 0.28 / 0.11 — paired +0.24 [+0.23, +0.26] and
-+0.37, three seeds within 0.03, matched-subset McNemar 732:52 and 1050:22, ambiguity grid +0.21 —
-at a −0.24 clean price. Reverses E77's reading (stale reference tolerated, stale code not); it is
-descriptive and unregistered, with a lookahead confound the `cfut` arm (now first in the E78 order)
-decides. E78's co-primary cell f = 0.3 / 25–50 was added before any masked arm trained. Frozen
-time/shuffled controls for all seeds are running. Default: keep out of the 2026-09-15 paper.
+## 6c. Addendum (2026-08-16) — E78-F: the frozen students under reference dropout, and what its controls did to it
+The E78 launcher's mandatory first step ran for **all five frozen E70 arms × three seeds** (15
+students, 11 cells each; every sanity gate passing). First cut: under reference-stream dropout the
+frozen SNMR student degrades far less than the explicit one (+0.242 [+0.225, +0.260] at f = 0.3 with
+0.5–1 s outages, +0.365 at f = 0.5, three seeds within 0.03, matched-subset McNemar 732:52).
+
+**Its own controls killed the content reading.** The E70 time code — a fixed sinusoid of frame
+index, no motion content, no clip identity — is the *most* robust arm at every severe cell (+0.275,
++0.424), beating SNMR; the shuffled latent matches SNMR; and the goal-blind proprio arm (for which
+dropout is a structural no-op) sits flat at 0.419–0.439 while the explicit arm falls to **0.108, far
+below that floor**. The real content is a methods finding: **a stale reference is worse than no
+reference**, and cross-arm dropout rankings mostly measure channel reliance plus an active-harm
+term — the measured, sharper form of the paper's existing Limitations sentence.
+
+Consequences, applied before any masked arm trains: the E78 primary became a **conjunction** (beat
+mE by ≥ 0.10 **and** beat the content-free controls mTl/mTf by ≥ 0.05 **and** no clean regression),
+a goal-blind masked arm mB joins the first training batch, and every curve must be reported against
+that floor. The sanity tolerance is now measured rather than assumed (two-tier 0.02/0.05 by clean
+completion, after two null-arm cells failed a flat gate their own general grids passed).
+Full write-up: `docs/E78F_FROZEN_DROPOUT_BASELINE_2026-08-16.md`. Not for the September submission.
 
 ## 7. Bottom line
 No new capability number was produced today and none was promised: the GPU was unavailable, and

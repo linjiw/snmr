@@ -2175,3 +2175,24 @@ lookahead confound (+0.1 s sample in the held window) to be decided by the `cfut
 becomes the first E78 training job; E78 co-primary cell f=0.3/25-50 added before any masked arm
 trains.  Frozen time-code and shuffled-latent students (all seeds) queued as content controls.
 Full write-up: `docs/E78F_FROZEN_DROPOUT_BASELINE_2026-08-16.md`.
+
+### E78-F CONTROLS (2026-08-16): the content reading is dead; a stale reference is worse than none
+The frozen sweep was completed for all five E70 arms x three seeds (15 students, 11 cells each,
+every sanity gate passing).  The first cut looked like a large SNMR robustness advantage
+(+0.242 [+0.225,+0.260] at f=0.3/0.5-1 s; +0.365 at f=0.5).  The registered content controls
+dissolve it: the E70 TIME CODE -- a fixed sinusoid of frame index, no motion content, no clip
+identity -- is the most robust arm at every severe cell (0.555 and 0.533 completion; +0.275 and
++0.424 vs explicit), beating SNMR; the matched-phase shuffled latent matches SNMR.  The goal-blind
+proprio arm, for which dropout is a structural no-op, sits flat at 0.419-0.439, while the explicit
+arm falls to 0.108 -- FAR BELOW that floor.  Reading: a stale reference actively misleads (worse
+than no reference), while window-fed arms merely decay toward their own goal-free floor; cross-arm
+dropout rankings therefore measure channel reliance plus an active-harm term, not command quality.
+This is the measured, sharper form of the paper's existing Limitations sentence.  Consequences,
+both applied before any masked arm trains: the E78 primary becomes a conjunction (beat mE by 0.10
+AND beat the content-free controls mTl/mTf by 0.05 AND no clean regression), and every curve must
+be reported against a goal-blind floor arm trained under the same masking (mB added to the first
+training batch).  Also recorded: the sanity tolerance is now measured, not assumed -- two null-arm
+cells failed a flat 0.02 gate while their general grids reproduced to <=0.007, so replay-to-replay
+noise was measured (3 replays of one null arm: spread 0.026/0.018 -> sd ~0.016) and the gate became
+two-tier (0.02 for clean completion >= 0.85, 0.05 below).  E76's 0.0083 sd was measured on the
+high-completion explicit arm and does not transfer.  Doc: `docs/E78F_FROZEN_DROPOUT_BASELINE_2026-08-16.md`.

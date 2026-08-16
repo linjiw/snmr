@@ -83,3 +83,10 @@ def test_frozen_sanity_gate_uses_seed_exact_values_and_pairing(tmp_path):
     assert san.compare(frozen, close, 0.02)["pass"]
     assert not san.compare(frozen, far, 0.02)["pass"]
     assert not san.compare(frozen, unpaired, 0.02)["pass"]
+    # completion-dependent tiers: a mid-completion arm gets the measured wider tolerance
+    mid = {"completion_rate": 0.60, "start_steps": [1, 2, 3], "motion_ids": [0, 0, 1], "num_rollouts": 3}
+    mid_replay = dict(mid, completion_rate=0.565)
+    assert san.compare(mid, mid_replay, 0.02, 0.05)["pass"]
+    assert san.compare(mid, mid_replay, 0.02, 0.05)["applied_tolerance"] == 0.05
+    assert not san.compare(mid, dict(mid, completion_rate=0.50), 0.02, 0.05)["pass"]
+    assert san.compare(frozen, close, 0.02, 0.05)["applied_tolerance"] == 0.02  # high-completion arm
