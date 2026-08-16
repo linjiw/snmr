@@ -2117,3 +2117,27 @@ was still reading it; an idempotent rerun executed the missing marginal control 
 without retraining or overwriting any completed report.  Machine-readable endpoint:
 `/data/robotixx/snmr-research/e70/analysis_seed0.json`.  Decision: freeze seed 0 and run the
 predeclared training seeds 1 and 2; do not tune the recipe or gates.
+
+### E1 PILOT + E78 HARNESS (2026-08-15): the latent-benefit program opens
+Owner adopted the two-track program recorded in `docs/LATENT_BENEFIT_PROGRAM_2026-08-15.md`.
+The additive null of E52-v4 arm D is now stated in the paper as entailed by the instrument
+(I(a*; z | x, g) = 0 under deterministic-teacher action-MSE); the A/C window asymmetry is
+named as a non-registered contrast in Limitations.  Build verified (tectonic; 8 pages).
+
+E1 pilot (CPU, `scripts/e1_retarget_difficulty.py`, frozen E70 general-grid reports as labels,
+per-1-s-bin failure hazard and start-failure rate; ridge with temporal-block CV): over the two E70
+walks, SNMR-latent PCA features add +0.117 held-out R^2 for log-hazard over kinematics when the
+three explicit and three SNMR students are pooled (277 event bins), retarget byproducts (limit
+margin, skate, contact switches, clearance) add +0.076; explicit-only labels (77 event bins) give
++0.054 / +0.055.  Leave-one-clip-out with two clips is degenerate (kin alone is negative) and z
+features encode clip identity there, consistent with E70/E72.  Reading: pilot-positive within
+clip; the confirmatory E1 needs a multi-clip pool.  Outputs under
+`/data/robotixx/snmr-research/e1_retarget_difficulty/`.
+
+E78 harness built and CPU-tested, no frozen file modified: `snmr/integration/fusion.py`
+(reference-stream dropout masker with hold/zero modes, seeded paired schedules, flag bits;
+concat/FiLM/gated fusion students; frozen-E70-compatible `flag_dim=0`), a trainer derived from the
+frozen harness by asserted replacements (`scripts/derive_e78_trainer.py`), the launcher
+`scripts/run_e78_masked_fusion.sh`, and the paired matched-subset analyzer
+`scripts/analyze_e78_dropout.py`.  Preregistration draft and gates: program doc §3.  GPU-gated on
+a >= 26,000 MiB window; the frozen sanity cells (0.923 / 0.699 clean) are mandatory first.

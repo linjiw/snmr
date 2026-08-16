@@ -491,6 +491,12 @@ are $\EATFirst$ [\EATFirstLow, \EATFirstHigh] and $\EATSecond$
 \fi
 The tested comparison is substitutional: the code replaces explicit targets; its
 additive value beside an explicit goal remains null on the single-clip diagnostic.
+That null is entailed by the instrument rather than discovered by it: the label is the
+action of a deterministic teacher $\pi^*(x,g)$, so conditioned on $(x,g)$ the latent
+carries no information about it, $I(a^*;z_{\mathrm{ret}}\mid x,g)=0$, and an action-MSE
+student has no gradient reason to read $z_{\mathrm{ret}}$ beside $g$.  Additive value can
+only appear where the explicit channel is degraded, delayed, or absent, or where the
+latent shapes an RL objective---regimes this paper does not test.
 
 \subsection{Diagnostic 3: a clip label cannot be misaligned in time}
 \label{sec:phase}
@@ -684,7 +690,12 @@ not an information-theoretic property of $z_{\mathrm{ret}}$.\else The scoped nul
 not establish that the code lacks information; it only fails to demonstrate content
 use under this frozen controller and assay.\fi\else The failed explicit capability gate
 invalidates any A--T or A--S interpretation.\fi{} No outcome shows additive benefit
-beside an explicit target.  The upstream SNMR encoder is frozen, so no tracking
+beside an explicit target, and under action-MSE distillation from a deterministic teacher
+none is expected (\S\ref{sec:exp}).  The registered contrasts A--T and A--S are
+window-matched: T and S carry the same two-sample $[t,t{+}0.1\,\mathrm{s}]$ window as A.
+The explicit arm C is current-frame only, so any A--C gap confounds representation with
+a 100\,ms horizon and is not a registered contrast; a window-matched explicit arm remains
+future work.  The upstream SNMR encoder is frozen, so no tracking
 gradient improves what it exposes.  Zero-shot decoding to an unseen robot fails
 ($5.2\times$ error), contact is weak without explicit supervision, object and terrain
 interaction are absent from the tracking loop, and no hardware or sim-to-real result is
