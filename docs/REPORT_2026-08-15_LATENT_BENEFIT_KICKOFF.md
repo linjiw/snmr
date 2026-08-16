@@ -87,9 +87,11 @@ by leave-one-clip-out.
 | same (start_fail label) | — | temporal blocks | 0.313 | +0.035 | +0.089 | +0.086 |
 | 3 explicit + 3 SNMR seeds | 277 | leave-one-clip-out (n=2) | −0.08 | −0.05 | −1.27 | −1.32 |
 
-**Findings:**
-1. Within-clip held-out, the SNMR latent adds ≥ +0.10 R² for failure hazard once there are enough
-   failure events (pooled labels), clearing the pilot gate; the retargeting byproducts add +0.076.
+**Findings (emphasis corrected later on 2026-08-15 per advisor guidance — the clean row is the
+explicit-only one, +0.054/+0.055, below the gate; +0.117 is on partly circular labels and is not
+the expectation):**
+1. Within-clip held-out, the SNMR latent adds ≥ +0.10 R² for failure hazard only on the pooled
+   (partly circular) labels; on clean labels it is +0.054, and the byproducts +0.055.
 2. With explicit-only labels the signal is weaker (+0.05) mainly because the explicit student rarely
    fails (77 event bins) — the label is sparse, not the features weak.
 3. Leave-one-clip-out with two clips is degenerate (even `kin` alone is negative), and z-PCA fit on
@@ -153,6 +155,15 @@ value files: 8 pages, letter, references end mid-page 8 (was also 8 pages before
    as future work — build once in `snmr/integration/`, use for both.
 5. Unverified external claim carried from the earlier memo: UniAct (arXiv:2512.24321) "compressed
    command degrades more gracefully" — verify before any related-work sentence.
+
+## 6b. Addendum (later on 2026-08-15) — advisor amendments actioned
+Guidance saved at `docs/ADVISOR_GUIDANCE_2026-08-15_E78_AMENDMENTS.md` and fully actioned before any
+GPU spend: mGf (explicit future window, `snmr/integration/goal_window.py`) and mTl (live clock) arms;
+ambiguity-under-dropout and harder-cell secondaries registered; seed-exact frozen sanity gate;
+analyzer covers the ambiguity grid and the mE − frozen_explicit descriptive contrast; E1 emphasis
+corrected; pool-hook for E1-proper labels installed in `~/whole_body_tracking` (uncommitted there);
+E54 T1 registration restored as an overlay so `run_e54_t1_teacher.sh` now only waits on ≥20 GB GPU.
+Plan §3 updated with the pre-committed reading of mGf and the registered GPU order.
 
 ## 7. Bottom line
 No new capability number was produced today and none was promised: the GPU was unavailable, and

@@ -70,23 +70,34 @@ def joint_limits(mjcf: str, joint_names: list[str]) -> tuple[np.ndarray, np.ndar
 
 def bin_features(npz: dict, *, bin_s: float, limits: tuple[np.ndarray, np.ndarray] | None) -> dict[str, np.ndarray]:
     fps = int(np.asarray(npz["fps"]).reshape(-1)[0])
-    q = np.asarray(npz["joint_pos"], dtype=float)          # (T, 7+29)
-    qd = np.asarray(npz["joint_vel"], dtype=float)         # (T, 6+29)
+    q = np.asarray(npz["joint_pos"], dtype=float)          # (T, 7+29) holosoma  |  (T, 29) pool
+    qd = np.asarray(npz["joint_vel"], dtype=float)         # (T, 6+29)           |  (T, 29)
     body_pos = np.asarray(npz["body_pos_w"], dtype=float)  # (T, B, 3)
     body_vel = np.asarray(npz["body_lin_vel_w"], dtype=float)
-    z = np.asarray(npz["latent_z"], dtype=float)           # (T, 128)
-    names = [str(b) for b in npz["body_names"]]
+    body_ang = np.asarray(npz["body_ang_vel_w"], dtype=float) if "body_ang_vel_w" in npz else None
     T = q.shape[0]
     L = int(round(bin_s * fps))
     n_bins = T // L
     dt = 1.0 / fps
 
-    root_pos, root_vel = q[:, :3], qd[:, :3]
-    root_ang = qd[:, 3:6]
-    joints, joint_vel = q[:, 7:], qd[:, 6:]
+    if q.shape[1] == 36:                                   # holosoma WBT schema (root in qpos)
+        root_pos, root_vel, root_ang = q[:, :3], qd[:, :3], qd[:, 3:6]
+        joints, joint_vel = q[:, 7:], qd[:, 6:]
+    else:                                                  # pool schema: root = body 0 (pelvis)
+        root_pos, root_vel = body_pos[:, 0], body_vel[:, 0]
+        root_ang = body_ang[:, 0] if body_ang is not None else np.zeros_like(root_vel)
+        joints, joint_vel = q, qd
+    if "latent_z" in npz:
+        z = np.asarray(npz["latent_z"], dtype=float)       # (T, 128)
+    else:
+        z = np.zeros((T, 1))                               # no latent: z features are constant
+    if "body_names" in npz:
+        names = [str(b) for b in npz["body_names"]]
+        feet = [names.index(b) for b in FOOT_BODIES]
+    else:                                                  # pool schema: feet = two lowest bodies
+        feet = list(np.argsort(body_pos[:, :, 2].mean(0))[:2])
     joint_acc = np.gradient(joint_vel, dt, axis=0)
     speed = np.linalg.norm(root_vel[:, :2], axis=1)
-    feet = [names.index(b) for b in FOOT_BODIES]
     foot_h = body_pos[:, feet, 2]                                   # (T, 2)
     foot_hspeed = np.linalg.norm(body_vel[:, feet, :2], axis=2)     # (T, 2)
     ground = np.percentile(foot_h, 2)
@@ -160,6 +171,21 @@ def bin_labels(reports: list[dict], clip_offsets: list[int], clip_frames: list[i
         "start_fail": [np.divide(f, n, out=np.full_like(f, np.nan), where=n > 0) for f, n in zip(start_fail, start_n)],
         "start_n": start_n,
     }
+
+
+def sidecar_labels(sidecar_paths: list[pathlib.Path]) -> dict[str, np.ndarray]:
+    """Per-motion failure EMA from ``bin_failed_ema_<iter>.npz`` sidecars written by the
+    ``whole_body_tracking`` runner hook, time-averaged over the given checkpoints
+    (early-training failures differ from late ones; the average is the curriculum-relevant target).
+    Returns {motion_name: mean EMA vector over checkpoints}.
+    """
+    acc: dict[str, list[np.ndarray]] = {}
+    for path in sidecar_paths:
+        d = np.load(path, allow_pickle=True)
+        names = [str(n) for n in d["motion_names"]]
+        for i, name in enumerate(names):
+            acc.setdefault(name, []).append(np.asarray(d[f"bin_failed_ema/{i}"], dtype=float))
+    return {name: np.mean(np.stack(v), axis=0) for name, v in acc.items()}
 
 
 # ------------------------------------------------------------------------------- model

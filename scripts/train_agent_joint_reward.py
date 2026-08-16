@@ -22,8 +22,14 @@ from snmr.integration import wbt_bodyfix
 wbt_bodyfix.patch()
 
 from holosoma.config_types.reward import RewardTermCfg  # noqa: E402
-from holosoma.train_agent import AnnotatedExperimentConfig, train  # noqa: E402
+from holosoma.train_agent import train  # noqa: E402
 from holosoma.utils.tyro_utils import TYRO_CONIFG  # noqa: E402
+
+from snmr.integration.holosoma_t1_wbt import annotated_experiment_config  # noqa: E402
+
+# E54: the Booster T1 WBT preset (``exp:t1-29dof-wbt``) is supplied as an snmr-side overlay
+# (snmr/integration/holosoma_t1_wbt.py) so the pinned holosoma clone stays untouched.
+AnnotatedExperimentConfig = annotated_experiment_config()
 
 
 def main() -> None:

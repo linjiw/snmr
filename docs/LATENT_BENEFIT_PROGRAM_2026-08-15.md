@@ -26,11 +26,21 @@ fail-closed style, and (d) records what was built today so the GPU work is one c
    at 50 Hz (segment 0.1–0.5 s, masked-tick fraction f). Both arms lose the *same* event; each holds
    its *own* last-valid input while proprioception stays live. That is the deployment-faithful
    design the E77 memo said needed a new evaluator; the evaluator now exists (§6).
-4. **Track B starts positive.** The E1 pilot on the two E70 walks: SNMR-latent features add
-   +0.117 held-out R² over kinematics for per-second failure hazard (temporal-block CV, pooled
-   students), retarget byproducts +0.076. Cross-clip transfer cannot be tested with two clips —
-   that is exactly why E1-proper needs the multi-clip pool. See §5.
-5. **GPU:** every GPU item is queued behind the owner's other tenants (28.4/32.6 GB in use as of
+4. **Track B starts directionally positive, not gate-cleared.** The E1 pilot on the two E70 walks:
+   on the *clean* label set (explicit students only) latent features add +0.054 held-out R² over
+   kinematics for per-second failure hazard and retarget byproducts +0.055 — below the +0.10 gate,
+   with label sparsity (77 event bins) the plausible excuse. The +0.117 figure is on a partly
+   *circular* label set (SNMR students read z). Honest status: licenses E1-proper on the multi-clip
+   pool; +0.117 is not the expectation. See §4.
+5. **Advisor amendments (2026-08-15, `docs/ADVISOR_GUIDANCE_2026-08-15_E78_AMENDMENTS.md`) are
+   adopted and built:** the E78 claim is *robustness is trained, not free* (through-line: E65's
+   train-time noise → 18× hold robustness; E77's frozen-student sweep is the motivating baseline);
+   the seed-0 sweep gains **mGf** (explicit future window through the same projection/FiLM path)
+   and **mTl** (live clock, exempt from the masker); the ambiguity grid under dropout and the
+   harder severity cell are registered secondaries; frozen sanity is seed-exact; the analyzer
+   reports mE − frozen_explicit clean as a descriptive endpoint. **No GPU night until these exist
+   — they now do.**
+6. **GPU:** every GPU item is queued behind the owner's other tenants (28.4/32.6 GB in use as of
    this writing). Nothing below runs until a ≥26,000-MiB window opens; the SNMR rule that E70-class
    jobs take the first such window still holds. CPU-side deliverables are complete (§6).
 
@@ -82,7 +92,7 @@ HoloSoma PPO (E4-RL, later). This section registers tier 1.
 
 - **Substrate:** the frozen E70 two-walk instrument (teachers, motions, 1,024-rollout general grid,
   evaluation seed 404). Trainer `scripts/train_e78_masked_fusion.py`, *derived* from the frozen
-  `train_e52_dagger.py` by `scripts/derive_e78_trainer.py` (20 asserted replacements; a test fails
+  `train_e52_dagger.py` by `scripts/derive_e78_trainer.py` (22 asserted replacements; a test fails
   if the derived file drifts). Frozen files untouched; hash manifests unaffected.
 - **Reference dropout (train and eval):** `ReferenceDropoutMasker` — Bernoulli-segment process per
   env; segment length U[5, 25] ticks (0.1–0.5 s), hazard set from a target masked-tick fraction;
@@ -98,23 +108,31 @@ HoloSoma PPO (E4-RL, later). This section registers tier 1.
   scale/shift, zero-initialised so the latent must *earn* influence), `gated`
   (`base(x,g̃) + σ(w)·res(x,z')`). Decoder input remains exactly `[proprio, z_cmd]`.
 
-### 3.2 Arms (all trained with masking, scope `all`, target fraction 0.3, seed-matched)
+### 3.2 Arms (all trained with masking, scope `all`, target fraction 0.3, seed-matched, **identical
+flag bits including mE** — so no arm's edge is "knowing when it is blind")
 
 | tag | encoder input | fusion | role |
 | --- | --- | --- | --- |
-| mE | explicit | — | reference arm |
-| mZf | explicit + z window | film | **treatment** |
-| mZg | explicit + z window | gated | treatment (alt. fusion) |
+| mE | explicit g_t | — | reference arm |
+| mZf | explicit + z window [z_t, z_{t+0.1s}] | film | **treatment** |
+| mGf | explicit + **explicit future window [g_t, g_{t+0.1s}]** through the same projection + FiLM path | film | **window-matched control (decisive)** |
+| mTf | explicit + E70 time code, code **frozen** with the reference during dropout | film | matched-masking time control |
+| mTl | explicit + E70 time code, code **live** from the tick counter (exempt from masker) | film | "content beyond perfectly-known time under dropout" |
+| mShf | explicit + other clip's z at matched phase | film | identity-vs-content control |
 | mZc | explicit + z window | concat | fusion baseline |
+| mZg | explicit + z window | gated | alt. fusion |
 | mS | z window only | — | replacement (E77 context) |
-| mTf | explicit + E70 time code | film | control: window-matched, content-free |
-| mShf | explicit + other clip's z at matched phase | film | control: identity vs content |
-| frozen_explicit / frozen_snmr | E70 seed students, unmasked-trained | — | "what dropout does to today's students" |
+| frozen_explicit / frozen_snmr | E70 seed students, unmasked-trained, `flag_dim=0` | — | "what dropout does to today's students" (E77's curve, input-side) |
+| cfut | **unmasked, flag-free** a-arm with [g_t, g_{t+0.1s}] in place of z | concat | the paper's C-future arm; post-hoc, non-registered addition to E70 |
 
-**Not yet buildable, required before any paper claim:** *explicit-with-future-window* (g at t and
-t+0.1 s through the same projection path). It needs a future `motion_command` lookup that the current
-observation path does not expose; it is the honesty control the paper cannot ship without, and it is
-the same plumbing the current draft's Limitations promises as future work.
+**Pre-committed reading of mGf.** For a single embodiment explicit content is a superset of latent
+content, so **mGf ≥ mZf is the likely outcome**. That outcome is a HANDOFF-style "expose a future
+window across the interface" finding — cleaner and more actionable than a representation claim —
+and it will be reported as such. If mZf ≥ mGf the result is a genuine representation result. Either
+way the latent's *structural* monopoly retreats to cross-embodiment (E54, §7).
+
+**Registered GPU order:** frozen sanity (minutes) → mE, mZf trained + quick f-sweep (kill check) →
+if alive: mGf, mTf, mTl, mShf, mZc, mZg, mS. `cfut` in any gap.
 
 ### 3.3 Endpoints and gates
 
@@ -128,8 +146,22 @@ Same `E78_EVAL_MASK_SEED=404` for every arm (identical dropout schedule ⇒ pair
   the robustness result is reported but the "zero clean cost" sentence is not written.
 - **Matched-subset check (E77 discipline):** contrast on rollouts both arms complete cleanly must
   agree in sign with the primary; McNemar counts reported.
-- **Controls:** mZf − mTf and mZf − mShf ≥ 0 with CIs excluding zero at the primary severity.
-  If mTf matches mZf, the benefit is "any window-matched conditioning under masking", not the latent.
+- **Controls:** mZf − mTf, mZf − mTl and mZf − mShf ≥ 0 with CIs excluding zero at the primary severity.
+  If mTl matches mZf, the benefit is "any window-matched conditioning under masking", not the latent.
+  **mZf − mGf** is reported with its CI and read per the pre-commitment above.
+- **Registered secondaries (named before any result):** (i) the harder cells f = 0.5 / seg 5–25 and
+  f = 0.3 / seg 25–50 on the general grid — the primary cell may have little headroom because a
+  masked-trained mE with flags can coast on proprioception (B reached 0.43 from scratch);
+  (ii) the **frozen 69-pair ambiguity grid under dropout** (clean, f = 0.3/5–25, 0.5/5–25,
+  0.3/25–50; cluster = frame pair, as registered in E70) — the sharpest test of mZf vs mTf/mTl/mShf,
+  since an early outage leaves a frozen z still saying which clip while a clock cannot.
+- **Descriptive endpoint:** clean paired difference mE − frozen_explicit — the cost of masked
+  training itself; if it is several points the deployment pitch changes and the number must be
+  registered here, not discovered in review.
+- **Frozen sanity (mandatory first):** `frozen explicit` / `frozen snmr` clean and ambiguity cells
+  must reproduce the **seed-exact** hash-bound E70 values (seed 0: 0.9248 / 0.9785 explicit,
+  0.6846 / 0.7646 SNMR) within 0.02 (≈2.5 E76 sd) with identical start grids
+  (`scripts/check_e78_frozen_sanity.py`, run automatically by the launcher).
 - **Survival time** as a secondary endpoint (lower variance; still not a safety metric —
   Limitations sentence carries over verbatim).
 - **Kill:** if mZf − mE < +0.05 at every severity on seed 0, stop after one seed and record the
@@ -138,9 +170,9 @@ Same `E78_EVAL_MASK_SEED=404` for every arm (identical dropout schedule ⇒ pair
 
 ### 3.4 Cost
 
-Per arm: one training (~E70 cell cost, ~hours) + 7 evaluations (~minutes each). Seed 0 for all
-seven arms first (kill check), then seeds 1–2 for {mE, mZf, mTf, mShf} plus the frozen sweep. Fits
-in two or three ≥26,000-MiB nights.
+Per arm: one training (~E70 cell cost, ~hours) + 7 general + 4 ambiguity evaluations (~minutes
+each). Seed 0: mE and mZf first (kill check), then the seven remaining arms; seeds 1–2 for
+{mE, mZf, mGf, mTl, mShf} plus the frozen sweep. Fits in two or three ≥26,000-MiB nights.
 
 ### 3.5 What survives each outcome
 
@@ -169,10 +201,12 @@ clip mean). Ridge, α = 3.
 | + 3 SNMR seeds (277 event bins) | temporal blocks 20 s | 0.093 | **+0.076** | **+0.117** | +0.122 |
 | same | leave-one-clip-out (n = 2) | −0.08 | — | collapse | collapse |
 
-Reading: within-clip held-out, the latent clears the +0.10 pilot gate and the byproducts come close;
-across clips nothing generalises with two clips (PCA on z fit on one clip is a clip-identity code —
-the E70/E72 finding again). Caveat: SNMR-arm students *read* z, so z predicting their failures is
-partly circular; explicit-only gives +0.054. Outputs:
+Reading (emphasis corrected 2026-08-15 per advisor guidance): the **clean row is the explicit-only
+one — +0.054 / +0.055, below the +0.10 gate**, with label sparsity (77 event bins) the plausible
+excuse; the gate-clearing +0.117 is on the partly circular pooled labels (SNMR students read z).
+Across clips nothing generalises with two clips (PCA on z fit on one clip is a clip-identity code —
+the E70/E72 finding again). Honest status: *directionally positive on clean labels, gate-cleared
+only on circular ones; licenses E1-proper.* Outputs:
 `/data/robotixx/snmr-research/e1_retarget_difficulty/pilot_e70_{explicit,explicit_snmr}.json`.
 
 ### 4.2 E1-proper (needs the multi-clip pool)
@@ -184,9 +218,19 @@ partly circular; explicit-only gives +0.054. Outputs:
 - **Design:** ≥ 20 clips; leave-clips-out CV; feature groups as above; gate **incremental R² ≥ +0.10
   over `kin` on held-out clips** for hazard. z-features must be evaluated with PCA fit on training
   clips only (already the case) and additionally with per-clip mean-centering to strip identity.
-- **Data source decision (owner):** the pool currently training under `~/whole_body_tracking`
-  (`config/motion_pool_train_converted.yaml`) is the natural label source if its per-bin failure
-  counters can be logged; otherwise E67-style teachers on the LAFAN1 subset.
+- **Data source (settled by the guidance): the `~/whole_body_tracking` pool.** Vanilla PPO never
+  sees z (no circularity); 243 clips enable real leave-clips-out; and `MultiMotionCommand.
+  bin_failed_counts` (per-motion 1-s-bin failure EMA, `adaptive_alpha` 0.001) is the exact quantity
+  E2 warm-starts, so the regression target is the deployment target. **Hook installed 2026-08-15:**
+  `MotionOnPolicyRunner.save()` in that repo now writes `bin_failed_ema_<iter>.npz` (motion names,
+  per-motion EMA, attempt/success counts) next to every checkpoint, best-effort, never affecting
+  saving. It applies to runs started after the edit (the three runs in flight imported the old
+  code). Export at multiple checkpoints; use the time-averaged EMA (or model per checkpoint);
+  keep per-clip mean-centering of z; note adaptive sampling makes easy-bin estimates noisier.
+  `scripts/e1_retarget_difficulty.py` reads the pool NPZ schema (29-wide `joint_pos`, root from
+  body 0, no `latent_z` yet) and the sidecars (`sidecar_labels`). Open item: SNMR latents for the
+  pool clips require the source AMASS motions through the SNMR encoder, and joint-limit margins
+  need the pool's joint ordering.
 
 ### 4.3 E2 — proactive curriculum
 
@@ -218,19 +262,26 @@ rerun the full §V probe battery on the frozen v2. GPU: SNMR retrains, moderate;
 | `scripts/run_e78_masked_fusion.sh` | `train|sweep|frozen SEED TAG`; 26,000-MiB gate; writes only under `/data/robotixx/snmr-research/e78_masked_fusion/` |
 | `scripts/analyze_e78_dropout.py` | paired, cluster-bootstrap, matched-subset analysis (E77 discipline) |
 | `scripts/e1_retarget_difficulty.py` | E1 features/labels/CV; pilot outputs above |
-| `tests/test_fusion.py`, `tests/test_e78_analysis.py`, `tests/test_e1_retarget_difficulty.py` | 20 tests |
+| `snmr/integration/goal_window.py` | explicit future-goal window `[g_t, g_{t+k}]` from the motion library, `R_rel` w.r.t. the robot's current reference-body frame, standardised with the teacher's goal-slice stats (mGf / cfut) |
+| `E78_GOAL_WINDOW`, `E78_TIME_LIVE` knobs (derived trainer, 22 replacements) | mGf / cfut and mTl |
+| `scripts/check_e78_frozen_sanity.py` | seed-exact sanity gate with E76 tolerance, run by the launcher |
+| `snmr/integration/holosoma_t1_wbt.py` | E54: T1 WBT preset rebuilt as an overlay from holosoma's G1 WBT + T1 loco presets; `exp:t1-29dof-wbt` registered through `scripts/train_agent_joint_reward.py`; launcher precondition now passes (exit 3 = GPU refusal, not 2) |
+| `~/whole_body_tracking/.../my_on_policy_runner.py` (other repo, uncommitted) | per-motion bin-failure EMA sidecar on save (E1-proper labels) |
+| `tests/test_fusion.py`, `tests/test_e78_analysis.py`, `tests/test_e1_retarget_difficulty.py`, `tests/test_goal_window.py`, `tests/test_holosoma_t1_overlay.py` | 28 tests |
 | `paper/main.tex` | §7 edits; still 8 pages (references end mid-page 8) |
 
 **When a ≥26,000-MiB window opens** (order matters; each is one command):
 
 ```
-scripts/run_e78_masked_fusion.sh frozen 0 explicit      # sanity: clean must reproduce 0.923
-scripts/run_e78_masked_fusion.sh frozen 0 snmr          #          and 0.699
-for t in mE mZf mTf mShf mZc mZg mS; do scripts/run_e78_masked_fusion.sh train 0 $t; done
-for t in mE mZf mTf mShf mZc mZg mS; do scripts/run_e78_masked_fusion.sh sweep 0 $t; done
-python scripts/analyze_e78_dropout.py \
-  --treatment /data/robotixx/snmr-research/e78_masked_fusion/seed0_mZf:d_prior_explicit_snmr \
-  --reference /data/robotixx/snmr-research/e78_masked_fusion/seed0_mE:c_prior_explicit
+R=/data/robotixx/snmr-research/e78_masked_fusion
+scripts/run_e78_masked_fusion.sh frozen 0 explicit   # seed-exact sanity (0.9248 / 0.9785), gate runs itself
+scripts/run_e78_masked_fusion.sh frozen 0 snmr       # (0.6846 / 0.7646)
+for t in mE mZf; do scripts/run_e78_masked_fusion.sh train 0 $t && scripts/run_e78_masked_fusion.sh sweep 0 $t; done
+python scripts/analyze_e78_dropout.py --treatment $R/seed0_mZf:d_prior_explicit_snmr --reference $R/seed0_mE:c_prior_explicit   # kill check
+for t in mGf mTf mTl mShf mZc mZg mS; do scripts/run_e78_masked_fusion.sh train 0 $t && scripts/run_e78_masked_fusion.sh sweep 0 $t; done
+python scripts/analyze_e78_dropout.py --grid ambiguity --treatment $R/seed0_mZf:d_prior_explicit_snmr --reference $R/seed0_mTl:d_prior_explicit_snmr
+python scripts/analyze_e78_dropout.py --treatment $R/seed0_mE:c_prior_explicit --reference $R/frozen_seed0_explicit:c_prior_explicit   # cost of masked training (descriptive)
+scripts/run_e78_masked_fusion.sh train 0 cfut && scripts/run_e78_masked_fusion.sh sweep 0 cfut     # paper C-future, any gap
 ```
 
 The frozen sanity cells are mandatory before anything is interpreted (E72's rule).
@@ -257,5 +308,11 @@ The frozen sanity cells are mandatory before anything is interpreted (E72's rule
    (needs a small hook there), or train E67-style teachers on a LAFAN1 subset here.
 3. **Order of GPU spend after E78 seed 0:** E78 seeds 1–2 (Track A) before or after E3 v2 heads.
 
-Recommendation: 1 → E78 seed 0 in the next free night; 2 → the pool runs (labels are free);
-3 → E78 seeds first (they decide whether Track A is a paper).
+Answered by the 2026-08-15 guidance and adopted: (1) yes, next ≥26 GB night, amended arm list and
+order; (2) the pool hook (installed); (3) E78 seeds 1–2 before E3 — E3's tracking-side value is
+*conditional* on E78 (if mZf loses to mTl or mGf, enriching z cannot change that verdict); the
+low-weight contact-head sweep is the one E3 piece with independent value but is GPU-competitive.
+**Standing next-in-line after the E78 seed-0 kill decision: E54 Stage-0 (T1 teacher)** —
+cross-embodiment is the latent's monopoly and the program's insurance under both E78 failure modes.
+Registration restored as an overlay today; `scripts/run_e54_t1_teacher.sh` now needs only ≥20,000
+MiB free.

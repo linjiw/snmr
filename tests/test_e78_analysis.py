@@ -70,3 +70,16 @@ def test_unpaired_reports_are_rejected():
         assert "not paired" in str(exc)
     else:
         raise AssertionError("pairing invariant not enforced")
+
+
+def test_frozen_sanity_gate_uses_seed_exact_values_and_pairing(tmp_path):
+    spec2 = importlib.util.spec_from_file_location("sanity", ROOT / "scripts" / "check_e78_frozen_sanity.py")
+    san = importlib.util.module_from_spec(spec2)
+    spec2.loader.exec_module(san)
+    frozen = {"completion_rate": 0.9248, "start_steps": [1, 2, 3], "motion_ids": [0, 0, 1], "num_rollouts": 3}
+    close = dict(frozen, completion_rate=0.915)
+    far = dict(frozen, completion_rate=0.88)
+    unpaired = dict(frozen, start_steps=[1, 2, 4])
+    assert san.compare(frozen, close, 0.02)["pass"]
+    assert not san.compare(frozen, far, 0.02)["pass"]
+    assert not san.compare(frozen, unpaired, 0.02)["pass"]

@@ -13,17 +13,34 @@ set -euo pipefail
 #   scripts/run_e78_masked_fusion.sh sweep  <seed> <arm-tag>      # clean + dropout severities
 #   scripts/run_e78_masked_fusion.sh frozen <seed> {explicit|snmr} # frozen E70 student, same sweep
 #
-# arm tags (all trained WITH reference dropout, scope=$E78_MASK_SCOPE, fraction $E78_MASK_FRAC):
+# arm tags (all trained WITH reference dropout, scope=$E78_MASK_SCOPE, fraction $E78_MASK_FRAC,
+# and identical flag bits — including mE, so no arm's edge is "knowing when it is blind"):
 #   mE   explicit-only                          (c_prior_explicit)
 #   mS   snmr-only                              (a_prior_snmr)
 #   mZc  explicit+snmr, concat fusion           (d_prior_explicit_snmr, E78_FUSION=concat)
-#   mZf  explicit+snmr, FiLM fusion             (E78_FUSION=film)
+#   mZf  explicit+snmr, FiLM fusion             (E78_FUSION=film)             <- treatment
 #   mZg  explicit+snmr, gated-residual fusion   (E78_FUSION=gated)
-#   mTf  explicit+TIME-CODE, FiLM  (control: latent replaced by the E70 time code)
-#   mShf explicit+SHUFFLED z, FiLM (control: other clip's latent at matched phase)
+#   mGf  explicit + EXPLICIT FUTURE WINDOW [g_t, g_t+0.1s], FiLM (E78_GOAL_WINDOW=1)
+#          window-matched control; pre-committed reading: mGf >= mZf is the likely outcome
+#          (single embodiment: explicit content is a superset) and is a HANDOFF-style
+#          "expose a future window" finding, not a failure.
+#   mTf  explicit + E70 time code, FiLM, code FROZEN with the reference during dropout
+#          (matched-masking control)
+#   mTl  explicit + E70 time code, FiLM, code LIVE from the tick counter (E78_TIME_LIVE=1)
+#          (a deployed system never loses its clock; isolates content beyond known time)
+#   mShf explicit + SHUFFLED z (other clip at matched phase), FiLM (identity-vs-content control)
+#   cfut UNMASKED, flag-free C-future arm for the paper: explicit window [g_t, g_t+0.1s]
+#          through the frozen A-arm projection path (a_prior_snmr + E78_GOAL_WINDOW=1,
+#          E78_MASK_FRAC=0, E78_FLAG_DIM=0).  Post-hoc, non-registered addition to E70.
+#
+# Registered GPU order (advisor guidance 2026-08-15): frozen sanity -> mE, mZf + sweep (kill
+# check) -> mGf, mTf, mTl, mShf, mZc, mZg, mS.  cfut in any gap.
 #
 # Severity sweep (physical units: masked-tick fraction x segment length in ticks at 50 Hz),
 # seeded identically for every arm (E78_EVAL_MASK_SEED=404) so contrasts are paired.
+# `sweep` also evaluates the frozen 69-pair AMBIGUITY start grid (E70 precheck, hash-bound)
+# clean and at the registered severities — the co-secondary endpoint where content should
+# separate hardest (an early outage leaves frozen z saying which clip; a clock cannot).
 
 if (( $# != 3 )); then
     printf 'usage: %s {train|sweep|frozen} SEED TAG\n' "$0" >&2; exit 64
@@ -44,21 +61,33 @@ MASK_FRAC="${E78_MASK_FRAC:-0.3}"
 MASK_SCOPE="${E78_MASK_SCOPE:-all}"
 SWEEP_FRACS="${E78_SWEEP_FRACS:-0.1 0.3 0.5}"
 SWEEP_SEGS="${E78_SWEEP_SEGS:-5-25 25-50}"
+AMB_SEVERITIES="${E78_AMB_SEVERITIES:-0.3:5-25 0.5:5-25 0.3:25-50}"   # registered secondaries
+PRECHECK="$SNMR_ROOT/autoresearch/iterate-260808-0338/e70_ambiguity_precheck.json"
+PRECHECK_HASH=3c03b89e2bda939e9a8c5a6dd58caeb771944bb9e5755b14eb37ab75ed9c502e
 
-test -f "$MANIFEST"; test -d "$MOTION_ROOT"
+test -f "$MANIFEST"; test -d "$MOTION_ROOT"; test -f "$PRECHECK"
+test "$(sha256sum "$PRECHECK" | cut -d' ' -f1)" = "$PRECHECK_HASH"
 
+gwin=0; tlive=0; arm_mask_frac="$MASK_FRAC"; arm_flag_dim=2
 case "$tag" in
     mE)   arm=c_prior_explicit;      fusion=concat; phase=0; shuffle=0 ;;
     mS)   arm=a_prior_snmr;          fusion=concat; phase=0; shuffle=0 ;;
     mZc)  arm=d_prior_explicit_snmr; fusion=concat; phase=0; shuffle=0 ;;
     mZf)  arm=d_prior_explicit_snmr; fusion=film;   phase=0; shuffle=0 ;;
     mZg)  arm=d_prior_explicit_snmr; fusion=gated;  phase=0; shuffle=0 ;;
+    mGf)  arm=d_prior_explicit_snmr; fusion=film;   phase=0; shuffle=0; gwin=1 ;;
     mTf)  arm=d_prior_explicit_snmr; fusion=film;   phase=1; shuffle=0 ;;
+    mTl)  arm=d_prior_explicit_snmr; fusion=film;   phase=1; shuffle=0; tlive=1 ;;
     mShf) arm=d_prior_explicit_snmr; fusion=film;   phase=0; shuffle=1 ;;
+    cfut) arm=a_prior_snmr;          fusion=concat; phase=0; shuffle=0; gwin=1
+          arm_mask_frac=0; arm_flag_dim=0 ;;
     explicit) arm=c_prior_explicit;  fusion=concat; phase=0; shuffle=0 ;;   # frozen only
     snmr)     arm=a_prior_snmr;      fusion=concat; phase=0; shuffle=0 ;;   # frozen only
     *) printf 'unknown E78 tag %s\n' "$tag" >&2; exit 64 ;;
 esac
+if [[ "$mode" != frozen && ( "$tag" == explicit || "$tag" == snmr ) ]]; then
+    printf 'tags explicit/snmr are frozen-only\n' >&2; exit 64
+fi
 
 free_mb="$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits | head -n1 | tr -d ' ')"
 if [[ ! "$free_mb" =~ ^[0-9]+$ ]] || (( free_mb < MIN_FREE_MB )); then
@@ -73,7 +102,7 @@ if [[ "$mode" == frozen ]]; then
     ln -sfn "$E70_ROOT/students/seed${seed}_${tag}/${arm}_student.pt" "$out/${arm}_student.pt"
 else
     out="$E78_ROOT/seed${seed}_${tag}"
-    flag_dim=2
+    flag_dim="$arm_flag_dim"
     mkdir -p "$out"
 fi
 mkdir -p "$E78_ROOT/logs" "$E78_ROOT/holosoma_logs"
@@ -89,7 +118,8 @@ run_cell() {   # run_cell <run_seed> <log> <extra env...>
             E52_TEACHER_FLOOR=0.1 E52_TEACHER_ANNEAL_ROUNDS=200 \
             E52_CKPT_EVERY=50 E52_VAL_EVERY=50 E52_VAL_SAMPLES=4096 E52_BEST_AFTER=50 \
             E78_FUSION="$fusion" E78_FLAG_DIM="$flag_dim" \
-            E78_MASK_FRAC="$MASK_FRAC" E78_MASK_SCOPE="$MASK_SCOPE" \
+            E78_MASK_FRAC="$arm_mask_frac" E78_MASK_SCOPE="$MASK_SCOPE" \
+            E78_GOAL_WINDOW="$gwin" E78_TIME_LIVE="$tlive" \
             E78_MASK_SEG_MIN=5 E78_MASK_SEG_MAX=25 E78_MASK_RAMP_ROUNDS=300 \
             "$@" \
             PYTHONPATH="$SNMR_ROOT" nice -n 10 "$WBT_PYTHON" \
@@ -114,8 +144,16 @@ case "$mode" in
         ;;
     sweep|frozen)
         test -f "$out/${arm}_student.pt"
-        # clean condition first (mandatory: reproduces the frozen numbers for `frozen`)
+        # clean condition first (mandatory sanity: `frozen` must reproduce the seed-exact,
+        # hash-bound E70 report values within the E76 evaluation-noise tolerance)
         [[ -e "$out/${arm}_eval.json" ]] || run_cell 404 "$out/eval_clean.log" E52_EVAL_ONLY=1
+        [[ -e "$out/${arm}_eval_ambiguity.json" ]] || run_cell 404 "$out/eval_amb_clean.log" \
+            E52_EVAL_ONLY=1 E52_EVAL_STARTS_JSON="$PRECHECK"
+        if [[ "$mode" == frozen ]]; then
+            python "$SNMR_ROOT/scripts/check_e78_frozen_sanity.py" \
+                --frozen-dir "$E70_ROOT/students/seed${seed}_${tag}" --arm "$arm" \
+                --replay-dir "$out" --tolerance "${E78_SANITY_TOL:-0.02}"
+        fi
         for f in $SWEEP_FRACS; do for seg in $SWEEP_SEGS; do
             lo="${seg%-*}"; hi="${seg#*-}"
             report="$out/${arm}_eval_mask${MASK_SCOPE}_hold_f${f}_s${lo}-${hi}.json"
@@ -124,6 +162,15 @@ case "$mode" in
                 E78_EVAL_MASK_FRAC="$f" E78_EVAL_MASK_SEG_MIN="$lo" E78_EVAL_MASK_SEG_MAX="$hi" \
                 E78_EVAL_MASK_SCOPE="$MASK_SCOPE" E78_EVAL_MASK_SEED=404
         done; done
+        for fs in $AMB_SEVERITIES; do
+            f="${fs%%:*}"; seg="${fs#*:}"; lo="${seg%-*}"; hi="${seg#*-}"
+            report="$out/${arm}_eval_ambiguity_mask${MASK_SCOPE}_hold_f${f}_s${lo}-${hi}.json"
+            [[ -e "$report" ]] && continue
+            run_cell 404 "$out/eval_amb_mask_f${f}_s${seg}.log" E52_EVAL_ONLY=1 \
+                E52_EVAL_STARTS_JSON="$PRECHECK" \
+                E78_EVAL_MASK_FRAC="$f" E78_EVAL_MASK_SEG_MIN="$lo" E78_EVAL_MASK_SEG_MAX="$hi" \
+                E78_EVAL_MASK_SCOPE="$MASK_SCOPE" E78_EVAL_MASK_SEED=404
+        done
         ;;
     *) printf 'unknown mode %s\n' "$mode" >&2; exit 64 ;;
 esac

@@ -2141,3 +2141,22 @@ frozen harness by asserted replacements (`scripts/derive_e78_trainer.py`), the l
 `scripts/run_e78_masked_fusion.sh`, and the paired matched-subset analyzer
 `scripts/analyze_e78_dropout.py`.  Preregistration draft and gates: program doc §3.  GPU-gated on
 a >= 26,000 MiB window; the frozen sanity cells (0.923 / 0.699 clean) are mandatory first.
+
+### E78 AMENDMENTS + E54 UNBLOCK (2026-08-15, later): advisor guidance actioned before any GPU
+Owner-forwarded guidance (`docs/ADVISOR_GUIDANCE_2026-08-15_E78_AMENDMENTS.md`) adopted in full.
+E1 emphasis corrected: the clean (explicit-only) row is +0.054/+0.055, below gate; +0.117 is on
+partly circular labels; status is "directionally positive on clean labels; licenses E1-proper".
+E78 gains the two controls without which seed 0 is uninterpretable: mGf (explicit future window
+[g_t, g_t+0.1s] through the same projection/FiLM path; `snmr/integration/goal_window.py`,
+`E78_GOAL_WINDOW=1`; pre-committed reading mGf >= mZf = HANDOFF-style exposure finding) and mTl
+(live time code exempt from the masker, `E78_TIME_LIVE=1`).  Ambiguity grid under dropout and
+the harder severity cells registered as secondaries; frozen sanity pinned to seed-exact values
+(0.9248/0.9785, 0.6846/0.7646) via `scripts/check_e78_frozen_sanity.py`; analyzer supports the
+ambiguity grid (cluster = frame pair) and the mE - frozen_explicit descriptive clean contrast.
+The paper's C-future arm (`cfut`) is one launcher tag away using the same lookup.
+E54: the T1 WBT registration lost with the holosoma pin move is rebuilt as an snmr-side overlay
+(`snmr/integration/holosoma_t1_wbt.py`, wired through `scripts/train_agent_joint_reward.py`);
+`exp:t1-29dof-wbt` parses, all 14 tracked bodies resolve in `t1_29dof.xml`, and the E54 launcher
+now fails only on the GPU precondition (exit 3), not on registration (exit 2).  T1 reference NPZ
+present.  E1-proper label hook installed in `~/whole_body_tracking` (uncommitted there): the
+multi-motion runner writes `bin_failed_ema_<iter>.npz` per checkpoint; applies to future runs.

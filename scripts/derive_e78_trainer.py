@@ -46,7 +46,8 @@ rep("from snmr.integration import wbt_bodyfix, wbt_latent\n",
     "from snmr.integration import wbt_bodyfix, wbt_latent\n"
     "from snmr.integration.fusion import (  # noqa: E402\n"
     "    FLAG_DIM,\n    FusionCommandStudent,\n    ReferenceDropoutMasker,\n"
-    "    dropout_hazard,\n    ramp,\n)\n")
+    "    dropout_hazard,\n    ramp,\n)\n"
+    "from snmr.integration.goal_window import GoalWindow, goal_stats_from_normalizer  # noqa: E402\n")
 
 rep('''    if phase_only and shuffle_latent:
         raise ValueError("time-index and shuffled-latent controls are mutually exclusive")''',
@@ -66,10 +67,43 @@ rep('''    if phase_only and shuffle_latent:
     eval_mask_mode = os.environ.get("E78_EVAL_MASK_MODE", mask_mode)
     eval_mask_seed = int(os.environ.get("E78_EVAL_MASK_SEED", "404"))  # paired across arms
     flag_dim = int(os.environ.get("E78_FLAG_DIM", str(FLAG_DIM)))  # 0 = frozen-E70-compatible
+    goal_window = os.environ.get("E78_GOAL_WINDOW", "") == "1"  # explicit [g_t, g_t+0.1s] replaces
+    # the SNMR window in the "snmr" encoder slot (window-matched explicit control: E78 mGf /
+    # the paper's C-future arm).  Same offsets, same projection path, same FiLM path.
+    time_live = os.environ.get("E78_TIME_LIVE", "") == "1"  # time-code control exempt from the
+    # masker (a deployed system never loses its clock); requires E52_PHASE_ONLY=1
+    if goal_window and (phase_only or shuffle_latent):
+        raise ValueError("E78_GOAL_WINDOW is exclusive with time-index and shuffled-latent controls")
+    if time_live and not phase_only:
+        raise ValueError("E78_TIME_LIVE requires E52_PHASE_ONLY=1")
     if mask_scope not in {"all", "explicit", "snmr"} or eval_mask_scope not in {"all", "explicit", "snmr"}:
         raise ValueError("mask scope must be all, explicit, or snmr")
     if phase_only and shuffle_latent:
         raise ValueError("time-index and shuffled-latent controls are mutually exclusive")''')
+
+rep('''    z_mean, z_std = latents.mean(0, keepdim=True), latents.std(0, keepdim=True) + 1e-6
+
+    def z_window() -> torch.Tensor:
+        zs = wbt_latent._latent_at_offsets(motion_command, Z_OFFSETS)
+        return torch.cat([(z - z_mean) / z_std for z in zs], -1)
+''',
+'''    z_mean, z_std = latents.mean(0, keepdim=True), latents.std(0, keepdim=True) + 1e-6
+    upstream_dim = Z_SNMR_DIM * len(Z_OFFSETS)
+    if goal_window:
+        goal_stats = goal_stats_from_normalizer(actor_norm, GOAL_SLICE)
+        explicit_window = GoalWindow(*goal_stats, offsets=Z_OFFSETS)
+        upstream_dim = explicit_window.dim
+        # Already standardised by the teacher's goal-slice statistics; keep the checkpoint
+        # contract (z_mean/z_std restored on eval) with identity values.
+        z_mean = torch.zeros(1, upstream_dim, device=device)
+        z_std = torch.ones(1, upstream_dim, device=device)
+
+    def z_window() -> torch.Tensor:
+        if goal_window:
+            return explicit_window(motion_command)
+        zs = wbt_latent._latent_at_offsets(motion_command, Z_OFFSETS)
+        return torch.cat([(z - z_mean) / z_std for z in zs], -1)
+''')
 
 rep('''    student = CommandStudent(
         proprio_dim,
@@ -86,7 +120,7 @@ rep('''    student = CommandStudent(
         num_act,
         ARM_GOALS[arm],
         MOTION_CMD_DIM,
-        z_window_dim=Z_SNMR_DIM * len(Z_OFFSETS),
+        z_window_dim=upstream_dim,
         z_cmd_dim=Z_CMD_DIM,
         fusion=fusion,
         flag_dim=flag_dim,
@@ -102,10 +136,13 @@ rep('''    student = CommandStudent(
         signals = {}
         if scope in ("all", "explicit"):
             signals["cmd"] = cmd
-        if scope in ("all", "snmr"):
+        if scope in ("all", "snmr") and not time_live:
             signals["zwin"] = zwin
         shown, flags = masker.step(**signals)
         return shown.get("cmd", cmd), shown.get("zwin", zwin), flags[:, :flag_dim]''')
+
+rep('''        "zwin": torch.zeros(n_envs, Z_SNMR_DIM * len(Z_OFFSETS), device=device),''',
+    '''        "zwin": torch.zeros(n_envs, upstream_dim, device=device),''')
 
 rep('''        "cmd": torch.zeros(n_envs, MOTION_CMD_DIM, device=device),
         "priv": torch.zeros(n_envs, critic_dim, device=device),
@@ -125,7 +162,8 @@ rep('''                "teacher_manifest": teacher_manifest_path or None,
                     "mask_seg_ticks": [mask_seg_min, mask_seg_max],
                     "mask_scope": mask_scope, "mask_mode": mask_mode,
                     "mask_ramp_rounds": mask_ramp_rounds, "mask_seed": mask_seed,
-                    "flag_dim": flag_dim,
+                    "flag_dim": flag_dim, "goal_window": goal_window,
+                    "time_live": time_live, "upstream_dim": upstream_dim,
                 },
             },''')
 
@@ -286,6 +324,7 @@ rep('''        "rounds": rounds, "beta_kl": beta_kl, "prior_mix": prior_mix,
         "deterministic": deterministic,
         "e78": {
             "fusion": fusion, "gate": student.gate,
+            "goal_window": goal_window, "time_live": time_live,
             "train_mask": {"frac": mask_frac, "seg_ticks": [mask_seg_min, mask_seg_max],
                            "scope": mask_scope, "mode": mask_mode,
                            "ramp_rounds": mask_ramp_rounds, "seed": mask_seed},

@@ -33,16 +33,17 @@ import re
 
 import numpy as np
 
-SEVERITY_RE = re.compile(r"_eval_(mask\w+?_hold_f(?P<frac>[0-9.]+)_s(?P<lo>\d+)-(?P<hi>\d+))\.json$")
+SEVERITY_RE = re.compile(r"_eval_(?:ambiguity_)?(mask\w+?_hold_f(?P<frac>[0-9.]+)_s(?P<lo>\d+)-(?P<hi>\d+))\.json$")
+GRID_PREFIX = {"general": "", "ambiguity": "ambiguity_"}
 
 
 def load_report(path: pathlib.Path) -> dict:
     return json.loads(path.read_text())
 
 
-def discover_severities(directory: pathlib.Path, arm: str) -> dict[str, pathlib.Path]:
+def discover_severities(directory: pathlib.Path, arm: str, grid: str = "general") -> dict[str, pathlib.Path]:
     found = {}
-    for path in sorted(directory.glob(f"{arm}_eval_mask*.json")):
+    for path in sorted(directory.glob(f"{arm}_eval_{GRID_PREFIX[grid]}mask*.json")):
         m = SEVERITY_RE.search(path.name)
         if m:
             found[m.group(1)] = path
@@ -55,11 +56,18 @@ def paired_arrays(treatment: list[dict], reference: list[dict]) -> tuple[np.ndar
     for t, r in zip(treatment, reference):
         if t["start_steps"] != r["start_steps"] or t["motion_ids"] != r["motion_ids"]:
             raise ValueError("treatment and reference reports are not paired (start_steps/motion_ids differ)")
+        if ("ambiguity_pair_ids" in t) != ("ambiguity_pair_ids" in r) or (
+            "ambiguity_pair_ids" in t and t["ambiguity_pair_ids"] != r["ambiguity_pair_ids"]
+        ):
+            raise ValueError("treatment and reference reports are not paired (ambiguity pair ids differ)")
         t_done.append(np.asarray(t["completed"], dtype=bool))
         r_done.append(np.asarray(r["completed"], dtype=bool))
         t_surv.append(np.asarray(t["survival_s"], dtype=float))
         r_surv.append(np.asarray(r["survival_s"], dtype=float))
-        starts.append(np.asarray(t["start_steps"]))
+        # Cluster key: the registered E70 unit — frame pair on the ambiguity grid, start step
+        # on the general grid (rollouts sharing a start move together).
+        key = t["ambiguity_pair_ids"] if "ambiguity_pair_ids" in t else t["start_steps"]
+        starts.append(np.asarray(key) + 10 ** 7 * len(starts))  # keep seeds as separate clusters
         motions.append(np.asarray(t["motion_ids"]))
     cat = lambda xs: np.concatenate(xs)  # noqa: E731
     return cat(t_done), cat(r_done), cat(t_surv), cat(r_surv), cat(starts), cat(motions)
@@ -120,21 +128,25 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--treatment", action="append", required=True, help="DIR:ARM (repeat for seeds)")
     ap.add_argument("--reference", action="append", required=True, help="DIR:ARM (repeat for seeds)")
+    ap.add_argument("--grid", choices=("general", "ambiguity"), default="general",
+                    help="general start grid (primary) or the frozen 69-pair ambiguity grid (co-secondary)")
     ap.add_argument("--out", type=pathlib.Path)
     args = ap.parse_args()
+    prefix = GRID_PREFIX[args.grid]
     treat = parse_pairs(args.treatment)
     ref = parse_pairs(args.reference)
     if len(treat) != len(ref):
         raise SystemExit("need one --reference per --treatment (seed-paired)")
 
-    t_clean = [load_report(d / f"{a}_eval.json") for d, a in treat]
-    r_clean = [load_report(d / f"{a}_eval.json") for d, a in ref]
-    result = {"clean": analyze(t_clean, r_clean, t_clean, r_clean), "severities": {}}
-    severities = discover_severities(*treat[0])
+    clean_name = f"_eval{'_ambiguity' if args.grid == 'ambiguity' else ''}.json"
+    t_clean = [load_report(d / f"{a}{clean_name}") for d, a in treat]
+    r_clean = [load_report(d / f"{a}{clean_name}") for d, a in ref]
+    result = {"grid": args.grid, "clean": analyze(t_clean, r_clean, t_clean, r_clean), "severities": {}}
+    severities = discover_severities(*treat[0], grid=args.grid)
     for label, _ in severities.items():
         try:
-            t = [load_report(d / f"{a}_eval_{label}.json") for d, a in treat]
-            r = [load_report(d / f"{a}_eval_{label}.json") for d, a in ref]
+            t = [load_report(d / f"{a}_eval_{prefix}{label}.json") for d, a in treat]
+            r = [load_report(d / f"{a}_eval_{prefix}{label}.json") for d, a in ref]
         except FileNotFoundError as exc:
             result["severities"][label] = {"missing": str(exc)}
             continue
