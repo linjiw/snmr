@@ -422,14 +422,17 @@ class CycleContinuationExtrapolator:
         self.head = torch.zeros(num_envs, dtype=torch.long, device=self.device)   # next write slot
         self.valid = torch.zeros(num_envs, dtype=torch.long, device=self.device)  # consecutive valid ticks
         self.lag = torch.full((num_envs,), max_lag, dtype=torch.long, device=self.device)
+        self._in_outage = torch.zeros(num_envs, dtype=torch.bool, device=self.device)
         self.fallbacks = 0
         self.uses = 0
 
     def reset(self, env_ids: torch.Tensor | None = None) -> None:
         if env_ids is None:
             self.valid.zero_()
+            self._in_outage.zero_()
         else:
             self.valid[env_ids] = 0
+            self._in_outage[env_ids] = False
 
     def _gather(self, offsets_back: torch.Tensor) -> torch.Tensor:
         """Values ``offsets_back`` ticks before the newest write, per environment."""
@@ -451,18 +454,21 @@ class CycleContinuationExtrapolator:
         self.buffer[rows, index] = write
         self.head += 1
         self.valid = torch.clamp(self.valid + 1, max=self.capacity)
-        onset = masked & (self.valid >= self.max_lag + self.match_ticks)
-        if bool(onset.any()):
-            recent = torch.stack([self._gather(torch.full_like(self.head, k))
-                                  for k in range(self.match_ticks)], dim=1)      # (N, M, D)
-            best = torch.full((self.num_envs,), float("inf"), device=self.device)
-            for lag in range(self.min_lag, self.max_lag + 1):
-                past = torch.stack([self._gather(torch.full_like(self.head, k + lag))
-                                    for k in range(self.match_ticks)], dim=1)
-                err = (recent - past).square().mean(dim=(1, 2))
-                better = onset & (err < best)
-                best = torch.where(better, err, best)
-                self.lag = torch.where(better, torch.full_like(self.lag, lag), self.lag)
+        # Pick a lag once per outage, and only for the environments that just entered one:
+        # the search is the expensive part, and running it over the whole batch every tick
+        # dominated the evaluation wall-clock.
+        onset = masked & (~self._in_outage) & (self.valid >= self.max_lag + self.match_ticks)
+        self._in_outage = masked
+        rows = onset.nonzero(as_tuple=True)[0]
+        if rows.numel():
+            back = torch.arange(self.max_lag + self.match_ticks, device=self.device)
+            index = (self.head[rows, None] - 1 - back[None, :]) % self.capacity
+            hist = self.buffer[rows[:, None], index]                     # (R, L+M, D), newest first
+            recent = hist[:, : self.match_ticks].transpose(1, 2)         # (R, D, M)
+            windows = hist.unfold(1, self.match_ticks, 1)                # (R, ., D, M)
+            windows = windows[:, self.min_lag : self.max_lag + 1]
+            err = (windows - recent.unsqueeze(1)).square().mean(dim=(2, 3))
+            self.lag[rows] = err.argmin(dim=1) + self.min_lag
 
     def __call__(self, held: torch.Tensor, staleness: torch.Tensor) -> torch.Tensor:
         """Emit ``value[t - lag]`` where history allows, else the held value.

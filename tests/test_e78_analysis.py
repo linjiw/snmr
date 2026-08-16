@@ -5,6 +5,7 @@ import json
 import pathlib
 
 import numpy as np
+import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("analyze_e78", ROOT / "scripts" / "analyze_e78_dropout.py")
@@ -90,3 +91,25 @@ def test_frozen_sanity_gate_uses_seed_exact_values_and_pairing(tmp_path):
     assert san.compare(mid, mid_replay, 0.02, 0.05)["applied_tolerance"] == 0.05
     assert not san.compare(mid, dict(mid, completion_rate=0.50), 0.02, 0.05)["pass"]
     assert san.compare(frozen, close, 0.02, 0.05)["applied_tolerance"] == 0.02  # high-completion arm
+
+
+def test_floor_relative_retention_signs_the_three_regimes():
+    assert mod.floor_relative_retention(0.9, 0.9, 0.4, 0.4) == pytest.approx(1.0)   # no loss
+    assert mod.floor_relative_retention(0.4, 0.9, 0.4, 0.4) == pytest.approx(0.0)   # fell to floor
+    assert mod.floor_relative_retention(0.1, 0.9, 0.4, 0.4) < 0                     # actively harmed
+    assert mod.floor_relative_retention(0.5, 0.4, 0.4, 0.4) is None                 # no clean advantage
+
+
+def test_analyze_reports_floor_relative_retention_when_a_floor_is_supplied():
+    def rep(done):
+        n = len(done)
+        return {"completed": [bool(x) for x in done], "survival_s": [10.0 * x for x in done],
+                "start_steps": list(range(n)), "motion_ids": [0] * n, "num_rollouts": n}
+
+    clean_t, clean_r = rep([1, 1, 1, 1]), rep([1, 1, 1, 1])
+    deg_t, deg_r = rep([1, 1, 0, 0]), rep([0, 0, 0, 0])
+    floor_clean, floor_deg = rep([1, 0, 0, 0]), rep([1, 0, 0, 0])
+    out = mod.analyze([deg_t], [deg_r], [clean_t], [clean_r], [floor_deg], [floor_clean])
+    # treatment: (0.5 - 0.25) / (1.0 - 0.25) = 1/3 ; reference: (0 - 0.25)/0.75 < 0 (actively harmed)
+    assert out["floor_relative_retention"]["treatment"] == pytest.approx(1 / 3)
+    assert out["floor_relative_retention"]["reference"] < 0

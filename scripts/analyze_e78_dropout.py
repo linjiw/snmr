@@ -10,7 +10,18 @@ per severity:
   rollouts BOTH arms complete cleanly, with McNemar discordant counts;
 * the primary endpoint, the paired all-rollout completion difference under dropout with a
   cluster bootstrap over start windows (rollouts sharing a start step move together);
-* survival-time difference, which is completion's lower-variance sibling.
+* survival-time difference, which is completion's lower-variance sibling;
+* **floor-relative retention** when a goal-blind floor arm is supplied (``--floor DIR:ARM``):
+
+      R = (C_degraded - C_floor) / (C_clean - C_floor)
+
+  the fraction of an arm's *channel-derived advantage* that survives the corruption.
+  ``R = 1`` no loss; ``R = 0`` fell exactly to the goal-blind floor; **``R < 0`` means the arm
+  ended up worse than having no command at all — its own channel actively harmed it**, a
+  failure mode that completion, retention ratios and cross-arm differences all hide
+  (E78-F: the explicit arm reaches R = -0.64 while every other arm stays positive).
+  The floor arm is measured under the same dropout, which also absorbs any survivorship
+  artifact, since dropout is a structural no-op for a goal-blind policy.
 
 Marginal retention ratios (degraded / own clean) are deliberately NOT reported: they
 launder a clean-condition gap (E77 addendum).
@@ -88,8 +99,19 @@ def cluster_bootstrap_diff(
     return float(diff.mean()), float(lo), float(hi)
 
 
+def floor_relative_retention(
+    degraded: float, clean: float, floor_degraded: float, floor_clean: float
+) -> float | None:
+    """Fraction of an arm's advantage over a goal-blind policy that survives the corruption."""
+    advantage = clean - floor_clean
+    if advantage <= 0:
+        return None
+    return (degraded - floor_degraded) / advantage
+
+
 def analyze(treatment: list[dict], reference: list[dict],
-            treatment_clean: list[dict], reference_clean: list[dict]) -> dict:
+            treatment_clean: list[dict], reference_clean: list[dict],
+            floor: list[dict] | None = None, floor_clean: list[dict] | None = None) -> dict:
     t_done, r_done, t_surv, r_surv, starts, _ = paired_arrays(treatment, reference)
     tc, rc, *_ = paired_arrays(treatment_clean, reference_clean)
     both_clean = tc & rc
@@ -111,6 +133,16 @@ def analyze(treatment: list[dict], reference: list[dict],
             "reference_only": int((r_done & ~t_done & both_clean).sum()),
         },
     }
+    if floor is not None and floor_clean is not None:
+        fd = np.concatenate([np.asarray(f["completed"], dtype=bool) for f in floor]).mean()
+        fc = np.concatenate([np.asarray(f["completed"], dtype=bool) for f in floor_clean]).mean()
+        tc_mean = tc.mean()
+        rc_mean = rc.mean()
+        out["floor"] = {"floor_degraded": float(fd), "floor_clean": float(fc)}
+        out["floor_relative_retention"] = {
+            "treatment": floor_relative_retention(float(t_done.mean()), float(tc_mean), float(fd), float(fc)),
+            "reference": floor_relative_retention(float(r_done.mean()), float(rc_mean), float(fd), float(fc)),
+        }
     return out
 
 
@@ -130,6 +162,8 @@ def main() -> None:
     ap.add_argument("--reference", action="append", required=True, help="DIR:ARM (repeat for seeds)")
     ap.add_argument("--grid", choices=("general", "ambiguity"), default="general",
                     help="general start grid (primary) or the frozen 69-pair ambiguity grid (co-secondary)")
+    ap.add_argument("--floor", action="append",
+                    help="DIR:ARM of the goal-blind arm under the same dropout (enables floor-relative retention)")
     ap.add_argument("--out", type=pathlib.Path)
     args = ap.parse_args()
     prefix = GRID_PREFIX[args.grid]
@@ -141,7 +175,11 @@ def main() -> None:
     clean_name = f"_eval{'_ambiguity' if args.grid == 'ambiguity' else ''}.json"
     t_clean = [load_report(d / f"{a}{clean_name}") for d, a in treat]
     r_clean = [load_report(d / f"{a}{clean_name}") for d, a in ref]
-    result = {"grid": args.grid, "clean": analyze(t_clean, r_clean, t_clean, r_clean), "severities": {}}
+    floor_pairs = parse_pairs(args.floor) if args.floor else None
+    f_clean = [load_report(d / f"{a}{clean_name}") for d, a in floor_pairs] if floor_pairs else None
+    result = {"grid": args.grid,
+              "clean": analyze(t_clean, r_clean, t_clean, r_clean, f_clean, f_clean),
+              "severities": {}}
     severities = discover_severities(*treat[0], grid=args.grid)
     for label, _ in severities.items():
         try:
@@ -150,7 +188,13 @@ def main() -> None:
         except FileNotFoundError as exc:
             result["severities"][label] = {"missing": str(exc)}
             continue
-        result["severities"][label] = analyze(t, r, t_clean, r_clean)
+        f = None
+        if floor_pairs:
+            try:
+                f = [load_report(d / f"{a}_eval_{prefix}{label}.json") for d, a in floor_pairs]
+            except FileNotFoundError:
+                f = None
+        result["severities"][label] = analyze(t, r, t_clean, r_clean, f, f_clean)
 
     text = json.dumps(result, indent=2)
     if args.out:
