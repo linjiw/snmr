@@ -227,42 +227,57 @@ starts per horizon; strictly causal predictors):
    on these walks (0.153 vs 0.149 at 0.5 s) — consistent with everything else the program knows
    about cyclic single-motion walking, and the reason the interesting test is *aperiodic* motion.
 
-### III.2.2 In policy space, reference accuracy does not transfer — and that is the finding
+### III.2.2 In policy space, reference accuracy barely transfers — and that is the finding
 
 The same fills, fed to the **frozen, unmasked** explicit student (seed 0; clean 0.929; goal-blind
-floor 0.419), completion:
+floor 0.486 for this seed), completion and floor-relative retention `R`:
 
-| outage cell | hold | zero | constant velocity | cycle |
-| --- | ---: | ---: | ---: | ---: |
-| f 0.1, 0.5–1 s | 0.603 | **0.683** | 0.444 | 0.663 |
-| f 0.3, 0.5–1 s | 0.280 | **0.386** | 0.116 | 0.346 |
-| f 0.5, 0.5–1 s | 0.106 | **0.155** | 0.022 | 0.140 |
-| f 0.1, 0.1–0.5 s | **0.757** | 0.740 | 0.685 | 0.723 |
-| f 0.3, 0.1–0.5 s | 0.476 | **0.481** | 0.363 | 0.416 |
-| f 0.5, 0.1–0.5 s | **0.267** | 0.265 | 0.124 | 0.207 |
+| outage cell | hold | zero | constant velocity | cycle | R(hold) | R(zero) | R(cycle) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| f 0.1, 0.5–1 s | 0.603 | **0.683** | 0.444 | 0.616 | +0.267 | +0.448 | +0.298 |
+| f 0.1, 0.1–0.5 s | **0.757** | 0.740 | 0.685 | 0.666 | +0.642 | +0.605 | +0.437 |
+| f 0.3, 0.5–1 s | 0.280 | **0.386** | 0.116 | 0.276 | −0.483 | −0.245 | −0.492 |
+| f 0.3, 0.1–0.5 s | 0.476 | **0.481** | 0.363 | 0.373 | −0.035 | −0.022 | −0.267 |
+| f 0.5, 0.5–1 s | 0.106 | **0.155** | 0.022 | 0.108 | −0.854 | −0.744 | −0.850 |
+| f 0.5, 0.1–0.5 s | **0.267** | 0.265 | 0.124 | 0.195 | −0.492 | −0.497 | −0.653 |
 
-Read the two tables together:
+Read against §III.2.1, the relationship between reference accuracy and policy outcome is **one-sided
+and mostly flat**:
 
-- The **ranking flips**. Blanking the reference has one of the *worst* prediction errors and the
-  *best* completion at long outages; cycle continuation has by far the best prediction error and
-  comes second; constant velocity is worst in both. Correlation between reference accuracy and
-  completion across fills is weak and sign-unstable.
-- **Why:** for a policy trained only on live references, every fill is out of distribution, and what
-  decides the outcome is not "how close is this to the truth" but "what does this policy do when
-  handed it". A plausible-but-out-of-phase pose is obeyed hard; a blanked goal apparently pushes the
-  policy toward a neutral posture it survives better.
-- **Consequence for the framework — the central design lesson of this synthesis:
-  validity-awareness cannot be bolted on at deployment. The fill and the policy must be trained
-  together.** A frozen policy can *rank* fills; it cannot establish what a fill is worth. This is
-  the same lesson as E65 (train-time noise bought hold robustness) and as the masking design in
-  E78, arrived at from the opposite direction.
-- It also explains E78-F's cross-arm result without any appeal to representation: with frozen
-  policies, a corrupted channel measures *reliance plus arbitrary OOD response*, and the arm whose
-  response happens to be benign wins.
+- Cycle continuation predicts the reference **1.4× better than holding** at a 1 s outage
+  (0.155 vs 0.223 rad) and buys **nothing** — the two are within noise at every long-outage cell
+  (0.616/0.276/0.108 vs 0.603/0.280/0.106).
+- Constant velocity predicts **4× worse** than holding and costs a great deal (−0.08 … −0.16).
+- **Blanking the channel — which carries no pose at all, and therefore has no meaningful prediction
+  error — is the best fill at every long-outage cell.**
+
+So being far off the motion manifold hurts; being closer to the truth does not help. What appears to
+matter is not accuracy but **whether the fill asserts a specific wrong pose the policy will chase**.
+A blanked channel asserts nothing; a held or continued pose asserts something the robot is not doing.
+
+**And no fill rescues the arm.** The best fill at the severe cell still leaves `R = −0.74`: worse
+than having no command channel at all. This is the central design lesson of the synthesis:
+**validity-awareness cannot be bolted on at deployment. The fill and the policy must be trained
+together.** A frozen policy can rank fills; it cannot be repaired by them. Same lesson as E65
+(train-time noise bought hold robustness), reached from the opposite direction.
+
+It also retro-explains E78-F without any appeal to representation: with frozen policies, corrupting
+a channel measures *reliance plus an arbitrary out-of-distribution response*, and the arm whose
+response happens to be benign wins.
+
+> **Correction (2026-08-16).** An earlier run of this table showed cycle continuation beating hold
+> by +0.03…+0.07 at long outages. That run had two defects, both since fixed and unit-tested: the
+> ring buffer stored only clean ticks (so a lag in samples was not a lag in ticks under intermittent
+> dropout), and the lag was re-selected every masked tick instead of once per outage. With the
+> corrected implementation cycle continuation is indistinguishable from holding. The conclusion
+> above is the corrected one.
 
 ### III.2.3 The ladder, restated
 
-Rung selection is **horizon-matched** and **learned**:
+Rung selection is **horizon-matched** and — per §III.2.2, non-negotiably — **learned**. The rungs
+below are what the *policy* must be trained to switch between, using the staleness flag; they are
+not a deployment-time wrapper around a frozen policy, because that variant has now been measured
+and does not work:
 
 | rung | fill | validity horizon (measured) | who can build it |
 | --- | --- | --- | --- |
@@ -306,20 +321,25 @@ predicts the effect will be large *for the explicit arm*, which is the arm that 
 | --- | --- | --- | --- | --- |
 | **E79-a** | is a stale reference worse than a blanked one, within one arm? | frozen explicit, fill `hold` vs `zero`, full severity grid | `zero` − `hold` > 0 at ≥ 2 severities | **done (seed 0): yes at long outages (+0.08, +0.11, +0.05), ≈0 at short ones** |
 | **E79-b** | does free dead reckoning recover the collapse? | fill = constant velocity | ≥ +0.10 at f ≥ 0.3 | **done: NO — worse than hold everywhere (−0.08…−0.16); its validity horizon is ~0.2 s and outages here are longer** |
-| **E79-c** | does a motion-model fill beat both? | fill = causal cycle continuation (model-free) | > hold at long outages | **done (seed 0): beats hold at 0.5–1 s (+0.03…+0.07), loses at 0.1–0.5 s; still below `zero`** |
-| **E79-d** | does reference accuracy predict completion? | compare the two tables in §III.2 | — | **done: NO. Ranking flips; the frozen policy's OOD response dominates.** ⇒ fills must be co-trained |
+| **E79-c** | does a motion-model fill beat both? | fill = causal cycle continuation (model-free) | > hold at long outages | **done (seed 0): NO — indistinguishable from hold despite predicting the reference 1.4× better; worse at short outages** |
+| **E79-d** | does reference accuracy predict completion? | compare the two tables in §III.2 | — | **done: essentially NO — the relation is one-sided (far off-manifold hurts; closer to truth does not help) and the best fill carries no pose at all.** No fill rescues a frozen policy (best `R` = −0.74) ⇒ fills must be co-trained |
 | **E80** | does masked co-training + a learned rung selector dominate, at no clean cost? | E78 arms retrained with masking; fills as observations, staleness flags live; primary conjunction as amended | mZf/ladder − mE-hold ≥ +0.10 **and** − mTl/mTf ≥ +0.05 **and** clean ≥ −0.01 | **the GPU night** |
 | **E81** | is rung 2 worth a *learned* prior (vs model-free cycle matching)? | aperiodic clips (dance/fight/interaction); cycle-match vs SNMR-decoded rollout, reference-space error first (CPU), then policy | learned − cycle ≥ 0.05 rad at ≥ 0.5 s, then policy-level | cheap first half; the natural home for SNMR |
 | **E82** | does the ladder transfer across embodiments? | E54 T1 teacher → shared-latent student; outage on the T1 reference | any rung-2 advantage replicates on T1 | after E80 |
 | **E1-proper / E2** | retarget features predict and pre-empt failures | pool hook labels; warm-started sampler | incremental R² ≥ +0.10 held-out clips; ≥ 20 % sample reduction | independent |
 
-**What E79 already settled, for the cost of a few GPU-minutes.** The whole "fix it at deployment"
-branch is closed: no fill — free, model-free, or otherwise — restores a frozen policy under long
-outages, and the best of them (`zero`) is best for a reason that has nothing to do with accuracy.
-That is a genuinely useful negative: it means the E80 training run is not an optimisation of E79 but
-the *only* way the ladder can work, and it tells us what E80 must contain — the fill has to be
-present during training so the policy can learn what a stale-but-plausible target means, and the
-staleness flag has to be the thing that lets it switch.
+**What E79 settled, for the cost of a few GPU-minutes.** The whole "fix it at deployment" branch is
+closed: four fills spanning a 6× range of reference-prediction error, and none restores a frozen
+policy under long outages — the best still ends at `R = −0.74`, i.e. worse than no command channel.
+The best fill is also the one carrying no pose at all, so the mechanism is *asserting a wrong target*,
+not *predicting badly*. That is a genuinely useful negative: E80 is not an optimisation of E79 but
+the only way the ladder can work, and E79 tells us what E80 must contain — the fills present during
+training, and the staleness flag as the switch the policy learns to use.
+
+It also sets E80's hypothesis sharply: **a masked-trained explicit arm should reach `R ≈ 0` (fall
+gracefully to its floor) where the frozen one reaches `R = −0.64`.** That is a bigger, cleaner effect
+than anything the representation arms were fighting over, and it is measured with the metric in §II.1
+rather than with raw completion.
 
 E81 is the reframed home for the latent, and it is now sharply posed: cycle matching already
 achieves flat-in-horizon reference prediction *on periodic gait*, so a learned prior must earn its
@@ -331,9 +351,11 @@ any policy is trained.
 
 # Part V — What would falsify this framework
 
-- **E79-b null and E79-c null:** if neither dead reckoning nor prior rollout beats holding, then the
-  harm is not about the *content* of the fill but about the policy's coupling to any fixed target,
-  and the answer is architectural (a policy trained to ignore stale commands), not interface-level.
+- ~~**E79-b null and E79-c null**~~ **— this branch fired.** Neither dead reckoning nor cycle
+  continuation beats holding, so the harm is not about the *content* of the fill but about the
+  policy's coupling to any asserted target. The answer is therefore training-level (a policy that
+  learns what a staleness flag means), not a deployment-time patch. The framework survives with its
+  rung-selection moved inside training; what dies is the "ship a better fill" shortcut.
 - **Masked training closes the gap by itself:** if a masked-trained explicit arm already reaches the
   floor gracefully with a naive hold, the ladder's upper rungs are unnecessary complexity and the
   finding is "train with dropouts, that's all".
