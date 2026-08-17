@@ -16,6 +16,7 @@ set -euo pipefail
 # arm tags (all trained WITH reference dropout, scope=$E78_MASK_SCOPE, fraction $E78_MASK_FRAC,
 # and identical flag bits — including mE, so no arm's edge is "knowing when it is blind"):
 #   mE   explicit-only                          (c_prior_explicit)
+#   mB   goal-blind floor                        (b_prior_proprio) -- denominator for R
 #   mS   snmr-only                              (a_prior_snmr)
 #   mZc  explicit+snmr, concat fusion           (d_prior_explicit_snmr, E78_FUSION=concat)
 #   mZf  explicit+snmr, FiLM fusion             (E78_FUSION=film)             <- treatment
@@ -72,6 +73,10 @@ test "$(sha256sum "$PRECHECK" | cut -d' ' -f1)" = "$PRECHECK_HASH"
 gwin=0; tlive=0; arm_mask_frac="$MASK_FRAC"; arm_flag_dim=2
 case "$tag" in
     mE)   arm=c_prior_explicit;      fusion=concat; phase=0; shuffle=0 ;;
+    mB)   arm=b_prior_proprio;      fusion=concat; phase=0; shuffle=0 ;;   # goal-blind floor,
+    # trained under the same masking recipe and carrying the same flag bits.  Dropout is a
+    # structural no-op for it, so its curve is the denominator of floor-relative retention
+    # (docs/COMMAND_INTERFACE_SYNTHESIS_2026-08-16.md II.1) for the masked family.
     mS)   arm=a_prior_snmr;          fusion=concat; phase=0; shuffle=0 ;;
     mZc)  arm=d_prior_explicit_snmr; fusion=concat; phase=0; shuffle=0 ;;
     mZf)  arm=d_prior_explicit_snmr; fusion=film;   phase=0; shuffle=0 ;;

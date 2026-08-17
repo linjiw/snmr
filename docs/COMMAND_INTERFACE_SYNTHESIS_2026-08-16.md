@@ -258,6 +258,36 @@ can be tested before any policy is trained, and it is the first place in this pr
 retargeting model is being asked for something nothing cheaper can supply. It is also exactly the
 regime where E57-B found SNMR references *more* trackable than GMR ones (fight1 +13 pp).
 
+### III.2.1c The aperiodic regime IS predictable — but only by a model (E81-B)
+
+E81-A left an open question: is ~0.30 rad at a 1 s outage the *intrinsic* unpredictability of
+aperiodic motion, or just the limit of model-free fills? A deliberately generic learned prior
+answers it (`scripts/e81b_learned_prior_fill.py`): a small MLP over a 0.4 s causal history of joint
+positions and velocities, emitting each horizon **directly** (so drift cannot be blamed), trained on
+80 pool clips and evaluated on **30 clips it never saw**:
+
+| horizon | periodic: hold / cv / cycle / **learned** | aperiodic: hold / cv / cycle / **learned** |
+| --- | --- | --- |
+| 0.10 s | 0.108 / 0.075 / 0.058 / **0.054** | 0.103 / 0.068 / 0.242 / **0.068** |
+| 0.20 s | 0.186 / 0.216 / **0.059** / 0.081 | 0.173 / 0.197 / 0.252 / **0.113** |
+| 0.50 s | 0.267 / 0.644 / **0.061** / 0.104 | 0.253 / 0.582 / 0.272 / **0.174** |
+| 1.00 s | 0.150 / 1.265 / **0.064** / 0.106 | 0.257 / 1.131 / 0.269 / **0.207** |
+| 1.50 s | 0.245 / 1.742 / **0.067** / 0.133 | 0.300 / 1.683 / 0.225 / **0.222** |
+
+**The two regimes want different rungs, and each beats the other on its own ground.**
+
+* On **periodic** motion, model-free cycle matching (0.058–0.067 rad, flat) beats the learned prior
+  (0.054–0.133) at every horizon past 0.1 s. Paying for a model there is wasted.
+* On **aperiodic** motion, the learned prior beats *every* free fill: 0.174 vs 0.253 at 0.5 s
+  (−31 %), 0.207 vs 0.257 at 1 s (−19 %), and it is the only method that is good at *both* short and
+  long horizons. Cycle matching is actively bad there (0.24–0.27), because there is no cycle.
+
+So the aperiodic regime is predictable — it just requires a model. **Rung 2 exists, and it is
+regime-selected, not merely horizon-selected.** This also sets a floor for what SNMR must beat: a
+generic MLP on raw joints, with no temporal transformer, no cross-embodiment structure, and no
+architectural joint-limit guarantee, already reaches 0.207 rad at 1 s. SNMR's job in E81-C is to
+beat *that*, not to beat holding.
+
 ### III.2.2 In policy space, reference accuracy barely transfers — and that is the finding
 
 The same fills, fed to the **frozen, unmasked** explicit student (seed 0; clean 0.929; goal-blind
@@ -356,7 +386,8 @@ predicts the effect will be large *for the explicit arm*, which is the arm that 
 | **E79-d** | does reference accuracy predict completion? | compare the two tables in §III.2 | — | **done: essentially NO — the relation is one-sided (far off-manifold hurts; closer to truth does not help) and the best fill carries no pose at all.** No fill rescues a frozen policy (best `R` = −0.74) ⇒ fills must be co-trained |
 | **E80** | does masked co-training + a learned rung selector dominate, at no clean cost? | E78 arms retrained with masking; fills as observations, staleness flags live; primary conjunction as amended | mZf/ladder − mE-hold ≥ +0.10 **and** − mTl/mTf ≥ +0.05 **and** clean ≥ −0.01 | **the GPU night** |
 | **E81-A** | where does the model-free fill stop working? | 60 pool clips, periodic vs aperiodic, reference-space error (CPU) | — | **done: periodic solved (0.09 rad flat); aperiodic unsolved by every free fill (~0.30 rad at 1 s)** |
-| **E81-B** | can a learned prior beat that? | SNMR-decoded rollout from the last valid latent on aperiodic clips | **< 0.30 rad at 1 s**, i.e. beat the best model-free fill in the regime where it fails | CPU-first, then policy; the natural home for SNMR |
+| **E81-B** | is the aperiodic regime predictable by *any* model? | generic MLP prior, 80 train clips → 30 held-out clips | < 0.30 rad at 1 s on aperiodic | **done: YES — 0.207 rad, beating every free fill by 19–31 % at 0.5–1 s; and it loses to free cycle matching on periodic motion** |
+| **E81-C** | is *SNMR's* latent the right prior? | SNMR-decoded rollout vs the generic MLP on the same held-out aperiodic clips | **< 0.207 rad at 1 s** (beat the generic prior, not merely holding) | next CPU/GPU-light item; the reframed home for the retargeting model |
 | **E82** | does the ladder transfer across embodiments? | E54 T1 teacher → shared-latent student; outage on the T1 reference | any rung-2 advantage replicates on T1 | after E80 |
 | **E1-proper / E2** | retarget features predict and pre-empt failures | pool hook labels; warm-started sampler | incremental R² ≥ +0.10 held-out clips; ≥ 20 % sample reduction | independent |
 

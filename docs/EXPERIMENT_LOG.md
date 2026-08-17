@@ -2223,3 +2223,18 @@ rad, worse than hold at short horizons).  At a 1 s outage on aperiodic clips eve
 ~0.30 rad, the order of the range of motion.  That is the gate a learned motion prior must beat
 (E81-B) and the first task in this program where the retargeting model is asked for something
 nothing cheaper can supply.  Docs: `docs/COMMAND_INTERFACE_SYNTHESIS_2026-08-16.md`.
+
+### E81-B (2026-08-17): the aperiodic regime is predictable, but only by a model
+A deliberately generic learned prior (MLP over a 0.4 s causal history of joint pos+vel, emitting
+each horizon directly; 80 pool clips train, 30 held-out clips test) answers the question E81-A left
+open.  On HELD-OUT APERIODIC clips it beats every model-free fill: 0.174 vs 0.253 rad at 0.5 s
+(-31%), 0.207 vs 0.257 at 1.0 s (-19%), and it is the only method good at both short and long
+horizons (cycle matching is actively bad there, 0.24-0.27, because there is no cycle).  On HELD-OUT
+PERIODIC clips the ordering reverses: free cycle matching (0.058-0.067, flat) beats the learned
+prior (0.054-0.133) at every horizon past 0.1 s.  So rung 2 of the ladder is real and is
+REGIME-selected, not merely horizon-selected: free periodicity where the motion is cyclic, a learned
+model where it is not.  This also sets the bar for SNMR (E81-C): a generic MLP on raw joints -- no
+temporal transformer, no cross-embodiment structure, no architectural joint-limit guarantee --
+already reaches 0.207 rad at 1 s on aperiodic motion, so SNMR must beat THAT, not merely beat
+holding.  Script `scripts/e81b_learned_prior_fill.py`; outputs under
+`/data/robotixx/snmr-research/e81_fill_prediction/`.

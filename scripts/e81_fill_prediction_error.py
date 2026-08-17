@@ -50,7 +50,7 @@ def load_joint_series(path: str) -> tuple[np.ndarray, np.ndarray, int] | None:
     fps = int(np.asarray(d["fps"]).reshape(-1)[0])
     if q.shape[1] == 36:          # holosoma WBT schema: 7 root + 29 joints
         q, qd = q[:, 7:], qd[:, 6:]
-    if q.shape[1] != qd.shape[1] or q.shape[0] < 400:
+    if q.shape[1] != qd.shape[1] or q.shape[0] < 300:
         return None
     return q, qd, fps
 
