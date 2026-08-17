@@ -227,6 +227,37 @@ starts per horizon; strictly causal predictors):
    on these walks (0.153 vs 0.149 at 0.5 s) — consistent with everything else the program knows
    about cyclic single-motion walking, and the reason the interesting test is *aperiodic* motion.
 
+### III.2.1b The regime boundary: where a model-free fill stops working (E81-A)
+
+Cycle continuation was flat in horizon on the two E70 walks. Is that a property of the method or of
+walking? Measured over 60 clips from the 1,161-clip AMASS→G1 pool (30 periodic, 30 aperiodic by
+filename class; 150 random starts each; `scripts/e81_fill_prediction_error.py`), mean reference
+error in rad:
+
+| horizon | periodic: hold / cv / **cycle** | aperiodic: hold / cv / **cycle** |
+| --- | --- | --- |
+| 0.10 s | 0.102 / **0.074** / 0.080 | 0.121 / **0.090** / 0.268 |
+| 0.20 s | 0.176 / 0.206 / **0.082** | 0.199 / 0.245 / 0.282 |
+| 0.50 s | 0.258 / 0.612 / **0.086** | **0.293** / 0.707 / 0.294 |
+| 1.00 s | 0.172 / 1.210 / **0.093** | 0.305 / 1.389 / **0.303** |
+| 1.50 s | 0.230 / 1.663 / **0.097** | 0.341 / 2.046 / **0.278** |
+
+(median matched cycle: 1.18 s on periodic clips, 0.86 s on aperiodic ones — where it is not a gait
+period at all, just the best available echo.)
+
+**On periodic motion the model-free fill solves the problem outright**: 0.08–0.10 rad, flat from
+0.1 s to 1.5 s, 2–3× better than holding at every horizon past 0.2 s. **On aperiodic motion nothing
+free works**: at a 1 s outage the best of the three sits at ~0.30 rad — the order of the range of
+motion itself, i.e. no useful prediction — and cycle continuation is *worse than holding* at short
+horizons because there is no cycle to match.
+
+This locates the niche precisely. A learned motion prior does not have to beat a clock, or a
+reference, or a linear extrapolation — it has to beat **0.30 rad at 1 s on aperiodic motion**, where
+every model-free option has already failed. That is a crisp, falsifiable, CPU-measurable gate that
+can be tested before any policy is trained, and it is the first place in this program where the
+retargeting model is being asked for something nothing cheaper can supply. It is also exactly the
+regime where E57-B found SNMR references *more* trackable than GMR ones (fight1 +13 pp).
+
 ### III.2.2 In policy space, reference accuracy barely transfers — and that is the finding
 
 The same fills, fed to the **frozen, unmasked** explicit student (seed 0; clean 0.929; goal-blind
@@ -324,7 +355,8 @@ predicts the effect will be large *for the explicit arm*, which is the arm that 
 | **E79-c** | does a motion-model fill beat both? | fill = causal cycle continuation (model-free) | > hold at long outages | **done (seed 0): NO — indistinguishable from hold despite predicting the reference 1.4× better; worse at short outages** |
 | **E79-d** | does reference accuracy predict completion? | compare the two tables in §III.2 | — | **done: essentially NO — the relation is one-sided (far off-manifold hurts; closer to truth does not help) and the best fill carries no pose at all.** No fill rescues a frozen policy (best `R` = −0.74) ⇒ fills must be co-trained |
 | **E80** | does masked co-training + a learned rung selector dominate, at no clean cost? | E78 arms retrained with masking; fills as observations, staleness flags live; primary conjunction as amended | mZf/ladder − mE-hold ≥ +0.10 **and** − mTl/mTf ≥ +0.05 **and** clean ≥ −0.01 | **the GPU night** |
-| **E81** | is rung 2 worth a *learned* prior (vs model-free cycle matching)? | aperiodic clips (dance/fight/interaction); cycle-match vs SNMR-decoded rollout, reference-space error first (CPU), then policy | learned − cycle ≥ 0.05 rad at ≥ 0.5 s, then policy-level | cheap first half; the natural home for SNMR |
+| **E81-A** | where does the model-free fill stop working? | 60 pool clips, periodic vs aperiodic, reference-space error (CPU) | — | **done: periodic solved (0.09 rad flat); aperiodic unsolved by every free fill (~0.30 rad at 1 s)** |
+| **E81-B** | can a learned prior beat that? | SNMR-decoded rollout from the last valid latent on aperiodic clips | **< 0.30 rad at 1 s**, i.e. beat the best model-free fill in the regime where it fails | CPU-first, then policy; the natural home for SNMR |
 | **E82** | does the ladder transfer across embodiments? | E54 T1 teacher → shared-latent student; outage on the T1 reference | any rung-2 advantage replicates on T1 | after E80 |
 | **E1-proper / E2** | retarget features predict and pre-empt failures | pool hook labels; warm-started sampler | incremental R² ≥ +0.10 held-out clips; ≥ 20 % sample reduction | independent |
 

@@ -2196,3 +2196,30 @@ cells failed a flat 0.02 gate while their general grids reproduced to <=0.007, s
 noise was measured (3 replays of one null arm: spread 0.026/0.018 -> sd ~0.016) and the gate became
 two-tier (0.02 for clean completion >= 0.85, 0.05 below).  E76's 0.0083 sd was measured on the
 high-completion explicit arm and does not transfer.  Doc: `docs/E78F_FROZEN_DROPOUT_BASELINE_2026-08-16.md`.
+
+### E79 + E81-A (2026-08-16): outage fills, and where the free ones stop working
+E79 (eval-only, frozen E70 explicit student, seed 0): four causal fills for a dropped reference --
+hold, zero, constant-velocity dead reckoning, and model-free cycle continuation.  Reference-space
+prediction error on the E70 walks: CV is best below ~0.2 s (0.05 rad) and diverges beyond it
+(0.93 rad and 18 rad worst-joint excursions at 1 s); hold saturates near the range of motion
+(0.22 rad); cycle continuation is flat at 0.155 rad from 0.1 s to 1.5 s.  Policy-level, the
+ranking does NOT follow: zero (which asserts no pose) is best at every long-outage cell (0.683 /
+0.386 / 0.155), cycle is indistinguishable from hold despite predicting 1.4x better, and CV is
+worst.  No fill rescues the frozen policy -- the best still lands at floor-relative retention
+R = -0.74.  Conclusion: the harm is asserting a specific wrong target, not predicting badly, and
+validity-awareness cannot be bolted on at deployment; the fill and the policy must be co-trained.
+(An earlier cycle result showing +0.03..+0.07 over hold came from a time-compressed ring buffer and
+per-tick lag re-selection; both fixed and unit-tested, and the corrected result is reported here.)
+
+New metric adopted program-wide: floor-relative retention R = (C_deg - C_floor)/(C_clean - C_floor)
+with the goal-blind arm measured under the same corruption.  R<0 marks ACTIVE HARM.  On E78-F the
+explicit arm reaches R = -0.644 while SNMR/time/shuffled stay positive, and R orders the arms
+inversely to clean performance -- the reliance signature.  Within-cell dose-response, bias-calibrated
+by the goal-blind arm: -0.109 / -0.059 / -0.004 per +10pp masked for explicit / SNMR / clock.
+
+E81-A (CPU, 60 clips from the 1,161-clip pool): the model-free cycle fill SOLVES periodic motion
+(0.080-0.097 rad, flat 0.1-1.5 s, 2-3x better than hold) and FAILS on aperiodic motion (0.268-0.303
+rad, worse than hold at short horizons).  At a 1 s outage on aperiodic clips every free fill sits at
+~0.30 rad, the order of the range of motion.  That is the gate a learned motion prior must beat
+(E81-B) and the first task in this program where the retargeting model is asked for something
+nothing cheaper can supply.  Docs: `docs/COMMAND_INTERFACE_SYNTHESIS_2026-08-16.md`.
