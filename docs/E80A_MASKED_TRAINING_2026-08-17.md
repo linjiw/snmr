@@ -27,15 +27,24 @@ General grid, seed 0. `R` is floor-relative retention (`docs/COMMAND_INTERFACE_S
 §II.1), the fraction of the arm's advantage over a goal-blind policy that survives the corruption;
 `R < 0` means the arm ends up **worse than having no command channel at all**.
 
-| outage cell | frozen | **masked** | Δ | R frozen | **R masked** |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| clean | 0.929 | 0.925 | **−0.004** | +1.000 | +1.000 |
-| f 0.1, 0.1–0.5 s | 0.757 | 0.903 | +0.146 | +0.642 | +0.982 |
-| f 0.1, 0.5–1 s | 0.603 | 0.817 | +0.215 | +0.267 | +0.759 |
-| f 0.3, 0.1–0.5 s | 0.476 | 0.846 | +0.370 | −0.035 | +0.808 |
-| f 0.3, 0.5–1 s | 0.280 | 0.670 | +0.390 | −0.483 | +0.401 |
-| f 0.5, 0.1–0.5 s | 0.267 | 0.780 | +0.514 | −0.492 | +0.675 |
-| f 0.5, 0.5–1 s | 0.106 | 0.554 | **+0.447** | **−0.854** | **+0.158** |
+| outage cell | frozen | **masked** | Δ |
+| --- | ---: | ---: | ---: |
+| clean | 0.929 | 0.925 | **−0.004** |
+| f 0.1, 0.1–0.5 s | 0.757 | 0.903 | +0.146 |
+| f 0.1, 0.5–1 s | 0.603 | 0.817 | +0.215 |
+| f 0.3, 0.1–0.5 s | 0.476 | 0.846 | +0.370 |
+| f 0.3, 0.5–1 s | 0.280 | 0.670 | +0.390 |
+| f 0.5, 0.1–0.5 s | 0.267 | 0.780 | +0.514 |
+| f 0.5, 0.5–1 s | 0.106 | 0.554 | **+0.447** |
+
+> **Correction (2026-08-17, same day).** This table originally carried floor-relative retention
+> columns showing `R` flipping from −0.854 to +0.158, and §3 claimed the masked arm "never falls
+> below its floor". **That claim is retracted**: it used the *frozen* goal-blind arm (seed-0 clean
+> 0.486) as the floor. The goal-blind arm trained in this batch under the same masked recipe (mB)
+> reaches **0.660** clean, and against that floor the masked explicit arm's `R` at the severest cell
+> is **−0.218**, not +0.158. The E70 frozen goal-blind arm spans **0.249 / 0.556 / 0.487** across its
+> three seeds — a 0.31 spread — so a single-seed floor cannot support any claim about crossing it.
+> What survives unchanged is the Δ column, which involves no floor at all. See §3a.
 
 Ambiguity grid (69 frozen start pairs):
 
@@ -51,11 +60,11 @@ Ambiguity grid (69 frozen start pairs):
 1. **Zero clean cost.** −0.004 on the general grid and −0.009 on the ambiguity grid, both inside the
    E76 evaluation-noise band and well inside the preregistered co-primary bound of −0.01. The
    masked student is still at teacher parity.
-2. **Active harm is eliminated.** The frozen arm's `R` goes negative at four of six degraded cells,
-   reaching −0.85: it ends far below the goal-blind floor because it obeys a stale target. The
-   masked arm's `R` is **positive everywhere** — it never falls below what a policy with no command
-   at all achieves. The registered hypothesis was that masked training would bring `R` to ≈ 0
-   (graceful descent to the floor); it does better, retaining 16–98 % of the channel advantage.
+2. **Active harm is reduced, but "eliminated" is not established** — see the correction above and
+   §3a. Against the batch's own masked floor (mB = 0.660 clean) the masked explicit arm sits at
+   `R` = +0.125 at f 0.3 / 0.5–1 s and −0.218 at f 0.5 / 0.5–1 s, versus the frozen arm's −0.483 and
+   −0.854 against its own floor. The direction is a large improvement; the *sign* at the severest
+   cell depends on a floor estimate that is not yet reliable.
 3. **The effect is the largest in the program.** +0.45 completion at the severest cell, +0.56 on
    the ambiguity grid, from a single training-recipe change — larger than any representation
    contrast this project has measured, and obtained without touching the command representation.
@@ -63,6 +72,30 @@ Ambiguity grid (69 frozen start pairs):
    policy (best `R` = −0.74 across four fills spanning a 6× range of prediction error); training
    with the dropout present fixes it with the *naive* `hold` fill. Validity-awareness is a training
    property, not an inference-time patch.
+
+## 3a. The floor is the weak link, and that is a finding about the metric
+
+Floor-relative retention needs a denominator, and this instrument's goal-blind arm turns out to be
+its noisiest component: across the three frozen E70 seeds it completes **0.487 / 0.556 / 0.249**
+(general grid) — a 0.31 spread, far larger than any effect being measured. The masked floor arm mB
+lands at 0.660, above all three.
+
+Consequences, adopted immediately:
+
+* **`R` is not reportable from a single seed.** It requires a pooled multi-seed floor, and its
+  uncertainty must be propagated rather than ignored. The §II.1 reporting standard in the synthesis
+  is amended accordingly.
+* **Claims that depend on `R`'s sign near zero are out of reach at this sample size.** Claims that
+  depend only on paired completion differences (the Δ column) are unaffected, because both arms are
+  evaluated on identical rollouts from identical starts.
+* An ablation is running (**mBnf**: goal-blind, masked, `flag_dim=0`) to separate "the flag bits
+  raised the floor" from "this arm is simply high-variance". The second is far more likely — the
+  flags are uninformative to a policy with no reference — but it is cheap to check rather than
+  assume.
+
+This is the second time in two days that the program's own control has disciplined its headline
+(E78-F's content reading died to the time-code control; E80-A's floor claim dies to floor variance).
+The Δ result stands; the framing around it needed tightening.
 
 ## 4. What this does to the rest of the program
 
@@ -78,14 +111,44 @@ Ambiguity grid (69 frozen start pairs):
   out-of-distribution response among policies that had never seen a dropout. Once every arm is
   trained under dropout, the comparison finally means what it appears to mean.
 
-## 5. Open attribution question (cheap to close)
+## 5. The attribution question, answered: the validity flags are NOT load-bearing
 
-mE differs from the frozen arm in **two** ways: dropout during training, and two validity flag bits.
-The clean result shows the flags cost nothing, but the *gain* is not yet attributed between "learned
-to cope with outages" and "knows when it is blind". One extra arm closes it — **mEnf**: identical
-masked training with `E78_FLAG_DIM=0`. Queued after batch 1. If mEnf ≈ mE, the flags are decoration
-and the recipe is even simpler; if mE ≫ mEnf, the validity signal is load-bearing and belongs in the
-interface specification, which is the stronger version of the framework's §III.1 claim.
+mE differed from the frozen arm in two ways — dropout during training, and two validity flag bits.
+**mEnf** (identical masked training, `flag_dim=0`) settles it:
+
+| cell | mE (with flags) | mEnf (no flags) |
+| --- | ---: | ---: |
+| clean | 0.925 | 0.904 |
+| f 0.3, 0.5–1 s | 0.670 | **0.724** |
+| f 0.5, 0.1–0.5 s | 0.780 | 0.742 |
+| f 0.5, 0.5–1 s | 0.554 | **0.606** |
+
+The flag-free arm is **equal or better** under dropout and marginally worse clean. So the entire
+E80-A gain comes from **training with the outages present**, not from telling the policy when it is
+blind. The framework's §III.1 claim ("validity is part of the interface") is therefore *not*
+supported in this form: on this instrument a policy trained under dropout infers what it needs from
+proprioception alone, and the explicit flag channel is decoration. The recipe is simpler than
+proposed — which is the better outcome for anyone adopting it.
+
+## 5a. Full arm table (seed 0, general grid)
+
+| arm | what it adds to the masked explicit student | clean | f 0.3 / 0.5–1 s | f 0.5 / 0.5–1 s |
+| --- | --- | ---: | ---: | ---: |
+| mE | — (validity flags only) | 0.925 | 0.670 | 0.554 |
+| mEnf | — (no flags) | 0.904 | **0.724** | **0.606** |
+| mTl | live time code | 0.918 | **0.726** | **0.629** |
+| mTf | frozen time code | 0.922 | 0.646 | 0.540 |
+| mGf | explicit future window `[g_t, g_{t+0.1s}]` | 0.915 | 0.641 | 0.530 |
+| mShf | other clip's latent at matched phase | 0.922 | 0.646 | 0.528 |
+| mB | nothing (goal-blind floor) | 0.660 | 0.637 | 0.611 |
+
+Two things are visible before the treatment arm (mZf) even lands. **First, every masked arm is
+within ~0.1 of every other at the severe cells, against a masked-vs-frozen effect of +0.45** — the
+training recipe dominates the representation choice by roughly 4×. **Second, the two best degraded
+arms are the ones carrying the least information**: the live clock and the flag-free explicit
+student. The window-matched explicit future (mGf) and the shuffled latent (mShf) are at the bottom
+with the frozen clock. That is the reliance pattern again, now inside a family of arms that were all
+trained under dropout.
 
 ## 6. Provenance
 

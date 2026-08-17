@@ -76,6 +76,9 @@ case "$tag" in
     mEnf) arm=c_prior_explicit;      fusion=concat; phase=0; shuffle=0; arm_flag_dim=0 ;;  # masked
     # training WITHOUT the validity flags: attributes E80-A's gain between "learned to cope with
     # outages" and "knows when it is blind" (docs/E80A_MASKED_TRAINING_2026-08-17.md §5).
+    mBnf) arm=b_prior_proprio;      fusion=concat; phase=0; shuffle=0; arm_flag_dim=0 ;;  # floor
+    # without flags: isolates whether the masked floor's height comes from the flag bits or from
+    # this arm's known training variance (E70 frozen proprio spans 0.42-0.49 general across seeds).
     mB)   arm=b_prior_proprio;      fusion=concat; phase=0; shuffle=0 ;;   # goal-blind floor,
     # trained under the same masking recipe and carrying the same flag bits.  Dropout is a
     # structural no-op for it, so its curve is the denominator of floor-relative retention
