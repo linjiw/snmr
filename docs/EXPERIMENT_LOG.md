@@ -2238,3 +2238,23 @@ temporal transformer, no cross-embodiment structure, no architectural joint-limi
 already reaches 0.207 rad at 1 s on aperiodic motion, so SNMR must beat THAT, not merely beat
 holding.  Script `scripts/e81b_learned_prior_fill.py`; outputs under
 `/data/robotixx/snmr-research/e81_fill_prediction/`.
+
+### E80-A (2026-08-17, seed 0): robustness is trained, not free -- and it is free of clean cost
+The E70 explicit command student, retrained under reference-stream dropout (Bernoulli segments
+0.1-0.5 s, target masked fraction 0.3 realized at 0.285, hold fill, two validity flag bits to the
+encoder) with every other element of the frozen recipe unchanged.  Against the frozen student of the
+same seed, evaluated through the same instrument:
+  clean            0.929 -> 0.925  (-0.004; ambiguity 0.979 -> 0.971)
+  f0.3 / 0.5-1 s   0.280 -> 0.670  (+0.390)
+  f0.5 / 0.1-0.5 s 0.267 -> 0.780  (+0.514)
+  f0.5 / 0.5-1 s   0.106 -> 0.554  (+0.447)
+  ambiguity f0.5 / 0.1-0.5 s  0.257 -> 0.812 (+0.556)
+Floor-relative retention flips sign at every degraded cell: the frozen arm reaches R = -0.854
+(far below the goal-blind floor -- actively harmed by its own stale channel), the masked arm stays
+POSITIVE everywhere (+0.158 to +0.982).  The registered hypothesis was R ~ 0 (graceful descent to
+the floor); the result exceeds it.  This is the largest effect in the program and it comes from one
+training-recipe change, not from any change of command representation.  It also confirms E79 from
+the other side: no deployment-side fill rescued a frozen policy, while training with the dropout
+present fixes it using the naive hold fill.  Single seed; seeds 1-2 and the remaining arms queued.
+Open attribution: masking vs the flag bits, closed by the queued mEnf arm (masked, flag_dim=0).
+Doc: `docs/E80A_MASKED_TRAINING_2026-08-17.md`.
