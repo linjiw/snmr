@@ -88,7 +88,9 @@ candidate-ranking/RL reward: MuJoCo CPU and Newton/MJWarp agree that the clip fa
 saturation is not monotonic with motor strength. The retained design uses a frozen closed-loop
 tracker in PhysX as the primary strong verifier and Newton/MJWarp as an independent second solver.
 See [`docs/MORPHORETARGET_FOUNDATION_2026-08-30.md`](docs/MORPHORETARGET_FOUNDATION_2026-08-30.md)
-for results, capability boundaries, and exact reproduction commands.
+for the original pilot and
+[`docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET.md`](docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET.md)
+for the frozen status, PM01 diagnosis, clean provenance bundle, and explicit G0 failure boundary.
 
 ### Root-pose parametrisation (hard-won lesson)
 

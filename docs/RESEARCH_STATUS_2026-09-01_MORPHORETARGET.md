@@ -3,10 +3,12 @@
 **Date:** 2026-09-01
 **Latest program:** MorphoRetarget
 **Overall status:** pre-training foundation; core contracts implemented; program Gate G0 fails closed
-**Evidence basis:** repository working tree, recorded artifacts, and bounded iteration
+**Evidence basis:** frozen source, clean-checkout artifacts, and bounded iteration
 `autoresearch/iterate-260901-0111/`
-**Repository state audited:** `feat/morpho-retarget-foundation@8f5ed72c6b45868913e1fd2e53b88ea89a17a031`
-plus uncommitted work
+**Frozen source:**
+`feat/morpho-retarget-foundation@078d3116aa233ca09c5c68134d9fd5dd5eb55944`
+**Archive:** `autoresearch/iterate-260901-0111/foundation_freeze_078d311/`; annotated tag
+`morpho-retarget-foundation-2026-09-01`
 
 ## Executive verdict
 
@@ -27,12 +29,13 @@ utility. The honest maturity label remains **pre-training foundation; G0 not pas
 gates passed." The earlier six passing checks are local checks for one torque-twin pilot, not the
 program's G0--G6 paper gates.
 
-The strongest positive result is now a reproducible set of fail-closed input contracts: exact
-motion/provenance hashes, a serialization-equivariant variable-node tokenizer, and a deterministic
-10,000-pose MuJoCo FK reference. The strongest boundary is equally important: the PhysX worker did
-not return comparison poses, so the FK gate records `g0_evaluated=false` and `g0_pass=false` rather
-than substituting offline URDF FK or relaxing the gate. Separately, open-loop PD replay still fails
-too quickly and responds non-monotonically to torque scale, so it must not be used as a candidate
+The strongest positive result is now a clean-checkout, reproducible set of fail-closed input
+contracts: exact motion/provenance hashes, a serialization-equivariant variable-node tokenizer,
+and a bit-reproducible deterministic 10,000-pose MuJoCo FK reference. The strongest boundary is
+equally important: a second live PhysX attempt from the clean source did not return comparison
+poses within 240 s, so the FK gate records `g0_evaluated=false` and `g0_pass=false` rather than
+substituting offline URDF FK or relaxing the gate. Separately, open-loop PD replay still fails too
+quickly and responds non-monotonically to torque scale, so it must not be used as a candidate
 ranker, physics preference label, or RL reward.
 
 ## The latest research goal
@@ -155,9 +158,11 @@ or unavailable state. Required and optional digests in RobotSpec and verificatio
 reject non-hexadecimal 64-character strings. The MuJoCo and Newton runners recompute motion,
 referenced-asset, controller, and shared candidate-contract hashes inside their own environments.
 
-This is meaningful provenance hardening, not an archival freeze. The SNMR working tree remains
-uncommitted, the current Newton checkout is still dirty, and a clean-checkout reproduction has not
-yet satisfied the foundation exit criterion.
+The archival source commit is `078d3116...`. Detached clean SNMR and Newton worktrees plus the clean
+Isaac Lab checkout regenerated the pilot, and every worker report records all three exact revisions
+with `dirty=false`. A second clean run reproduced the invariant hashes, gate booleans, and
+registered metrics (excluding wall time). This satisfies the bounded foundation-freeze exit
+criterion. It does not satisfy program G0 or qualify either rollout backend.
 
 ### 5. Backend-neutral verification reports
 
@@ -261,10 +266,12 @@ The MuJoCo worker generated and reproduced a deterministic 10,000 x 29 in-limit 
 output hashes. The registered pass thresholds remain strict maximum position error below 1.0 mm
 and orientation geodesic error below 1e-3 rad.
 
-The ordinary SNMR environment correctly reported Isaac Lab unavailable. A capped attempt in the
-Holosoma `hssim` environment initialized Isaac Sim 5.1, loaded the generated G1 USD, and observed 29
-joints, but returned no articulation body-pose tensor before the cap. There are consequently no
-PhysX error metrics. Both artifacts record `g0_evaluated=false` and `g0_pass=false`.
+The ordinary SNMR environment correctly reported Isaac Lab unavailable. An initial capped attempt
+in the Holosoma `hssim` environment initialized Isaac Sim 5.1, loaded the generated G1 USD, and
+observed 29 joints, but returned no articulation body-pose tensor. After the source freeze, the
+exact v0.2-bound asset/reference contract was retried from clean SNMR/Newton/Isaac revisions with a
+240 s cap and again stalled after the 29-joint articulation initialized. There are consequently no
+PhysX error metrics. The attempt record carries `g0_evaluated=false` and `g0_pass=false`.
 
 Assessment: the executable protocol, asset binding, sample buffer, semantic link mapping, and
 MuJoCo reference are useful completed infrastructure. G0 has **not** passed, and the timeout does
@@ -274,9 +281,9 @@ PhysX gate.
 
 ### F. Adjacent latent-command program: close the latent-specific seed-0 branch
 
-The repository's latest E80-A document says the `mZf` treatment was pending, but its artifacts are
-complete under `/data/robotixx/snmr-research/e78_masked_fusion/seed0_mZf/`. Re-running the frozen
-paired analyzer gives:
+The original E80-A snapshot said the `mZf` treatment was pending, but its artifacts subsequently
+completed. The document now includes a superseding stop section. Re-running the frozen paired
+analyzer gives:
 
 | Contrast/cell | Paired completion difference | 95% cluster CI | Registered reading |
 | --- | ---: | ---: | --- |
@@ -317,7 +324,7 @@ are passed. Evidence is in `exports/sim2sim_2026-08-12/*.loopback_safety_handoff
 
 | Program gate | Status on 2026-09-01 | Evidence and missing work |
 | --- | --- | --- |
-| G0 Contract | **Not passed; fails closed** | `HumanMotionSpec`, graph/token contracts, worker byte snapshots, revision fields, G1 MJCF/URDF/USD bundle hashes, key-frame mappings, and the deterministic 10,000-pose MuJoCo reference now exist. The PhysX worker returned no poses, so no cross-asset maximum errors exist and both G0 booleans are false. Controller/standing-state parity and clean archival reproduction also remain. |
+| G0 Contract | **Not passed; fails closed** | `HumanMotionSpec`, graph/token contracts, worker byte snapshots, clean revision fields, G1 MJCF/URDF/USD bundle hashes, key-frame mappings, and the bit-reproduced deterministic 10,000-pose MuJoCo reference now exist. The clean PhysX worker returned no poses, so no cross-asset maximum errors exist and both G0 booleans are false. Controller and standing-state parity also remain. |
 | G1 Amortization | **Historical evidence only** | Existing G1 SNMR imitates GMR well. The new RobotSpec-conditioned pipeline has not been integrated or tested on fixed-G1 amortization. |
 | G2 Embodiment | **Not met; token contract only** | PM01 LORO is 5.2x worse. The diagnosis rules out conditioning-insensitivity but leaves exact coverage versus semantic failure unresolved. A serialization-equivariant tokenizer and bounded variable-DoF output utility exist, but no learned RobotSpec graph encoder/conditioned decoder, coherent-variant training, strong nearest-transfer comparison, generalization staircase, or held-out T1 result exists. |
 | G3 Dynamics | **Not met; torque instrumentation ready** | Torque twins and localized reports work. Broader dynamics feature/intervention coverage is untested; no model is conditioned on the new features and no simulator-derived dynamics labels or learned time-warp response exist. |
@@ -383,21 +390,18 @@ asks whether rollout rankings are trustworthy; P3 asks whether explicit kinemati
 embodiment generalization. The tracks converge only after the kinematic G2 decision, when a
 qualified verifier would be used for dynamics preferences and repair.
 
-### P0. Freeze and make the foundation reproducible
+### P0. Foundation freeze: completed
 
-- Commit the bounded foundation on `feat/morpho-retarget-foundation` and bind that exact SNMR
-  revision in regenerated artifacts.
-- Re-run the pilot from a clean SNMR checkout and a clean Newton checkout; the current Newton build
-  is recorded as `7bb6d02...+dirty`.
-- Use the implemented worker-side motion and referenced-asset snapshots, source-revision fields,
-  and shared candidate hash to regenerate the old pilot rather than retroactively treating its
-  weaker manifest as complete.
-- Stop extending provenance after a clean checkout reproduces the same hashes, gate booleans, and
-  tolerance-bound metrics.
+Source commit `078d3116...` was replayed from detached clean SNMR and Newton worktrees against the
+clean Isaac Lab revision. The regenerated reports independently re-hash consumed motion bytes,
+referenced assets, controller state, and shared rollout configuration. A second clean run matched
+the invariant RobotSpec hashes, gate booleans, registered non-wall-time metrics, and 10,000-pose
+NPZ hash. No recorded experiment output was overwritten. The complete suite passed 553 tests with
+5 skips and 27 pre-existing warnings.
 
-Exit criterion: a clean checkout reproduces the same invariant RobotSpec hashes and gate booleans,
-registered metrics within frozen tolerances excluding wall time, and focused/full test results
-without modifying recorded run directories.
+The freeze manifest is
+[`foundation_freeze_manifest.json`](../autoresearch/iterate-260901-0111/foundation_freeze_078d311/foundation_freeze_manifest.json).
+Provenance work now stops unless a later gate exposes a concrete missing identity.
 
 ### P1. Complete G0 with paired asset and controller parity
 
@@ -488,17 +492,22 @@ temporary directory rather than overwriting the recorded iteration:
 SNMR_AUDIT_DIR="$(mktemp -d)"
 
 .venv/bin/python scripts/experiment_dynamics_twins.py \
+  --newton-root /path/to/clean/newton \
+  --isaac-lab-root /path/to/clean/IsaacLab \
   --out "$SNMR_AUDIT_DIR/dynamics_twins_mujoco.json"
 
 /home/robotixx/newton/.venv/bin/python scripts/verify_newton_pd.py \
   --pilot-json "$SNMR_AUDIT_DIR/dynamics_twins_mujoco.json" \
-  --scale 0.5 --out "$SNMR_AUDIT_DIR/newton_torque_0.5.json"
+  --scale 0.5 --isaac-lab-root /path/to/clean/IsaacLab \
+  --out "$SNMR_AUDIT_DIR/newton_torque_0.5.json"
 
 /home/robotixx/newton/.venv/bin/python scripts/verify_newton_pd.py \
   --pilot-json "$SNMR_AUDIT_DIR/dynamics_twins_mujoco.json" \
-  --scale 1.25 --out "$SNMR_AUDIT_DIR/newton_torque_1.25.json"
+  --scale 1.25 --isaac-lab-root /path/to/clean/IsaacLab \
+  --out "$SNMR_AUDIT_DIR/newton_torque_1.25.json"
 
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+  .venv/bin/python -m pytest -q
 ```
 
 The current contract and fail-closed G0 artifacts can be checked without overwriting the iteration:
@@ -534,18 +543,17 @@ The stale E80 treatment verdict was rechecked without writing artifacts:
   --reference /data/robotixx/snmr-research/e78_masked_fusion/seed0_mTl:d_prior_explicit_snmr
 ```
 
-Current workspace cautions:
+Archival state:
 
-- The dedicated branch exists as `feat/morpho-retarget-foundation`, but `HEAD` is still
-  `8f5ed72c...`; the complete foundation remains uncommitted working-tree material.
-- The new modules, scripts, tests, docs, and both bounded iteration directories are untracked;
-  README, experiment-log, E80, and trackability files are modified.
-- New reports can bind SNMR, Newton, and Isaac Lab revisions explicitly, but the recorded SNMR tree
-  is dirty and Newton remains `7bb6d02...+dirty`. The older torque pilot retains its weaker
-  provenance and should be regenerated after the freeze.
-- The hardening ledger records 78 focused passes and 3 skips. This is evidence for the bounded
-  contracts, not a clean archival full-suite result.
-- No generated experiment directory was overwritten during this review.
+- The source contracts are frozen at `078d3116...` on `feat/morpho-retarget-foundation`; the
+  annotated tag names the evidence-bearing branch commit.
+- The clean bundle records SNMR `078d3116...`, Newton `7bb6d02...`, and Isaac Lab `3c6e67b...`, all
+  with `dirty=false`. The user's separate Newton working checkout remains untouched.
+- The pre-freeze torque and FK artifacts remain historical evidence. The
+  `foundation_freeze_078d311/` directory supersedes their provenance and bundle-hash contracts.
+- Focused verification is 84 passed / 3 skipped. Full verification is 553 passed / 5 skipped / 27
+  pre-existing warnings under the single-thread archival command.
+- No generated experiment directory was overwritten during this work.
 
 ## Bottom line
 

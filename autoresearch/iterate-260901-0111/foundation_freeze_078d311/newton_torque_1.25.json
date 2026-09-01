@@ -1,0 +1,361 @@
+{
+  "asset_bundle_sha256": "fe1b0118a9433b2631fd9b84a4dba88641db6756698714e59b841c53a320dc14",
+  "asset_sha256": "8c586e4747da85804180fe44d8692e0fd8231356728b6327e256dca498087a78",
+  "backend": {
+    "build": "/tmp/snmr-foundation-freeze.uIinKN/newton@7bb6d02d8eeab2cffc3adfa453ddd63799a2ac6a",
+    "engine": "newton",
+    "engine_version": "1.6.0.dev0",
+    "quaternion_convention": "xyzw",
+    "solver": "mujoco_warp",
+    "solver_version": "3.11.0"
+  },
+  "backend_config_hash": "572582afaa93451d8ca0f4008585103d277fe9842c251716c63471dc498ec112",
+  "candidate_id": "sub3_largebox_003_mj:torque_x1.25",
+  "command": [
+    "/home/robotixx/newton/.venv/bin/python",
+    "/tmp/snmr-foundation-freeze.uIinKN/snmr/scripts/verify_newton_pd.py",
+    "--pilot-json",
+    "/home/robotixx/snmr/autoresearch/iterate-260901-0111/foundation_freeze_078d311/dynamics_twins_mujoco.json",
+    "--scale",
+    "1.25",
+    "--isaac-lab-root",
+    "/home/robotixx/.holosoma_deps/IsaacLab",
+    "--out",
+    "/home/robotixx/snmr/autoresearch/iterate-260901-0111/foundation_freeze_078d311/newton_torque_1.25.json"
+  ],
+  "config_hash": "4701359d086a335a2bd3ce9eabdb9d2d6f71d4e767382c03d5e5c95d845b3dbb",
+  "controller_hash": "e7eb722db4d22665f00f4f5b631443f8757db5464dee1a60624a687af709cd7a",
+  "environment": {
+    "mujoco_warp": "3.11.0",
+    "newton": "1.6.0.dev0",
+    "numpy": "2.5.0",
+    "python": "3.12.13",
+    "warp": "1.17.0.dev20260807"
+  },
+  "failure_intervals": [
+    {
+      "end_frame": 11,
+      "evidence": [
+        [
+          "threshold",
+          0.05
+        ],
+        [
+          "peak",
+          0.2206896551724138
+        ]
+      ],
+      "failure_type": "rollout_torque_saturation",
+      "joints": [
+        "left_hip_pitch_joint",
+        "left_hip_roll_joint",
+        "left_hip_yaw_joint",
+        "left_knee_joint",
+        "left_ankle_pitch_joint",
+        "left_ankle_roll_joint",
+        "right_hip_pitch_joint",
+        "right_hip_roll_joint",
+        "right_hip_yaw_joint",
+        "right_knee_joint",
+        "right_ankle_pitch_joint",
+        "right_ankle_roll_joint",
+        "waist_yaw_joint",
+        "waist_roll_joint",
+        "waist_pitch_joint",
+        "left_shoulder_pitch_joint",
+        "left_shoulder_roll_joint",
+        "left_shoulder_yaw_joint",
+        "left_elbow_joint",
+        "left_wrist_roll_joint",
+        "left_wrist_pitch_joint",
+        "left_wrist_yaw_joint",
+        "right_shoulder_pitch_joint",
+        "right_shoulder_roll_joint",
+        "right_shoulder_yaw_joint",
+        "right_elbow_joint",
+        "right_wrist_roll_joint",
+        "right_wrist_pitch_joint",
+        "right_wrist_yaw_joint"
+      ],
+      "links": [],
+      "severity": 0.1706896551724138,
+      "start_frame": 1
+    },
+    {
+      "end_frame": 11,
+      "evidence": [
+        [
+          "survival_time_s",
+          0.22
+        ]
+      ],
+      "failure_type": "rollout_divergence",
+      "joints": [],
+      "links": [],
+      "severity": 1.0,
+      "start_frame": 11
+    }
+  ],
+  "fps": 50.0,
+  "input_artifacts": {
+    "motion": {
+      "sha256": "296303f225a70013e719be9e594d1f528366df405753422a59bbea12deb392bf",
+      "size_bytes": 1920040,
+      "source_path": "/tmp/snmr-foundation-freeze.uIinKN/snmr/tests/fixtures/sub3_largebox_003_mj.npz"
+    },
+    "pilot_manifest": {
+      "sha256": "eb7ae9a27d2d71414d4d42c3b9811c314dfbbc8ba473db75d381e74e7c752fcb",
+      "size_bytes": 154845,
+      "source_path": "/home/robotixx/snmr/autoresearch/iterate-260901-0111/foundation_freeze_078d311/dynamics_twins_mujoco.json"
+    },
+    "robot_asset": {
+      "entrypoint": "g1_29dof.xml",
+      "entrypoint_sha256": "8c586e4747da85804180fe44d8692e0fd8231356728b6327e256dca498087a78",
+      "file_count": 37,
+      "files": [
+        {
+          "relative_path": "assets/head_link.obj",
+          "sha256": "61c950b17c36245ba2a719ae0f8b425f8b8eeed4763d050da1840b90a5a70930",
+          "size_bytes": 1518851
+        },
+        {
+          "relative_path": "assets/left_ankle_pitch_link.obj",
+          "sha256": "863c8833a07e09a2aa4fda9693c14c424f99d0804ae1991ca35213cfff9b6e82",
+          "size_bytes": 95753
+        },
+        {
+          "relative_path": "assets/left_ankle_roll_link.obj",
+          "sha256": "1996adeb213deaad6ed660c95192cc08d704411f69ed90ef3d61e625037188bb",
+          "size_bytes": 1040588
+        },
+        {
+          "relative_path": "assets/left_elbow_link.obj",
+          "sha256": "f39eb615e0adb6409fb0784bef8f8ef3d9bac84a27702da993fe694f406ab2b3",
+          "size_bytes": 129040
+        },
+        {
+          "relative_path": "assets/left_hip_pitch_link.obj",
+          "sha256": "4ed685646bdee41ddd1e74a715dcaabc59a11bcf97f2c450f0de1c4d33f8ca9e",
+          "size_bytes": 274334
+        },
+        {
+          "relative_path": "assets/left_hip_roll_link.obj",
+          "sha256": "87699e76fee17d30dac37163a441ffe341837b938927af19f2b3cac7f046c781",
+          "size_bytes": 290324
+        },
+        {
+          "relative_path": "assets/left_hip_yaw_link.obj",
+          "sha256": "0c2de1d276eb3179344417c1b1f65308ff7e10451dd89719a11a033ff0f3a142",
+          "size_bytes": 468677
+        },
+        {
+          "relative_path": "assets/left_knee_link.obj",
+          "sha256": "490a3228be00b1886b116a5b99c83fdc480b9f73ba0f1b7e240956f7ece9b4b7",
+          "size_bytes": 1386316
+        },
+        {
+          "relative_path": "assets/left_rubber_hand.obj",
+          "sha256": "2955af3ebc299bb01913c821842817e2d1da8ea883e4b6092df2f308b1a645ab",
+          "size_bytes": 3869484
+        },
+        {
+          "relative_path": "assets/left_shoulder_pitch_link.obj",
+          "sha256": "47e59be304a59f8b7267f09aa214a0b664a51f172648951a91c5c491158d969e",
+          "size_bytes": 265294
+        },
+        {
+          "relative_path": "assets/left_shoulder_roll_link.obj",
+          "sha256": "906b966a1eac99d962f3b3c068f99aa425f4eed0c1a49432b18272ebe6fe4fc6",
+          "size_bytes": 618153
+        },
+        {
+          "relative_path": "assets/left_shoulder_yaw_link.obj",
+          "sha256": "43094daafb1b84744d5adea3802ed4e85591103d50e2f249d7cc19e1798b6fd9",
+          "size_bytes": 378509
+        },
+        {
+          "relative_path": "assets/left_wrist_pitch_link.obj",
+          "sha256": "78c95a4a38918d364cdb2521c61ddd9378fe5387d66d6dc7a81cab7c5d9506a6",
+          "size_bytes": 122829
+        },
+        {
+          "relative_path": "assets/left_wrist_roll_link.obj",
+          "sha256": "fa16cac0ba54068d6e6e2c6bad6d8eb406cd69e84211ab4ff45f8643e11e36ff",
+          "size_bytes": 547879
+        },
+        {
+          "relative_path": "assets/left_wrist_yaw_link.obj",
+          "sha256": "fecf8ddca63429a8ebbf958b1603362cf07fc944e9ca9af3e211886da0959287",
+          "size_bytes": 488670
+        },
+        {
+          "relative_path": "assets/logo_link.obj",
+          "sha256": "451f64e733980255a370618a23ab6b4c9c37ea035b3bca04ae965ee55574ae08",
+          "size_bytes": 385478
+        },
+        {
+          "relative_path": "assets/pelvis.obj",
+          "sha256": "450ec17e11c33d6a92b6e97525db0ad7fef39ce4191bcdcf7f02d7e2b71d4bd8",
+          "size_bytes": 1675329
+        },
+        {
+          "relative_path": "assets/pelvis_contour_link.obj",
+          "sha256": "64453d101c1e8fcde8d93b910f54d8be905c88ffc5f4f5e1ffa55e9ed532584f",
+          "size_bytes": 3042238
+        },
+        {
+          "relative_path": "assets/right_ankle_pitch_link.obj",
+          "sha256": "c387584a3e7749f5cfbfd525c13a63fb05258f0cc92f1af195df1ca348bffaf9",
+          "size_bytes": 95766
+        },
+        {
+          "relative_path": "assets/right_ankle_roll_link.obj",
+          "sha256": "dd8b9445531854d4c72bf1cdb71d59df6b3f5bf060d2811ea0e1401998ccd4b1",
+          "size_bytes": 1041809
+        },
+        {
+          "relative_path": "assets/right_elbow_link.obj",
+          "sha256": "a4f981be317bb82bc53b6407c64cbfa4d4f226008fd2f3fb266f34af6a4f86cc",
+          "size_bytes": 129190
+        },
+        {
+          "relative_path": "assets/right_hip_pitch_link.obj",
+          "sha256": "d6e2ddf3990b662ab5582dd348b396bb3eb1b064827f7f386206b049ca3526ba",
+          "size_bytes": 276636
+        },
+        {
+          "relative_path": "assets/right_hip_roll_link.obj",
+          "sha256": "f63e568476977acbc993de97407f69fdaaaaa8ff6194a1ed9004a2fdad18c596",
+          "size_bytes": 291327
+        },
+        {
+          "relative_path": "assets/right_hip_yaw_link.obj",
+          "sha256": "5c8f27b1598c3fc7792bbb5ece6646504ffb8b4db3f9c752fa5b572593746318",
+          "size_bytes": 470717
+        },
+        {
+          "relative_path": "assets/right_knee_link.obj",
+          "sha256": "958e400cebc40c3e481ad3cd2ea9fd1a88c17728b91de7a33df24c0432969a7c",
+          "size_bytes": 1383642
+        },
+        {
+          "relative_path": "assets/right_rubber_hand.obj",
+          "sha256": "0804b574f7bf34be20dd8a101bf22f4bf01fec319071ffb5f113b261ba8d47c8",
+          "size_bytes": 3690515
+        },
+        {
+          "relative_path": "assets/right_shoulder_pitch_link.obj",
+          "sha256": "f24f9da5d61fe103a34d75a72af0e29da91f87e489e2dc27a5900c159a5457d6",
+          "size_bytes": 266659
+        },
+        {
+          "relative_path": "assets/right_shoulder_roll_link.obj",
+          "sha256": "11dd3bfbf6eec175608aa7d1d6f56617146b52c43defb912687ad781ea297019",
+          "size_bytes": 621953
+        },
+        {
+          "relative_path": "assets/right_shoulder_yaw_link.obj",
+          "sha256": "11fcb7b5777c168fd27990081cf815499df251fd0b351901cb5029e5b97c55c2",
+          "size_bytes": 377846
+        },
+        {
+          "relative_path": "assets/right_wrist_pitch_link.obj",
+          "sha256": "823d57238b59884a88ceff1aba48d584bcef975e5eb92acad00da9c4e6f76be3",
+          "size_bytes": 114317
+        },
+        {
+          "relative_path": "assets/right_wrist_roll_link.obj",
+          "sha256": "6142a7c6803a6b5906734ed029076ead6dfea6990363aa122ed6f088088fed48",
+          "size_bytes": 549333
+        },
+        {
+          "relative_path": "assets/right_wrist_yaw_link.obj",
+          "sha256": "8685565af5f4fc8aa119ffadaf66ad988b9715e49e4498cef80c739448376279",
+          "size_bytes": 525416
+        },
+        {
+          "relative_path": "assets/torso_link.obj",
+          "sha256": "28cd5329f3ebec5efe5b0d09afca87b750bd2d5c63e3d893fe15cdf13abac863",
+          "size_bytes": 3489189
+        },
+        {
+          "relative_path": "assets/waist_roll_link.obj",
+          "sha256": "be355b255fec17a743531916869713f4ef5ea6fc4d7c81f2b275af4298e0966d",
+          "size_bytes": 22777
+        },
+        {
+          "relative_path": "assets/waist_support_link.obj",
+          "sha256": "8c7603f23737d1ac0b52d9e50ba1e5582c9fae08381b65ad450dde86fd42134e",
+          "size_bytes": 233308
+        },
+        {
+          "relative_path": "assets/waist_yaw_link.obj",
+          "sha256": "747b8dc46c5fae891db4ca54f0c2a898ad32ff7e160fe785bf193dcd5505a69e",
+          "size_bytes": 420691
+        },
+        {
+          "relative_path": "g1_29dof.xml",
+          "sha256": "8c586e4747da85804180fe44d8692e0fd8231356728b6327e256dca498087a78",
+          "size_bytes": 32958
+        }
+      ],
+      "hash_schema": "snmr.mjcf-bundle.v0.2",
+      "sha256": "fe1b0118a9433b2631fd9b84a4dba88641db6756698714e59b841c53a320dc14",
+      "size_bytes": 30631795,
+      "source_root": "/home/robotixx/holosoma/src/holosoma_retargeting/holosoma_retargeting/models/g1"
+    }
+  },
+  "isaac_lab_commit": "3c6e67bb5c7ada942a6d1884ab69338f57596f77",
+  "isaac_lab_dirty": false,
+  "isaac_lab_repo_root": "/home/robotixx/.holosoma_deps/IsaacLab",
+  "isaac_lab_repo_status": "available",
+  "metrics": [
+    [
+      "max_requested_torque_ratio",
+      10.910611152648926
+    ],
+    [
+      "mean_dof_error_rad",
+      0.13790273709152603
+    ],
+    [
+      "mean_root_height_error_m",
+      0.012727125124497847
+    ],
+    [
+      "survival_fraction",
+      0.22
+    ],
+    [
+      "survival_time_s",
+      0.22
+    ],
+    [
+      "torque_saturation_fraction",
+      0.16551724137931034
+    ],
+    [
+      "wall_time_s",
+      2.563431737013161
+    ]
+  ],
+  "motion_sha256": "296303f225a70013e719be9e594d1f528366df405753422a59bbea12deb392bf",
+  "newton_commit": "7bb6d02d8eeab2cffc3adfa453ddd63799a2ac6a",
+  "newton_dirty": false,
+  "newton_repo_root": "/tmp/snmr-foundation-freeze.uIinKN/newton",
+  "newton_repo_status": "available",
+  "num_frames": 325,
+  "overflow_detected": false,
+  "passed": false,
+  "provenance_schema_version": "snmr.provenance.v0.1",
+  "robot_dynamics_hash": "2cad566dc9071e9c92ad29f4fba265e896d8b27e187df9b4f51016f01b5d90ac",
+  "robot_kinematic_hash": "e4997d0e5d9b48bf82608273788f08e0f35b6aa8dcd5abac346e1aa6a2226a3c",
+  "robot_spec_hash": "6921c0ae6df1500682d837348cfdf9cf408f03649dfda465da85783e04ca9285",
+  "schema_version": "snmr.physics-verification.v0.1",
+  "seed": 0,
+  "snmr_commit": "078d3116aa233ca09c5c68134d9fd5dd5eb55944",
+  "snmr_dirty": false,
+  "snmr_repo_root": "/tmp/snmr-foundation-freeze.uIinKN/snmr",
+  "snmr_repo_status": "available",
+  "verification_level": "L2_open_loop_pd"
+}

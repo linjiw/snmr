@@ -13,17 +13,17 @@
   "input_manifest_method": "For each arm directory, hash the sorted sha256sum lines for all top-level *_eval*.json files, using basenames.",
   "inputs": {
     "mZf": {
-      "path": "/data/robotixx/snmr-research/e78_masked_fusion/seed0_mZf",
+      "path": "artifacts/e78_masked_fusion/seed0_mZf",
       "report_count": 11,
       "report_manifest_sha256": "1990159f24333cda5cc20a7e3f561c46fe510d739c82b66e888f760d3c25b832"
     },
     "mE": {
-      "path": "/data/robotixx/snmr-research/e78_masked_fusion/seed0_mE",
+      "path": "artifacts/e78_masked_fusion/seed0_mE",
       "report_count": 11,
       "report_manifest_sha256": "d86aea463e1d484918b5160f8b9bbb76f8d9bf9b5c50c146d646f11d73c87494"
     },
     "mTl": {
-      "path": "/data/robotixx/snmr-research/e78_masked_fusion/seed0_mTl",
+      "path": "artifacts/e78_masked_fusion/seed0_mTl",
       "report_count": 11,
       "report_manifest_sha256": "7a7b80ad8338da5fd73a87949a2715a19e636ca4209973cf60a9f7a33cfb1302"
     }

@@ -388,8 +388,9 @@ Only after MR-E1 passes:
 
 ## 12. Immediate 72-hour checklist
 
-- [ ] Commit the foundation to `feat/morpho-retarget-foundation` and tag the archival commit.
-- [ ] Produce a clean provenance artifact with SNMR/Newton/Isaac revisions and byte-bound inputs.
+- [x] Commit the foundation source to `feat/morpho-retarget-foundation`; the clean evidence commit
+  is the target of the annotated archival tag.
+- [x] Produce a clean provenance artifact with SNMR/Newton/Isaac revisions and byte-bound inputs.
 - [x] Complete and test HumanMotionSpec.
 - [x] Run the deterministic 10,000-pose G1 MuJoCo half of the FK gate and record the live PhysX
   worker timeout as `g0_evaluated=false`, `g0_pass=false`; the cross-backend gate remains open.
