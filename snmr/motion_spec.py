@@ -705,9 +705,12 @@ def _target_timestamps(duration: float, fps: float = TARGET_FPS) -> np.ndarray:
         raise ValueError("duration must be finite and nonnegative")
     if duration == 0.0:
         return np.asarray([0.0], dtype=np.float64)
-    step = 1.0 / fps
     whole_steps = int(math.floor(duration * fps))
-    return np.arange(whole_steps + 1, dtype=np.float64) * step
+    # Divide integer tick indices by the declared rate.  Multiplying by a
+    # pre-rounded reciprocal can make a mathematically coincident endpoint one
+    # ULP larger than the source endpoint (for example 165 * 0.02 versus
+    # 99 / 30), incorrectly classifying an exact target tick as extrapolation.
+    return np.arange(whole_steps + 1, dtype=np.float64) / fps
 
 
 def _interpolate_numeric(

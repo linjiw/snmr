@@ -485,3 +485,22 @@ def test_short_sequence_declares_fallback_and_truncates_non_grid_source_tail():
     np.testing.assert_allclose(
         np.linalg.norm(spec.root_orientation_wxyz, axis=-1), 1.0, atol=1e-12
     )
+
+
+def test_exact_30_to_50_hz_endpoint_is_not_misclassified_as_extrapolation():
+    arrays = _source_motion(frames=100)
+    spec = HumanMotionSpec.from_source(
+        source=MotionSource(
+            dataset="unit-test", sequence_id="30-to-50", sha256="46" * 32
+        ),
+        provenance=_provenance(100, "30-to-50"),
+        source_fps=30.0,
+        body_names=("pelvis", "left_foot", "right_foot"),
+        segment_scales=_scales(),
+        **arrays,
+    )
+
+    assert spec.timebase.source_timestamps[-1] == spec.timebase.target_timestamps[-1]
+    assert spec.timebase.target_timestamps[-1] == 3.3
+    assert spec.timebase.target_timestamps.size == 166
+    np.testing.assert_array_equal(spec.root_position[-1], arrays["root_position"][-1])
