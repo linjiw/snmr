@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import json
 from pathlib import Path
 
 import numpy as np
@@ -259,3 +260,134 @@ def test_physx_cleanup_releases_callbacks_and_singleton_without_timeline_update(
     worker._cleanup_simulation_context(FakeSimulationContext(), 0.0)
 
     assert calls == ["clear_all_callbacks", "clear_instance"]
+
+
+def test_physx_application_closes_before_materialized_usd_bundle_cleanup() -> None:
+    worker = _load_physx_worker_module()
+    calls: list[object] = []
+
+    class FakeApplication:
+        def close(self) -> None:
+            calls.append("application_close")
+
+    class FakeLauncher:
+        app = FakeApplication()
+
+    class FakeTemporaryDirectory:
+        def cleanup(self) -> None:
+            calls.append("bundle_cleanup")
+
+    close_error, cleanup_error = worker._close_application_then_cleanup_bundle(
+        FakeLauncher(), FakeTemporaryDirectory()
+    )
+
+    assert close_error is None
+    assert cleanup_error is None
+    assert calls == ["application_close", "bundle_cleanup"]
+
+
+def test_physx_bundle_cleanup_still_runs_when_application_close_fails() -> None:
+    worker = _load_physx_worker_module()
+    calls: list[str] = []
+
+    class FakeApplication:
+        def close(self) -> None:
+            calls.append("application_close")
+            raise RuntimeError("close failed")
+
+    class FakeLauncher:
+        app = FakeApplication()
+
+    class FakeTemporaryDirectory:
+        def cleanup(self) -> None:
+            calls.append("bundle_cleanup")
+
+    close_error, cleanup_error = worker._close_application_then_cleanup_bundle(
+        FakeLauncher(), FakeTemporaryDirectory()
+    )
+
+    assert isinstance(close_error, RuntimeError)
+    assert cleanup_error is None
+    assert calls == ["application_close", "bundle_cleanup"]
+
+
+def test_physx_provenance_failure_writes_fail_closed_report(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    worker = _load_physx_worker_module()
+    output = tmp_path / "provenance-failure.json"
+
+    def fail_provenance(**_kwargs: object) -> dict[str, object]:
+        raise RuntimeError("revision unavailable")
+
+    monkeypatch.setattr(worker, "source_revision_manifest", fail_provenance)
+    monkeypatch.setattr(
+        worker.sys,
+        "argv",
+        [
+            "g0_fk_parity_physx.py",
+            "--reference-npz",
+            str(tmp_path / "not-needed.npz"),
+            "--reference-json",
+            str(tmp_path / "not-needed.json"),
+            "--out-json",
+            str(output),
+            "--_worker",
+            "--_supervisor-bundle-dir",
+            str(tmp_path / "bundle"),
+        ],
+    )
+
+    assert worker._worker_main() == 2
+    report = json.loads(output.read_text(encoding="utf-8"))
+    assert report["status"] == "backend_error"
+    assert report["g0_evaluated"] is False
+    assert report["g0_pass"] is False
+    assert report["gate_reason"] == "Source provenance capture failed; G0 fails closed."
+    assert report["error"]["type"] == "RuntimeError"
+
+
+def test_physx_supervisor_promotes_only_clean_shutdown_and_bundle_cleanup() -> None:
+    worker = _load_physx_worker_module()
+    pending = {
+        "command": ["python", "worker"],
+        "status": "backend_error",
+        "g0_evaluated": False,
+        "g0_pass": False,
+        "worker_result_before_teardown": {
+            "status": "pass",
+            "g0_evaluated": True,
+            "g0_pass": True,
+            "gate_reason": "comparison passed",
+            "intended_exit_code": 0,
+        },
+        "teardown": {
+            "simulation_context_released": True,
+            "stage_closed": True,
+            "application_close_completed": False,
+            "materialized_bundle_cleanup_completed": False,
+        },
+    }
+    promoted, exit_code = worker._promote_supervised_report(
+        pending,
+        worker_returncode=0,
+        bundle_cleanup_completed=True,
+        supervisor_command=["python", "supervisor"],
+    )
+    assert exit_code == 0
+    assert promoted["status"] == "pass"
+    assert promoted["g0_pass"] is True
+    assert promoted["teardown"]["application_close_completed"] is True
+    assert promoted["teardown"]["materialized_bundle_cleanup_completed"] is True
+    assert "worker_result_before_teardown" not in promoted
+
+    rejected, exit_code = worker._promote_supervised_report(
+        pending,
+        worker_returncode=0,
+        bundle_cleanup_completed=False,
+        supervisor_command=["python", "supervisor"],
+    )
+    assert exit_code == 2
+    assert rejected["status"] == "backend_error"
+    assert rejected["g0_evaluated"] is False
+    assert rejected["g0_pass"] is False

@@ -18,6 +18,8 @@ import json
 import os
 from pathlib import Path
 import platform
+import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -91,6 +93,33 @@ def _cleanup_simulation_context(sim: object, started_at: float) -> None:
     _progress("simulation_cleanup_complete", started_at)
 
 
+def _close_application_then_cleanup_bundle(
+    app_launcher: object | None,
+    usd_temporary: tempfile.TemporaryDirectory[str] | None,
+) -> tuple[BaseException | None, BaseException | None]:
+    """Close Kit before deleting the private USD bundle it may still resolve.
+
+    The worker journals its result before entering this helper because Isaac Sim may
+    terminate its embedded Python runtime from ``close``.  When ``close`` returns, the
+    temporary asset bundle is removed only afterwards.  Both failures are returned so
+    the caller can persist them without one masking the other.
+    """
+
+    close_error: BaseException | None = None
+    cleanup_error: BaseException | None = None
+    if app_launcher is not None:
+        try:
+            app_launcher.app.close()
+        except BaseException as exc:
+            close_error = exc
+    if usd_temporary is not None:
+        try:
+            usd_temporary.cleanup()
+        except BaseException as exc:
+            cleanup_error = exc
+    return close_error, cleanup_error
+
+
 def _base_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Compare a MuJoCo G0 reference against live Isaac Lab/PhysX FK."
@@ -105,6 +134,10 @@ def _base_parser() -> argparse.ArgumentParser:
     parser.add_argument("--snmr-root", type=Path, default=REPO_ROOT)
     parser.add_argument("--newton-root", type=Path, default=DEFAULT_NEWTON)
     parser.add_argument("--isaac-lab-root", type=Path, default=DEFAULT_ISAAC_LAB)
+    parser.add_argument("--_worker", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--_supervisor-bundle-dir", type=Path, help=argparse.SUPPRESS
+    )
     return parser
 
 
@@ -376,18 +409,13 @@ def _run_physx(
     return output_positions, output_quaternions, runtime
 
 
-def main() -> int:
+def _worker_main() -> int:
     parser = _base_parser()
     # Parse enough to guarantee an output location if Isaac Lab itself cannot import.
     preliminary, _ = parser.parse_known_args()
     out_json = preliminary.out_json.expanduser().resolve()
     if out_json.exists():
         raise FileExistsError(f"refusing to overwrite existing artifact: {out_json}")
-    revisions = source_revision_manifest(
-        snmr_path=preliminary.snmr_root,
-        newton_path=preliminary.newton_root,
-        isaac_lab_path=preliminary.isaac_lab_root,
-    )
     report: dict[str, object] = {
         "schema_version": FK_PARITY_SCHEMA_VERSION,
         "created_at": _utc_now(),
@@ -406,8 +434,31 @@ def main() -> int:
             "python": platform.python_version(),
             "numpy": np.__version__,
         },
-        **revisions,
     }
+    try:
+        revisions = source_revision_manifest(
+            snmr_path=preliminary.snmr_root,
+            newton_path=preliminary.newton_root,
+            isaac_lab_path=preliminary.isaac_lab_root,
+        )
+        report.update(revisions)
+    except BaseException as exc:
+        report["status"] = "backend_error"
+        report["gate_reason"] = "Source provenance capture failed; G0 fails closed."
+        report["error"] = {
+            "type": type(exc).__name__,
+            "message": str(exc),
+            "traceback": traceback.format_exc(),
+        }
+        report["completed_at"] = _utc_now()
+        _write_json_atomic(out_json, report)
+        print(
+            json.dumps(
+                {"manifest": str(out_json), "status": "backend_error", "g0_pass": False}
+            ),
+            flush=True,
+        )
+        return 2
     app_launcher = None
     args = None
     usd_temporary = None
@@ -457,9 +508,10 @@ def main() -> int:
 
         # Keep the private USD materialization alive until after Isaac Sim closes; some
         # Kit shutdown callbacks may still resolve layer paths.
-        usd_temporary = tempfile.TemporaryDirectory(prefix="snmr-g0-physx-")
+        if args._supervisor_bundle_dir is None:
+            raise ValueError("the PhysX worker requires its supervisor-owned bundle directory")
         materialized_root = materialize_memory_bundle(
-            usd_members, Path(usd_temporary.name) / "usd"
+            usd_members, args._supervisor_bundle_dir / "usd"
         )
         materialized_usd = materialized_root / args.usd_entrypoint
         launch_started_at = time.perf_counter()
@@ -573,26 +625,67 @@ def main() -> int:
                 report["g0_evaluated"] = False
                 report["g0_pass"] = False
                 exit_code = 2
-        if usd_temporary is not None:
-            try:
-                usd_temporary.cleanup()
-            except BaseException as cleanup_exc:
-                report["cleanup_error"] = {
-                    "type": type(cleanup_exc).__name__,
-                    "message": str(cleanup_exc),
-                }
-                report["status"] = "backend_error"
-                report["g0_evaluated"] = False
-                report["g0_pass"] = False
-                exit_code = 2
         report["teardown"] = {
             "simulation_context_released": simulation_context_released,
             "stage_closed": stage_closed,
             "application_close_invoked_after_manifest": app_launcher is not None,
+            "application_close_completed": False,
+            "materialized_bundle_cleanup_completed": False,
         }
+        # Preserve a fail-closed journal until application close and asset cleanup both
+        # return.  If Kit terminates or an external timeout fires inside close, this is the
+        # only durable state and cannot be mistaken for a completed gate.
+        pre_close_report = copy.deepcopy(report)
+        pre_close_report["status"] = "backend_error"
+        pre_close_report["g0_evaluated"] = False
+        pre_close_report["g0_pass"] = False
+        pre_close_report["gate_reason"] = (
+            "Live pose comparison and stage close finished, but application close or "
+            "private asset cleanup has not completed; G0 fails closed."
+        )
+        pre_close_report["worker_result_before_teardown"] = {
+            "status": report["status"],
+            "g0_evaluated": report["g0_evaluated"],
+            "g0_pass": report["g0_pass"],
+            "gate_reason": report.get("gate_reason"),
+            "intended_exit_code": exit_code,
+        }
+        pre_close_report["supervisor_bundle_directory"] = str(
+            args._supervisor_bundle_dir
+        ) if args is not None else None
+        pre_close_report["completed_at"] = _utc_now()
+        _write_json_atomic(out_json, pre_close_report)
+
+        # Do not call Kit's post_quit here: it may terminate embedded Python before the
+        # final manifest can replace the fail-closed journal.  ``main`` returns the
+        # manifest-derived process status after ``SimulationApp.close`` returns.
+        close_error, cleanup_error = _close_application_then_cleanup_bundle(
+            app_launcher,
+            usd_temporary,
+        )
+        report["teardown"]["application_close_completed"] = (
+            app_launcher is None or close_error is None
+        )
+        report["teardown"]["materialized_bundle_cleanup_completed"] = (
+            usd_temporary is None or cleanup_error is None
+        )
+        if close_error is not None:
+            report["close_error"] = {
+                "type": type(close_error).__name__,
+                "message": str(close_error),
+            }
+        if cleanup_error is not None:
+            report["cleanup_error"] = {
+                "type": type(cleanup_error).__name__,
+                "message": str(cleanup_error),
+            }
+        if close_error is not None or cleanup_error is not None:
+            report["status"] = "backend_error"
+            report["g0_evaluated"] = False
+            report["g0_pass"] = False
+            exit_code = 2
         report["completed_at"] = _utc_now()
         _write_json_atomic(out_json, report)
-
         print(
             json.dumps(
                 {
@@ -607,26 +700,116 @@ def main() -> int:
             ),
             flush=True,
         )
+    return exit_code
 
-        # Isaac Sim 5.1's framework shutdown terminates the embedded Python runtime,
-        # so every durable result must be written before this call.  ``post_quit``
-        # preserves the manifest-derived process status instead of the default zero.
-        if app_launcher is not None:
-            try:
-                app_launcher.app.app.post_quit(exit_code)
-                app_launcher.app.close()
-            except BaseException as close_exc:
-                report["close_error"] = {
-                    "type": type(close_exc).__name__,
-                    "message": str(close_exc),
-                }
-                report["status"] = "backend_error"
-                report["g0_evaluated"] = False
-                report["g0_pass"] = False
-                report["teardown"]["application_close_invoked_after_manifest"] = True
-                report["completed_at"] = _utc_now()
-                _write_json_atomic(out_json, report)
-                exit_code = 2
+
+def _promote_supervised_report(
+    pending: dict[str, object],
+    *,
+    worker_returncode: int,
+    bundle_cleanup_completed: bool,
+    supervisor_command: list[str],
+) -> tuple[dict[str, object], int]:
+    """Promote a teardown journal only after the parent observes clean process exit."""
+
+    result = pending.get("worker_result_before_teardown")
+    teardown = pending.get("teardown")
+    valid_result = isinstance(result, dict)
+    valid_teardown = isinstance(teardown, dict) and bool(
+        teardown.get("simulation_context_released")
+        and teardown.get("stage_closed")
+    )
+    promoted = copy.deepcopy(pending)
+    promoted["worker_command"] = promoted.get("command")
+    promoted["command"] = supervisor_command
+    promoted["supervisor"] = {
+        "worker_returncode": worker_returncode,
+        "clean_framework_shutdown_observed": worker_returncode == 0,
+        "private_bundle_cleanup_completed": bundle_cleanup_completed,
+    }
+    if valid_result and valid_teardown and worker_returncode == 0 and bundle_cleanup_completed:
+        promoted["status"] = result["status"]
+        promoted["g0_evaluated"] = result["g0_evaluated"]
+        promoted["g0_pass"] = result["g0_pass"]
+        promoted["gate_reason"] = result.get("gate_reason")
+        promoted["teardown"]["application_close_completed"] = True
+        promoted["teardown"]["materialized_bundle_cleanup_completed"] = True
+        promoted["teardown"]["shutdown_observed_by_supervisor"] = True
+        exit_code = int(result["intended_exit_code"])
+    else:
+        promoted["status"] = "backend_error"
+        promoted["g0_evaluated"] = False
+        promoted["g0_pass"] = False
+        promoted["gate_reason"] = (
+            "The supervisor could not verify clean framework shutdown and private asset "
+            "cleanup; G0 fails closed."
+        )
+        exit_code = 2
+    promoted.pop("worker_result_before_teardown", None)
+    promoted.pop("supervisor_bundle_directory", None)
+    promoted["completed_at"] = _utc_now()
+    return promoted, exit_code
+
+
+def main() -> int:
+    preliminary, _ = _base_parser().parse_known_args()
+    if preliminary._worker:
+        return _worker_main()
+
+    out_json = preliminary.out_json.expanduser().resolve()
+    if out_json.exists():
+        raise FileExistsError(f"refusing to overwrite existing artifact: {out_json}")
+    bundle_root = Path(tempfile.mkdtemp(prefix="snmr-g0-physx-supervisor-"))
+    child_command = [
+        sys.executable,
+        str(Path(__file__).resolve()),
+        *sys.argv[1:],
+        "--_worker",
+        "--_supervisor-bundle-dir",
+        str(bundle_root),
+    ]
+    worker = subprocess.run(child_command, check=False)
+    cleanup_completed = False
+    try:
+        shutil.rmtree(bundle_root)
+        cleanup_completed = not bundle_root.exists()
+    except OSError:
+        cleanup_completed = False
+
+    if not out_json.exists():
+        raise RuntimeError(
+            "PhysX worker exited without publishing a fail-closed teardown journal"
+        )
+    try:
+        pending = json.loads(out_json.read_bytes())
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError("PhysX worker published an invalid JSON report") from exc
+    if not isinstance(pending, dict):
+        raise RuntimeError("PhysX worker report must be a JSON object")
+
+    if "worker_result_before_teardown" in pending:
+        final_report, exit_code = _promote_supervised_report(
+            pending,
+            worker_returncode=worker.returncode,
+            bundle_cleanup_completed=cleanup_completed,
+            supervisor_command=[sys.executable, *sys.argv],
+        )
+        _write_json_atomic(out_json, final_report)
+    else:
+        # Failures before ApplicationLauncher construction return normally and already
+        # publish a final fail-closed report.  Never upgrade them.
+        final_report = pending
+        exit_code = 2
+    print(
+        json.dumps(
+            {
+                "manifest": str(out_json),
+                "status": final_report.get("status"),
+                "g0_pass": final_report.get("g0_pass", False),
+            }
+        ),
+        flush=True,
+    )
     return exit_code
 
 
