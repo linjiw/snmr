@@ -11,6 +11,7 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import trackability_proxy as trackability_module  # noqa: E402
 from trackability_proxy import (  # noqa: E402
     HOLOSOMA_G1_DAMPING,
     HOLOSOMA_G1_EFFORT,
@@ -42,6 +43,45 @@ def test_gain_tables_cover_all_hinges_unambiguously(g1_mjcf):
     for n in names:
         for table in (HOLOSOMA_G1_STIFFNESS, HOLOSOMA_G1_DAMPING, HOLOSOMA_G1_EFFORT):
             assert _match_gain(n, table) > 0  # raises if 0 or 2+ substring hits
+
+
+def test_replay_exposes_torque_intervention_metrics(g1_mjcf, g1_train_npz):
+    result = replay(
+        g1_train_npz,
+        g1_mjcf,
+        seconds_max=0.1,
+        effort_scale=0.5,
+        return_trace=True,
+    )
+    assert result["effort_scale"] == 0.5
+    assert 0.0 <= result["torque_saturation_fraction"] <= 1.0
+    assert result["max_requested_torque_ratio"] >= 0.0
+    assert len(result["trace"]["torque_saturation_fraction"]) > 0
+    assert len(result["trace"]["torque_saturation_fraction"]) == len(
+        result["trace"]["max_requested_torque_ratio"]
+    )
+
+
+def test_replay_rejects_invalid_effort_scale(g1_mjcf, g1_train_npz):
+    with pytest.raises(ValueError, match="effort_scale"):
+        replay(g1_train_npz, g1_mjcf, seconds_max=0.1, effort_scale=0.0)
+
+
+def test_replay_fails_closed_on_nonfinite_simulator_state(
+    g1_mjcf, g1_train_npz, monkeypatch
+):
+    original_step = trackability_module.mujoco.mj_step
+
+    def inject_nan(model, data):
+        original_step(model, data)
+        data.qpos[0] = np.nan
+
+    monkeypatch.setattr(trackability_module.mujoco, "mj_step", inject_nan)
+    result = replay(g1_train_npz, g1_mjcf, seconds_max=0.1)
+    assert result["diverged"]
+    assert result["nonfinite_state"]
+    assert result["survival_time_s"] == 0.0
+    assert result["failure_frame"] == 0
 
 
 def test_replay_is_deterministic_and_well_formed(g1_mjcf, wbt_clip):

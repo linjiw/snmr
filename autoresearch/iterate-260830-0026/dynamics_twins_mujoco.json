@@ -1,0 +1,5561 @@
+{
+  "all_gates_passed": true,
+  "asset_sha256": "8c586e4747da85804180fe44d8692e0fd8231356728b6327e256dca498087a78",
+  "base_spec": {
+    "arm_span": 0.30329693673778196,
+    "asset_sha256": "8c586e4747da85804180fe44d8692e0fd8231356728b6327e256dca498087a78",
+    "control": {
+      "control_dt": 0.02,
+      "latency_seconds": 0.0,
+      "mode": "position_pd"
+    },
+    "frames": {
+      "forward_axis": "x",
+      "length_unit": "meter",
+      "quaternion": "wxyz",
+      "up_axis": "z"
+    },
+    "joints": [
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "left_hip_pitch_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 2.557889765,
+        "kp": 40.179238471,
+        "lower_limit": -2.5307,
+        "name": "left_hip_pitch_joint",
+        "nominal_position": 0.0,
+        "parent_link": "pelvis",
+        "torque_limit": 88.0,
+        "upper_limit": 2.8798,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "left_hip_roll_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 6.308801854,
+        "kp": 99.098427777,
+        "lower_limit": -0.5236,
+        "name": "left_hip_roll_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_hip_pitch_link",
+        "torque_limit": 139.0,
+        "upper_limit": 2.9671,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "child_link": "left_hip_yaw_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 2.557889765,
+        "kp": 40.179238471,
+        "lower_limit": -2.7576,
+        "name": "left_hip_yaw_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_hip_roll_link",
+        "torque_limit": 88.0,
+        "upper_limit": 2.7576,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "left_knee_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 6.308801854,
+        "kp": 99.098427777,
+        "lower_limit": -0.087267,
+        "name": "left_knee_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_hip_yaw_link",
+        "torque_limit": 139.0,
+        "upper_limit": 2.8798,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "left_ankle_pitch_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.814445687,
+        "kp": 28.501246196,
+        "lower_limit": -0.87267,
+        "name": "left_ankle_pitch_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_knee_link",
+        "torque_limit": 50.0,
+        "upper_limit": 0.5236,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "left_ankle_roll_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.814445687,
+        "kp": 28.501246196,
+        "lower_limit": -0.2618,
+        "name": "left_ankle_roll_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_ankle_pitch_link",
+        "torque_limit": 50.0,
+        "upper_limit": 0.2618,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "right_hip_pitch_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 2.557889765,
+        "kp": 40.179238471,
+        "lower_limit": -2.5307,
+        "name": "right_hip_pitch_joint",
+        "nominal_position": 0.0,
+        "parent_link": "pelvis",
+        "torque_limit": 88.0,
+        "upper_limit": 2.8798,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "right_hip_roll_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 6.308801854,
+        "kp": 99.098427777,
+        "lower_limit": -2.9671,
+        "name": "right_hip_roll_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_hip_pitch_link",
+        "torque_limit": 139.0,
+        "upper_limit": 0.5236,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "child_link": "right_hip_yaw_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 2.557889765,
+        "kp": 40.179238471,
+        "lower_limit": -2.7576,
+        "name": "right_hip_yaw_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_hip_roll_link",
+        "torque_limit": 88.0,
+        "upper_limit": 2.7576,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "right_knee_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 6.308801854,
+        "kp": 99.098427777,
+        "lower_limit": -0.087267,
+        "name": "right_knee_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_hip_yaw_link",
+        "torque_limit": 139.0,
+        "upper_limit": 2.8798,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "right_ankle_pitch_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.814445687,
+        "kp": 28.501246196,
+        "lower_limit": -0.87267,
+        "name": "right_ankle_pitch_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_knee_link",
+        "torque_limit": 50.0,
+        "upper_limit": 0.5236,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "right_ankle_roll_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.814445687,
+        "kp": 28.501246196,
+        "lower_limit": -0.2618,
+        "name": "right_ankle_roll_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_ankle_pitch_link",
+        "torque_limit": 50.0,
+        "upper_limit": 0.2618,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "child_link": "waist_yaw_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 2.557889765,
+        "kp": 40.179238471,
+        "lower_limit": -2.618,
+        "name": "waist_yaw_joint",
+        "nominal_position": 0.0,
+        "parent_link": "pelvis",
+        "torque_limit": 88.0,
+        "upper_limit": 2.618,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "waist_roll_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.814445687,
+        "kp": 28.501246196,
+        "lower_limit": -0.52,
+        "name": "waist_roll_joint",
+        "nominal_position": 0.0,
+        "parent_link": "waist_yaw_link",
+        "torque_limit": 50.0,
+        "upper_limit": 0.52,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "torso_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.814445687,
+        "kp": 28.501246196,
+        "lower_limit": -0.52,
+        "name": "waist_pitch_joint",
+        "nominal_position": 0.0,
+        "parent_link": "waist_roll_link",
+        "torque_limit": 50.0,
+        "upper_limit": 0.52,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "left_shoulder_pitch_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -3.0892,
+        "name": "left_shoulder_pitch_joint",
+        "nominal_position": 0.0,
+        "parent_link": "torso_link",
+        "torque_limit": 25.0,
+        "upper_limit": 2.6704,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "left_shoulder_roll_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -1.5882,
+        "name": "left_shoulder_roll_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_shoulder_pitch_link",
+        "torque_limit": 25.0,
+        "upper_limit": 2.2515,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "child_link": "left_shoulder_yaw_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -2.618,
+        "name": "left_shoulder_yaw_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_shoulder_roll_link",
+        "torque_limit": 25.0,
+        "upper_limit": 2.618,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "left_elbow_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -1.0472,
+        "name": "left_elbow_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_shoulder_yaw_link",
+        "torque_limit": 25.0,
+        "upper_limit": 2.0944,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "left_wrist_roll_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -1.97222,
+        "name": "left_wrist_roll_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_elbow_link",
+        "torque_limit": 25.0,
+        "upper_limit": 1.97222,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "left_wrist_pitch_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.068141502,
+        "kp": 16.778327481,
+        "lower_limit": -1.61443,
+        "name": "left_wrist_pitch_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_wrist_roll_link",
+        "torque_limit": 5.0,
+        "upper_limit": 1.61443,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "child_link": "left_wrist_yaw_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.068141502,
+        "kp": 16.778327481,
+        "lower_limit": -1.61443,
+        "name": "left_wrist_yaw_joint",
+        "nominal_position": 0.0,
+        "parent_link": "left_wrist_pitch_link",
+        "torque_limit": 5.0,
+        "upper_limit": 1.61443,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "right_shoulder_pitch_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -3.0892,
+        "name": "right_shoulder_pitch_joint",
+        "nominal_position": 0.0,
+        "parent_link": "torso_link",
+        "torque_limit": 25.0,
+        "upper_limit": 2.6704,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "right_shoulder_roll_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -2.2515,
+        "name": "right_shoulder_roll_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_shoulder_pitch_link",
+        "torque_limit": 25.0,
+        "upper_limit": 1.5882,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "child_link": "right_shoulder_yaw_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -2.618,
+        "name": "right_shoulder_yaw_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_shoulder_roll_link",
+        "torque_limit": 25.0,
+        "upper_limit": 2.618,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "right_elbow_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -1.0472,
+        "name": "right_elbow_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_shoulder_yaw_link",
+        "torque_limit": 25.0,
+        "upper_limit": 2.0944,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "child_link": "right_wrist_roll_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 0.907222843,
+        "kp": 14.250623098,
+        "lower_limit": -1.97222,
+        "name": "right_wrist_roll_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_elbow_link",
+        "torque_limit": 25.0,
+        "upper_limit": 1.97222,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "child_link": "right_wrist_pitch_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.068141502,
+        "kp": 16.778327481,
+        "lower_limit": -1.61443,
+        "name": "right_wrist_pitch_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_wrist_roll_link",
+        "torque_limit": 5.0,
+        "upper_limit": 1.61443,
+        "velocity_limit": null
+      },
+      {
+        "armature": 0.0,
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "child_link": "right_wrist_yaw_link",
+        "damping": 0.0,
+        "friction_loss": 0.0,
+        "joint_type": "revolute",
+        "kd": 1.068141502,
+        "kp": 16.778327481,
+        "lower_limit": -1.61443,
+        "name": "right_wrist_yaw_joint",
+        "nominal_position": 0.0,
+        "parent_link": "right_wrist_pitch_link",
+        "torque_limit": 5.0,
+        "upper_limit": 1.61443,
+        "velocity_limit": null
+      }
+    ],
+    "links": [
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          -0.0760301
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -1.9529489953070503e-07,
+              -9.177323234793636e-07,
+              -0.07637656346509036
+            ],
+            "local_rotation_wxyz": [
+              0.9999999967954452,
+              7.993780699160511e-05,
+              -3.4896085984186355e-10,
+              4.365404454493559e-06
+            ],
+            "size": [
+              0.048750873742324986,
+              0.06446216830866386,
+              0.07888335787932337
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.0105549,
+          0.00931478,
+          0.0079185
+        ],
+        "inertia_rotation_wxyz": [
+          0.9999999206893183,
+          0.0,
+          -0.00039827296841269685,
+          0.0
+        ],
+        "local_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 3.814,
+        "name": "pelvis",
+        "parent": null
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.000687039484598931,
+              2.4018274773402232e-05,
+              -0.07859361485173304
+            ],
+            "local_rotation_wxyz": [
+              0.5061214288674131,
+              0.49351819759888993,
+              0.4946116591465949,
+              0.5056087365900696
+            ],
+            "size": [
+              0.06782894874748154,
+              0.07338559624921524,
+              0.06076767268017693
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.000687039484598931,
+              2.4018274773402232e-05,
+              -0.07859361485173304
+            ],
+            "local_rotation_wxyz": [
+              0.5061214288674131,
+              0.49351819759888993,
+              0.4946116591465949,
+              0.5056087365900696
+            ],
+            "size": [
+              0.06782894874748154,
+              0.07338559624921524,
+              0.06076767268017693
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "pelvis_contour_link",
+        "parent": "pelvis"
+      },
+      {
+        "center_of_mass": [
+          0.002741,
+          0.047791,
+          -0.02606
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.0008665583303242396,
+              0.047110954971878304,
+              -0.02629613546058049
+            ],
+            "local_rotation_wxyz": [
+              0.9456325845609939,
+              0.3154926722298732,
+              -0.04501075944275971,
+              0.06494166859678355
+            ],
+            "size": [
+              0.039339903097704014,
+              0.05196331724033181,
+              0.07593229093357788
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.0008665583303242396,
+              0.047110954971878304,
+              -0.02629613546058049
+            ],
+            "local_rotation_wxyz": [
+              0.9456325845609939,
+              0.3154926722298732,
+              -0.04501075944275971,
+              0.06494166859678355
+            ],
+            "size": [
+              0.039339903097704014,
+              0.05196331724033181,
+              0.07593229093357788
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00181517,
+          0.00153422,
+          0.00116212
+        ],
+        "inertia_rotation_wxyz": [
+          0.9548624733467579,
+          0.2939641457246244,
+          0.03025561499838738,
+          0.030122014932158825
+        ],
+        "local_position": [
+          0.0,
+          0.064452,
+          -0.1027
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 1.35,
+        "name": "left_hip_pitch_link",
+        "parent": "pelvis"
+      },
+      {
+        "center_of_mass": [
+          0.029812,
+          -0.001045,
+          -0.087934
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.03567396055740678,
+              -0.0003636197515645049,
+              -0.0677137277413387
+            ],
+            "local_rotation_wxyz": [
+              0.9844228514347075,
+              -0.0038236021396831775,
+              0.17564187377071927,
+              -0.006852869336840915
+            ],
+            "size": [
+              0.05856963280880765,
+              0.04908167214202696,
+              0.10689874149425602
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.03567396055740678,
+              -0.0003636197515645049,
+              -0.0677137277413387
+            ],
+            "local_rotation_wxyz": [
+              0.9844228514347075,
+              -0.0038236021396831775,
+              0.17564187377071927,
+              -0.006852869336840915
+            ],
+            "size": [
+              0.05856963280880765,
+              0.04908167214202696,
+              0.10689874149425602
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00254986,
+          0.00241169,
+          0.00148755
+        ],
+        "inertia_rotation_wxyz": [
+          0.9778077727100524,
+          -1.9711895417999528e-05,
+          0.2055759522141788,
+          -0.040379290613894565
+        ],
+        "local_position": [
+          0.0,
+          0.052,
+          -0.030465
+        ],
+        "local_rotation_wxyz": [
+          0.996178685660368,
+          0.0,
+          -0.08733857244071258,
+          0.0
+        ],
+        "mass": 1.52,
+        "name": "left_hip_roll_link",
+        "parent": "left_hip_pitch_link"
+      },
+      {
+        "center_of_mass": [
+          -0.057709,
+          -0.010981,
+          -0.15078
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.030698236268772803,
+              -0.0031575128513164556,
+              -0.09263915893475738
+            ],
+            "local_rotation_wxyz": [
+              0.667926818500666,
+              0.15234409132609364,
+              0.17316653013317032,
+              0.707586316859819
+            ],
+            "size": [
+              0.04467976824194766,
+              0.059945893702248745,
+              0.14643368762883774
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.030698236268772803,
+              -0.0031575128513164556,
+              -0.09263915893475738
+            ],
+            "local_rotation_wxyz": [
+              0.667926818500666,
+              0.15234409132609364,
+              0.17316653013317032,
+              0.707586316859819
+            ],
+            "size": [
+              0.04467976824194766,
+              0.059945893702248745,
+              0.14643368762883774
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00776166,
+          0.00717575,
+          0.00160139
+        ],
+        "inertia_rotation_wxyz": [
+          0.6005979161898699,
+          0.1583199779073194,
+          0.22348196881432258,
+          0.7511808951768449
+        ],
+        "local_position": [
+          0.025001,
+          0.0,
+          -0.12412
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 1.702,
+        "name": "left_hip_yaw_link",
+        "parent": "left_hip_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0054289,
+          0.00394359,
+          -0.12156
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.012290411535735431,
+              0.002729440660515483,
+              -0.12275210053356267
+            ],
+            "local_rotation_wxyz": [
+              0.7584882414661416,
+              -0.013823481424869291,
+              0.029389099933297698,
+              0.6508769313195915
+            ],
+            "size": [
+              0.04770209771616845,
+              0.05718984407550645,
+              0.19278220115542186
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.012290411535735431,
+              0.002729440660515483,
+              -0.12275210053356267
+            ],
+            "local_rotation_wxyz": [
+              0.7584882414661416,
+              -0.013823481424869291,
+              0.029389099933297698,
+              0.6508769313195915
+            ],
+            "size": [
+              0.04770209771616845,
+              0.05718984407550645,
+              0.19278220115542186
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.0116342,
+          0.0115308,
+          0.00146637
+        ],
+        "inertia_rotation_wxyz": [
+          0.9237551044176386,
+          -0.03208670362695461,
+          0.015919001799421264,
+          0.38130504310122026
+        ],
+        "local_position": [
+          -0.078273,
+          0.0021489,
+          -0.17734
+        ],
+        "local_rotation_wxyz": [
+          0.996178685660368,
+          0.0,
+          0.08733857244071258,
+          0.0
+        ],
+        "mass": 1.942,
+        "name": "left_knee_link",
+        "parent": "left_hip_yaw_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.01,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.01,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-06,
+          1e-06,
+          1e-06
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.0,
+          0.0,
+          -0.28
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.01,
+        "name": "left_ankle_intermediate_1_link",
+        "parent": "left_knee_link"
+      },
+      {
+        "center_of_mass": [
+          -0.007269,
+          0.0,
+          0.011137
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.004106198505627725,
+              5.887766128879374e-05,
+              -0.008573514633452803
+            ],
+            "local_rotation_wxyz": [
+              0.6766703179330781,
+              0.20522495176841365,
+              0.20522495176841365,
+              0.6766703179330781
+            ],
+            "size": [
+              0.006501067809225146,
+              0.017950468170836488,
+              0.02378830398139104
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.004106198505627725,
+              5.887766128879374e-05,
+              -0.008573514633452803
+            ],
+            "local_rotation_wxyz": [
+              0.6766703179330781,
+              0.20522495176841365,
+              0.20522495176841365,
+              0.6766703179330781
+            ],
+            "size": [
+              0.006501067809225146,
+              0.017950468170836488,
+              0.02378830398139104
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1.89e-05,
+          1.40805e-05,
+          6.9195e-06
+        ],
+        "inertia_rotation_wxyz": [
+          0.6030529870741624,
+          0.36922499208603166,
+          0.36922499208603166,
+          0.6030529870741624
+        ],
+        "local_position": [
+          0.0,
+          -9.4445e-05,
+          -0.30001
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.074,
+        "name": "left_ankle_pitch_link",
+        "parent": "left_knee_link"
+      },
+      {
+        "center_of_mass": [
+          0.0267456,
+          0.0,
+          -0.0165357
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.026464357521501627,
+              7.351296904595056e-05,
+              -0.014106210157045539
+            ],
+            "local_rotation_wxyz": [
+              -0.0005721973021521332,
+              0.7352857380387696,
+              -0.0007274340194486917,
+              0.677756613296234
+            ],
+            "size": [
+              0.03863905844137708,
+              0.037839276643955935,
+              0.11717886477165652
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.026464357521501627,
+              7.351296904595056e-05,
+              -0.014106210157045539
+            ],
+            "local_rotation_wxyz": [
+              -0.0005721973021521332,
+              0.7352857380387696,
+              -0.0007274340194486917,
+              0.677756613296234
+            ],
+            "size": [
+              0.03863905844137708,
+              0.037839276643955935,
+              0.11717886477165652
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00171785,
+          0.00165955,
+          0.000221997
+        ],
+        "inertia_rotation_wxyz": [
+          -0.0004627151546381019,
+          0.7283562434146058,
+          -0.0005962891992781715,
+          0.6851982289913189
+        ],
+        "local_position": [
+          0.0,
+          0.0,
+          -0.017558
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.613,
+        "name": "left_ankle_roll_link",
+        "parent": "left_ankle_pitch_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.12,
+          0.03,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "left_ankle_roll_sphere_3_link",
+        "parent": "left_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.12,
+          -0.03,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "left_ankle_roll_sphere_4_link",
+        "parent": "left_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.14,
+          0.0,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "left_ankle_roll_sphere_5_link",
+        "parent": "left_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          -0.05,
+          0.025,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "left_ankle_roll_sphere_1_link",
+        "parent": "left_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          -0.05,
+          -0.025,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "left_ankle_roll_sphere_2_link",
+        "parent": "left_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.002741,
+          -0.047791,
+          -0.02606
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.0008664702756204793,
+              -0.04711005089863387,
+              -0.02629662322461711
+            ],
+            "local_rotation_wxyz": [
+              0.9456234604353225,
+              -0.3155128386820302,
+              -0.04502166816225477,
+              -0.06496898565485838
+            ],
+            "size": [
+              0.039340504019179316,
+              0.05196361118656624,
+              0.07593218024022809
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.0008664702756204793,
+              -0.04711005089863387,
+              -0.02629662322461711
+            ],
+            "local_rotation_wxyz": [
+              0.9456234604353225,
+              -0.3155128386820302,
+              -0.04502166816225477,
+              -0.06496898565485838
+            ],
+            "size": [
+              0.039340504019179316,
+              0.05196361118656624,
+              0.07593218024022809
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00181517,
+          0.00153422,
+          0.00116212
+        ],
+        "inertia_rotation_wxyz": [
+          0.9548624733467579,
+          -0.2939641457246244,
+          0.03025561499838738,
+          -0.030122014932158825
+        ],
+        "local_position": [
+          0.0,
+          -0.064452,
+          -0.1027
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 1.35,
+        "name": "right_hip_pitch_link",
+        "parent": "pelvis"
+      },
+      {
+        "center_of_mass": [
+          0.029812,
+          0.001045,
+          -0.087934
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.03567378823060884,
+              0.0003616972304719764,
+              -0.06771295500103369
+            ],
+            "local_rotation_wxyz": [
+              0.9844240027509135,
+              0.0037907936869626285,
+              0.1756437258052397,
+              0.006655394529706713
+            ],
+            "size": [
+              0.05856960257980981,
+              0.04907887944564728,
+              0.10689797405507448
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.03567378823060884,
+              0.0003616972304719764,
+              -0.06771295500103369
+            ],
+            "local_rotation_wxyz": [
+              0.9844240027509135,
+              0.0037907936869626285,
+              0.1756437258052397,
+              0.006655394529706713
+            ],
+            "size": [
+              0.05856960257980981,
+              0.04907887944564728,
+              0.10689797405507448
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00254986,
+          0.00241169,
+          0.00148755
+        ],
+        "inertia_rotation_wxyz": [
+          0.9778077727100524,
+          1.9711895417999528e-05,
+          0.2055759522141788,
+          0.040379290613894565
+        ],
+        "local_position": [
+          0.0,
+          -0.052,
+          -0.030465
+        ],
+        "local_rotation_wxyz": [
+          0.996178685660368,
+          0.0,
+          -0.08733857244071258,
+          0.0
+        ],
+        "mass": 1.52,
+        "name": "right_hip_roll_link",
+        "parent": "right_hip_pitch_link"
+      },
+      {
+        "center_of_mass": [
+          -0.057709,
+          0.010981,
+          -0.15078
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.03069965651152527,
+              0.0031587229854631756,
+              -0.09263954604258563
+            ],
+            "local_rotation_wxyz": [
+              0.7076215313806454,
+              0.17315411943084583,
+              0.15235548951067848,
+              0.667890128738703
+            ],
+            "size": [
+              0.04467782432781014,
+              0.05994508929919105,
+              0.1464325706935704
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.03069965651152527,
+              0.0031587229854631756,
+              -0.09263954604258563
+            ],
+            "local_rotation_wxyz": [
+              0.7076215313806454,
+              0.17315411943084583,
+              0.15235548951067848,
+              0.667890128738703
+            ],
+            "size": [
+              0.04467782432781014,
+              0.05994508929919105,
+              0.1464325706935704
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00776166,
+          0.00717575,
+          0.00160139
+        ],
+        "inertia_rotation_wxyz": [
+          0.7511808951768449,
+          0.22348196881432258,
+          0.1583199779073194,
+          0.6005979161898699
+        ],
+        "local_position": [
+          0.025001,
+          0.0,
+          -0.12412
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 1.702,
+        "name": "right_hip_yaw_link",
+        "parent": "right_hip_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0054289,
+          -0.00394359,
+          -0.12156
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.012290840675438713,
+              -0.0027284184499958885,
+              -0.12275462883644171
+            ],
+            "local_rotation_wxyz": [
+              0.6508338468431927,
+              0.02938036499403949,
+              -0.01381935740364143,
+              0.7585256246937613
+            ],
+            "size": [
+              0.04770454747906832,
+              0.057191090938356004,
+              0.19277953843671602
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.012290840675438713,
+              -0.0027284184499958885,
+              -0.12275462883644171
+            ],
+            "local_rotation_wxyz": [
+              0.6508338468431927,
+              0.02938036499403949,
+              -0.01381935740364143,
+              0.7585256246937613
+            ],
+            "size": [
+              0.04770454747906832,
+              0.057191090938356004,
+              0.19277953843671602
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.0116277,
+          0.0115372,
+          0.00146646
+        ],
+        "inertia_rotation_wxyz": [
+          0.9236597654723319,
+          0.0337938914193485,
+          0.011840696993513023,
+          -0.38153690312346217
+        ],
+        "local_position": [
+          -0.078273,
+          -0.0021489,
+          -0.17734
+        ],
+        "local_rotation_wxyz": [
+          0.996178685660368,
+          0.0,
+          0.08733857244071258,
+          0.0
+        ],
+        "mass": 1.942,
+        "name": "right_knee_link",
+        "parent": "right_hip_yaw_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.01,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.01,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-06,
+          1e-06,
+          1e-06
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.0,
+          0.0,
+          -0.28
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.01,
+        "name": "right_ankle_intermediate_1_link",
+        "parent": "right_knee_link"
+      },
+      {
+        "center_of_mass": [
+          -0.007269,
+          0.0,
+          0.011137
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.004106595123707131,
+              -5.9078011883665966e-05,
+              -0.00857303156643957
+            ],
+            "local_rotation_wxyz": [
+              0.6766811184473515,
+              0.20518933680101956,
+              0.20518933680101956,
+              0.6766811184473515
+            ],
+            "size": [
+              0.00650126815982002,
+              0.017950781585389042,
+              0.02378757637385441
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.004106595123707131,
+              -5.9078011883665966e-05,
+              -0.00857303156643957
+            ],
+            "local_rotation_wxyz": [
+              0.6766811184473515,
+              0.20518933680101956,
+              0.20518933680101956,
+              0.6766811184473515
+            ],
+            "size": [
+              0.00650126815982002,
+              0.017950781585389042,
+              0.02378757637385441
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1.89e-05,
+          1.40805e-05,
+          6.9195e-06
+        ],
+        "inertia_rotation_wxyz": [
+          0.6030529870741624,
+          0.36922499208603166,
+          0.36922499208603166,
+          0.6030529870741624
+        ],
+        "local_position": [
+          0.0,
+          9.4445e-05,
+          -0.30001
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.074,
+        "name": "right_ankle_pitch_link",
+        "parent": "right_knee_link"
+      },
+      {
+        "center_of_mass": [
+          0.0267456,
+          0.0,
+          -0.0165357
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.026469481443009545,
+              -7.266436516150891e-05,
+              -0.01410643567972759
+            ],
+            "local_rotation_wxyz": [
+              0.0005425790650346873,
+              0.7352870819527226,
+              0.0007188712673564246,
+              0.6777551888001399
+            ],
+            "size": [
+              0.03863890970332677,
+              0.03783605262249311,
+              0.11717378284893092
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.026469481443009545,
+              -7.266436516150891e-05,
+              -0.01410643567972759
+            ],
+            "local_rotation_wxyz": [
+              0.0005425790650346873,
+              0.7352870819527226,
+              0.0007188712673564246,
+              0.6777551888001399
+            ],
+            "size": [
+              0.03863890970332677,
+              0.03783605262249311,
+              0.11717378284893092
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00171785,
+          0.00165955,
+          0.000221997
+        ],
+        "inertia_rotation_wxyz": [
+          0.00046269415464164935,
+          0.7283562434312378,
+          0.000596267199284435,
+          0.6851982290069654
+        ],
+        "local_position": [
+          0.0,
+          0.0,
+          -0.017558
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.613,
+        "name": "right_ankle_roll_link",
+        "parent": "right_ankle_pitch_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.12,
+          0.03,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "right_ankle_roll_sphere_3_link",
+        "parent": "right_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.12,
+          -0.03,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "right_ankle_roll_sphere_4_link",
+        "parent": "right_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.14,
+          0.0,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "right_ankle_roll_sphere_5_link",
+        "parent": "right_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          -0.05,
+          0.025,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "right_ankle_roll_sphere_1_link",
+        "parent": "right_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          -0.05,
+          -0.025,
+          -0.03
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "right_ankle_roll_sphere_2_link",
+        "parent": "right_ankle_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.003964,
+          0.0,
+          0.018769
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.004643085311938194,
+              3.9405789081593614e-07,
+              0.017921369816815462
+            ],
+            "local_rotation_wxyz": [
+              -7.823634886916508e-05,
+              0.6437496688765252,
+              6.679714167762141e-05,
+              0.765236142140832
+            ],
+            "size": [
+              0.03222371229332172,
+              0.0424686503544028,
+              0.048855235911786005
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000158561,
+          0.000124229,
+          9.67669e-05
+        ],
+        "inertia_rotation_wxyz": [
+          -0.01782910157428995,
+          0.6284640554926809,
+          0.028247102494187906,
+          0.7771210686189307
+        ],
+        "local_position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.244,
+        "name": "waist_yaw_link",
+        "parent": "pelvis"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          -0.000236,
+          0.010111
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -4.4767138563572817e-07,
+              -5.360629607076402e-07,
+              0.007500336119426811
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.010002817663820614,
+              0.011002425656859958,
+              0.021445104307042037
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          7.515e-06,
+          6.40206e-06,
+          3.98394e-06
+        ],
+        "inertia_rotation_wxyz": [
+          0.9997900169144477,
+          0.020492000346683668,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          -0.0039635,
+          0.0,
+          0.035
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.047,
+        "name": "waist_roll_link",
+        "parent": "waist_yaw_link"
+      },
+      {
+        "center_of_mass": [
+          0.00270088,
+          0.000679764,
+          0.17981
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.004883773845486742,
+              0.0021224320604482905,
+              0.13780783393528723
+            ],
+            "local_rotation_wxyz": [
+              0.9999856291606917,
+              0.0020443407579174636,
+              0.004474639383372327,
+              0.002130667817814418
+            ],
+            "size": [
+              0.07846258894359492,
+              0.10954244850571526,
+              0.16268718722605124
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.004883773845486742,
+              0.0021224320604482905,
+              0.13780783393528723
+            ],
+            "local_rotation_wxyz": [
+              0.9999856291606917,
+              0.0020443407579174636,
+              0.004474639383372327,
+              0.002130667817814418
+            ],
+            "size": [
+              0.07846258894359492,
+              0.10954244850571526,
+              0.16268718722605124
+            ]
+          },
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.003019090471777285,
+              0.001112780569712922,
+              0.21746039894140023
+            ],
+            "local_rotation_wxyz": [
+              0.02469451593781946,
+              0.7080436766408624,
+              -0.02448662280121211,
+              0.7053118020813786
+            ],
+            "size": [
+              0.014744601294455543,
+              0.08007695899508,
+              0.07852278617195631
+            ]
+          },
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.007650943144777067,
+              2.4813386943615927e-05,
+              0.3751317960723033
+            ],
+            "local_rotation_wxyz": [
+              0.9997401851294312,
+              1.331822755515771e-05,
+              0.022793838788257647,
+              5.452788571164064e-05
+            ],
+            "size": [
+              0.07200180516903842,
+              0.07780114950783158,
+              0.10657961464021408
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.007650943144777067,
+              2.4813386943615927e-05,
+              0.3751317960723033
+            ],
+            "local_rotation_wxyz": [
+              0.9997401851294312,
+              1.331822755515771e-05,
+              0.022793838788257647,
+              5.452788571164064e-05
+            ],
+            "size": [
+              0.07200180516903842,
+              0.07780114950783158,
+              0.10657961464021408
+            ]
+          },
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.0032265704471442364,
+              8.064519962549932e-05,
+              -0.022424320202002128
+            ],
+            "local_rotation_wxyz": [
+              0.5001044562969343,
+              0.49938657551091553,
+              -0.5006463146953073,
+              0.4998618294823465
+            ],
+            "size": [
+              0.02073712532341698,
+              0.05979633526393309,
+              0.06746622255304942
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.124129,
+          0.112039,
+          0.032579
+        ],
+        "inertia_rotation_wxyz": [
+          0.9999223911575003,
+          -0.0050416819722447805,
+          0.01098510429723944,
+          -0.0030200311813995346
+        ],
+        "local_position": [
+          0.0,
+          0.0,
+          0.019
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 9.6,
+        "name": "torso_link",
+        "parent": "waist_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.0007369295528557637,
+              8.064519962549932e-05,
+              0.03157567979799787
+            ],
+            "local_rotation_wxyz": [
+              0.5001044562969343,
+              0.49938657551091553,
+              -0.5006463146953073,
+              0.4998618294823465
+            ],
+            "size": [
+              0.02073712532341698,
+              0.05979633526393309,
+              0.06746622255304942
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -0.0007369295528557637,
+              8.064519962549932e-05,
+              0.03157567979799787
+            ],
+            "local_rotation_wxyz": [
+              0.5001044562969343,
+              0.49938657551091553,
+              -0.5006463146953073,
+              0.4998618294823465
+            ],
+            "size": [
+              0.02073712532341698,
+              0.05979633526393309,
+              0.06746622255304942
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.0039635,
+          0.0,
+          -0.054
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "waist_support_link",
+        "parent": "torso_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.035892,
+          -0.011628
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -2.5241457451963317e-05,
+              0.03454218163774101,
+              -0.008909194018407078
+            ],
+            "local_rotation_wxyz": [
+              0.6958303801296023,
+              0.20867397505572832,
+              -0.20283078805061705,
+              0.6566086548636877
+            ],
+            "size": [
+              0.03960789601881444,
+              0.03278301835049636,
+              0.05703709989395829
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "cylinder",
+            "local_position": [
+              0.0,
+              0.04,
+              -0.01
+            ],
+            "local_rotation_wxyz": [
+              0.7071067811865475,
+              0.0,
+              0.7071067811865475,
+              0.0
+            ],
+            "size": [
+              0.03,
+              0.025,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000465864,
+          0.000432842,
+          0.000406394
+        ],
+        "inertia_rotation_wxyz": [
+          0.6541519182994919,
+          0.01304579837064094,
+          -0.32626695925078625,
+          0.682249914790184
+        ],
+        "local_position": [
+          0.0039563,
+          0.10022,
+          0.23778
+        ],
+        "local_rotation_wxyz": [
+          0.9902641396131312,
+          0.13920101962535997,
+          1.387220195578278e-05,
+          -9.868681391343435e-05
+        ],
+        "mass": 0.718,
+        "name": "left_shoulder_pitch_link",
+        "parent": "torso_link"
+      },
+      {
+        "center_of_mass": [
+          -0.000227,
+          0.00727,
+          -0.063243
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              3.0788976054387884e-05,
+              0.007747256956410372,
+              -0.037506229672129986
+            ],
+            "local_rotation_wxyz": [
+              0.7067279577551746,
+              0.029288001724939006,
+              -0.026851659562262077,
+              0.7063687387341784
+            ],
+            "size": [
+              0.03768090553910262,
+              0.04087722027705445,
+              0.07146865571974632
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "cylinder",
+            "local_position": [
+              -0.004,
+              0.006,
+              -0.053
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.03,
+              0.015,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000691311,
+          0.000618011,
+          0.000388977
+        ],
+        "inertia_rotation_wxyz": [
+          0.7012560252335278,
+          -0.019622300706075745,
+          -0.0071031702555957275,
+          0.7126040256418666
+        ],
+        "local_position": [
+          0.0,
+          0.038,
+          -0.013831
+        ],
+        "local_rotation_wxyz": [
+          0.9902682191424201,
+          -0.13917203079821713,
+          0.0,
+          0.0
+        ],
+        "mass": 0.643,
+        "name": "left_shoulder_roll_link",
+        "parent": "left_shoulder_pitch_link"
+      },
+      {
+        "center_of_mass": [
+          0.010773,
+          -0.002949,
+          -0.072009
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.00804966492675091,
+              -0.004201806098365854,
+              -0.048209926466938835
+            ],
+            "local_rotation_wxyz": [
+              0.6590953245824003,
+              -0.12799247991658222,
+              -0.04382988906452189,
+              0.7397906589184651
+            ],
+            "size": [
+              0.03749778205283819,
+              0.04317351213608478,
+              0.08793231941472619
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.00804966492675091,
+              -0.004201806098365854,
+              -0.048209926466938835
+            ],
+            "local_rotation_wxyz": [
+              0.6590953245824003,
+              -0.12799247991658222,
+              -0.04382988906452189,
+              0.7397906589184651
+            ],
+            "size": [
+              0.03749778205283819,
+              0.04317351213608478,
+              0.08793231941472619
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00106187,
+          0.00103217,
+          0.000400661
+        ],
+        "inertia_rotation_wxyz": [
+          0.7168787147457542,
+          -0.09648286160836504,
+          -0.06799417294434035,
+          0.6871337265816254
+        ],
+        "local_position": [
+          0.0,
+          0.00624,
+          -0.1032
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.734,
+        "name": "left_shoulder_yaw_link",
+        "parent": "left_shoulder_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.064956,
+          0.004454,
+          -0.010062
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.05357424472419996,
+              0.008583805340683722,
+              -0.008537761812018084
+            ],
+            "local_rotation_wxyz": [
+              0.5296103856238384,
+              0.6190072735891016,
+              0.4166189838431933,
+              0.40344944786754144
+            ],
+            "size": [
+              0.039165650375481545,
+              0.03666319152042943,
+              0.0850851007179905
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.05357424472419996,
+              0.008583805340683722,
+              -0.008537761812018084
+            ],
+            "local_rotation_wxyz": [
+              0.5296103856238384,
+              0.6190072735891016,
+              0.4166189838431933,
+              0.40344944786754144
+            ],
+            "size": [
+              0.039165650375481545,
+              0.03666319152042943,
+              0.0850851007179905
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000443035,
+          0.000421612,
+          0.000259353
+        ],
+        "inertia_rotation_wxyz": [
+          0.5417652363909151,
+          0.6361322775665198,
+          0.3888211696561277,
+          0.38812916935418396
+        ],
+        "local_position": [
+          0.015783,
+          0.0,
+          -0.080518
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.6,
+        "name": "left_elbow_link",
+        "parent": "left_shoulder_yaw_link"
+      },
+      {
+        "center_of_mass": [
+          0.0171394,
+          0.000537591,
+          4.8864e-07
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.01865798450015884,
+              5.979584314216701e-06,
+              -1.5934057841991974e-07
+            ],
+            "local_rotation_wxyz": [
+              0.5081027730747573,
+              0.4918579525709318,
+              -0.5080344411426122,
+              0.491740107271503
+            ],
+            "size": [
+              0.030003016510896003,
+              0.038112460745287166,
+              0.031041222425292378
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.01865798450015884,
+              5.979584314216701e-06,
+              -1.5934057841991974e-07
+            ],
+            "local_rotation_wxyz": [
+              0.5081027730747573,
+              0.4918579525709318,
+              -0.5080344411426122,
+              0.491740107271503
+            ],
+            "size": [
+              0.030003016510896003,
+              0.038112460745287166,
+              0.031041222425292378
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          5.48211e-05,
+          4.96646e-05,
+          3.57798e-05
+        ],
+        "inertia_rotation_wxyz": [
+          0.5753383685604386,
+          0.41166726371310447,
+          -0.5749063682837002,
+          0.41109426334604177
+        ],
+        "local_position": [
+          0.1,
+          0.00188791,
+          -0.01
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.085445,
+        "name": "left_wrist_roll_link",
+        "parent": "left_elbow_link"
+      },
+      {
+        "center_of_mass": [
+          0.0229999,
+          -0.00111685,
+          -0.00111658
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.02300019711638737,
+              -0.0005173611850499236,
+              -0.00051838175390716
+            ],
+            "local_rotation_wxyz": [
+              -0.2661781924318538,
+              0.6661840959606457,
+              -0.25799179600264277,
+              0.647138434462166
+            ],
+            "size": [
+              0.03289184646899544,
+              0.032874201095584865,
+              0.05187042278153978
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.02300019711638737,
+              -0.0005173611850499236,
+              -0.00051838175390716
+            ],
+            "local_rotation_wxyz": [
+              -0.2661781924318538,
+              0.6661840959606457,
+              -0.25799179600264277,
+              0.647138434462166
+            ],
+            "size": [
+              0.03289184646899544,
+              0.032874201095584865,
+              0.05187042278153978
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000430353,
+          0.000429873,
+          0.000164648
+        ],
+        "inertia_rotation_wxyz": [
+          0.24999782840992438,
+          0.6613625460630598,
+          0.2930357988701134,
+          0.6436075582494845
+        ],
+        "local_position": [
+          0.038,
+          0.0,
+          0.0
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.48405,
+        "name": "left_wrist_pitch_link",
+        "parent": "left_wrist_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0490416,
+          0.0251156,
+          0.00485457
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.0206433656294711,
+              0.0009027487382937664,
+              2.8629612443955775e-06
+            ],
+            "local_rotation_wxyz": [
+              0.6698020182906311,
+              -0.013703146595857542,
+              -0.013858750366484764,
+              0.742283918123955
+            ],
+            "size": [
+              0.028089022440695163,
+              0.03954651013737702,
+              0.031050176130517332
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.0206433656294711,
+              0.0009027487382937664,
+              2.8629612443955775e-06
+            ],
+            "local_rotation_wxyz": [
+              0.6698020182906311,
+              -0.013703146595857542,
+              -0.013858750366484764,
+              0.742283918123955
+            ],
+            "size": [
+              0.028089022440695163,
+              0.03954651013737702,
+              0.031050176130517332
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00046454,
+          0.000440484,
+          0.000227121
+        ],
+        "inertia_rotation_wxyz": [
+          0.5545288363752005,
+          0.3364829007140051,
+          0.6019268223894787,
+          0.46579086255911045
+        ],
+        "local_position": [
+          0.046,
+          0.0,
+          0.0
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.256576,
+        "name": "left_wrist_yaw_link",
+        "parent": "left_wrist_pitch_link"
+      },
+      {
+        "center_of_mass": [
+          0.05361310808,
+          -0.0029590524,
+          0.00215413091
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.06463010116973655,
+              -0.006684766520596889,
+              0.003099938120244002
+            ],
+            "local_rotation_wxyz": [
+              0.5425682206005373,
+              0.5798537576262754,
+              0.42500863174213116,
+              0.4344617459635997
+            ],
+            "size": [
+              0.025800632873511146,
+              0.06155804259133253,
+              0.07424769429158133
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.06463010116973655,
+              -0.006684766520596889,
+              0.003099938120244002
+            ],
+            "local_rotation_wxyz": [
+              0.5425682206005373,
+              0.5798537576262754,
+              0.42500863174213116,
+              0.4344617459635997
+            ],
+            "size": [
+              0.025800632873511146,
+              0.06155804259133253,
+              0.07424769429158133
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00010099485234748,
+          0.00028135871571621,
+          0.00021894770413514
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.0415,
+          0.003,
+          0.0
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.17,
+        "name": "left_rubber_hand_link",
+        "parent": "left_wrist_yaw_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.001,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.08,
+          0.0,
+          0.05
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "left_thumb_link",
+        "parent": "left_rubber_hand_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.001,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.12,
+          0.0,
+          -0.04
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "left_pinky_link",
+        "parent": "left_rubber_hand_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          -0.035892,
+          -0.011628
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              -2.4136991807139987e-05,
+              -0.034543259362902715,
+              -0.008909147749494088
+            ],
+            "local_rotation_wxyz": [
+              0.6564533595376698,
+              -0.20270368869543468,
+              0.20879532297797956,
+              0.6959775243809916
+            ],
+            "size": [
+              0.03960875852673389,
+              0.03279731212458705,
+              0.05703611024401353
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "cylinder",
+            "local_position": [
+              0.0,
+              -0.04,
+              -0.01
+            ],
+            "local_rotation_wxyz": [
+              0.7071067811865475,
+              0.0,
+              0.7071067811865475,
+              0.0
+            ],
+            "size": [
+              0.03,
+              0.025,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000465864,
+          0.000432842,
+          0.000406394
+        ],
+        "inertia_rotation_wxyz": [
+          0.682249914790184,
+          -0.32626695925078625,
+          0.01304579837064094,
+          0.6541519182994919
+        ],
+        "local_position": [
+          0.0039563,
+          -0.10021,
+          0.23778
+        ],
+        "local_rotation_wxyz": [
+          0.9902641396131312,
+          -0.13920101962535997,
+          1.387220195578278e-05,
+          9.868681391343435e-05
+        ],
+        "mass": 0.718,
+        "name": "right_shoulder_pitch_link",
+        "parent": "torso_link"
+      },
+      {
+        "center_of_mass": [
+          -0.000227,
+          -0.00727,
+          -0.063243
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              3.064801264639919e-05,
+              -0.007746894523009864,
+              -0.03750597551101859
+            ],
+            "local_rotation_wxyz": [
+              0.7064055253193277,
+              -0.02686043612628898,
+              0.029274591630507094,
+              0.7066914100612082
+            ],
+            "size": [
+              0.037677405522097265,
+              0.04087795171215023,
+              0.07146744123725743
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "cylinder",
+            "local_position": [
+              -0.004,
+              -0.006,
+              -0.053
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.03,
+              0.015,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000691311,
+          0.000618011,
+          0.000388977
+        ],
+        "inertia_rotation_wxyz": [
+          0.7126040256418666,
+          -0.0071031702555957275,
+          -0.019622300706075745,
+          0.7012560252335278
+        ],
+        "local_position": [
+          0.0,
+          -0.038,
+          -0.013831
+        ],
+        "local_rotation_wxyz": [
+          0.9902682191424201,
+          0.13917203079821713,
+          0.0,
+          0.0
+        ],
+        "mass": 0.643,
+        "name": "right_shoulder_roll_link",
+        "parent": "right_shoulder_pitch_link"
+      },
+      {
+        "center_of_mass": [
+          0.010773,
+          0.002949,
+          -0.072009
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.008049568263328203,
+              0.0042028255264341344,
+              -0.04821007588793099
+            ],
+            "local_rotation_wxyz": [
+              0.7397526150690833,
+              -0.043874063750114496,
+              -0.12799194965181618,
+              0.659135187843004
+            ],
+            "size": [
+              0.03749644147890277,
+              0.04317544858977918,
+              0.08793277305057356
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.008049568263328203,
+              0.0042028255264341344,
+              -0.04821007588793099
+            ],
+            "local_rotation_wxyz": [
+              0.7397526150690833,
+              -0.043874063750114496,
+              -0.12799194965181618,
+              0.659135187843004
+            ],
+            "size": [
+              0.03749644147890277,
+              0.04317544858977918,
+              0.08793277305057356
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.00106187,
+          0.00103217,
+          0.000400661
+        ],
+        "inertia_rotation_wxyz": [
+          0.6871337265816254,
+          -0.06799417294434035,
+          -0.09648286160836504,
+          0.7168787147457542
+        ],
+        "local_position": [
+          0.0,
+          -0.00624,
+          -0.1032
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.734,
+        "name": "right_shoulder_yaw_link",
+        "parent": "right_shoulder_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.064956,
+          -0.004454,
+          -0.010062
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.05357441192232545,
+              -0.008582283849692476,
+              -0.008536568228807275
+            ],
+            "local_rotation_wxyz": [
+              0.40348090395195296,
+              0.4166029302845932,
+              0.6190214765592588,
+              0.5295824488998886
+            ],
+            "size": [
+              0.03916483604899494,
+              0.03666412181945888,
+              0.08508599738063385
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.05357441192232545,
+              -0.008582283849692476,
+              -0.008536568228807275
+            ],
+            "local_rotation_wxyz": [
+              0.40348090395195296,
+              0.4166029302845932,
+              0.6190214765592588,
+              0.5295824488998886
+            ],
+            "size": [
+              0.03916483604899494,
+              0.03666412181945888,
+              0.08508599738063385
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000443035,
+          0.000421612,
+          0.000259353
+        ],
+        "inertia_rotation_wxyz": [
+          0.3881291693541839,
+          0.3888211696561276,
+          0.6361322775665197,
+          0.5417652363909151
+        ],
+        "local_position": [
+          0.015783,
+          0.0,
+          -0.080518
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.6,
+        "name": "right_elbow_link",
+        "parent": "right_shoulder_yaw_link"
+      },
+      {
+        "center_of_mass": [
+          0.0171394,
+          -0.000537591,
+          4.8864e-07
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.0186579412526005,
+              -5.957685500475599e-06,
+              -4.832350608956022e-07
+            ],
+            "local_rotation_wxyz": [
+              0.49182923596077455,
+              0.5081086987143121,
+              -0.49175761335321466,
+              0.5080393711655053
+            ],
+            "size": [
+              0.03000192663477479,
+              0.03811301732326574,
+              0.031041554898659503
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.0186579412526005,
+              -5.957685500475599e-06,
+              -4.832350608956022e-07
+            ],
+            "local_rotation_wxyz": [
+              0.49182923596077455,
+              0.5081086987143121,
+              -0.49175761335321466,
+              0.5080393711655053
+            ],
+            "size": [
+              0.03000192663477479,
+              0.03811301732326574,
+              0.031041554898659503
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          5.48211e-05,
+          4.96646e-05,
+          3.57798e-05
+        ],
+        "inertia_rotation_wxyz": [
+          0.41166726371310447,
+          0.5753383685604386,
+          -0.41109426334604177,
+          0.5749063682837002
+        ],
+        "local_position": [
+          0.1,
+          -0.00188791,
+          -0.01
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.085445,
+        "name": "right_wrist_roll_link",
+        "parent": "right_elbow_link"
+      },
+      {
+        "center_of_mass": [
+          0.0229999,
+          0.00111685,
+          -0.00111658
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.0229998804347263,
+              0.0005172207919761667,
+              -0.0005182065627213421
+            ],
+            "local_rotation_wxyz": [
+              0.2735929135352525,
+              0.6631811535607856,
+              0.26562195360088625,
+              0.6440362202472237
+            ],
+            "size": [
+              0.032726793637631514,
+              0.03270841905279596,
+              0.05187056959069703
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.0229998804347263,
+              0.0005172207919761667,
+              -0.0005182065627213421
+            ],
+            "local_rotation_wxyz": [
+              0.2735929135352525,
+              0.6631811535607856,
+              0.26562195360088625,
+              0.6440362202472237
+            ],
+            "size": [
+              0.032726793637631514,
+              0.03270841905279596,
+              0.05187056959069703
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000430353,
+          0.000429873,
+          0.000164648
+        ],
+        "inertia_rotation_wxyz": [
+          0.6436075582494845,
+          0.2930357988701134,
+          0.6613625460630598,
+          0.24999782840992438
+        ],
+        "local_position": [
+          0.038,
+          0.0,
+          0.0
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.48405,
+        "name": "right_wrist_pitch_link",
+        "parent": "right_wrist_roll_link"
+      },
+      {
+        "center_of_mass": [
+          0.0387158,
+          0.0286637,
+          -0.00156701
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.020642203137837024,
+              -0.000902496466589526,
+              4.787690813254277e-06
+            ],
+            "local_rotation_wxyz": [
+              0.7422588685744804,
+              -0.013951368659146085,
+              -0.013789578797324108,
+              0.6698260810476573
+            ],
+            "size": [
+              0.028089943427965898,
+              0.03954302643746655,
+              0.03105556175093377
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.020642203137837024,
+              -0.000902496466589526,
+              4.787690813254277e-06
+            ],
+            "local_rotation_wxyz": [
+              0.7422588685744804,
+              -0.013951368659146085,
+              -0.013789578797324108,
+              0.6698260810476573
+            ],
+            "size": [
+              0.028089943427965898,
+              0.03954302643746655,
+              0.03105556175093377
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.000444208,
+          0.000424569,
+          0.000222248
+        ],
+        "inertia_rotation_wxyz": [
+          0.3565960122594145,
+          0.38774901333042355,
+          0.6112950210157119,
+          0.5906000203042384
+        ],
+        "local_position": [
+          0.046,
+          0.0,
+          0.0
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.256576,
+        "name": "right_wrist_yaw_link",
+        "parent": "right_wrist_pitch_link"
+      },
+      {
+        "center_of_mass": [
+          0.05361310808,
+          0.0029590524,
+          0.00215413091
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.06462782277828494,
+              0.006684169751616169,
+              0.0030997910782820195
+            ],
+            "local_rotation_wxyz": [
+              0.43445763604713084,
+              0.4250188918772497,
+              0.5798476144246696,
+              0.5425700397863822
+            ],
+            "size": [
+              0.025796097088580192,
+              0.06155815671364419,
+              0.07424980270404716
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "mesh",
+            "local_position": [
+              0.06462782277828494,
+              0.006684169751616169,
+              0.0030997910782820195
+            ],
+            "local_rotation_wxyz": [
+              0.43445763604713084,
+              0.4250188918772497,
+              0.5798476144246696,
+              0.5425700397863822
+            ],
+            "size": [
+              0.025796097088580192,
+              0.06155815671364419,
+              0.07424980270404716
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          0.0002884860830508673,
+          0.0002188241064904351,
+          9.399108265752763e-05
+        ],
+        "inertia_rotation_wxyz": [
+          0.4645965101781457,
+          0.43540511626650974,
+          0.5522643191513644,
+          0.5381232101029633
+        ],
+        "local_position": [
+          0.0415,
+          -0.003,
+          0.0
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.17,
+        "name": "right_rubber_hand_link",
+        "parent": "right_wrist_yaw_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.001,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.08,
+          0.0,
+          0.05
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "right_thumb_link",
+        "parent": "right_rubber_hand_link"
+      },
+      {
+        "center_of_mass": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_proxies": [
+          {
+            "contact_affinity": 0,
+            "contact_type": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.005,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "contact_affinity": 1,
+            "contact_type": 1,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "geometry_type": "sphere",
+            "local_position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "local_rotation_wxyz": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.001,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "inertia_diagonal": [
+          1e-07,
+          1e-07,
+          1e-07
+        ],
+        "inertia_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_position": [
+          0.12,
+          0.0,
+          -0.04
+        ],
+        "local_rotation_wxyz": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mass": 0.001,
+        "name": "right_pinky_link",
+        "parent": "right_rubber_hand_link"
+      }
+    ],
+    "runtime": {
+      "simulation_dt": 0.002,
+      "source_format": "mjcf"
+    },
+    "schema_version": "snmr.robot.v0.1",
+    "semantics": {
+      "allowed_contact_links": [
+        "left_ankle_roll_link",
+        "right_ankle_roll_link"
+      ],
+      "head_link": null,
+      "left_foot_link": "left_ankle_roll_link",
+      "left_hand_link": "left_rubber_hand_link",
+      "right_foot_link": "right_ankle_roll_link",
+      "right_hand_link": "right_rubber_hand_link",
+      "root_link": "pelvis",
+      "symmetry_pairs": [
+        [
+          "left_ankle_roll_link",
+          "right_ankle_roll_link"
+        ],
+        [
+          "left_rubber_hand_link",
+          "right_rubber_hand_link"
+        ]
+      ],
+      "torso_link": "torso_link"
+    },
+    "standing_height": 1.0786437524221748,
+    "total_mass": 35.525142000000024
+  },
+  "experiment": "dynamics_twins_v0.1",
+  "gates": {
+    "distinct_dynamics_hashes": true,
+    "identity_free_features_change_with_torque": true,
+    "inverse_scale_ratio_matches": true,
+    "localized_failure_emitted": true,
+    "reference_demand_responds_monotonically": true,
+    "same_kinematic_hash": true
+  },
+  "interpretation_boundary": "This validates the RobotSpec intervention and verifier signal, not learned dynamics adaptation. Open-loop PD is a diagnostic, not a tracker-independent oracle.",
+  "mjcf": "/home/robotixx/holosoma/src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof.xml",
+  "motion": "/home/robotixx/snmr/tests/fixtures/sub3_largebox_003_mj.npz",
+  "motion_sha256": "296303f225a70013e719be9e594d1f528366df405753422a59bbea12deb392bf",
+  "reports": {
+    "0.5": {
+      "backend": {
+        "build": null,
+        "engine": "mujoco",
+        "engine_version": "3.11.0",
+        "quaternion_convention": "wxyz",
+        "solver": "mujoco_cpu",
+        "solver_version": null
+      },
+      "candidate_id": "sub3_largebox_003_mj:torque_x0.5",
+      "config_hash": "c62b6d290680f20abb0eead83c49052d1daa90040d411372d90ee1b67f2b5a0c",
+      "controller_hash": "e7eb722db4d22665f00f4f5b631443f8757db5464dee1a60624a687af709cd7a",
+      "failure_intervals": [
+        {
+          "end_frame": 9,
+          "evidence": [
+            [
+              "threshold",
+              0.05
+            ],
+            [
+              "peak",
+              0.17586206896551723
+            ]
+          ],
+          "failure_type": "rollout_torque_saturation",
+          "joints": [
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_hip_yaw_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_hip_yaw_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+            "waist_yaw_joint",
+            "waist_roll_joint",
+            "waist_pitch_joint",
+            "left_shoulder_pitch_joint",
+            "left_shoulder_roll_joint",
+            "left_shoulder_yaw_joint",
+            "left_elbow_joint",
+            "left_wrist_roll_joint",
+            "left_wrist_pitch_joint",
+            "left_wrist_yaw_joint",
+            "right_shoulder_pitch_joint",
+            "right_shoulder_roll_joint",
+            "right_shoulder_yaw_joint",
+            "right_elbow_joint",
+            "right_wrist_roll_joint",
+            "right_wrist_pitch_joint",
+            "right_wrist_yaw_joint"
+          ],
+          "links": [],
+          "severity": 0.12586206896551722,
+          "start_frame": 0
+        },
+        {
+          "end_frame": 9,
+          "evidence": [
+            [
+              "survival_time_s",
+              0.18
+            ]
+          ],
+          "failure_type": "rollout_divergence",
+          "joints": [],
+          "links": [],
+          "severity": 1.0,
+          "start_frame": 9
+        },
+        {
+          "end_frame": 41,
+          "evidence": [
+            [
+              "threshold",
+              0.5
+            ],
+            [
+              "peak",
+              0.6410131344731357
+            ]
+          ],
+          "failure_type": "reference_low_torque_margin",
+          "joints": [
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_hip_yaw_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_hip_yaw_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+            "waist_yaw_joint",
+            "waist_roll_joint",
+            "waist_pitch_joint",
+            "left_shoulder_pitch_joint",
+            "left_shoulder_roll_joint",
+            "left_shoulder_yaw_joint",
+            "left_elbow_joint",
+            "left_wrist_roll_joint",
+            "left_wrist_pitch_joint",
+            "left_wrist_yaw_joint",
+            "right_shoulder_pitch_joint",
+            "right_shoulder_roll_joint",
+            "right_shoulder_yaw_joint",
+            "right_elbow_joint",
+            "right_wrist_roll_joint",
+            "right_wrist_pitch_joint",
+            "right_wrist_yaw_joint"
+          ],
+          "links": [],
+          "severity": 0.14101313447313568,
+          "start_frame": 37
+        }
+      ],
+      "fps": 50.0,
+      "metrics": [
+        [
+          "max_requested_torque_ratio",
+          6.048244916957111
+        ],
+        [
+          "mean_dof_error_rad",
+          0.0770372649869887
+        ],
+        [
+          "mean_root_height_error_m",
+          0.006424637332684268
+        ],
+        [
+          "reference_max_requested_torque_ratio",
+          0.6410131344731357
+        ],
+        [
+          "reference_torque_saturation_fraction",
+          0.0
+        ],
+        [
+          "survival_fraction",
+          0.18
+        ],
+        [
+          "survival_time_s",
+          0.18
+        ],
+        [
+          "torque_saturation_fraction",
+          0.13724137931034483
+        ],
+        [
+          "wall_time_s",
+          0.1348584396764636
+        ]
+      ],
+      "motion_sha256": "296303f225a70013e719be9e594d1f528366df405753422a59bbea12deb392bf",
+      "num_frames": 325,
+      "overflow_detected": false,
+      "passed": false,
+      "robot_dynamics_hash": "33b4d9f51229c9489cc546dd301b185d0f8480971c1e4ffed4859dae6d0cc491",
+      "robot_kinematic_hash": "aa9b8da883fe822e2624c034d34b2c988b33c7a991453576e7e2d64de6789131",
+      "robot_spec_hash": "2f265827afc687d6d19b0d29214e1a98d5f5b9d32395a11f5833d111f8617e1d",
+      "schema_version": "snmr.physics-verification.v0.1",
+      "seed": 0,
+      "verification_level": "L1_reference_demand+L2_open_loop_pd"
+    },
+    "0.75": {
+      "backend": {
+        "build": null,
+        "engine": "mujoco",
+        "engine_version": "3.11.0",
+        "quaternion_convention": "wxyz",
+        "solver": "mujoco_cpu",
+        "solver_version": null
+      },
+      "candidate_id": "sub3_largebox_003_mj:torque_x0.75",
+      "config_hash": "c62b6d290680f20abb0eead83c49052d1daa90040d411372d90ee1b67f2b5a0c",
+      "controller_hash": "e7eb722db4d22665f00f4f5b631443f8757db5464dee1a60624a687af709cd7a",
+      "failure_intervals": [
+        {
+          "end_frame": 9,
+          "evidence": [
+            [
+              "threshold",
+              0.05
+            ],
+            [
+              "peak",
+              0.17586206896551723
+            ]
+          ],
+          "failure_type": "rollout_torque_saturation",
+          "joints": [
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_hip_yaw_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_hip_yaw_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+            "waist_yaw_joint",
+            "waist_roll_joint",
+            "waist_pitch_joint",
+            "left_shoulder_pitch_joint",
+            "left_shoulder_roll_joint",
+            "left_shoulder_yaw_joint",
+            "left_elbow_joint",
+            "left_wrist_roll_joint",
+            "left_wrist_pitch_joint",
+            "left_wrist_yaw_joint",
+            "right_shoulder_pitch_joint",
+            "right_shoulder_roll_joint",
+            "right_shoulder_yaw_joint",
+            "right_elbow_joint",
+            "right_wrist_roll_joint",
+            "right_wrist_pitch_joint",
+            "right_wrist_yaw_joint"
+          ],
+          "links": [],
+          "severity": 0.12586206896551722,
+          "start_frame": 1
+        },
+        {
+          "end_frame": 9,
+          "evidence": [
+            [
+              "survival_time_s",
+              0.18
+            ]
+          ],
+          "failure_type": "rollout_divergence",
+          "joints": [],
+          "links": [],
+          "severity": 1.0,
+          "start_frame": 9
+        }
+      ],
+      "fps": 50.0,
+      "metrics": [
+        [
+          "max_requested_torque_ratio",
+          5.926714225746395
+        ],
+        [
+          "mean_dof_error_rad",
+          0.08815320802432752
+        ],
+        [
+          "mean_root_height_error_m",
+          0.006342972142227232
+        ],
+        [
+          "reference_max_requested_torque_ratio",
+          0.42734208964875714
+        ],
+        [
+          "reference_torque_saturation_fraction",
+          0.0
+        ],
+        [
+          "survival_fraction",
+          0.18
+        ],
+        [
+          "survival_time_s",
+          0.18
+        ],
+        [
+          "torque_saturation_fraction",
+          0.13655172413793104
+        ],
+        [
+          "wall_time_s",
+          0.10667222458869219
+        ]
+      ],
+      "motion_sha256": "296303f225a70013e719be9e594d1f528366df405753422a59bbea12deb392bf",
+      "num_frames": 325,
+      "overflow_detected": false,
+      "passed": false,
+      "robot_dynamics_hash": "4b100459dca9cdf007980b4f763f0353d857b1b95ae1efb27134c72ae40667e8",
+      "robot_kinematic_hash": "aa9b8da883fe822e2624c034d34b2c988b33c7a991453576e7e2d64de6789131",
+      "robot_spec_hash": "f9130dc2653ba6c0293c0d8ac67e5164ca37fbf180a28bd4bbf0f86d1aceca6d",
+      "schema_version": "snmr.physics-verification.v0.1",
+      "seed": 0,
+      "verification_level": "L1_reference_demand+L2_open_loop_pd"
+    },
+    "1": {
+      "backend": {
+        "build": null,
+        "engine": "mujoco",
+        "engine_version": "3.11.0",
+        "quaternion_convention": "wxyz",
+        "solver": "mujoco_cpu",
+        "solver_version": null
+      },
+      "candidate_id": "sub3_largebox_003_mj:torque_x1",
+      "config_hash": "c62b6d290680f20abb0eead83c49052d1daa90040d411372d90ee1b67f2b5a0c",
+      "controller_hash": "e7eb722db4d22665f00f4f5b631443f8757db5464dee1a60624a687af709cd7a",
+      "failure_intervals": [
+        {
+          "end_frame": 9,
+          "evidence": [
+            [
+              "threshold",
+              0.05
+            ],
+            [
+              "peak",
+              0.16551724137931034
+            ]
+          ],
+          "failure_type": "rollout_torque_saturation",
+          "joints": [
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_hip_yaw_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_hip_yaw_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+            "waist_yaw_joint",
+            "waist_roll_joint",
+            "waist_pitch_joint",
+            "left_shoulder_pitch_joint",
+            "left_shoulder_roll_joint",
+            "left_shoulder_yaw_joint",
+            "left_elbow_joint",
+            "left_wrist_roll_joint",
+            "left_wrist_pitch_joint",
+            "left_wrist_yaw_joint",
+            "right_shoulder_pitch_joint",
+            "right_shoulder_roll_joint",
+            "right_shoulder_yaw_joint",
+            "right_elbow_joint",
+            "right_wrist_roll_joint",
+            "right_wrist_pitch_joint",
+            "right_wrist_yaw_joint"
+          ],
+          "links": [],
+          "severity": 0.11551724137931034,
+          "start_frame": 1
+        },
+        {
+          "end_frame": 9,
+          "evidence": [
+            [
+              "survival_time_s",
+              0.18
+            ]
+          ],
+          "failure_type": "rollout_divergence",
+          "joints": [],
+          "links": [],
+          "severity": 1.0,
+          "start_frame": 9
+        }
+      ],
+      "fps": 50.0,
+      "metrics": [
+        [
+          "max_requested_torque_ratio",
+          9.943140513726684
+        ],
+        [
+          "mean_dof_error_rad",
+          0.08885567161017298
+        ],
+        [
+          "mean_root_height_error_m",
+          0.006107465167461832
+        ],
+        [
+          "reference_max_requested_torque_ratio",
+          0.32050656723656784
+        ],
+        [
+          "reference_torque_saturation_fraction",
+          0.0
+        ],
+        [
+          "survival_fraction",
+          0.18
+        ],
+        [
+          "survival_time_s",
+          0.18
+        ],
+        [
+          "torque_saturation_fraction",
+          0.14275862068965517
+        ],
+        [
+          "wall_time_s",
+          0.08961786516010761
+        ]
+      ],
+      "motion_sha256": "296303f225a70013e719be9e594d1f528366df405753422a59bbea12deb392bf",
+      "num_frames": 325,
+      "overflow_detected": false,
+      "passed": false,
+      "robot_dynamics_hash": "3d1f0ac080db6b79da71c7ed78b31d83b5c08129b6b704e91ddfd9f257eea226",
+      "robot_kinematic_hash": "aa9b8da883fe822e2624c034d34b2c988b33c7a991453576e7e2d64de6789131",
+      "robot_spec_hash": "2ccbbb9381ebac61be1892699f6d6831e52db76d3697768f9e2266dd81347053",
+      "schema_version": "snmr.physics-verification.v0.1",
+      "seed": 0,
+      "verification_level": "L1_reference_demand+L2_open_loop_pd"
+    },
+    "1.25": {
+      "backend": {
+        "build": null,
+        "engine": "mujoco",
+        "engine_version": "3.11.0",
+        "quaternion_convention": "wxyz",
+        "solver": "mujoco_cpu",
+        "solver_version": null
+      },
+      "candidate_id": "sub3_largebox_003_mj:torque_x1.25",
+      "config_hash": "c62b6d290680f20abb0eead83c49052d1daa90040d411372d90ee1b67f2b5a0c",
+      "controller_hash": "e7eb722db4d22665f00f4f5b631443f8757db5464dee1a60624a687af709cd7a",
+      "failure_intervals": [
+        {
+          "end_frame": 9,
+          "evidence": [
+            [
+              "threshold",
+              0.05
+            ],
+            [
+              "peak",
+              0.20689655172413793
+            ]
+          ],
+          "failure_type": "rollout_torque_saturation",
+          "joints": [
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_hip_yaw_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_hip_yaw_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+            "waist_yaw_joint",
+            "waist_roll_joint",
+            "waist_pitch_joint",
+            "left_shoulder_pitch_joint",
+            "left_shoulder_roll_joint",
+            "left_shoulder_yaw_joint",
+            "left_elbow_joint",
+            "left_wrist_roll_joint",
+            "left_wrist_pitch_joint",
+            "left_wrist_yaw_joint",
+            "right_shoulder_pitch_joint",
+            "right_shoulder_roll_joint",
+            "right_shoulder_yaw_joint",
+            "right_elbow_joint",
+            "right_wrist_roll_joint",
+            "right_wrist_pitch_joint",
+            "right_wrist_yaw_joint"
+          ],
+          "links": [],
+          "severity": 0.1568965517241379,
+          "start_frame": 1
+        },
+        {
+          "end_frame": 9,
+          "evidence": [
+            [
+              "survival_time_s",
+              0.18
+            ]
+          ],
+          "failure_type": "rollout_divergence",
+          "joints": [],
+          "links": [],
+          "severity": 1.0,
+          "start_frame": 9
+        }
+      ],
+      "fps": 50.0,
+      "metrics": [
+        [
+          "max_requested_torque_ratio",
+          8.17805448091371
+        ],
+        [
+          "mean_dof_error_rad",
+          0.10746406397860696
+        ],
+        [
+          "mean_root_height_error_m",
+          0.006278824187486487
+        ],
+        [
+          "reference_max_requested_torque_ratio",
+          0.2564052537892543
+        ],
+        [
+          "reference_torque_saturation_fraction",
+          0.0
+        ],
+        [
+          "survival_fraction",
+          0.18
+        ],
+        [
+          "survival_time_s",
+          0.18
+        ],
+        [
+          "torque_saturation_fraction",
+          0.15413793103448276
+        ],
+        [
+          "wall_time_s",
+          0.0978095717728138
+        ]
+      ],
+      "motion_sha256": "296303f225a70013e719be9e594d1f528366df405753422a59bbea12deb392bf",
+      "num_frames": 325,
+      "overflow_detected": false,
+      "passed": false,
+      "robot_dynamics_hash": "2cad566dc9071e9c92ad29f4fba265e896d8b27e187df9b4f51016f01b5d90ac",
+      "robot_kinematic_hash": "aa9b8da883fe822e2624c034d34b2c988b33c7a991453576e7e2d64de6789131",
+      "robot_spec_hash": "3c27a5723427c1befcf176286e5f84ea69b2c55c11bfe9636aba5c5a0a47b1bc",
+      "schema_version": "snmr.physics-verification.v0.1",
+      "seed": 0,
+      "verification_level": "L1_reference_demand+L2_open_loop_pd"
+    }
+  },
+  "scales": [
+    0.5,
+    0.75,
+    1.0,
+    1.25
+  ]
+}

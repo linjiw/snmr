@@ -132,7 +132,8 @@ def _tilt_rad(root_quat_wxyz: np.ndarray) -> float:
 
 
 def replay(npz_path: str, mjcf: str, seconds_max: float = 10.0, control_hz: float = 50.0,
-           start_frame: int = 0) -> dict:
+           start_frame: int = 0, effort_scale: float = 1.0,
+           return_trace: bool = False) -> dict:
     """Open-loop PD replay of one WBT NPZ; returns survival + while-alive tracking metrics.
 
     Torque tau = kp*(q_ref - q) - kd*qd on the 29 hinge dofs only (root free joint gets zero
@@ -140,10 +141,19 @@ def replay(npz_path: str, mjcf: str, seconds_max: float = 10.0, control_hz: floa
     over the control tick (zero-order hold — what a deployed PD loop does under decimation),
     clamped to holosoma per-joint effort limits. Fully deterministic.
     """
+    if not np.isfinite(effort_scale) or effort_scale <= 0.0:
+        raise ValueError(f"effort_scale must be positive, got {effort_scale}")
+    if not np.isfinite(seconds_max) or seconds_max <= 0.0:
+        raise ValueError(f"seconds_max must be positive, got {seconds_max}")
+    if not np.isfinite(control_hz) or control_hz <= 0.0:
+        raise ValueError(f"control_hz must be positive, got {control_hz}")
+
     data = np.load(npz_path, allow_pickle=True)
     jp = np.asarray(data["joint_pos"], dtype=np.float64)   # (T, 7+D)
     jv = np.asarray(data["joint_vel"], dtype=np.float64)   # (T, 6+D)
     fps = float(np.asarray(data["fps"]).ravel()[0])
+    if not np.isfinite(jp).all() or not np.isfinite(jv).all() or not np.isfinite(fps):
+        raise ValueError(f"{npz_path}: motion buffers and fps must be finite")
     if abs(fps - control_hz) > 1e-6:
         raise ValueError(f"{npz_path}: NPZ fps {fps} != control_hz {control_hz}")
 
@@ -158,7 +168,7 @@ def replay(npz_path: str, mjcf: str, seconds_max: float = 10.0, control_hz: floa
 
     kp = np.array([_match_gain(n, HOLOSOMA_G1_STIFFNESS) for n in names])
     kd = np.array([_match_gain(n, HOLOSOMA_G1_DAMPING) for n in names])
-    tau_max = np.array([_match_gain(n, HOLOSOMA_G1_EFFORT) for n in names])
+    tau_max = effort_scale * np.array([_match_gain(n, HOLOSOMA_G1_EFFORT) for n in names])
 
     n_sub = round(1.0 / (control_hz * m.opt.timestep))
     if n_sub < 1 or abs(n_sub * m.opt.timestep * control_hz - 1.0) > 1e-6:
@@ -179,23 +189,72 @@ def replay(npz_path: str, mjcf: str, seconds_max: float = 10.0, control_hz: floa
     d.qvel[6:] = 0.0
     d.qvel[vadr] = jv[start_frame, 6:]
     mujoco.mj_forward(m, d)
+    if not np.isfinite(d.qpos).all() or not np.isfinite(d.qvel).all():
+        raise ValueError("non-finite initial simulator state")
 
     ticks_max = min(int(round(seconds_max * control_hz)), T - 1 - start_frame)
     ticks_alive = 0
     diverge_reason = None
+    failure_frame = None
+    nonfinite_state = False
     dof_errs, z_errs = [], []
+    saturation_samples = 0
+    torque_samples = 0
+    max_requested_torque_ratio = 0.0
+    trace = {
+        "root_height_m": [],
+        "root_xy_deviation_m": [],
+        "tilt_rad": [],
+        "mean_dof_error_rad": [],
+        "torque_saturation_fraction": [],
+        "max_requested_torque_ratio": [],
+    }
     for k in range(ticks_max):
         ref = jp[start_frame + k + 1]        # target = reference at the END of this tick
         q_ref = ref[7:]
+        tick_saturation = 0
+        tick_samples = 0
+        tick_max_ratio = 0.0
         for _ in range(n_sub):
             tau = kp * (q_ref - d.qpos[qadr]) - kd * d.qvel[vadr]
+            requested_ratio = np.abs(tau) / tau_max
+            if not np.isfinite(tau).all() or not np.isfinite(requested_ratio).all():
+                diverge_reason = "non-finite controller state"
+                failure_frame = start_frame + k
+                nonfinite_state = True
+                break
+            saturated = requested_ratio > 1.0
+            tick_saturation += int(saturated.sum())
+            tick_samples += int(saturated.size)
+            tick_max_ratio = max(tick_max_ratio, float(requested_ratio.max(initial=0.0)))
             d.qfrc_applied[:] = 0.0          # root dofs stay unactuated
             d.qfrc_applied[vadr] = np.clip(tau, -tau_max, tau_max)
             mujoco.mj_step(m, d)
+            if not np.isfinite(d.qpos).all() or not np.isfinite(d.qvel).all():
+                diverge_reason = "non-finite simulator state"
+                failure_frame = start_frame + k
+                nonfinite_state = True
+                break
+
+        if diverge_reason is not None:
+            break
+
+        saturation_samples += tick_saturation
+        torque_samples += tick_samples
+        max_requested_torque_ratio = max(max_requested_torque_ratio, tick_max_ratio)
 
         z = float(d.qpos[2])
         xy_dev = float(np.linalg.norm(d.qpos[0:2] - ref[0:2]))
         tilt = _tilt_rad(d.qpos[3:7])
+        dof_err = float(np.mean(np.abs(d.qpos[qadr] - q_ref)))
+        trace["root_height_m"].append(z)
+        trace["root_xy_deviation_m"].append(xy_dev)
+        trace["tilt_rad"].append(tilt)
+        trace["mean_dof_error_rad"].append(dof_err)
+        trace["torque_saturation_fraction"].append(
+            tick_saturation / tick_samples if tick_samples else 0.0
+        )
+        trace["max_requested_torque_ratio"].append(tick_max_ratio)
         if z < FALL_ROOT_Z_M:
             diverge_reason = f"root z {z:.2f} < {FALL_ROOT_Z_M}"
         elif xy_dev > ROOT_XY_DEV_M:
@@ -203,27 +262,38 @@ def replay(npz_path: str, mjcf: str, seconds_max: float = 10.0, control_hz: floa
         elif tilt > TILT_LIMIT_RAD:
             diverge_reason = f"tilt {math.degrees(tilt):.0f} deg > 60"
         if diverge_reason is not None:
+            failure_frame = start_frame + k
             break
         ticks_alive += 1
-        dof_errs.append(float(np.mean(np.abs(d.qpos[qadr] - q_ref))))
+        dof_errs.append(dof_err)
         z_errs.append(abs(z - float(ref[2])))
 
     seconds_eval = ticks_max / control_hz
-    return {
+    result = {
         "npz": str(npz_path),
         "start_frame": start_frame,
+        "effort_scale": float(effort_scale),
         "seconds_evaluated": seconds_eval,
         "survival_time_s": ticks_alive / control_hz,
         "survived_fraction": (ticks_alive / control_hz) / seconds_eval if seconds_eval else 0.0,
         "diverged": diverge_reason is not None,
         "diverge_reason": diverge_reason,
+        "failure_frame": failure_frame,
+        "nonfinite_state": nonfinite_state,
         "mean_dof_err_rad": float(np.mean(dof_errs)) if dof_errs else float("nan"),
         "mean_root_height_err_m": float(np.mean(z_errs)) if z_errs else float("nan"),
+        "torque_saturation_fraction": (
+            saturation_samples / torque_samples if torque_samples else 0.0
+        ),
+        "max_requested_torque_ratio": float(max_requested_torque_ratio),
     }
+    if return_trace:
+        result["trace"] = trace
+    return result
 
 
 def replay_clip(npz_path: str, mjcf: str, seconds_max: float, control_hz: float,
-                num_starts: int) -> dict:
+                num_starts: int, effort_scale: float = 1.0) -> dict:
     """Aggregate replay over evenly spaced deterministic start frames.
 
     A single 10 s window from t=0 samples almost none of a multi-minute clip; averaging a few
@@ -234,13 +304,29 @@ def replay_clip(npz_path: str, mjcf: str, seconds_max: float, control_hz: float,
     need = int(round(seconds_max * control_hz))
     last = max(T - 1 - need, 0)
     starts = sorted({int(s) for s in np.linspace(0, last, max(1, num_starts))})
-    runs = [replay(npz_path, mjcf, seconds_max, control_hz, start_frame=s) for s in starts]
+    runs = [
+        replay(
+            npz_path,
+            mjcf,
+            seconds_max,
+            control_hz,
+            start_frame=s,
+            effort_scale=effort_scale,
+        )
+        for s in starts
+    ]
     return {
         "starts": runs,
         "survival_time_s": float(np.mean([r["survival_time_s"] for r in runs])),
         "survived_fraction": float(np.mean([r["survived_fraction"] for r in runs])),
         "mean_dof_err_rad": float(np.nanmean([r["mean_dof_err_rad"] for r in runs])),
         "mean_root_height_err_m": float(np.nanmean([r["mean_root_height_err_m"] for r in runs])),
+        "torque_saturation_fraction": float(np.mean([
+            r["torque_saturation_fraction"] for r in runs
+        ])),
+        "max_requested_torque_ratio": float(max(
+            r["max_requested_torque_ratio"] for r in runs
+        )),
     }
 
 

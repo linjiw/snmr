@@ -1,0 +1,65 @@
+{
+  "schema_version": "snmr.g0_fk_parity.attempt.v0.1",
+  "worker": "physx_comparison",
+  "backend": "isaac_lab_physx",
+  "status": "backend_timeout",
+  "g0_evaluated": false,
+  "g0_pass": false,
+  "gate_reason": "The capped live Isaac Lab attempt did not return PhysX body poses, so no comparison metric exists and G0 fails closed.",
+  "attempt": {
+    "started_at_from_isaac_log": "2026-09-01T05:38:37Z",
+    "duration_cap_seconds": 60,
+    "termination": "operator_interrupt_after_cap",
+    "command": [
+      "/home/robotixx/.holosoma_deps/miniconda3/envs/hssim/bin/python",
+      "scripts/g0_fk_parity_physx.py",
+      "--reference-npz",
+      "/tmp/snmr-g0-mj-o9yjD3/reference.npz",
+      "--reference-json",
+      "/tmp/snmr-g0-mj-o9yjD3/reference.json",
+      "--batch-size",
+      "8",
+      "--out-json",
+      "/tmp/snmr-g0-physx-smoke.json",
+      "--headless"
+    ],
+    "sample_count": 8,
+    "observed_progress": [
+      "Isaac Sim 5.1 AppLauncher initialized on NVIDIA GeForce RTX 5090",
+      "the exact generated G1 USD reached articulation initialization",
+      "Isaac Lab reported 29 available joints and zero configured actuators",
+      "no Articulation body-pose tensor or comparison result returned before the cap"
+    ],
+    "cause": "undetermined; no parity conclusion may be inferred from the timeout"
+  },
+  "frozen_gate": {
+    "required_samples": 10000,
+    "position_threshold_m": 0.001,
+    "orientation_geodesic_threshold_rad": 0.001,
+    "threshold_semantics": "strict_less_than"
+  },
+  "full_reference": {
+    "npz_path": "autoresearch/iterate-260901-0111/g0_g1_fk_mujoco_reference.npz",
+    "npz_sha256": "5c4f2448055e71a25377c8b4dafa72b20523bd957651cdc3fec0692d7e014d16",
+    "json_path": "autoresearch/iterate-260901-0111/g0_g1_fk_mujoco_reference.json",
+    "json_sha256": "eb23a980612962ab863d4b329a06d89c4c9c015643807512279200796b6a06b8",
+    "sample_buffer_sha256": "d4bfcd88331ae33c48b3c6dbfa898ae8f062281d5c211163da05ccdb7e2162f6",
+    "sample_payload_sha256": "f5d8f88cf5a5fa493d81e11b339c75df5c0956012f91ffac4fe54f6c816d2e81"
+  },
+  "assets": {
+    "scene_mjcf": "/home/robotixx/holosoma/src/holosoma/holosoma/data/robots/g1/scenes/scene_g1_29dof_wbt_plane.xml",
+    "scene_mjcf_entrypoint_sha256": "0555862e648ad9b4a1e4e773fa888a7ea6e3795c79b1ebfd7e36c3976615bb24",
+    "urdf": "/home/robotixx/holosoma/src/holosoma/holosoma/data/robots/g1/g1_29dof.urdf",
+    "urdf_entrypoint_sha256": "49c8b5ccb28ffd29ba32ceac596bededf83ba5eeaf1c49f49bfcb327cfcf0c7e",
+    "urdf_bundle_sha256": "2ae66cb4d2ca1ea7f7f39d2dda27a0dea62265399de4849ae53da3d56418472d",
+    "usd": "/home/robotixx/holosoma/src/holosoma/holosoma/data/robots/converted_rank0/g1_29dof.usd",
+    "usd_entrypoint_sha256": "fc79e477505e3becf8eedf851c592177efec3f4f72f7f8ee2271b2d8154e4735",
+    "usd_bundle_sha256": "6fdf7bb43f9d9a364eb9f7178ed857f84a4f9066cdba3ee54ff04b6d51747546"
+  },
+  "snmr_commit": "8f5ed72c6b45868913e1fd2e53b88ea89a17a031",
+  "snmr_dirty": true,
+  "newton_commit": "7bb6d02d8eeab2cffc3adfa453ddd63799a2ac6a",
+  "newton_dirty": true,
+  "isaac_lab_commit": "3c6e67bb5c7ada942a6d1884ab69338f57596f77",
+  "isaac_lab_dirty": false
+}

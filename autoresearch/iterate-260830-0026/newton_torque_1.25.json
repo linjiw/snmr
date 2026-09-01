@@ -1,0 +1,118 @@
+{
+  "backend": {
+    "build": "/home/robotixx/newton@7bb6d02d8eeab2cffc3adfa453ddd63799a2ac6a+dirty",
+    "engine": "newton",
+    "engine_version": "1.6.0.dev0",
+    "quaternion_convention": "xyzw",
+    "solver": "mujoco_warp",
+    "solver_version": "3.11.0"
+  },
+  "candidate_id": "sub3_largebox_003_mj:torque_x1.25",
+  "config_hash": "572582afaa93451d8ca0f4008585103d277fe9842c251716c63471dc498ec112",
+  "controller_hash": "e7eb722db4d22665f00f4f5b631443f8757db5464dee1a60624a687af709cd7a",
+  "failure_intervals": [
+    {
+      "end_frame": 11,
+      "evidence": [
+        [
+          "threshold",
+          0.05
+        ],
+        [
+          "peak",
+          0.2206896551724138
+        ]
+      ],
+      "failure_type": "rollout_torque_saturation",
+      "joints": [
+        "left_hip_pitch_joint",
+        "left_hip_roll_joint",
+        "left_hip_yaw_joint",
+        "left_knee_joint",
+        "left_ankle_pitch_joint",
+        "left_ankle_roll_joint",
+        "right_hip_pitch_joint",
+        "right_hip_roll_joint",
+        "right_hip_yaw_joint",
+        "right_knee_joint",
+        "right_ankle_pitch_joint",
+        "right_ankle_roll_joint",
+        "waist_yaw_joint",
+        "waist_roll_joint",
+        "waist_pitch_joint",
+        "left_shoulder_pitch_joint",
+        "left_shoulder_roll_joint",
+        "left_shoulder_yaw_joint",
+        "left_elbow_joint",
+        "left_wrist_roll_joint",
+        "left_wrist_pitch_joint",
+        "left_wrist_yaw_joint",
+        "right_shoulder_pitch_joint",
+        "right_shoulder_roll_joint",
+        "right_shoulder_yaw_joint",
+        "right_elbow_joint",
+        "right_wrist_roll_joint",
+        "right_wrist_pitch_joint",
+        "right_wrist_yaw_joint"
+      ],
+      "links": [],
+      "severity": 0.1706896551724138,
+      "start_frame": 1
+    },
+    {
+      "end_frame": 11,
+      "evidence": [
+        [
+          "survival_time_s",
+          0.22
+        ]
+      ],
+      "failure_type": "rollout_divergence",
+      "joints": [],
+      "links": [],
+      "severity": 1.0,
+      "start_frame": 11
+    }
+  ],
+  "fps": 50.0,
+  "metrics": [
+    [
+      "max_requested_torque_ratio",
+      10.909149169921875
+    ],
+    [
+      "mean_dof_error_rad",
+      0.14064302395001568
+    ],
+    [
+      "mean_root_height_error_m",
+      0.01186325333335183
+    ],
+    [
+      "survival_fraction",
+      0.22
+    ],
+    [
+      "survival_time_s",
+      0.22
+    ],
+    [
+      "torque_saturation_fraction",
+      0.1752873563218391
+    ],
+    [
+      "wall_time_s",
+      0.8999134311452508
+    ]
+  ],
+  "motion_sha256": "296303f225a70013e719be9e594d1f528366df405753422a59bbea12deb392bf",
+  "num_frames": 325,
+  "overflow_detected": false,
+  "passed": false,
+  "robot_dynamics_hash": "2cad566dc9071e9c92ad29f4fba265e896d8b27e187df9b4f51016f01b5d90ac",
+  "robot_kinematic_hash": "aa9b8da883fe822e2624c034d34b2c988b33c7a991453576e7e2d64de6789131",
+  "robot_spec_hash": "3c27a5723427c1befcf176286e5f84ea69b2c55c11bfe9636aba5c5a0a47b1bc",
+  "schema_version": "snmr.physics-verification.v0.1",
+  "seed": 0,
+  "verification_level": "L2_open_loop_pd"
+}

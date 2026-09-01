@@ -1,0 +1,7 @@
+iteration	change	metric_before	metric_after	decision	notes
+1	Version RobotSpec contract	Legacy decoder received 8D kinematic/static features only	37D identity-free normalized link/joint/control features with separate kinematic, dynamics, and full hashes	keep	MJCF-first; URDF/USD adapters remain a parity-gated next step
+2	Add causal torque twins	No auditable same-geometry dynamics intervention	All 6 intervention gates pass across torque scales 0.50/0.75/1.00/1.25	keep	Reference max torque ratio is 0.641/0.427/0.321/0.256; 0.50x localizes frames 37-41
+3	Standardize verifier evidence	Clip-level proxy aggregates only	Versioned reports preserve solver, hashes, controller, overflow, metrics, and typed frame intervals	keep	Cross-environment exchange is JSON; simulator packages remain isolated
+4	Run matched Newton/MJWarp diagnostic	Newton path untested on the SNMR motion contract	0.50x and 1.25x both run without overflow; pass/fail and rollout failure types agree with MuJoCo CPU	keep	Newton survival 0.22 s versus MuJoCo CPU 0.18 s on both endpoints
+5	Test open-loop PD as dynamics reward	Assumed possible cheap rollout ranker	Rollout saturation is non-monotonic in both implementations and every endpoint diverges	kill	Retain only as diagnostic; require a qualified frozen tracker for preference/RL labels
+6	Verify repository	No tests for the new contracts	480 passed, 5 skipped; compileall and diff check pass	keep	27 pre-existing warnings; no recorded experiment directory overwritten

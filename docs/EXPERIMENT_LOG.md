@@ -2258,3 +2258,11 @@ the other side: no deployment-side fill rescued a frozen policy, while training 
 present fixes it using the naive hold fill.  Single seed; seeds 1-2 and the remaining arms queued.
 Open attribution: masking vs the flag bits, closed by the queued mEnf arm (masked, flag_dim=0).
 Doc: `docs/E80A_MASKED_TRAINING_2026-08-17.md`.
+
+**Superseding update (2026-09-01).** The `mZf` seed-0 treatment subsequently completed. Its maximum
+gain over `mE` across the registered severity sweep is +0.0156, below the +0.05 seed-0 continuation
+threshold; at the long f=0.3 cell it is -0.0107 versus `mE` and -0.0664 versus live-clock `mTl`.
+The preregistered stop therefore fires: no seeds 1--2 and no tuning for the latent-specific branch.
+The surviving result is masked/outage training, not latent-specific robustness. Exact paired CIs,
+analyzer SHA, and input-report manifest hashes are in
+`reproducibility/reports/e80_mzf_seed0_status_2026-09-01.json`.

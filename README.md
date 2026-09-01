@@ -65,6 +65,10 @@ and hardware boundaries are recorded in `docs/E70_VIDEO_PROTOCOL.md` and
 |---|---|---|
 | `snmr/rotation.py` | wxyz quaternion ops, 6D rotation rep (Zhou et al.), geodesic metrics | `tests/test_rotation.py` — cross-checked against scipy |
 | `snmr/robot_model.py` | MJCF → embodiment graph + **differentiable batched FK** | `tests/test_fk.py` — **matches `mujoco.mj_forward` to <1e-4 m / <1e-4 rad** |
+| `snmr/robot_spec.py` | versioned, identity-free kinematics/dynamics/actuation/control contract + coherent dynamics twins | `tests/test_robot_spec.py` — parse/round-trip, hashes, masks, dimensionless features, twin invariants |
+| `snmr/motion_spec.py` | canonical 50 Hz human-motion schema with provenance, SLERP/cubic resampling, scale descriptors, contacts, and normalized-buffer hashes | `tests/test_motion_spec.py` — strict validation, derivation, immutable buffers, JSON/hash round-trip |
+| `snmr/robot_tokens.py` | padded variable-node RobotSpec tensors with tree-distance bias and per-node joint-limit contract | `tests/test_robot_tokens.py` — variable DoF, renaming and permutation equivariance, identity exclusion |
+| `snmr/provenance.py` | worker-side immutable input snapshots, referenced MJCF-bundle hashing, and exact Git states | `tests/test_provenance.py` — mutation detection, materialization, clean/dirty/unavailable revisions |
 | `snmr/skeleton.py` | shared skeleton graph (human + robot), SMPL-X body-22 topology | `tests/test_data.py` |
 | `snmr/data.py` | canonical motion, real-NPZ loader, heading-invariant graph pose features | `tests/test_data.py` — incl. translation/yaw invariance |
 | `snmr/model.py` | GAT encoder → shared latent → embodiment-conditioned (AdaLN) decoder → qpos | `tests/test_model.py` — shapes, unit quats, in-limit dof, grad flow, variable topology |
@@ -74,6 +78,17 @@ and hardware boundaries are recorded in `docs/E70_VIDEO_PROTOCOL.md` and
 | `scripts/make_pairs_lafan1.py` | data engine: LAFAN1 BVH + GMR teacher → paired NPZs per robot | generated the full dataset: 77 clips × 5 robots = **2.48M teacher frames (~23 h), 1.6 GB** in `data/pairs/` |
 | `scripts/train_phase1.py` | Phase-1 trainer: human→z→robot, clip-split train/val, held-out MPJPE eval, resumable | smoke-validated; root predicted in the **scaled-human-heading frame** (see below) |
 | `scripts/export_wbt_npz.py` | SNMR output → holosoma WBT training NPZ (50 fps resample + MuJoCo FK replay) | schema-validated against the real holosoma sample NPZ |
+| `snmr/verification.py` | backend-neutral physics reports with provenance and localized failures | `tests/test_verification.py`; matched MuJoCo CPU/Newton-MJWarp pilot |
+
+### RobotSpec-conditioned physics pilot
+
+The MorphoRetarget foundation is implemented without changing legacy checkpoint inputs. A controlled
+G1 torque-twin experiment passes all six RobotSpec gates, but also falsifies open-loop PD replay as a
+candidate-ranking/RL reward: MuJoCo CPU and Newton/MJWarp agree that the clip fails, while rollout
+saturation is not monotonic with motor strength. The retained design uses a frozen closed-loop
+tracker in PhysX as the primary strong verifier and Newton/MJWarp as an independent second solver.
+See [`docs/MORPHORETARGET_FOUNDATION_2026-08-30.md`](docs/MORPHORETARGET_FOUNDATION_2026-08-30.md)
+for results, capability boundaries, and exact reproduction commands.
 
 ### Root-pose parametrisation (hard-won lesson)
 

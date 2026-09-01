@@ -1,0 +1,305 @@
+{
+  "backend": "isaac_lab_physx",
+  "command": [
+    "/home/robotixx/snmr/.venv/bin/python",
+    "scripts/g0_fk_parity_physx.py",
+    "--reference-npz",
+    "autoresearch/iterate-260901-0111/g0_g1_fk_mujoco_reference.npz",
+    "--reference-json",
+    "autoresearch/iterate-260901-0111/g0_g1_fk_mujoco_reference.json",
+    "--out-json",
+    "autoresearch/iterate-260901-0111/g0_g1_fk_physx_blocked.json"
+  ],
+  "completed_at": "2026-09-01T05:40:40.165504+00:00",
+  "created_at": "2026-09-01T05:40:40.064289+00:00",
+  "environment": {
+    "numpy": "2.2.6",
+    "python": "3.10.12"
+  },
+  "error": {
+    "message": "Isaac Lab AppLauncher is unavailable; run this worker with Holosoma's hssim Python",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/robotixx/snmr/scripts/g0_fk_parity_physx.py\", line 384, in main\n    from isaaclab.app import AppLauncher\nModuleNotFoundError: No module named 'isaaclab'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/robotixx/snmr/scripts/g0_fk_parity_physx.py\", line 386, in main\n    raise RuntimeError(\nRuntimeError: Isaac Lab AppLauncher is unavailable; run this worker with Holosoma's hssim Python\n",
+    "type": "RuntimeError"
+  },
+  "g0_evaluated": false,
+  "g0_pass": false,
+  "gate_reason": "PhysX comparison did not complete; G0 fails closed.",
+  "inputs": {
+    "reference_json": {
+      "sha256": "eb23a980612962ab863d4b329a06d89c4c9c015643807512279200796b6a06b8",
+      "size_bytes": 28285,
+      "source_path": "/home/robotixx/snmr/autoresearch/iterate-260901-0111/g0_g1_fk_mujoco_reference.json"
+    },
+    "reference_npz": {
+      "sha256": "5c4f2448055e71a25377c8b4dafa72b20523bd957651cdc3fec0692d7e014d16",
+      "size_bytes": 5138408,
+      "source_path": "/home/robotixx/snmr/autoresearch/iterate-260901-0111/g0_g1_fk_mujoco_reference.npz"
+    },
+    "sample_buffer_sha256": "d4bfcd88331ae33c48b3c6dbfa898ae8f062281d5c211163da05ccdb7e2162f6",
+    "sample_payload_sha256": "f5d8f88cf5a5fa493d81e11b339c75df5c0956012f91ffac4fe54f6c816d2e81",
+    "urdf_bundle": {
+      "entrypoint": "g1_29dof.urdf",
+      "file_count": 36,
+      "files": [
+        {
+          "relative_path": "g1_29dof.urdf",
+          "sha256": "49c8b5ccb28ffd29ba32ceac596bededf83ba5eeaf1c49f49bfcb327cfcf0c7e",
+          "size_bytes": 43585
+        },
+        {
+          "relative_path": "meshes/head_link.STL",
+          "sha256": "005fb67fbd3eff94aa8bf4a6e83238174e9f91b6721f7111594322f223724411",
+          "size_bytes": 932784
+        },
+        {
+          "relative_path": "meshes/left_ankle_pitch_link.STL",
+          "sha256": "d49e3abc6f5b12e532062cd575b87b5ef40cd2a3fc18f54a1ca5bba4f773d51d",
+          "size_bytes": 71184
+        },
+        {
+          "relative_path": "meshes/left_ankle_roll_link.STL",
+          "sha256": "c4092af943141d4d9f74232f3cfa345afc6565f46a077793b8ae0e68b39dc33f",
+          "size_bytes": 653384
+        },
+        {
+          "relative_path": "meshes/left_elbow_link.STL",
+          "sha256": "fa752198accd104d5c4c3a01382e45165b944fbbc5acce085059223324e5bed3",
+          "size_bytes": 88784
+        },
+        {
+          "relative_path": "meshes/left_hip_pitch_link.STL",
+          "sha256": "4725168105ee768ee31638ef22b53f6be2d7641bfd7cfefe803488d884776fa4",
+          "size_bytes": 181684
+        },
+        {
+          "relative_path": "meshes/left_hip_roll_link.STL",
+          "sha256": "91f25922ee8a7c3152790051bebad17b4d9cd243569c38fe340285ff93a97acf",
+          "size_bytes": 192184
+        },
+        {
+          "relative_path": "meshes/left_hip_yaw_link.STL",
+          "sha256": "a16d88aa6ddac8083aa7ad55ed317bea44b1fa003d314fba88965b7ed0f3b55b",
+          "size_bytes": 296284
+        },
+        {
+          "relative_path": "meshes/left_knee_link.STL",
+          "sha256": "8d92b9e3d3a636761150bb8025e32514c4602b91c7028d523ee42b3e632de477",
+          "size_bytes": 854884
+        },
+        {
+          "relative_path": "meshes/left_rubber_hand.STL",
+          "sha256": "cff2221a690fa69303f61fce68f2d155c1517b52efb6ca9262dd56e0bc6e70fe",
+          "size_bytes": 2287484
+        },
+        {
+          "relative_path": "meshes/left_shoulder_pitch_link.STL",
+          "sha256": "f0d1cfd02fcf0d42f95e678eeca33da3afbcc366ffba5c052847773ec4f31d52",
+          "size_bytes": 176784
+        },
+        {
+          "relative_path": "meshes/left_shoulder_roll_link.STL",
+          "sha256": "fb9df21687773522598dc384f1a2945c7519f11cbc8bd372a49170316d6eee88",
+          "size_bytes": 400284
+        },
+        {
+          "relative_path": "meshes/left_shoulder_yaw_link.STL",
+          "sha256": "1aa97e9748e924336567992181f78c7cd0652fd52a4afcca3df6b2ef6f9e712e",
+          "size_bytes": 249184
+        },
+        {
+          "relative_path": "meshes/left_wrist_pitch_link.STL",
+          "sha256": "b251d8e05047f695d0f536cd78c11973cfa4e78d08cfe82759336cc3471de3a9",
+          "size_bytes": 85984
+        },
+        {
+          "relative_path": "meshes/left_wrist_roll_link.STL",
+          "sha256": "edc387c9a0ba8c2237e9b296d32531426fabeb6f53e58df45c76106bca74148c",
+          "size_bytes": 356184
+        },
+        {
+          "relative_path": "meshes/left_wrist_yaw_link.STL",
+          "sha256": "83f8fb3a726bf9613d65dd14f0f447cb918c3c95b3938042a0c9c09749267d3b",
+          "size_bytes": 318684
+        },
+        {
+          "relative_path": "meshes/logo_link.STL",
+          "sha256": "8571a0a19bc4916fa55f91449f51d5fdefd751000054865a842449429d5f155b",
+          "size_bytes": 243384
+        },
+        {
+          "relative_path": "meshes/pelvis.STL",
+          "sha256": "5ba6bbc888e630550140d3c26763f10206da8c8bd30ed886b8ede41c61f57a31",
+          "size_bytes": 1060884
+        },
+        {
+          "relative_path": "meshes/pelvis_contour_link.STL",
+          "sha256": "5cc5c2c7a312329e3feeb2b03d3fc09fc29705bd01864f6767e51be959662420",
+          "size_bytes": 1805184
+        },
+        {
+          "relative_path": "meshes/right_ankle_pitch_link.STL",
+          "sha256": "15be426539ec1be70246d4d82a168806db64a41301af8b35c197a33348c787a9",
+          "size_bytes": 71184
+        },
+        {
+          "relative_path": "meshes/right_ankle_roll_link.STL",
+          "sha256": "4b66222ea56653e627711b56d0a8949b4920da5df091da0ceb343f54e884e3a5",
+          "size_bytes": 653784
+        },
+        {
+          "relative_path": "meshes/right_elbow_link.STL",
+          "sha256": "1be925d7aa268bb8fddf5362b9173066890c7d32092c05638608126e59d1e2ab",
+          "size_bytes": 88784
+        },
+        {
+          "relative_path": "meshes/right_hip_pitch_link.STL",
+          "sha256": "e4f3c99d7f4a7d34eadbef9461fc66e3486cb5442db1ec50c86317d459f1a9c6",
+          "size_bytes": 181284
+        },
+        {
+          "relative_path": "meshes/right_hip_roll_link.STL",
+          "sha256": "4c254ef66a356f492947f360dd931965477b631e3fcc841f91ccc46d945d54f6",
+          "size_bytes": 192684
+        },
+        {
+          "relative_path": "meshes/right_hip_yaw_link.STL",
+          "sha256": "e479c2936ca2057e9eb2f7dff6c189b7419d7b8484dea0b298cbb36a2a6aa668",
+          "size_bytes": 296284
+        },
+        {
+          "relative_path": "meshes/right_knee_link.STL",
+          "sha256": "63c4008449c9bbe701a6e2b557b7a252e90cf3a5abcf54cee46862b9a69f8ec8",
+          "size_bytes": 852284
+        },
+        {
+          "relative_path": "meshes/right_rubber_hand.STL",
+          "sha256": "99533b778bca6246144fa511bb9d4e555e075c641f2a0251e04372869cd99d67",
+          "size_bytes": 2192684
+        },
+        {
+          "relative_path": "meshes/right_shoulder_pitch_link.STL",
+          "sha256": "24cdb387e0128dfe602770a81c56cdce3a0181d34d039a11d1aaf8819b7b8c02",
+          "size_bytes": 176784
+        },
+        {
+          "relative_path": "meshes/right_shoulder_roll_link.STL",
+          "sha256": "962b97c48f9ce9e8399f45dd9522e0865d19aa9fd299406b2d475a8fc4a53e81",
+          "size_bytes": 401884
+        },
+        {
+          "relative_path": "meshes/right_shoulder_yaw_link.STL",
+          "sha256": "a0b76489271da0c72461a344c9ffb0f0c6e64f019ea5014c1624886c442a2fe5",
+          "size_bytes": 249984
+        },
+        {
+          "relative_path": "meshes/right_wrist_pitch_link.STL",
+          "sha256": "d22f8f3b3127f15a63e5be1ee273cd5075786c3142f1c3d9f76cbf43d2a26477",
+          "size_bytes": 79584
+        },
+        {
+          "relative_path": "meshes/right_wrist_roll_link.STL",
+          "sha256": "a7ee9212ff5b94d6cb7f52bb1bbf3f352194d5b598acff74f4c77d340c5b344f",
+          "size_bytes": 356084
+        },
+        {
+          "relative_path": "meshes/right_wrist_yaw_link.STL",
+          "sha256": "bc9dece2d12509707e0057ba2e48df8f3d56db0c79410212963a25e8a50f61a6",
+          "size_bytes": 341484
+        },
+        {
+          "relative_path": "meshes/torso_link_rev_1_0.STL",
+          "sha256": "11ddb46f2098efbbd8816b1d65893632d8e78be936376c7cdcd6771899ccc723",
+          "size_bytes": 2570584
+        },
+        {
+          "relative_path": "meshes/waist_roll_link_rev_1_0.STL",
+          "sha256": "b67c347a05abc3e8ddae600d98a082bee273bb39f8e651647708b0a7140a8a97",
+          "size_bytes": 85884
+        },
+        {
+          "relative_path": "meshes/waist_yaw_link_rev_1_0.STL",
+          "sha256": "ec6db442b11f25eed898b5add07940c85d804f300de24dcbd264ccd8be7d554c",
+          "size_bytes": 619984
+        }
+      ],
+      "sha256": "2ae66cb4d2ca1ea7f7f39d2dda27a0dea62265399de4849ae53da3d56418472d",
+      "size_bytes": 19710025,
+      "source_path": "/home/robotixx/holosoma/src/holosoma/holosoma/data/robots/g1/g1_29dof.urdf"
+    },
+    "usd_bundle": {
+      "entrypoint": "g1_29dof.usd",
+      "file_count": 7,
+      "files": [
+        {
+          "relative_path": ".asset_hash",
+          "sha256": "0b4912a18e06047f071308e43d29df2362853af2a870396e5dbc2f83e44cb874",
+          "size_bytes": 32
+        },
+        {
+          "relative_path": "config.yaml",
+          "sha256": "6e199a8ef05920ce8373db048b477d45c92730094470f32bc9be509f86cc3755",
+          "size_bytes": 1689
+        },
+        {
+          "relative_path": "configuration/g1_29dof_base.usd",
+          "sha256": "8111990f0550aefc7e6444bd070439bedd868f9ee5432dd2343ee430ab97efcc",
+          "size_bytes": 28341004
+        },
+        {
+          "relative_path": "configuration/g1_29dof_physics.usd",
+          "sha256": "bb78f6782aa9531afb6d3f4c1f6d035e4397a1e7850463eb1a6cbd7acf877def",
+          "size_bytes": 10190
+        },
+        {
+          "relative_path": "configuration/g1_29dof_robot.usd",
+          "sha256": "59796bc7d8b5154e0437af65da78f6ddb344602dc5f95a12feeb196fadcb4c2b",
+          "size_bytes": 3022
+        },
+        {
+          "relative_path": "configuration/g1_29dof_sensor.usd",
+          "sha256": "950a4ebae64be45179e6267fe0d8eb8aa9d2206ef65087a12a7d17456fa8ac8f",
+          "size_bytes": 642
+        },
+        {
+          "relative_path": "g1_29dof.usd",
+          "sha256": "fc79e477505e3becf8eedf851c592177efec3f4f72f7f8ee2271b2d8154e4735",
+          "size_bytes": 1456
+        }
+      ],
+      "sha256": "6fdf7bb43f9d9a364eb9f7178ed857f84a4f9066cdba3ee54ff04b6d51747546",
+      "size_bytes": 28358035,
+      "source_root": "/home/robotixx/holosoma/src/holosoma/holosoma/data/robots/converted_rank0"
+    }
+  },
+  "isaac_lab_commit": "3c6e67bb5c7ada942a6d1884ab69338f57596f77",
+  "isaac_lab_dirty": false,
+  "isaac_lab_repo_root": "/home/robotixx/.holosoma_deps/IsaacLab",
+  "isaac_lab_repo_status": "available",
+  "newton_commit": "7bb6d02d8eeab2cffc3adfa453ddd63799a2ac6a",
+  "newton_dirty": true,
+  "newton_repo_root": "/home/robotixx/newton",
+  "newton_repo_status": "available",
+  "provenance_schema_version": "snmr.provenance.v0.1",
+  "sampling": {
+    "dtype": "<f8",
+    "num_joints": 29,
+    "num_samples": 10000,
+    "seed": 0,
+    "shape": [
+      10000,
+      29
+    ]
+  },
+  "schema_version": "snmr.g0_fk_parity.v0.1",
+  "snmr_commit": "8f5ed72c6b45868913e1fd2e53b88ea89a17a031",
+  "snmr_dirty": true,
+  "snmr_repo_root": "/home/robotixx/snmr",
+  "snmr_repo_status": "available",
+  "status": "backend_error",
+  "thresholds": {
+    "orientation_geodesic_rad": 0.001,
+    "position_m": 0.001,
+    "semantics": "strict_less_than"
+  },
+  "worker": "physx_comparison"
+}

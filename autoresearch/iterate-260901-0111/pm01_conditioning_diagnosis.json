@@ -1,0 +1,340 @@
+{
+  "schema_version": 1,
+  "report_date": "2026-09-01",
+  "task": "read-only diagnosis of the legacy PM01 leave-one-robot-out failure",
+  "classification": {
+    "primary": "inconclusive_exact_loro",
+    "ruled_out": [
+      "conditioning_insensitive"
+    ],
+    "leading_but_unproven": "coverage/extrapolation_identity_like",
+    "semantic_mapping_localized": "unresolved",
+    "reason": "The exact E06 checkpoint and predictions are missing. A valid all-five pooled-code swap proves the trained model uses conditioning, but cannot localize or causally identify the held-out PM01 failure."
+  },
+  "artifact_inventory": {
+    "historical_e04_all5_checkpoint": {
+      "status": "missing_locally",
+      "historical_path": "/home/ec2-user/work/retarget/snmr/runs/phase2_all5/ckpt_100k_final.pt",
+      "sha256": "95bf78a49e40836b06903f4557796b2ead4f1fa02c0cc892e00398553b6f195f",
+      "hash_source": "runs/phase2_all5/sharing_gradient_diagnosis_eval.json"
+    },
+    "historical_e04_final_eval": {
+      "path": "runs/phase2_all5/final_eval.json",
+      "sha256": "dc84960ad336822e9ca5382aa93f6849d9e63464cb38d71dbe8a9e420fcf8c62"
+    },
+    "historical_e04_log": {
+      "path": "runs/phase2_all5/log.jsonl",
+      "sha256": "89cb3d5353a2ea90c54c31b862fab47fe8e471e2a00a1075aa21e7cf3b762c65"
+    },
+    "historical_e06_loro_checkpoint": {
+      "status": "missing",
+      "expected_path": "runs/phase2_loro_pm01/ckpt.pt",
+      "sha256": null,
+      "search_scope": [
+        "repository",
+        "/data/robotixx",
+        "all accessible /home trees",
+        "/data/robotixx/backups"
+      ],
+      "consequence": "No exact root, body, or joint localization can be computed for LORO."
+    },
+    "historical_e06_final_eval": {
+      "path": "runs/phase2_loro_pm01/final_eval.json",
+      "sha256": "d6b3b05ca2bee2323dca29e7739d8af4defad575a180d9c4551b43ca2e662fae"
+    },
+    "historical_e06_log": {
+      "path": "runs/phase2_loro_pm01/log.jsonl",
+      "sha256": "25ca588cf86b7467d68a10325f468a20b5684cf0002500122e5d555938a3c8d3"
+    },
+    "e67_all5_reproduction_checkpoint": {
+      "path": "/data/robotixx/snmr-research/e67/phase2_all5_seed0/ckpt.pt",
+      "sha256": "de0cf88d8c8fb3ad6dd459e3ec274a1f1e527d5fd7de5eed447140eb3b9fffbc",
+      "step": 100000
+    },
+    "e67_all5_reproduction_manifest": {
+      "path": "/data/robotixx/snmr-research/e67/phase2_all5_seed0/manifest.json",
+      "sha256": "38ec492a0f63aca1686f75780f92a0ff59a80e17b164b808e297fa67bc0a18f4",
+      "dataset_fingerprint_sha256": "d5c077105b54eed878509c9d1b85d548d8ef9d517a703a20066c38a5d9a71dd1",
+      "source_fingerprint_sha256": "33d625c317d507027c595d5b1ab42907608ad6f778af7d405477df059167f996",
+      "git_sha": "04dc60d5f218f2ede60b1c6f6356f30e5581fbef",
+      "git_dirty": true,
+      "tracked_diff_sha256": "7a0e20aba1178ec5b26823506b87ee79dabfb377769eeb526b97837479dc2779"
+    },
+    "e67_all5_reproduction_final_eval": {
+      "path": "/data/robotixx/snmr-research/e67/phase2_all5_seed0/final_eval.json",
+      "sha256": "c97a60b4db17338ec9a4a8baf8455b6ccdfb0baa6744eb3911e1e136b5b42453"
+    }
+  },
+  "probe_1_pooled_code_swap": {
+    "status": "completed",
+    "protocol": {
+      "checkpoint": "/data/robotixx/snmr-research/e67/phase2_all5_seed0/ckpt.pt",
+      "device": "cpu",
+      "model_mode": "eval",
+      "clips": [
+        "walk1_subject5",
+        "dance2_subject4",
+        "fight1_subject3",
+        "run2_subject1",
+        "jumps1_subject2",
+        "sprint1_subject4",
+        "aiming2_subject3"
+      ],
+      "starts_per_clip": 4,
+      "start_selection": "numpy.linspace(0, max(frames - 64, 0), num=4, dtype=int)",
+      "window_frames": 64,
+      "windows_per_condition": 28,
+      "frames_per_condition": 1792,
+      "intervention": "retain target 8D static features, adjacency, topology, limits, DoF gather, FK graph, and human latent; replace only the pooled 32D embodiment code",
+      "metric": "mean whole-body target-FK Euclidean position error against target GMR pair",
+      "comparison_scope": "within this 28-window protocol only"
+    },
+    "raw_static_shapes": {
+      "unitree_g1": [50, 8],
+      "booster_t1_29dof": [32, 8],
+      "fourier_n1": [29, 8],
+      "engineai_pm01": [29, 8],
+      "stanford_toddy": [33, 8]
+    },
+    "raw_row_swap_status": "invalid_due_to_incompatible_node_counts_order_and_semantics",
+    "summary_by_target": {
+      "unitree_g1": {
+        "own_code_rank": 1,
+        "own": {
+          "donor": "unitree_g1",
+          "mpjpe_m": 0.05138793792043413,
+          "dof_mae_rad": 0.0969438325301767
+        },
+        "best_wrong": {
+          "donor": "fourier_n1",
+          "mpjpe_m": 0.22310343878609792,
+          "ratio_to_own": 4.341552664197916,
+          "fk_change_vs_own_m": 0.21063663073948452
+        },
+        "worst_wrong": {
+          "donor": "stanford_toddy",
+          "mpjpe_m": 0.4038211277553013,
+          "ratio_to_own": 7.85828628462486,
+          "fk_change_vs_own_m": 0.3996183136531285
+        }
+      },
+      "booster_t1_29dof": {
+        "own_code_rank": 1,
+        "own": {
+          "donor": "booster_t1_29dof",
+          "mpjpe_m": 0.04830023237237973,
+          "dof_mae_rad": 0.10322083792989216
+        },
+        "best_wrong": {
+          "donor": "fourier_n1",
+          "mpjpe_m": 0.09416974761656352,
+          "ratio_to_own": 1.949674835734622,
+          "fk_change_vs_own_m": 0.07779852606888328
+        },
+        "worst_wrong": {
+          "donor": "stanford_toddy",
+          "mpjpe_m": 0.2822250819631985,
+          "ratio_to_own": 5.8431412873406305,
+          "fk_change_vs_own_m": 0.2792377072785582
+        }
+      },
+      "fourier_n1": {
+        "own_code_rank": 1,
+        "own": {
+          "donor": "fourier_n1",
+          "mpjpe_m": 0.04130196116240741,
+          "dof_mae_rad": 0.10910635409147842
+        },
+        "best_wrong": {
+          "donor": "booster_t1_29dof",
+          "mpjpe_m": 0.08067454962894835,
+          "ratio_to_own": 1.9532861723374393,
+          "fk_change_vs_own_m": 0.06568762689388444
+        },
+        "worst_wrong": {
+          "donor": "stanford_toddy",
+          "mpjpe_m": 0.31224230886092913,
+          "ratio_to_own": 7.559987469678041,
+          "fk_change_vs_own_m": 0.3112232873005233
+        }
+      },
+      "engineai_pm01": {
+        "own_code_rank": 1,
+        "own": {
+          "donor": "engineai_pm01",
+          "mpjpe_m": 0.0460727787370165,
+          "dof_mae_rad": 0.11102906632281485
+        },
+        "best_wrong": {
+          "donor": "fourier_n1",
+          "mpjpe_m": 0.09435414122830471,
+          "ratio_to_own": 2.0479368471973074,
+          "fk_change_vs_own_m": 0.07832575167341185
+        },
+        "worst_wrong": {
+          "donor": "stanford_toddy",
+          "mpjpe_m": 0.3324093859771202,
+          "ratio_to_own": 7.214876008988162,
+          "fk_change_vs_own_m": 0.325298294057987
+        }
+      },
+      "stanford_toddy": {
+        "own_code_rank": 1,
+        "own": {
+          "donor": "stanford_toddy",
+          "mpjpe_m": 0.024072917218590197,
+          "dof_mae_rad": 0.12918938502862856
+        },
+        "best_wrong": {
+          "donor": "booster_t1_29dof",
+          "mpjpe_m": 0.3070463566553025,
+          "ratio_to_own": 12.754846197792238,
+          "fk_change_vs_own_m": 0.30889709274490157
+        },
+        "worst_wrong": {
+          "donor": "unitree_g1",
+          "mpjpe_m": 0.3830406748371207,
+          "ratio_to_own": 15.911684959449754,
+          "fk_change_vs_own_m": 0.38499326520151905
+        }
+      }
+    },
+    "learned_code_distance_association": {
+      "off_diagonal_pairs": 20,
+      "distance_vs_swap_mpjpe": {
+        "spearman_rho": 0.5796267684502096,
+        "p_value": 0.007393511288313566,
+        "pearson_r": 0.5702144591319058,
+        "pearson_p_value": 0.00866203877911951
+      },
+      "distance_vs_fk_change": {
+        "spearman_rho": 0.5796267684502096,
+        "p_value": 0.007393511288313566,
+        "pearson_r": 0.5819472451702385,
+        "pearson_p_value": 0.007105371054324008
+      },
+      "directionality_counterexamples": [
+        {
+          "target": "unitree_g1",
+          "nearest_wrong_code": "stanford_toddy",
+          "nearest_code_l2": 1.7513718605041504,
+          "effect": "worst_wrong_swap"
+        },
+        {
+          "target": "stanford_toddy",
+          "nearest_wrong_code": "unitree_g1",
+          "nearest_code_l2": 1.7513718605041504,
+          "effect": "worst_wrong_swap"
+        }
+      ]
+    }
+  },
+  "historical_evidence": {
+    "dense_final_eval": {
+      "evaluation_note": "historical denser 16-window result; do not mix numerically with the 28-window swap protocol",
+      "all5_pm01": {
+        "mpjpe_m": 0.05722660328527646,
+        "dof_err_rad": 0.13507110941489892
+      },
+      "loro_pm01": {
+        "mpjpe_m": 0.2958865107170173,
+        "dof_err_rad": 0.5119663945266179
+      },
+      "loro_to_all5_mpjpe_ratio": 5.1704363657932575
+    },
+    "periodic_trajectory": {
+      "all5": [
+        {"step": 4000, "mpjpe_m": 0.16701163245098932, "dof_err_rad": 0.2899447056863989},
+        {"step": 8000, "mpjpe_m": 0.13847907393106393, "dof_err_rad": 0.26497073099017143},
+        {"step": 12000, "mpjpe_m": 0.10475838663322586, "dof_err_rad": 0.22308944112488202},
+        {"step": 16000, "mpjpe_m": 0.09896592955504145, "dof_err_rad": 0.2014281526207924},
+        {"step": 20000, "mpjpe_m": 0.08700132569564241, "dof_err_rad": 0.20217703336051532},
+        {"step": 24000, "mpjpe_m": 0.09993558031107698, "dof_err_rad": 0.183669952409608},
+        {"step": 28000, "mpjpe_m": 0.0823014248162508, "dof_err_rad": 0.1695344801992178},
+        {"step": 32000, "mpjpe_m": 0.0674915099516511, "dof_err_rad": 0.1549481443528618},
+        {"step": 36000, "mpjpe_m": 0.06992123874702624, "dof_err_rad": 0.15208950053368295},
+        {"step": 40000, "mpjpe_m": 0.06637729903949159, "dof_err_rad": 0.14371009676584176},
+        {"step": 44000, "mpjpe_m": 0.06302068535504597, "dof_err_rad": 0.14250465402645723},
+        {"step": 48000, "mpjpe_m": 0.06252257925059114, "dof_err_rad": 0.15035711202238286},
+        {"step": 52000, "mpjpe_m": 0.06185579552714314, "dof_err_rad": 0.13811333956462996},
+        {"step": 56000, "mpjpe_m": 0.06736855075827666, "dof_err_rad": 0.14337360060640744},
+        {"step": 60000, "mpjpe_m": 0.054402308871171305, "dof_err_rad": 0.1272963217592665},
+        {"step": 64000, "mpjpe_m": 0.052676294065479724, "dof_err_rad": 0.1198289410344192},
+        {"step": 68000, "mpjpe_m": 0.049524762734238593, "dof_err_rad": 0.12139684720230955},
+        {"step": 72000, "mpjpe_m": 0.04820984575365271, "dof_err_rad": 0.11913170346191951},
+        {"step": 76000, "mpjpe_m": 0.04754393354856542, "dof_err_rad": 0.11911689370338406},
+        {"step": 80000, "mpjpe_m": 0.04755307175219059, "dof_err_rad": 0.11313729360699654},
+        {"step": 84000, "mpjpe_m": 0.04720816681427615, "dof_err_rad": 0.11448196614427227},
+        {"step": 88000, "mpjpe_m": 0.0441015704667994, "dof_err_rad": 0.11054880172014236},
+        {"step": 92000, "mpjpe_m": 0.04686805033790214, "dof_err_rad": 0.10981298743614129},
+        {"step": 96000, "mpjpe_m": 0.04561227014554398, "dof_err_rad": 0.10896894961063351},
+        {"step": 100000, "mpjpe_m": 0.04497858103630798, "dof_err_rad": 0.10943401644804648}
+      ],
+      "loro": [
+        {"step": 4000, "mpjpe_m": 0.29128216207027435, "dof_err_rad": 0.4973111929638045},
+        {"step": 8000, "mpjpe_m": 0.24467774320925986, "dof_err_rad": 0.48265106976032257},
+        {"step": 12000, "mpjpe_m": 0.30239812284708023, "dof_err_rad": 0.48821334753717693},
+        {"step": 16000, "mpjpe_m": 0.28367264409150394, "dof_err_rad": 0.4711558393069676},
+        {"step": 20000, "mpjpe_m": 0.32031597782458576, "dof_err_rad": 0.44624319140400204},
+        {"step": 24000, "mpjpe_m": 0.30284131105457035, "dof_err_rad": 0.46827645493405207},
+        {"step": 28000, "mpjpe_m": 0.33860291647059576, "dof_err_rad": 0.4887810189809118},
+        {"step": 32000, "mpjpe_m": 0.3125415029270308, "dof_err_rad": 0.5052314262304988},
+        {"step": 36000, "mpjpe_m": 0.31009365565010477, "dof_err_rad": 0.4919251363192286},
+        {"step": 40000, "mpjpe_m": 0.28529076065335957, "dof_err_rad": 0.4865534763251032},
+        {"step": 44000, "mpjpe_m": 0.3078555038997105, "dof_err_rad": 0.5127289720943996},
+        {"step": 48000, "mpjpe_m": 0.3126142291086061, "dof_err_rad": 0.4889560320547649},
+        {"step": 52000, "mpjpe_m": 0.3107355609536171, "dof_err_rad": 0.5009816320879119},
+        {"step": 56000, "mpjpe_m": 0.2990236420716558, "dof_err_rad": 0.5088761140193258},
+        {"step": 60000, "mpjpe_m": 0.3062326152409826, "dof_err_rad": 0.5117251851728984},
+        {"step": 64000, "mpjpe_m": 0.3044931846005576, "dof_err_rad": 0.4880711904593876},
+        {"step": 68000, "mpjpe_m": 0.29731471091508865, "dof_err_rad": 0.474991147007261},
+        {"step": 72000, "mpjpe_m": 0.3027310956801687, "dof_err_rad": 0.4857512680547578},
+        {"step": 76000, "mpjpe_m": 0.30697016417980194, "dof_err_rad": 0.5069025403686932},
+        {"step": 80000, "mpjpe_m": 0.2952889587197985, "dof_err_rad": 0.49655441620520185},
+        {"step": 84000, "mpjpe_m": 0.3053505537765367, "dof_err_rad": 0.49228132516145706},
+        {"step": 88000, "mpjpe_m": 0.29700668369020733, "dof_err_rad": 0.5055878236889839},
+        {"step": 92000, "mpjpe_m": 0.2970358782580921, "dof_err_rad": 0.4996013960668019},
+        {"step": 96000, "mpjpe_m": 0.2929049815450396, "dof_err_rad": 0.5000896570937974},
+        {"step": 100000, "mpjpe_m": 0.2942460945674351, "dof_err_rad": 0.5010705898915019}
+      ]
+    }
+  },
+  "all5_anatomy_not_loro": {
+    "label": "NOT_LORO",
+    "checkpoint": "/data/robotixx/snmr-research/e67/phase2_all5_seed0/ckpt.pt",
+    "protocol": "same 28 matched windows as probe 1 with PM01's own code",
+    "root_position_l2_m": 0.02042492153123021,
+    "root_rotation_geodesic_rad": 0.07509578501672617,
+    "body_error_summary": {
+      "base_torso_proximal_hips_m_approx": [0.020, 0.025],
+      "distal_arms_m_approx": [0.03, 0.06],
+      "ankles_feet_m_approx": [0.080, 0.094]
+    },
+    "highest_dof_mae": [
+      {"body": "LINK_SHOULDER_ROLL_R", "mae_rad": 0.17292567354577063},
+      {"body": "LINK_SHOULDER_PITCH_R", "mae_rad": 0.14904041469656346},
+      {"body": "LINK_SHOULDER_YAW_L", "mae_rad": 0.14759419256188266},
+      {"body": "LINK_ELBOW_PITCH_R", "mae_rad": 0.1453036766283081},
+      {"body": "LINK_SHOULDER_ROLL_L", "mae_rad": 0.1392374197764314}
+    ],
+    "head_yaw_mae_rad": 0.01689775866855468,
+    "interpretation_limit": "This supervised anatomy cannot localize the missing LORO checkpoint's failure."
+  },
+  "reproduction": {
+    "working_directory": "/home/robotixx/snmr",
+    "environment": ".venv/bin/python",
+    "command_prefix": "OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 .venv/bin/python - <<'PY'",
+    "implementation": "inline non-persisted Python using scripts.benchmark.load_model, scripts.train_phase2.RobotContext and VAL_CLIPS, snmr.human feature loaders, snmr.data.local_root_to_world, and RobotKinematics.forward_kinematics",
+    "algorithm": [
+      "load the frozen E67 all-five checkpoint in eval mode on CPU",
+      "construct all five target RobotContext objects and pooled embodiment codes",
+      "cache one human latent for each of 7 clips x 4 deterministic 64-frame starts",
+      "for each target retain target static features, adjacency, graph, limits, DoF gather, and root scale",
+      "decode each cached latent with each donor's pooled code",
+      "recompose world root, run target FK, accumulate MPJPE and changes versus own-code output",
+      "compute code-distance associations over 20 off-diagonal target/donor pairs"
+    ],
+    "full_inline_source_persisted": false,
+    "existing_artifacts_modified": false
+  }
+}

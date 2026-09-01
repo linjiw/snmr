@@ -1,8 +1,13 @@
 # E80-A — robustness is trained, not free: masked training at zero clean cost
 
-**Date:** 2026-08-17. **Status:** seed 0 of a preregistered three-seed design
-(`docs/LATENT_BENEFIT_PROGRAM_2026-08-15.md` §3, as amended 2026-08-16). Seeds 1–2 and the
-remaining arms are queued. Single-seed results are reported as such and no gate is called yet.
+**Date:** 2026-08-17. **Status (updated 2026-09-01):** the seed-0 arm table is complete and the
+registered `mZf` treatment stop rule fired. Do not run seeds 1–2 or tune this latent-specific
+branch. The masked-training recipe result remains; the latent-specific representation claim does
+not. The hash-bound update is in
+`reproducibility/reports/e80_mzf_seed0_status_2026-09-01.json`.
+
+The sections below preserve the original same-day seed-0 report and its correction. Statements
+that `mZf` or already completed controls were pending are superseded by the update in §7.
 
 ---
 
@@ -155,5 +160,25 @@ trained under dropout.
 `scripts/run_e78_masked_fusion.sh train|sweep 0 mE`; trainer `scripts/train_e78_masked_fusion.py`
 (derived from the frozen `train_e52_dagger.py` by asserted replacements, staleness-tested);
 outputs under `/data/robotixx/snmr-research/e78_masked_fusion/seed0_mE/`. Frozen comparators are the
-E78-F sweep of the same seed, all sanity-gated against the hash-bound E70 reports. Seeds 1–2, mZf,
-mB, mTl, mTf, mGf, mShf, mZc, mZg, mS pending.
+E78-F sweep of the same seed, all sanity-gated against the hash-bound E70 reports. This paragraph's
+original pending-arm status is superseded by §7.
+
+## 7. Superseding treatment result (2026-09-01): latent-specific branch stopped
+
+The `mZf` seed-0 checkpoint and all 11 registered evaluation reports finished after the original
+document was written. On the general grid, `mZf - mE` is +0.0156 (95% paired cluster CI
+[-0.0068, 0.0381]) at f=0.3 / 5--25 ticks and -0.0107 ([-0.0361, 0.0146]) at f=0.3 / 25--50
+ticks. Its largest improvement over `mE` anywhere in the registered severity sweep is +0.0156,
+below the preregistered +0.05 seed-0 continuation threshold.
+
+The relevant content-free control is not beaten at the long co-primary cell: `mZf - mTl` is
+-0.0664 ([-0.0908, -0.0420]) on the general grid and -0.0557
+([-0.0789, -0.0328]) on the ambiguity grid. Clean `mZf - mE` is -0.0088
+([-0.0234, 0.0059]). Therefore:
+
+- close the latent-specific `mZf` branch after seed 0, without tuning or seeds 1--2;
+- retain the large representation-independent benefit of training with outages;
+- do not describe validity flags or SNMR latent content as load-bearing for this result.
+
+The analyzer hash, input-report manifest hashes, exact cell values, and registered decision are
+archived in `reproducibility/reports/e80_mzf_seed0_status_2026-09-01.json`.
