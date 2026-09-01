@@ -10,6 +10,7 @@ or sample-contract error produces a JSON report with ``g0_pass=false``.
 from __future__ import annotations
 
 import argparse
+import copy
 from datetime import datetime, timezone
 import hashlib
 import io
@@ -19,6 +20,7 @@ from pathlib import Path
 import platform
 import sys
 import tempfile
+import time
 import traceback
 
 import numpy as np
@@ -53,6 +55,40 @@ DEFAULT_USD_ROOT = DEFAULT_ROBOT_ROOT / "converted_rank0"
 DEFAULT_USD_ENTRYPOINT = "g1_29dof.usd"
 DEFAULT_ISAAC_LAB = Path("/home/robotixx/.holosoma_deps/IsaacLab")
 DEFAULT_NEWTON = Path("/home/robotixx/newton")
+
+
+def _progress(stage: str, started_at: float) -> None:
+    """Emit a flushed phase marker so bounded external runs identify the blocking call."""
+
+    print(
+        json.dumps(
+            {
+                "g0_progress": stage,
+                "elapsed_seconds": round(time.perf_counter() - started_at, 3),
+            },
+            sort_keys=True,
+        ),
+        file=sys.stderr,
+        flush=True,
+    )
+
+
+def _cleanup_simulation_context(sim: object, started_at: float) -> None:
+    """Release Isaac Lab state before ``SimulationApp.close`` closes the USD stage.
+
+    Isaac Lab's environment shutdown path for a normal (not in-memory) stage clears
+    callbacks and the singleton without calling ``SimulationContext.stop`` or ``clear``.
+    Those two methods synchronously update the Kit timeline and can themselves block in
+    this headless worker.  Releasing the singleton is enough to detach Isaac Lab's
+    context ownership before ``SimulationApp.close`` performs the authoritative stage
+    close.
+    """
+
+    _progress("simulation_cleanup_start", started_at)
+    sim.clear_all_callbacks()
+    _progress("simulation_callbacks_clear_complete", started_at)
+    sim.clear_instance()
+    _progress("simulation_cleanup_complete", started_at)
 
 
 def _base_parser() -> argparse.ArgumentParser:
@@ -193,12 +229,17 @@ def _run_physx(
 ) -> tuple[np.ndarray, np.ndarray, dict[str, object]]:
     """Return live PhysX key poses; simulator imports occur only after AppLauncher."""
 
+    started_at = time.perf_counter()
+    _progress("physx_imports_start", started_at)
+
     import torch
     import isaaclab.sim as sim_utils
     from isaaclab.assets import ArticulationCfg
     from isaaclab.scene import InteractiveScene, InteractiveSceneCfg
     from isaaclab.sim import SimulationContext
     from isaaclab.utils import configclass
+
+    _progress("physx_imports_complete", started_at)
 
     samples = reference["samples"]
     reference_joint_names = reference["joint_names_tuple"]
@@ -236,9 +277,17 @@ def _run_physx(
     class FKSceneCfg(InteractiveSceneCfg):
         robot: ArticulationCfg = robot_cfg
 
+    _progress("simulation_context_start", started_at)
     sim = SimulationContext(sim_utils.SimulationCfg(device=args.device))
+    # Publish the context immediately so ``main`` can release it before app shutdown,
+    # including when scene creation or live pose collection raises.
+    args._g0_simulation_context = sim
+    args._g0_simulation_started_at = started_at
+    _progress("simulation_context_complete", started_at)
     scene = InteractiveScene(FKSceneCfg(num_envs=batch_size, env_spacing=2.0))
+    _progress("interactive_scene_complete", started_at)
     sim.reset()
+    _progress("simulation_reset_complete", started_at)
     robot = scene["robot"]
     if robot.num_instances != batch_size:
         raise RuntimeError(
@@ -289,6 +338,8 @@ def _run_physx(
         robot.write_joint_state_to_sim(joint_position, joint_velocity)
         # This is a kinematic propagation call, not a dynamics rollout/step.
         sim.forward()
+        if start == 0:
+            _progress("first_joint_state_forward_complete", started_at)
         body_positions = robot.data.body_link_pos_w[:active].detach().cpu().numpy().astype(
             np.float64
         )
@@ -303,6 +354,8 @@ def _run_physx(
         )
         output_positions[start:stop] = key_positions
         output_quaternions[start:stop] = key_quaternions
+
+    _progress("all_physx_poses_complete", started_at)
 
     runtime = {
         "device": str(sim.device),
@@ -356,6 +409,7 @@ def main() -> int:
         **revisions,
     }
     app_launcher = None
+    args = None
     usd_temporary = None
     try:
         reference_npz_bytes, reference_npz_input = _capture_bytes(preliminary.reference_npz)
@@ -408,7 +462,10 @@ def main() -> int:
             usd_members, Path(usd_temporary.name) / "usd"
         )
         materialized_usd = materialized_root / args.usd_entrypoint
+        launch_started_at = time.perf_counter()
+        _progress("app_launcher_start", launch_started_at)
         app_launcher = AppLauncher(args)
+        _progress("app_launcher_complete", launch_started_at)
         simulation_app = app_launcher.app
         physx_positions, physx_quaternions, runtime = _run_physx(
             args, materialized_usd, urdf_bytes, reference
@@ -456,13 +513,61 @@ def main() -> int:
         }
         exit_code = 2
     finally:
+        # Journal a fail-closed report before touching Kit teardown.  If an external
+        # timeout kills a genuinely stuck cleanup call, the requested output still says
+        # that G0 was not evaluated.  A successful teardown atomically replaces it below.
+        if app_launcher is not None:
+            pending_report = copy.deepcopy(report)
+            pending_report["status"] = "backend_error"
+            pending_report["g0_evaluated"] = False
+            pending_report["g0_pass"] = False
+            pending_report["gate_reason"] = (
+                "Live PhysX work finished, but simulator teardown has not completed; "
+                "G0 fails closed."
+            )
+            pending_report["teardown"] = {
+                "simulation_context_released": False,
+                "stage_closed": False,
+                "application_close_invoked_after_manifest": False,
+            }
+            pending_report["completed_at"] = _utc_now()
+            _write_json_atomic(out_json, pending_report)
+
+        simulation_context_released = False
+        stage_closed = False
+        simulation_context = (
+            getattr(args, "_g0_simulation_context", None) if args is not None else None
+        )
+        if simulation_context is not None:
+            try:
+                _cleanup_simulation_context(
+                    simulation_context,
+                    getattr(args, "_g0_simulation_started_at", time.perf_counter()),
+                )
+                simulation_context_released = True
+            except BaseException as simulation_cleanup_exc:
+                report["simulation_cleanup_error"] = {
+                    "type": type(simulation_cleanup_exc).__name__,
+                    "message": str(simulation_cleanup_exc),
+                }
+                report["status"] = "backend_error"
+                report["g0_evaluated"] = False
+                report["g0_pass"] = False
+                exit_code = 2
+
         if app_launcher is not None:
             try:
-                app_launcher.app.close()
-            except BaseException as close_exc:
-                report["close_error"] = {
-                    "type": type(close_exc).__name__,
-                    "message": str(close_exc),
+                stage_close_started_at = time.perf_counter()
+                _progress("stage_close_start", stage_close_started_at)
+                if not app_launcher.app.context.can_close_stage():
+                    raise RuntimeError("Isaac Sim reports that the live USD stage cannot close")
+                app_launcher.app.context.close_stage()
+                stage_closed = True
+                _progress("stage_close_complete", stage_close_started_at)
+            except BaseException as stage_close_exc:
+                report["stage_close_error"] = {
+                    "type": type(stage_close_exc).__name__,
+                    "message": str(stage_close_exc),
                 }
                 report["status"] = "backend_error"
                 report["g0_evaluated"] = False
@@ -480,9 +585,48 @@ def main() -> int:
                 report["g0_evaluated"] = False
                 report["g0_pass"] = False
                 exit_code = 2
+        report["teardown"] = {
+            "simulation_context_released": simulation_context_released,
+            "stage_closed": stage_closed,
+            "application_close_invoked_after_manifest": app_launcher is not None,
+        }
         report["completed_at"] = _utc_now()
         _write_json_atomic(out_json, report)
-    print(json.dumps({"manifest": str(out_json), "status": report["status"], "g0_pass": False if report["status"] == "backend_error" else report["g0_pass"]}))
+
+        print(
+            json.dumps(
+                {
+                    "manifest": str(out_json),
+                    "status": report["status"],
+                    "g0_pass": (
+                        False
+                        if report["status"] == "backend_error"
+                        else report["g0_pass"]
+                    ),
+                }
+            ),
+            flush=True,
+        )
+
+        # Isaac Sim 5.1's framework shutdown terminates the embedded Python runtime,
+        # so every durable result must be written before this call.  ``post_quit``
+        # preserves the manifest-derived process status instead of the default zero.
+        if app_launcher is not None:
+            try:
+                app_launcher.app.app.post_quit(exit_code)
+                app_launcher.app.close()
+            except BaseException as close_exc:
+                report["close_error"] = {
+                    "type": type(close_exc).__name__,
+                    "message": str(close_exc),
+                }
+                report["status"] = "backend_error"
+                report["g0_evaluated"] = False
+                report["g0_pass"] = False
+                report["teardown"]["application_close_invoked_after_manifest"] = True
+                report["completed_at"] = _utc_now()
+                _write_json_atomic(out_json, report)
+                exit_code = 2
     return exit_code
 
 

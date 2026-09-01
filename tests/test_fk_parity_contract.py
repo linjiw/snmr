@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 from pathlib import Path
 
 import numpy as np
@@ -21,6 +22,15 @@ from snmr.fk_parity import (
     resolve_fixed_link_frames,
     sample_uniform_joint_positions,
 )
+
+
+def _load_physx_worker_module():
+    script = Path(__file__).resolve().parents[1] / "scripts/g0_fk_parity_physx.py"
+    spec = importlib.util.spec_from_file_location("snmr_test_g0_fk_parity_physx", script)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def test_uniform_sampling_is_deterministic_bounded_and_float64() -> None:
@@ -224,3 +234,28 @@ def test_urdf_bundle_v02_manifest_declares_entrypoint_bound_hash(tmp_path: Path)
         "meshes/link.stl",
         "robot.urdf",
     ]
+
+
+def test_physx_cleanup_releases_callbacks_and_singleton_without_timeline_update(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    worker = _load_physx_worker_module()
+    calls: list[str] = []
+
+    class FakeSimulationContext:
+        def stop(self) -> None:
+            raise AssertionError("headless cleanup must not synchronously stop the timeline")
+
+        def clear(self) -> None:
+            raise AssertionError("stage close is owned by SimulationApp, not sim.clear")
+
+        def clear_all_callbacks(self) -> None:
+            calls.append("clear_all_callbacks")
+
+        def clear_instance(self) -> None:
+            calls.append("clear_instance")
+
+    monkeypatch.setattr(worker, "_progress", lambda *_args, **_kwargs: None)
+    worker._cleanup_simulation_context(FakeSimulationContext(), 0.0)
+
+    assert calls == ["clear_all_callbacks", "clear_instance"]
