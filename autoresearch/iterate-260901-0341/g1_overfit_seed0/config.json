@@ -1,0 +1,71 @@
+{
+  "batch_windows_per_step": 1,
+  "contact_output": "absent_contacts_must_be_derived_from_predicted_robot_fk",
+  "gate_thresholds": {
+    "maximum_dof_mae_rad": 0.1,
+    "maximum_joint_limit_violations": 0,
+    "maximum_root_orientation_geodesic_rad": 0.15,
+    "maximum_root_position_mae_m": 0.05,
+    "maximum_serialization_equivariance_abs": 1e-05,
+    "maximum_teacher_fk_mpjpe_m": 0.05,
+    "minimum_total_loss_drop_fraction": 0.75
+  },
+  "human_encoder": {
+    "adapter_names": [],
+    "dec_hidden": 128,
+    "dec_layers": 4,
+    "decoder_adapter_rank": 0,
+    "embodiment_dim": 32,
+    "enc_hidden": 256,
+    "enc_layers": 4,
+    "heads": 4,
+    "latent_dim": 128,
+    "node_feat_dim": 12,
+    "predict_contact": false,
+    "static_feat_dim": 8,
+    "temporal_heads": 4,
+    "temporal_layers": 2,
+    "temporal_positional": true,
+    "use_temporal": true
+  },
+  "human_temporal_transformer_dropout": 0.1,
+  "initialization": "from_scratch",
+  "loss_weights": {
+    "distill": 1.0,
+    "joint_limits": 0.1,
+    "smoothness": 0.01
+  },
+  "morpho_decoder": {
+    "feedforward_multiplier": 4,
+    "graph_layers": 3,
+    "hidden_dim": 128,
+    "human_token_dim": 128,
+    "num_heads": 4,
+    "tree_bias_gamma": 0.5
+  },
+  "optimization_schedule": "constant",
+  "pre_run_amendments": [
+    {
+      "field": "human_encoder.temporal_positional",
+      "parameter_count_change": 0,
+      "preregistered_value": false,
+      "rationale": "the existing content-only temporal transformer has no order signal; the amendment was declared before any 1000-step result",
+      "run_value": true
+    }
+  ],
+  "protocol": {
+    "device": "cpu",
+    "gradient_clip_norm": 1.0,
+    "human_root_xy_scale": 0.8749322702593619,
+    "learning_rate": 0.002,
+    "optimizer": "AdamW",
+    "seed": 0,
+    "smoke": false,
+    "steps": 1000,
+    "target_start_frame": 0,
+    "weight_decay": 0.0001,
+    "window_frames": 128
+  },
+  "root_target_convention": "human-heading-local-xy_absolute-z_with_frozen_train-side-g1-xy-scale",
+  "schema_version": "snmr.morpho-fixed-g1-overfit.v0.1"
+}

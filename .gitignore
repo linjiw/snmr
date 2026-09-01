@@ -3,6 +3,7 @@
 runs/**/ckpt*.pt
 runs/**/*.pt
 runs/**/*.npz
+/autoresearch/**/checkpoint.pt
 runs/*.log
 runs/**/*.log
 runs/**/eval_backup/

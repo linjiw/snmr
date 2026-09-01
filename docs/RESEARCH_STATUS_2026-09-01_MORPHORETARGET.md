@@ -2,20 +2,21 @@
 
 **Date:** 2026-09-01
 **Latest program:** MorphoRetarget
-**Overall status:** pre-training integration; FK subgate passed; controller/standing G0 fails closed
+**Overall status:** fixed-G1 single-window wiring gate passed; controller/standing G0 fails closed;
+full fixed-G1 and held-out-T1 claims remain unqualified
 **Evidence basis:** frozen source, clean-checkout artifacts, and bounded iteration
-`autoresearch/iterate-260901-0111/`
+`autoresearch/iterate-260901-0111/` plus `autoresearch/iterate-260901-0341/`
 **Frozen source:**
 `feat/morpho-retarget-foundation@078d3116aa233ca09c5c68134d9fd5dd5eb55944`
 **Current implementation:**
-`feat/morpho-retarget-kinematic@f6e5ff04df8eaa82c7680888174fb9b69252b9c8`
+`feat/morpho-retarget-kinematic@554022268b27e4b72953a60038a1394c45be358d`
 **Archive:** `autoresearch/iterate-260901-0111/foundation_freeze_078d311/`; annotated tag
 `morpho-retarget-foundation-2026-09-01`
 
 ## Executive verdict
 
-The latest research direction is well defined, but its central learning claim has not yet been
-tested. The target is a single variable-DoF retargeter that reads an unseen humanoid's physical
+The latest research direction is well defined, but its central unseen-embodiment learning claim
+has not yet been tested. The target is a single variable-DoF retargeter that reads an unseen humanoid's physical
 specification rather than its identity, produces semantically faithful motion without a
 robot-specific head, prompt, or fine-tuning, and improves robust closed-loop trackability under
 independent physics verification.
@@ -25,14 +26,22 @@ pair adapter, graph-token, learned kinematic decoder skeleton, teacher-independe
 metric, provenance, FK-parity, and verification-report contracts. It has also diagnosed one
 important property of the legacy PM01 failure: trained SNMR uses its embodiment conditioning, but
 the surviving artifacts cannot determine whether the exact LORO failure was coverage,
-extrapolation, or semantic misalignment. It has **not** trained the new RobotSpec-conditioned
-decoder, demonstrated learned fixed-G1 amortization or held-out-T1 generalization, established
-strong-tracker PhysX/MJWarp ranking parity, repaired failures, or shown downstream data utility.
-The honest maturity label is **pre-training integration; overall G0 not passed**, not "six gates
-passed." The earlier six passing checks are local checks for one torque-twin pilot, not the
-program's G0--G6 paper gates.
+extrapolation, or semantic misalignment. The new RobotSpec-conditioned decoder has now passed one
+registered 1,000-step, 128-frame fixed-G1 overfit gate from scratch, including its learned root and
+bounded 29-joint output. It has **not** passed full-corpus fixed-G1 qualification, human-side
+semantic non-inferiority, held-out-T1 generalization, strong-tracker PhysX/MJWarp ranking parity,
+repair, or downstream data utility. The honest maturity label is **single-window wiring and
+representational-capacity gate passed; overall G0 not passed**, not a G1/G2 paper result.
 
-The strongest new positive result is the clean 10,000-pose live-PhysX FK subgate: maximum
+The fixed-G1 gate finished with a 98.4526% registered last-20-versus-first-20 loss reduction,
+`2.0269 cm` teacher-FK MPJPE, `0.01963 rad` joint MAE, `1.8409 mm` local-root position MAE,
+`0.09347 rad` root-orientation geodesic error, zero joint-limit violations, and
+`4.7684e-7` serialization error. Every named model block had finite nonzero gradients on all 1,000
+steps. This establishes that the integrated architecture can represent and optimize one frozen G1
+teacher window; it does not evaluate validation clips or the teacher-independent semantic ruler.
+
+The strongest independent infrastructure result remains the clean 10,000-pose live-PhysX FK
+subgate: maximum
 MJCF-to-USD key-link error is `3.932e-6 m` and maximum orientation geodesic error is
 `3.759e-6 rad`, both far inside the frozen strict `1e-3` limits. The same clean bundle also exposes
 the strongest boundary: controller/standing-state parity has 14 hard failures and 8 missing live
@@ -77,7 +86,7 @@ does not establish the new claim.
 | G1 specialist | Public BENCH-v2: 3.66 cm MPJPE, 95% CI [3.46, 3.86]; historical sparse gate: 2.18 cm | Amortized GMR imitation works on a fixed robot; 3.66 cm supersedes 2.18 cm for public comparison |
 | Shared five-robot model | Public BENCH-v2: 2.92--6.04 cm; historical E04 16-window eval: 3.16--6.67 cm; zero joint-limit violations | A shared model can serve trained robots with modest sharing cost |
 | PM01 leave-one-robot-out | Historical matched 16-window eval: 29.59 cm versus 5.72 cm in-training, 5.2x worse | Existing 8D static conditioning fails the only completed unseen-robot holdout; the new diagnosis rules out wholesale conditioning neglect but cannot identify the exact missing-checkpoint LORO mechanism |
-| New kinematic graph path | Padded variable-node tokens plus a tree-biased graph encoder, human cross-attention, and one shared bounded per-joint head | Shape/gradient/limit/renaming/permutation/counterfactual tests pass; no fixed-G1 training or held-out result exists |
+| New kinematic graph path | Padded variable-node tokens plus a tree-biased graph encoder, human cross-attention, learned root, and one shared bounded per-joint head | Shape/gradient/limit/renaming/permutation/counterfactual tests pass; a registered 128-frame fixed-G1 overfit passes, but no full fixed-G1 or held-out result exists |
 
 The LORO failure is not a side note. It is the main reason the project has moved from "shared latent
 across trained robots" to explicit physical conditioning, coherent morphology augmentation, and a
@@ -157,10 +166,14 @@ metrics, non-finite limits, empty roots/DoFs, and tampered feature/mask contract
 tests cover gradients, variable-DoF padding, opaque renaming, serialization permutation, padded
 co-batches, dynamics-twin isolation, and a counterfactual link-transform response.
 
-This is model code, but **not a trained result**. It currently accepts pre-encoded human temporal
-tokens, predicts neither free-root motion nor contacts, uses dense attention, and supports one
-scalar revolute joint per child link. There is no fixed-G1 amortization, coherent-asset training,
-generalization staircase, or held-out T1 result.
+`snmr/morpho_integration.py` now reuses the existing human temporal encoder, supplies the graph
+decoder, and predicts a learned heading-local root pose; the overfit runner reconstructs that root
+in world coordinates for FK. Contacts remain deliberately absent from the network and must be
+derived from predicted sole FK. The first from-scratch single-window optimization passes all
+registered gates, including gradients through the human encoder, robot graph encoder, shared joint
+head, and root head. The architecture still uses dense attention and supports one scalar revolute
+joint per child link. There is no full-corpus fixed-G1 qualification, semantic qualification,
+coherent-asset training, generalization staircase, or held-out T1 result.
 
 ### 4. Teacher-independent semantic evaluation
 
@@ -177,7 +190,7 @@ motion-collapse attacks. The first protocol is deliberately narrow: seven comple
 flat-ground kinematic sole contact, and preregistered robot-specific frame/point calibration. It is
 not a physics-feasibility metric.
 
-### 5. Morphology variant boundary
+### 5. Morphology variant boundary and G1 MJCF materializer
 
 `snmr/robot_variants.py` currently emits deterministic same-topology **virtual** RobotSpec probes
 for tokenizer/model counterfactual tests. Their exact canonical JSON bytes are hash-bound and the
@@ -185,10 +198,23 @@ manifest is deeply immutable, but it explicitly records `backend_compatible=fals
 simulator use. Free-root spawn pose is never perturbed, and nonzero nominal joint poses fail closed
 until nominal-pose FK is qualified.
 
-These probes are not the P4 training set. A real coherent-variant generator must materialize and
-parity-test exact MJCF/URDF/USD bytes, preserve semantic/path meaning, and supply a strong
-training-only-normalized nearest-transfer distance. The earlier lossy marginal descriptor was not
-retained as a purported strong baseline.
+`snmr/mjcf_variants.py` now also materializes exact same-topology variants for the frozen G1 MJCF
+dialect from captured bundle bytes. A link owns its outgoing child anchors: local lengths and
+geometry scale by `s`, mass by `s^3`, and inertia by `s^5`; bilateral semantic paths share draws,
+the free-root spawn and `qpos0` remain fixed, and zero perturbation is byte-identical. The manifest
+hash-binds the semantic roles and realized body-scale groups, and a dataset consumer must re-hash
+the emitted backend bundle before the archival-ready guard accepts it. The real G1 test exercises
+all registered `+/-15%` seeds 0--7; every bundle compiles with 50 bodies/29 hinges and passes the
+implemented transformation, nominal-FK-finite, and limit checks.
+
+This is still not the P4 training set. It supports only the frozen, explicit-inertial G1 MJCF
+dialect and preserves the same topology. Its perturbations are independent bilateral
+semantic-path-depth draws rather than coherent human segment-family variables; nonzero joint-limit
+shifts are disabled until mirrored physical signs are qualified. Collision/contact behavior,
+standing state, and randomized-pose cross-asset FK have not been qualified, no corresponding
+URDF/USD variants exist, and no actual teacher/training corpus has been generated from these
+assets. The virtual RobotSpec probes remain useful only for model counterfactual tests. The earlier
+lossy marginal descriptor was not retained as a purported strong baseline.
 
 ### 6. Fail-closed worker provenance
 
@@ -234,7 +260,52 @@ hardening are recorded under `autoresearch/iterate-260901-0111/`.
 
 ## Latest experiment review
 
-### A. RobotSpec torque-twin contract: keep
+### A. Fixed-G1 single-window amortization: keep as a wiring/capacity gate
+
+The preregistered seed-0 run trained the 1,583,754-parameter kinematic integration from scratch for
+1,000 AdamW steps on canonical frames `[0,128)` of `walk1_subject1` at 50 Hz. The model predicted
+the heading-local root pose and all 29 bounded G1 joints; no teacher root was copied. Every frozen
+single-window gate passed:
+
+| Measure | Before | After / registered statistic | Gate |
+| --- | ---: | ---: | ---: |
+| Total loss | 1.9795268 | 0.0130085 | last-20/first-20 drop >=75% |
+| Last-20 versus first-20 loss reduction | -- | 98.452599% | pass |
+| Teacher-FK MPJPE | 1.6904538 m | 0.02026875 m | <0.05 m |
+| Joint MAE | 0.4857043 rad | 0.01962682 rad | <0.10 rad |
+| Local-root position MAE | 1.6605420 m | 0.001840892 m | <0.05 m |
+| Root-orientation geodesic | 2.0068941 rad | 0.09347169 rad | <0.15 rad |
+| Joint-limit violations | 0 | 0 | exactly 0 |
+| Inverse-permutation maximum error | -- | 4.7683716e-7 | <=1e-5 |
+
+The human encoder, robot graph encoder, root head, and shared joint head each had finite nonzero
+gradients on all 1,000 steps. The final state-dict SHA-256 is
+`943ac36b79f43c2fba1367de6270e95bf79ac9039ccf142b3ba5a3e9943912db`; the serialized checkpoint
+SHA-256 is `fafcf42b67d2fb828e7b5e1e158efc9865af98e4d95bbf0c591edb09e73143e0`; the exact aligned
+window-buffer SHA-256 is `ab89dad9d4f5e1ee764daf610db450a2d5913198cbab0936b8657bdf59f8804e`.
+The provenance-rerun report bytes hash to
+`c1b079bb7d6cce77f83f893ca97ae8edf0d448b6bfb3afeea97637f1730a42ef`, and its artifact
+manifest records canonical manifest hash
+`cb31a20bcb626469f9d318419d10088ede6291a85410b3e0ad4a5fc2c534d530`.
+
+The initial run failed to discover external Newton and Isaac Lab repository paths in its report.
+That omission does not affect these CPU/MuJoCo-only model metrics because neither external
+simulator was executed or consumed by the experiment. A write-once provenance rerun explicitly
+records clean SNMR `5679fc784cee09c76b597ba4e7b6f615289217db`, Newton
+`7bb6d02d8eeab2cffc3adfa453ddd63799a2ac6a` with `dirty=true`, and clean Isaac Lab
+`3c6e67bb5c7ada942a6d1884ab69338f57596f77`. Its complete canonical contract, config, gates,
+gradient audit, before/after metrics, state-dict hashes, full loss history, and serialization result
+are exactly identical to the initial run, and `checkpoint.pt` is byte-identical. The provenance
+rerun is therefore the preferred provenance reference; its external revisions are provenance, not
+simulator qualification. Newton is honestly recorded dirty, so this is not a fully clean external
+environment, but Newton was not imported or executed by the model experiment. See
+[`g1_overfit_seed0_provenance_rerun`](../autoresearch/iterate-260901-0341/g1_overfit_seed0_provenance_rerun/report.json).
+
+Assessment: keep. This proves end-to-end wiring, optimization, and representational capacity for
+one fixed-G1 teacher window. It is not full fixed-G1 validation, teacher-independent semantic
+non-inferiority, morphology generalization, T1 evidence, contact quality, or physics evidence.
+
+### B. RobotSpec torque-twin contract: keep
 
 One G1 reference, 325 frames at 50 Hz, was evaluated at four effort-limit scales.
 
@@ -258,7 +329,7 @@ Assessment: this is good causal instrumentation. It proves that a future model c
 using motor-strength information. It does **not** prove that the current retargeter uses that
 information or that any generated motion adapts correctly.
 
-### B. This open-loop-PD proxy as a physics reward: kill
+### C. This open-loop-PD proxy as a physics reward: kill
 
 All four MuJoCo conditions diverge after 0.18 s even though the script's one-step fixed-reference
 PD-demand proxy reports zero saturation. Rollout saturation is non-monotonic with motor strength.
@@ -268,7 +339,7 @@ Assessment: the proxy is confounded by an unqualified open-loop controller and h
 candidate ordering. Keep it only as a wiring and gross-failure diagnostic. The earlier E18 language
 about measured trackability equivalence should not be carried forward as strong physics evidence.
 
-### C. MuJoCo CPU versus Newton/MJWarp pilot: keep as a diagnostic only
+### D. MuJoCo CPU versus Newton/MJWarp pilot: keep as a diagnostic only
 
 | Effort scale | Pass agreement | First-failure delta | Failure-type Jaccard | Interpretation |
 | ---: | ---: | ---: | ---: | --- |
@@ -281,7 +352,7 @@ candidate configuration independently. This is still one motion, two torque endp
 rejected controller, so it is not evidence of ranking parity, strong trackability, robust success,
 or solver-independent learned improvement.
 
-### D. PM01 failure diagnosis: informative, but exact mechanism remains inconclusive
+### E. PM01 failure diagnosis: informative, but exact mechanism remains inconclusive
 
 The historical E06 PM01-LORO checkpoint and per-frame predictions are missing, so the 29.59 cm
 failure cannot be localized exactly by root, body, or joint. A topology-safe intervention was
@@ -302,7 +373,7 @@ The exact LORO checkpoint must be restored or the registered LORO run repeated b
 between those mechanisms. This diagnosis supports building and testing the explicit graph contract;
 it is not evidence that the new tokenizer or a future RobotSpec model solves PM01.
 
-### E. G0 qualification: FK passes; controller/standing contract fails
+### F. G0 qualification: FK passes; controller/standing contract fails
 
 The shutdown stall was localized to Isaac application teardown rather than pose acquisition. The
 worker now releases SimulationContext callbacks, closes the USD stage, journals a fail-closed
@@ -336,7 +407,7 @@ identity, and explicit MJCF velocity-limit enforcement are also missing. Assessm
 subgate passes, but overall G0 remains false**. The exact bundle is
 [`g0_qualification_clean_f6e5ff0_v2`](../autoresearch/iterate-260901-0111/g0_qualification_clean_f6e5ff0_v2/README.md).
 
-### F. Adjacent latent-command program: close the latent-specific seed-0 branch
+### G. Adjacent latent-command program: close the latent-specific seed-0 branch
 
 The original E80-A snapshot said the `mZf` treatment was pending, but its artifacts subsequently
 completed. The document now includes a superseding stop section. Re-running the frozen paired
@@ -363,7 +434,7 @@ Any later mutation of the external reports is detectable against that artifact.
 This adjacent result is not evidence for or against MorphoRetarget's unseen-robot hypothesis; it is
 included so that the current research record does not carry an obsolete pending claim.
 
-### G. Sim-to-sim export and hardware boundary: not deployment-ready
+### H. Sim-to-sim export and hardware boundary: not deployment-ready
 
 The four recorded E70 ONNX candidates each have three repeated pre-hardware loopback handoffs. Only
 the seed-2 explicit `walk1_subject1` candidate passes all three repeats. Seed-1 SNMR
@@ -382,8 +453,8 @@ are passed. Evidence is in `exports/sim2sim_2026-08-12/*.loopback_safety_handoff
 | Program gate | Status on 2026-09-01 | Evidence and missing work |
 | --- | --- | --- |
 | G0 Contract | **Not passed; FK subgate passed** | Live PhysX evaluates 10,000 poses with 3.93e-6 m / 3.76e-6 rad maxima and clean shutdown. The controller/standing audit has 14 hard failures and 8 missing live checks, so overall G0 remains false. |
-| G1 Amortization | **Historical evidence only** | Existing G1 SNMR imitates GMR well. The new RobotSpec-conditioned pipeline has not been integrated or tested on fixed-G1 amortization. |
-| G2 Embodiment | **Not met; untrained architecture skeleton** | PM01 LORO is 5.2x worse. A kinematic-only tree-biased encoder/cross-attention/shared bounded head and independent semantic metric now exist and pass adversarial contract tests. No fixed-G1 training, materialized coherent-variant corpus, strong nearest-transfer comparison, generalization staircase, or held-out T1 result exists. |
+| G1 Amortization | **Single-window subgate passed; qualification not met** | The new RobotSpec pipeline passes its preregistered 1,000-step, 128-frame G1 wiring/capacity gate with 2.03 cm teacher-FK MPJPE and all gates true. No full train/validation run, stitching, virtual-head calibration, or human-side semantic non-inferiority result exists. |
+| G2 Embodiment | **Not met; fixed-G1 capacity evidence only** | PM01 LORO is 5.2x worse. The kinematic graph path now has one learned fixed-G1 window result and a bounded same-topology G1 MJCF materializer. No materialized three-family teacher corpus, strong nearest-transfer comparison, generalization staircase, or held-out T1 result exists. |
 | G3 Dynamics | **Not met; torque instrumentation ready** | Torque twins and localized reports work. Broader dynamics feature/intervention coverage is untested; no model is conditioned on the new features and no simulator-derived dynamics labels or learned time-warp response exist. |
 | G4 Repair | **Not started for this pipeline** | Prior contact-projection machinery is useful infrastructure, but failure-type-specific local repair, strong-rollout validation, and repair distillation are not demonstrated. |
 | G5 Utility | **Not started** | No matched tracker-training comparison of GMR, neural, and repaired MorphoRetarget datasets exists. |
@@ -404,10 +475,15 @@ makes the next failures interpretable, not because it should be presented as lea
 - Human motion now has a strict source/provenance, frame, timebase, contact, scale, validity, and
   normalized-buffer hash contract. Invalid samples are rejected before interpolation rather than
   silently entering training tensors.
-- RobotSpec can now be tensorized into padded kinematic or full variable-node batches, and an
-  untrained tree-biased/cross-attention decoder preserves tested serialization and opaque-renaming
-  equivalence while responding to a kinematic counterfactual. This is architecture evidence, not a
-  learned generalization result.
+- RobotSpec can now be tensorized into padded kinematic or full variable-node batches. The
+  tree-biased/cross-attention decoder passes a learned, from-scratch fixed-G1 single-window gate,
+  including its root and all 29 bounded joints, while preserving inverse-permutation agreement to
+  `4.7684e-7`. This is wiring and capacity evidence, not full fixed-G1 or learned generalization
+  evidence.
+- The frozen G1 MJCF can now be materialized into same-topology bilateral path-depth variants with
+  parent-owned anchors and constant-density `s/s^3/s^5` scaling. Seeds 0--7 at `+/-15%` pass the
+  implemented G1 checks and carry semantic/group hashes plus a consumer re-hash guard. They are not
+  yet a teacher-labelled training corpus or a cross-asset/collision-qualified variant family.
 - Human-side semantic evaluation no longer uses GMR as its ruler. Its scale, root, contact,
   correspondence, thresholds, and exact buffers are hash-bound, with per-anchor anti-collapse and
   anti-jitter gates.
@@ -426,8 +502,8 @@ makes the next failures interpretable, not because it should be presented as lea
 
 1. **Embodiment generalization:** three training robot families plus coherent variants may still be
    too narrow for a genuine T1 holdout.
-2. **Permutation and topology:** the untrained learned path passes algebraic serialization and
-   renaming tests, but training can still induce family memorization and no cross-topology
+2. **Permutation and topology:** the trained single-window result passes inverse-permutation
+   inference, but one G1 window cannot expose family memorization and no cross-topology
    generalization has been measured.
 3. **Dynamics supervision:** identity-free features can change without a model learning to use
    them. Labels must come from controlled candidates and qualified rollout preferences, not GMR.
@@ -438,9 +514,11 @@ makes the next failures interpretable, not because it should be presented as lea
 6. **Semantic collapse during repair:** optimizing survival can produce conservative standing or
    low-amplitude motion unless semantic non-inferiority and refusal behavior are hard gates.
 7. **Data leakage and variant validity:** asset names and serialization are excluded from the model
-   path, but the current variants are virtual tokenizer probes, not simulator assets. P4 still
-   needs materialized coherent assets, split-by-seed/family, a strong semantic/path-aware nearest
-   baseline, and trained-model anti-memorization tests.
+   path, and G1 simulator assets can now be materialized, but their draws are same-topology
+   path-depth perturbations without collision/standing/random-FK qualification or teacher data.
+   P4 still needs physically coherent segment-family variants across G1/H1/H1-2,
+   split-by-seed/family, a strong semantic/path-aware nearest baseline, and trained-model
+   anti-memorization tests.
 
 ## Recommended next execution order
 
@@ -501,19 +579,21 @@ robustness gate for later physics-label claims.
 
 ### P3-B. Parallel science track: integrate the kinematic RobotSpec model
 
-- Connect the existing SNMR human temporal encoder and root/contact outputs to the implemented
-  kinematic-only topology encoder, cross-attention, and shared per-joint head.
-- Run the smallest fixed-G1 overfit/amortization test before increasing morphology diversity.
-- Materialize coherent same-topology MJCF/URDF/USD variants, re-hash them in each consumer, and
-  pass asset/FK checks; the current virtual probes are not training assets.
+- Promote the passed single-window fixed-G1 gate to the registered 20k all-train-clips screen, then
+  a fresh 50k qualification only after full-sequence stitching and the virtual-head semantic
+  calibration are frozen.
+- Turn the bounded G1 MJCF materializer into a physically interpretable segment-family generator,
+  qualify collision/standing/random-pose FK, then extend it to the required G1/H1/H1-2 assets and
+  generate teacher-labelled training data. Each consumer must independently re-hash its bundle.
 - Retain explicit robot-ID and a strong nearest-transfer baseline--the nearest training robot's GMR
   output transferred through a declared joint/semantic mapping--so graph conditioning must earn its
   place.
 - Run adversarial renamed/reordered serialization and limb-length counterfactual inference after
   training, not only on random initialization.
 
-Exit criterion: fixed-G1 amortization is within about 5% of GMR semantic error with no increased
-violations, then the kinematic graph beats ID/strong-nearest-transfer on a held-out robot.
+Exit criterion: full fixed-G1 amortization is within about 5% of GMR human-side semantic error with
+no increased violations, then the kinematic graph beats ID/strong-nearest-transfer on a held-out
+robot. The passed single-window teacher-relative gate is only the entry condition for this work.
 
 ### P4. Run the first falsifiable learned embodiment experiment
 
@@ -630,20 +710,25 @@ Archival state:
 - The current clean G0 qualification bundle binds SNMR `f6e5ff0...`, Newton `7bb6d02...`, and
   Isaac Lab `3c6e67b...` with `dirty=false`; the exact Holosoma inputs are byte-hashed and its
   checkout is honestly recorded `dirty=true` because the USD is generated/untracked.
-- The current branch adds the safe pair adapter, learned kinematic skeleton, independent semantic
-  benchmark, and virtual counterfactual probes. None has produced a trained retargeting result.
-- Full single-thread verification passes: 617 passed, 5 skipped, and 27 pre-existing warnings in
-  163.08 s.
-- No generated experiment directory was overwritten during this work.
+- The current branch adds the safe pair adapter, learned kinematic integration/root path,
+  independent semantic benchmark, virtual counterfactual probes, and bounded G1 MJCF materializer.
+  The preferred fixed-G1 provenance rerun uses clean SNMR `5679fc7...`; commit `5540222...` adds
+  the materializer. Its unused Newton checkout is disclosed as dirty rather than treated as clean.
+- Final single-thread CPU verification after the learned gate and materializer changes passes 638
+  tests with 5 skips and 27 known warnings in 177.40 s.
+- Both learned runs wrote fresh directories; their checkpoints are byte-identical. No generated
+  experiment directory was overwritten.
 
 ## Bottom line
 
 The program has moved from an underspecified idea about "RL retargeting" to a sharper, falsifiable
-research program. Motion, robot, provenance, semantic-evaluation, variable-DoF decoding, and live
-FK contracts now exist; the 10,000-pose cross-asset FK subgate passes. The learned zero-shot
-retargeter still has not been trained or evaluated, and the saved tracking stacks demonstrably do
-not share one controller/checkpoint contract. The next engineering milestone is repairing that
-specific G0 controller contract and qualifying the frozen tracker. In parallel, the next
-scientific milestone is fixed-G1 training of the kinematic skeleton followed by the registered
-generalization staircase and held-out T1 experiment. Dynamics conditioning, physics preferences,
-and repair remain downstream of both relevant gates.
+research program. Motion, robot, provenance, semantic-evaluation, variable-DoF decoding, learned
+root prediction, a bounded G1 variant generator, and live-FK contracts now exist; the 10,000-pose
+cross-asset FK subgate and the fixed-G1 single-window wiring/capacity gate pass. The zero-shot
+retargeter still has not been trained across morphologies or evaluated on T1, and the saved tracking
+stacks demonstrably do not share one controller/checkpoint contract. The next engineering
+milestone is repairing that specific G0 controller contract and qualifying the frozen tracker. In
+parallel, the next scientific milestone is the registered full-corpus fixed-G1 screen and semantic
+qualification, followed by a physically qualified multi-family variant corpus, generalization
+staircase, and held-out T1 experiment. Dynamics conditioning, physics preferences, and repair
+remain downstream of both relevant gates.

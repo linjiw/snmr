@@ -1,0 +1,19 @@
+{
+  "files": {
+    "checkpoint.pt": {
+      "sha256": "fafcf42b67d2fb828e7b5e1e158efc9865af98e4d95bbf0c591edb09e73143e0",
+      "size_bytes": 19193619
+    },
+    "config.json": {
+      "sha256": "4bbc07ce7d95220885aadf071be037c8142d3fe8be946398909dd782e5a0c5b7",
+      "size_bytes": 2065
+    },
+    "report.json": {
+      "sha256": "ca690455df8c135f32ddca3a23919b5d158a34920a5df8b32458e9e3cf70eded",
+      "size_bytes": 62071
+    }
+  },
+  "manifest_sha256": "b3dea5ee2ee71adc538b1759293a5fda333932737cc1ad930c2e731ec8b8f215",
+  "schema_version": "snmr.morpho-fixed-g1-overfit-artifacts.v0.1",
+  "write_once": true
+}
