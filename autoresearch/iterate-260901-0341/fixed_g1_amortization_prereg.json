@@ -1,0 +1,474 @@
+{
+  "schema_version": "snmr.fixed-g1-amortization-prereg.v1",
+  "artifact_kind": "audit-preregistration-and-pre-run-amendment",
+  "status": "preregistered_amended_experiment_not_run",
+  "recorded_date": "2026-09-01",
+  "pre_run_amendments": [
+    {
+      "field": "model.human_encoder_config.temporal_positional",
+      "original_value": false,
+      "effective_run_value": true,
+      "declared_before_any_1000_step_result": true,
+      "parameter_count_change": 0,
+      "rationale": "The original content-only temporal transformer had no explicit sequence-order signal. The fixed-G1 and later LORO path should test the order-aware architecture rather than preserve that known weakness."
+    }
+  ],
+  "scientific_question": "Can the existing SNMR human temporal encoder plus the identity-free kinematic RobotSpec graph decoder amortize the fixed Unitree G1 GMR teacher without losing human-side semantics, before morphology diversity or dynamics conditioning is introduced?",
+  "claim_scope": {
+    "included": [
+      "fixed-G1 end-to-end integration",
+      "GMR teacher amortization",
+      "root prediction rather than teacher copying",
+      "serialization-equivariant joint decoding",
+      "teacher-independent human-side evaluation after semantic calibration is frozen"
+    ],
+    "excluded": [
+      "zero-shot embodiment generalization",
+      "dynamics sensitivity",
+      "physics preference learning",
+      "localized repair",
+      "tracker or hardware utility"
+    ]
+  },
+  "repository_state": {
+    "branch": "feat/morpho-retarget-kinematic",
+    "snmr_commit": "56ac24252b400ed30a717e69805995fda693f062",
+    "snmr_tracked_dirty_at_audit": false,
+    "snmr_untracked_paths_at_audit": [
+      "scripts/materialize_mjcf_variants.py",
+      "snmr/mjcf_variants.py",
+      "tests/test_mjcf_variants.py"
+    ],
+    "gmr_pair_generation_commit_documented_in_data_md": "bb1bbe40774794fceb2a7c579a3464a28e68c844",
+    "current_gmr_checkout": "5cd312e501db070faad588ce4e510ce1771f7410",
+    "current_holosoma_checkout": "20699ffa20f494b9563aa68601940c53397bf088",
+    "warning": "The current GMR checkout is not the documented pair-generation revision. Existing pair bytes are the frozen teacher artifacts; do not silently regenerate them from the current checkout."
+  },
+  "corpus": {
+    "pair_directory": "/data/robotixx/pairs/unitree_g1",
+    "raw_bvh_directory": "/data/robotixx/lafan1_bvh",
+    "format": {
+      "human_positions": "float32[T,24,3] world meters",
+      "human_orientations": "float32[T,24,4] wxyz",
+      "teacher_qpos": "float32[T,36] = root_xyz[3] + root_wxyz[4] + 29 joint radians",
+      "source_fps_hz": 30.0
+    },
+    "file_count": 77,
+    "raw_bvh_file_count": 77,
+    "pair_size_bytes": 349791497,
+    "source_frame_count": 496672,
+    "source_duration_hours": 4.598814814814815,
+    "canonical_frame_count": 827714,
+    "train": {
+      "file_count": 70,
+      "size_bytes": 311784171,
+      "source_frame_count": 442669,
+      "canonical_frame_count": 737715,
+      "content_split_sha256": "70ffd1b4aab94f1d7ae39d4d1f5332c1b60b6d15ec205626c14924897baeeea6"
+    },
+    "validation": {
+      "file_count": 7,
+      "size_bytes": 38007326,
+      "source_frame_count": 54003,
+      "canonical_frame_count": 89999,
+      "content_split_sha256": "c7a00005934ab3893c862e41b6cd56767ba77fb79518c3cd6f9aed985c4d582c",
+      "clips": [
+        "walk1_subject5",
+        "dance2_subject4",
+        "fight1_subject3",
+        "run2_subject1",
+        "jumps1_subject2",
+        "sprint1_subject4",
+        "aiming2_subject3"
+      ],
+      "canonical_frames_by_clip": {
+        "aiming2_subject3": 15286,
+        "dance2_subject4": 11284,
+        "fight1_subject3": 12244,
+        "jumps1_subject2": 12222,
+        "run2_subject1": 12241,
+        "sprint1_subject4": 13656,
+        "walk1_subject5": 13066
+      }
+    },
+    "current_path_sensitive_dataset_fingerprint": "cca55af92c460cd4bedc030e02a48cd26b9e8a836d3aba4256a3b12b5adb69e1",
+    "current_path_sensitive_robot_asset_split_sha256": "29a1600c55c6e684d9c6159ceaf8ea2033be71cf7da8db608a13d4dd5cb46c5a",
+    "historical_path_sensitive_dataset_fingerprint": "54706863a34ba97975c0fa5c4a9def552a5c8df94b97eb782e92655e45f40e53",
+    "historical_path_sensitive_robot_asset_split_sha256": "2037d20a7dd64778b878921e842ab72718bf190198f93f11de4b06562344afe9",
+    "path_sensitive_fingerprint_note": "The pair split hashes are unchanged. The aggregate and asset-split hashes changed because the historical manifest included the old absolute /home/ec2-user asset path. Bind scientific identity to content hashes, while retaining paths as provenance.",
+    "robot_asset": {
+      "path": "/home/robotixx/holosoma/src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof.xml",
+      "size_bytes": 32958,
+      "sha256": "8c586e4747da85804180fe44d8692e0fd8231356728b6327e256dca498087a78"
+    },
+    "existing_full_file_manifest": "/home/robotixx/snmr/runs/gate1_g1/replication/c0_seed1/manifest.json",
+    "sufficiency_judgment": "Sufficient for fixed-G1 amortization and integration. Not evidence for unseen-morphology generalization. The validation split holds out seven files but not entire choreography families, so it is an engineering/scientific gate rather than a publication-level generalization split."
+  },
+  "canonical_alignment": {
+    "human_contract": "snmr.motion-spec.v1",
+    "teacher_contract": "snmr.teacher-motion.v1",
+    "target_fps_hz": 50.0,
+    "target_timestamp_rule": "arange(floor(((source_frames-1)/source_fps)*50)+1)/50",
+    "human_position_interpolation": "scipy-cubic-spline-not-a-knot",
+    "human_orientation_interpolation": "scipy-slerp-wxyz",
+    "human_contact_interpolation": "linear after source-side probabilistic contact derivation",
+    "teacher_root_position_interpolation": "scipy-cubic-spline-not-a-knot",
+    "teacher_root_orientation_interpolation": "scipy-slerp-wxyz",
+    "teacher_joint_interpolation": "linear-limit-preserving",
+    "rationale": "Exact shared timestamps are essential. Cubic root translation matches the HumanMotionSpec Euclidean-position contract; linear scalar joints preserve the source interval and joint limits; SLERP preserves unit rotations.",
+    "forbidden_legacy_path": "scripts/export_wbt_npz.py::resample_qpos uses linspace over the duration and generally does not produce an exact 0.02 s grid; it must not define training alignment.",
+    "required_checks": [
+      "human and teacher timestamps are bitwise/effectively identical",
+      "first sample is exact",
+      "last source sample is included only when source duration lies on the 50 Hz grid",
+      "shared 30/50 Hz timestamps every 0.1 s reproduce source samples within frozen tolerance",
+      "root quaternions are canonicalized continuous unit wxyz",
+      "linear joint targets remain within RobotSpec limits",
+      "HumanMotionSpec and CanonicalTeacherMotion hashes are saved for every clip"
+    ]
+  },
+  "overfit_window": {
+    "pair_path": "/data/robotixx/pairs/unitree_g1/walk1_subject1.npz",
+    "pair_sha256": "79565402a381d54122c28b9f1f88bc43a46dfdca9f5aeee0ff0afbaee6c8c845",
+    "raw_bvh_path": "/data/robotixx/lafan1_bvh/walk1_subject1.bvh",
+    "raw_bvh_sha256": "4c9d591f323ffa660d9de6ef20c5d7077e66b2102a009feedf01afa22a6fbc73",
+    "selection": "Adapt the entire source clip to HumanMotionSpec and CanonicalTeacherMotion, then take canonical target indices [0,128).",
+    "target_start_index": 0,
+    "target_stop_index_exclusive": 128,
+    "frame_count": 128,
+    "first_timestamp_s": 0.0,
+    "last_timestamp_s": 2.54,
+    "duration_between_first_and_last_s": 2.54,
+    "reason": "The clip and start are selected before observing the new model. Full-clip adaptation preserves source provenance and avoids an ad-hoc source slice whose target count depends on endpoint arithmetic."
+  },
+  "root_contract": {
+    "scope": "fixed-G1 compatibility gate only",
+    "xy_scale_derivation": "Least-squares fit on all canonical 50 Hz frames of the 70 training clips: sum_t dot(robot_root_xy, human_root_xy) / sum_t squared_norm(human_root_xy). No validation frames are used.",
+    "xy_scale": 0.8749322702593619,
+    "legacy_30hz_xy_scale_for_reference": 0.8749322728451965,
+    "anchor_definition": "anchor_xy_t = xy_scale * human_root_xy_t; anchor_z is zero for localization/reconstruction; anchor heading is the yaw extracted from the full human root quaternion.",
+    "teacher_local_position": "p_local_t = R_yaw(human_t)^T * (p_robot_t - [xy_scale*h_x_t, xy_scale*h_y_t, 0]); local z is therefore absolute world z.",
+    "teacher_local_orientation": "q_local_t = conjugate(q_yaw(human_t)) multiply q_robot_t, package wxyz convention.",
+    "world_reconstruction_position": "p_robot_t = R_yaw(human_t) * p_local_t + [xy_scale*h_x_t, xy_scale*h_y_t, 0].",
+    "world_reconstruction_orientation": "q_robot_t = q_yaw(human_t) multiply q_local_t.",
+    "prediction_requirement": "The model predicts local XYZ and local orientation from human tokens plus pooled identity-free robot embeddings. Ground-truth root values may not be copied or teacher-forced at evaluation.",
+    "future_holdout_warning": "xy_scale is target-qpos-derived G1 calibration. It is valid only for this fixed-G1 compatibility experiment and must not be used for held-out T1. Before LORO, use an identity-free graph-conditioned root displacement/velocity formulation or another preregistered target-supervision-free anchor."
+  },
+  "model": {
+    "integration_module": "snmr.morpho_integration.FixedTargetMorphoRetargeter",
+    "integration_schema": "snmr.morpho-fixed-target.v0.1",
+    "human_input": {
+      "body_count": 24,
+      "dynamic_features_per_body": 12,
+      "dynamic_feature_layout": "heading-local position 3 + local rotation 6D 6 + one-frame local displacement 3",
+      "static_features_per_body": 8,
+      "static_feature_layout": "rest offset 3 + zero human joint axis 3 + has_dof 1 + end-effector 1",
+      "velocity_note": "The reused feature is displacement per canonical 50 Hz frame, not meters per second. This is internally consistent for the frozen 50 Hz corpus but makes old 30 Hz encoder weights distribution-mismatched."
+    },
+    "human_encoder_config": {
+      "node_feat_dim": 12,
+      "static_feat_dim": 8,
+      "latent_dim": 128,
+      "enc_hidden": 256,
+      "enc_layers": 4,
+      "heads": 4,
+      "temporal_layers": 2,
+      "temporal_heads": 4,
+      "use_temporal": true,
+      "temporal_positional": false,
+      "effective_temporal_positional_after_pre_run_amendment": true
+    },
+    "robot_graph_config": {
+      "feature_set": "kinematic",
+      "kinematic_feature_width": 24,
+      "topology_feature_width": 5,
+      "dynamics_feature_use": false,
+      "hidden_dim": 128,
+      "num_heads": 4,
+      "graph_layers": 3,
+      "feedforward_multiplier": 4,
+      "tree_bias_gamma": 0.5,
+      "joint_output": "one shared scalar head per joint-bearing child-link token followed by tanh joint-limit parameterization"
+    },
+    "root_head": "Pooled valid robot embeddings concatenate with each human time token; shared MLP emits local position 3 plus rotation 6D, converted to unit wxyz.",
+    "contact_head": null,
+    "contact_policy": "Contacts are derived from predicted robot sole FK under the registered contact protocol. They are not copied from GMR and no learned contact head is required for this gate.",
+    "parameter_counts_for_preregistered_dimensions": {
+      "human_encoder": 702080,
+      "joint_decoder": 847361,
+      "root_head": 34313,
+      "total": 1583754
+    },
+    "teacher_joint_mapping": "CanonicalTeacherMotion joint_names follow RobotSpec.joints. Training must scatter/gather each joint through its JointSpec child link and the token audit metadata. It must not assume token serialization index equals qpos joint index.",
+    "provisional_g1_binding": {
+      "note": "This measured binding uses the currently available G1 SemanticManifest with head_link absent. It is suitable for the overfit wiring test but must be regenerated after the final semantic-head convention is frozen.",
+      "robot_spec_sha256": "4bf54c436b3338bd4f6a2ed72b4b11ba6680e63fe7b3fe8aa416c3f615d054cc",
+      "robot_kinematic_sha256": "e4997d0e5d9b48bf82608273788f08e0f35b6aa8dcd5abac346e1aa6a2226a3c",
+      "robot_token_model_buffer_sha256": "e0965c00ff5e57186d4ad72e5392acb68319447079708dba36da5987a8496486",
+      "robot_token_manifest_sha256": "e33459b2d1ca122ec9bdbefe9d28097bca9b25d712c351ce2102c80430daa2f6",
+      "node_count": 50,
+      "joint_count": 29
+    }
+  },
+  "loss": {
+    "profile": "matched-C0",
+    "terms": {
+      "distill": {
+        "weight": 1.0,
+        "definition": "mean squared local root position + mean squared 29-DoF joint position + mean squared root rotation-matrix entries"
+      },
+      "joint_limits": {
+        "weight": 0.1,
+        "definition": "squared excess outside limits; expected exactly zero because output is bounded by construction"
+      },
+      "smoothness": {
+        "weight": 0.01,
+        "definition": "second finite differences of joint positions and local root position plus 0.1 times joint-position third finite differences"
+      }
+    },
+    "inactive_terms": [
+      "contact BCE",
+      "foot velocity",
+      "penetration",
+      "physics critic",
+      "dynamics conditioning",
+      "latent consistency"
+    ],
+    "reason": "The first experiment isolates fixed-target decoder integration and GMR amortization. Human-side semantic/contact metrics are evaluation rulers, not extra teacher channels."
+  },
+  "optimization": {
+    "optimizer": "AdamW",
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0,
+    "batch_windows_per_step": 1,
+    "random_sampling": "uniform over the 70 training clips, then uniform valid canonical window start within the selected clip",
+    "initialization": "from scratch",
+    "seed": 0,
+    "checkpoint_selection": "fixed endpoint only; periodic validation is monitoring and may not select a best checkpoint"
+  },
+  "gates": {
+    "overfit": {
+      "steps": 1000,
+      "learning_rate": 0.002,
+      "schedule": "constant",
+      "window_frames": 128,
+      "pass_all": {
+        "last20_loss_over_first20_loss_max": 0.25,
+        "teacher_fk_mpjpe_m_max": 0.05,
+        "joint_mae_rad_max": 0.1,
+        "local_root_position_mae_m_max": 0.05,
+        "root_orientation_geodesic_mae_rad_max": 0.15,
+        "joint_limit_violation_fraction_max": 0.0,
+        "inverse_permutation_output_max_abs_float32": 0.00001,
+        "finite_loss_and_gradients": true,
+        "nonzero_gradient_required_for": [
+          "human encoder",
+          "robot graph encoder",
+          "shared joint head",
+          "root head"
+        ]
+      },
+      "failure_action": "Stop. Diagnose target mapping, root frame, masks, loss, or decoder integration. Do not add morphology diversity, dynamics, contact objectives, or physics."
+    },
+    "bounded_screen": {
+      "steps": 20000,
+      "train_window_frames": 64,
+      "learning_rate": 0.0003,
+      "minimum_learning_rate": 0.00001,
+      "schedule": "CosineAnnealingLR over exactly 20000 screen steps",
+      "validation_monitor_interval_steps": 2000,
+      "decision_checkpoint_step": 20000,
+      "pass_all": {
+        "teacher_fk_mpjpe_m_max": 0.1,
+        "joint_mae_rad_max": 0.15,
+        "local_root_position_mae_m_max": 0.1,
+        "root_orientation_geodesic_mae_rad_max": 0.3,
+        "joint_limit_violation_fraction_max": 0.0,
+        "validation_mpjpe_reduction_fraction_step10000_to_step20000_min": 0.2,
+        "all_seven_validation_clips_finite": true,
+        "serialization_gate_pass": true
+      },
+      "interpretation": "Promotion screen only. Passing does not establish semantic non-inferiority. A failing screen localizes integration/optimization trouble before a full run."
+    },
+    "fixed_g1_qualification": {
+      "steps": 50000,
+      "run_policy": "fresh preregistered run from scratch after the screen passes and final semantic calibration is frozen",
+      "primary_metric": "per-clip keypoint_error_normalized_mean from snmr.semantic_metrics, graph model and GMR independently evaluated against HumanMotionSpec",
+      "statistical_unit": "validation clip",
+      "bootstrap_samples": 2000,
+      "bootstrap_seed": 0,
+      "confidence": 0.95,
+      "pass_all": {
+        "upper_ci95_graph_over_gmr_primary_error_ratio_max": 1.05,
+        "teacher_fk_compatibility_mpjpe_m_max": 0.05,
+        "joint_limit_violation_fraction_max": 0.0,
+        "upper_ci95_contact_timing_disagreement_graph_minus_gmr_max": 0.01,
+        "upper_ci95_contact_transition_mae_s_graph_minus_gmr_max": 0.02,
+        "all_validation_clips_pass_two_sided_motion_fidelity_gates": true,
+        "serialization_gate_pass": true,
+        "full_sequence_stitching_gate_pass": true
+      },
+      "report_required": [
+        "all semantic metrics for GMR and graph model on the same human ruler",
+        "per-anchor errors",
+        "per-clip and aggregate metrics",
+        "root displacement, heading, and height errors",
+        "contact probability, timing disagreement, and transition timing",
+        "teacher-relative FK/DoF compatibility metrics as secondary diagnostics",
+        "motion amplitude, energy, and jitter guards",
+        "joint-limit results"
+      ]
+    }
+  },
+  "full_sequence_evaluation": {
+    "window_frames": 128,
+    "stride_frames": 64,
+    "window_starts": "0,64,... plus max(T-128,0) if the tail-aligned start is not already present",
+    "weight_at_local_index_i": "sin(pi*(i+0.5)/128)^2",
+    "blend_joint_and_root_position": "normalized weighted arithmetic mean; convex joint blending preserves limits",
+    "blend_root_orientation": "canonicalize each quaternion sign to the first contribution at that frame, take the normalized weighted quaternion mean, then canonicalize temporal signs",
+    "frame_aggregation": "evaluate every canonical frame once after stitching; compute per-clip metrics first, then aggregate clips",
+    "stitching_diagnostics": [
+      "overlap prediction disagreement before blending",
+      "joint and root first-difference magnitude at seams versus non-seams",
+      "joint and root second-difference magnitude at seams versus non-seams",
+      "first and last frame coverage",
+      "no unnormalized or zero-weight frame"
+    ]
+  },
+  "root_and_contact_requirements": {
+    "root_prediction_required": true,
+    "why_root_is_required": "Teacher-side root substitution would leak the target and invalidate root displacement, heading, height, world FK, and robot-contact measurements.",
+    "learned_contact_head_required": false,
+    "contact_evaluation_required": true,
+    "why_contact_head_is_not_required": "Human contact probabilities are hash-bound and derived in HumanMotionSpec; robot contacts are independently derived from predicted sole FK."
+  },
+  "checkpoint_inventory": [
+    {
+      "path": "/data/robotixx/snmr-research/e67/phase2_all5_seed0/ckpt.pt",
+      "sha256": "de0cf88d8c8fb3ad6dd459e3ec274a1f1e527d5fd7de5eed447140eb3b9fffbc",
+      "step": 100000,
+      "config_summary": "latent 128, encoder hidden 256, decoder hidden 256, 64-frame windows, five robots",
+      "allowed_use": "integration-only smoke or historical baseline",
+      "scientific_caveat": "It was trained on all five robots including Booster T1 and at 30 Hz. It must not initialize any held-out-T1 claim and its displacement feature distribution is mismatched to canonical 50 Hz."
+    },
+    {
+      "path": "/data/robotixx/snmr-training-smoke/phase1_g1/ckpt.pt",
+      "sha256": "0e5ec5252d864a25510556469bf6d1b7250ab1804d46f83863611f698dfeb724",
+      "step": 2,
+      "config_summary": "latent 64, encoder hidden 128, decoder hidden 128, 16-frame window",
+      "allowed_use": "checkpoint-loading smoke only",
+      "scientific_caveat": "Not a trained representation."
+    },
+    {
+      "path": "/home/robotixx/snmr/runs/phase1_g1_large/ckpt_100k_final.pt",
+      "expected_sha256_from_benchmark_record": "df9b56ac16669a5c9fb35428e04941fd1a03579bd514f590d37ea134023e97cc",
+      "availability": "missing",
+      "allowed_use": "none unless the exact hash is recovered",
+      "scientific_caveat": "Benchmark records remain, but the checkpoint is not present in the audited filesystem."
+    }
+  ],
+  "historical_baselines": {
+    "protocol_warning": "All numbers below use legacy 30 Hz/window protocols and teacher-relative FK metrics. They are sanity anchors, not substitutes for canonical 50 Hz human-side evaluation.",
+    "g1_specialist_100k_public_benchmark": {
+      "record": "/home/robotixx/snmr/runs/bench_g1_v2.json",
+      "validation_clips": 7,
+      "windows": 42,
+      "window_frames": 192,
+      "teacher_fk_mpjpe_m": 0.03658373174922807,
+      "teacher_fk_mpjpe_ci95": [
+        0.03462849608179005,
+        0.038611163315363226
+      ],
+      "joint_mae_rad": 0.06578795390114897,
+      "joint_limit_violation_fraction": 0.0,
+      "source_contact_stance_speed_model_m_s": 0.3414165879865842,
+      "source_contact_stance_speed_teacher_m_s": 0.122636352067015,
+      "teacher_height_stance_speed_model_m_s": 0.5024670484034639,
+      "teacher_height_stance_speed_teacher_m_s": 0.13342140487542278
+    },
+    "g1_c0_50k_seed1": {
+      "train_loop_endpoint_mpjpe_m": 0.03873964898022158,
+      "dense_benchmark_mpjpe_m": 0.04775302271757807,
+      "dense_benchmark_joint_mae_rad": 0.0869207348497141,
+      "elapsed_seconds": 1801.9
+    },
+    "g1_c0_50k_seed2": {
+      "train_loop_endpoint_mpjpe_m": 0.03591333811969629,
+      "dense_benchmark_mpjpe_m": 0.046189927052529084,
+      "dense_benchmark_joint_mae_rad": 0.09110591259031069,
+      "elapsed_seconds": 1814.5
+    },
+    "g1_c0_20k_historical_range": {
+      "teacher_fk_mpjpe_m": [
+        0.07493204889552933,
+        0.08031164588672775
+      ],
+      "joint_mae_rad": [
+        0.11993216350674629,
+        0.13778577452259405
+      ]
+    },
+    "shared_five_robot_g1_row": {
+      "teacher_fk_mpjpe_m": 0.06039135450763362,
+      "joint_mae_rad": 0.11807478804673467,
+      "joint_limit_violation_fraction": 0.0
+    },
+    "missing_baseline": "GMR and a model have not yet been evaluated through a frozen real-G1 SemanticCorrespondence, so no valid human-side numeric baseline currently exists."
+  },
+  "entry_conditions_and_blockers": {
+    "overfit_ready_after_runner": [
+      "canonical HumanMotionSpec adapter exists",
+      "canonical teacher target resampler exists",
+      "fixed-target human encoder, graph decoder, and learned root head exist",
+      "joint-limit and serialization unit contracts exist"
+    ],
+    "missing_for_overfit": [],
+    "overfit_runner_status": "Implemented and real-data smoke-qualified. The 1000-step registered run remains unexecuted at the time of this amendment.",
+    "missing_for_final_semantic_gate": [
+      "a frozen real-G1 SemanticCorrespondence and calibration artifact",
+      "a scientifically valid virtual head semantic frame: the audited G1 MJCF has no head link, while the current evaluator requires a unique physical robot link for the head role",
+      "GMR baseline scored on that exact human-side ruler",
+      "full-sequence stitcher and seam diagnostics"
+    ],
+    "head_semantics_warning": "Do not choose an anatomically false link merely to satisfy the schema. Resolve virtual semantic frames before the 20k/final binding is frozen; changing head semantics changes RobotSpec/token hashes and can invalidate a trained checkpoint binding."
+  },
+  "commands": {
+    "status": "overfit runner implemented; later screen/evaluation CLIs remain planned contracts",
+    "overfit": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 .venv/bin/python scripts/experiment_morpho_fixed_g1_overfit.py --pair-npz /data/robotixx/pairs/unitree_g1/walk1_subject1.npz --g1-mjcf /home/robotixx/holosoma/src/holosoma_retargeting/holosoma_retargeting/models/g1/g1_29dof.xml --raw-human-source /data/robotixx/lafan1_bvh/walk1_subject1.bvh --source-dataset lafan1 --source-sequence-id walk1_subject1 --motion-id lafan1/walk1_subject1 --source-subject subject1 --split-id train --output-dir /home/robotixx/snmr/autoresearch/iterate-260901-0341/g1_overfit_seed0 --device cpu",
+    "bounded_screen": "source scripts/activate_snmr.sh && CUDA_VISIBLE_DEVICES=0 python scripts/train_morpho_g1.py --pairs-dir /data/robotixx/pairs/unitree_g1 --bvh-dir /data/robotixx/lafan1_bvh --robot unitree_g1 --target-fps 50 --xy-scale 0.8749322702593619 --window 64 --steps 20000 --eval-every 2000 --ckpt-every 20000 --lr 0.0003 --min-lr 0.00001 --seed 0 --latent-dim 128 --enc-hidden 256 --robot-hidden 128 --graph-layers 3 --heads 4 --tree-bias-gamma 0.5 --feature-set kinematic --loss-profile c0 --out autoresearch/iterate-260901-0341/g1_screen_seed0",
+    "evaluation": "source scripts/activate_snmr.sh && CUDA_VISIBLE_DEVICES=0 python scripts/eval_morpho_g1.py --ckpt autoresearch/iterate-260901-0341/g1_screen_seed0/ckpt.pt --pairs-dir /data/robotixx/pairs/unitree_g1 --bvh-dir /data/robotixx/lafan1_bvh --target-fps 50 --stitch-window 128 --stitch-stride 64 --correspondence configs/semantic/g1_v1.json --bootstrap-samples 2000 --bootstrap-seed 0 --out autoresearch/iterate-260901-0341/g1_screen_seed0/eval",
+    "legacy_control_only": "source scripts/activate_snmr.sh && python scripts/train_phase1.py --robot unitree_g1 --pairs_dir /data/robotixx/pairs/unitree_g1 --window 64 --lr 0.0003 --min_lr 0.00001 --latent_dim 128 --enc_hidden 256 --dec_hidden 256 --steps 20000 --eval_every 2000 --ckpt_every 20000 --diag_every 2000 --seed 0 --out autoresearch/iterate-260901-0341/legacy_30hz_control_seed0",
+    "legacy_control_warning": "The legacy control is runnable but remains 30 Hz and uses the old decoder. It is not the canonical graph experiment."
+  },
+  "runtime_estimate": {
+    "basis": "Historical matched-C0 50k G1 runs took 1801.9 and 1814.5 seconds. The new model has 1.584M parameters and denser time-by-node cross-attention at 50 Hz.",
+    "exclusive_rtx5090_overfit_minutes": [
+      2,
+      5
+    ],
+    "exclusive_rtx5090_20k_screen_minutes": [
+      20,
+      45
+    ],
+    "exclusive_rtx5090_full_validation_minutes": [
+      5,
+      15
+    ],
+    "exclusive_rtx5090_50k_qualification_minutes": [
+      45,
+      100
+    ],
+    "audit_time_gpu_observation": "RTX 5090, 8772/32607 MiB used, 91% utilization. Do not launch the timing-sensitive run until the GPU is exclusive."
+  },
+  "verification": {
+    "commands_run": [
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/test_morpho_fixed_g1_overfit.py tests/test_morpho_integration.py tests/test_teacher_motion.py tests/test_motion_adapter.py tests/test_robot_tokens.py tests/test_morpho_model.py",
+      "real CLI smoke: scripts/experiment_morpho_fixed_g1_overfit.py --smoke against captured walk1_subject1 and G1 MJCF bytes"
+    ],
+    "result": "46 passed in 4.26 s; real CLI smoke decision SMOKE_NOT_GATE_ELIGIBLE, all four gradient-block gates pass, serialization max abs 4.7684e-07",
+    "training_run": false,
+    "experiment_metrics_generated": false
+  },
+  "decision": "Proceed with the single-window overfit only after the runner binds source/pair/spec hashes and the exact root/joint mappings. If it passes, run the 20k fixed-G1 screen. Do not interpret either as held-out morphology evidence. Freeze virtual head semantics before any final semantic qualification or reusable checkpoint."
+}
