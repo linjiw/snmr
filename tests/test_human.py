@@ -2,6 +2,8 @@
 
 import pathlib
 
+import numpy as np
+
 import pytest
 import torch
 
@@ -54,6 +56,22 @@ def test_pair_npz_loads_and_matches_names():
     # quats ~unit
     norms = pair["human_quat"].norm(dim=-1)
     assert torch.allclose(norms, torch.ones_like(norms), atol=1e-3)
+
+
+def test_pair_npz_rejects_pickled_object_arrays(tmp_path):
+    path = tmp_path / "unsafe_pair.npz"
+    np.savez(
+        path,
+        human_pos=np.zeros((1, 1, 3), dtype=np.float32),
+        human_quat=np.asarray([[[1.0, 0.0, 0.0, 0.0]]], dtype=np.float32),
+        human_names=np.asarray([{"not": "a name"}], dtype=object),
+        qpos=np.zeros((1, 8), dtype=np.float32),
+        fps=np.asarray(50.0),
+        robot=np.asarray("robot"),
+        human_height=np.asarray(1.0),
+    )
+    with pytest.raises(ValueError, match="must not contain pickled/object arrays"):
+        load_pair_npz(str(path))
 
 
 def test_human_features_heading_invariance():

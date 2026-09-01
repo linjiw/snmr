@@ -167,13 +167,80 @@ def load_pair_npz(path: str, dtype: torch.dtype = torch.float32) -> dict:
     Returns dict with: human_pos (T,J,3), human_quat (T,J,4) wxyz, human_names, qpos (T,7+D),
     fps, robot, human_height — human arrays as torch, metadata as python types.
     """
-    data = np.load(path, allow_pickle=True)
+    required = {
+        "human_pos",
+        "human_quat",
+        "human_names",
+        "qpos",
+        "fps",
+        "robot",
+        "human_height",
+    }
+    try:
+        with np.load(path, allow_pickle=False) as data:
+            missing = sorted(required.difference(data.files))
+            if missing:
+                raise ValueError(f"pair NPZ is missing required arrays: {missing}")
+            arrays = {name: np.asarray(data[name]) for name in required}
+    except ValueError as exc:
+        if "Object arrays cannot be loaded" in str(exc):
+            raise ValueError("pair NPZ must not contain pickled/object arrays") from exc
+        raise
+
+    human_pos = arrays["human_pos"]
+    human_quat = arrays["human_quat"]
+    human_names = arrays["human_names"]
+    qpos = arrays["qpos"]
+    if human_pos.ndim != 3 or human_pos.shape[-1] != 3:
+        raise ValueError("human_pos must have shape (T, J, 3)")
+    if human_quat.shape != human_pos.shape[:2] + (4,):
+        raise ValueError("human_quat must have shape (T, J, 4)")
+    if human_names.ndim != 1 or human_names.shape[0] != human_pos.shape[1]:
+        raise ValueError("human_names must have shape (J,) matching human tensors")
+    if human_names.dtype.kind not in {"U", "S"}:
+        raise TypeError("human_names must use a non-object string dtype")
+    if qpos.ndim != 2 or qpos.shape[0] != human_pos.shape[0]:
+        raise ValueError("qpos must have shape (T, Q) matching human tensors")
+    if human_pos.dtype.kind not in {"f", "i", "u"}:
+        raise TypeError("human_pos must have numeric dtype")
+    if human_quat.dtype.kind not in {"f", "i", "u"}:
+        raise TypeError("human_quat must have numeric dtype")
+    if qpos.dtype.kind not in {"f", "i", "u"}:
+        raise TypeError("qpos must have numeric dtype")
+    if not np.isfinite(human_pos).all() or not np.isfinite(human_quat).all():
+        raise ValueError("human motion arrays must be finite")
+    if not np.isfinite(qpos).all():
+        raise ValueError("qpos must be finite")
+
+    def scalar(name: str) -> object:
+        value = arrays[name]
+        if value.size != 1:
+            raise ValueError(f"{name} must contain exactly one scalar value")
+        return value.reshape(-1)[0]
+
+    fps = float(scalar("fps"))
+    human_height = float(scalar("human_height"))
+    if not np.isfinite(fps) or fps <= 0.0:
+        raise ValueError("fps must be finite and positive")
+    if not np.isfinite(human_height) or human_height <= 0.0:
+        raise ValueError("human_height must be finite and positive")
+    robot_value = scalar("robot")
+    if isinstance(robot_value, bytes):
+        robot = robot_value.decode("utf-8")
+    elif isinstance(robot_value, str):
+        robot = robot_value
+    else:
+        raise TypeError("robot must use a non-object string dtype")
+    if not robot or robot != robot.strip():
+        raise ValueError("robot must be a non-empty, whitespace-trimmed string")
+
+    names = [value.decode("utf-8") if isinstance(value, bytes) else str(value) for value in human_names]
     return {
-        "human_pos": torch.tensor(np.asarray(data["human_pos"]), dtype=dtype),
-        "human_quat": torch.tensor(np.asarray(data["human_quat"]), dtype=dtype),
-        "human_names": [str(x) for x in data["human_names"]],
-        "qpos": torch.tensor(np.asarray(data["qpos"]), dtype=dtype),
-        "fps": float(np.asarray(data["fps"]).reshape(-1)[0]),
-        "robot": str(np.asarray(data["robot"]).reshape(-1)[0]),
-        "human_height": float(np.asarray(data["human_height"]).reshape(-1)[0]),
+        "human_pos": torch.tensor(human_pos, dtype=dtype),
+        "human_quat": torch.tensor(human_quat, dtype=dtype),
+        "human_names": names,
+        "qpos": torch.tensor(qpos, dtype=dtype),
+        "fps": fps,
+        "robot": robot,
+        "human_height": human_height,
     }
