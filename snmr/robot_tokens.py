@@ -18,6 +18,8 @@ this tensor contract does not itself establish that a learned model uses them.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
+import json
 from typing import Literal, Sequence
 
 import numpy as np
@@ -28,6 +30,7 @@ from .robot_spec import RobotFeatureBundle, RobotSpec
 
 
 FeatureSet = Literal["kinematic", "full"]
+ROBOT_TOKEN_SCHEMA_VERSION = "snmr.robot-token-batch.v0.2"
 
 # Fields whose values do not change under a dynamics-only RobotSpec intervention.  The
 # structural scalars appended below are also kinematic.  ``parent_index`` is deliberately
@@ -91,6 +94,9 @@ class RobotTokenBatch:
     feature_names: tuple[str, ...]
     topology_feature_names: tuple[str, ...]
     availability_names: tuple[str, ...]
+    source_spec_hashes: tuple[str, ...]
+    source_kinematic_hashes: tuple[str, ...]
+    schema_version: str = ROBOT_TOKEN_SCHEMA_VERSION
 
     def to(self, device: torch.device | str) -> "RobotTokenBatch":
         """Move tensor fields while preserving immutable audit metadata."""
@@ -110,7 +116,71 @@ class RobotTokenBatch:
             feature_names=self.feature_names,
             topology_feature_names=self.topology_feature_names,
             availability_names=self.availability_names,
+            source_spec_hashes=self.source_spec_hashes,
+            source_kinematic_hashes=self.source_kinematic_hashes,
+            schema_version=self.schema_version,
         )
+
+    def model_buffer_sha256(self) -> str:
+        """Hash the exact labelled tensors available to the learned model.
+
+        Names and source hashes are intentionally excluded from this digest because they
+        are audit metadata, not inputs.  The audit manifest below binds both domains.
+        """
+
+        digest = hashlib.sha256(b"snmr.robot-token-model-buffers.v0.2\0")
+        tensors = (
+            ("node_features", self.node_features),
+            ("topology_features", self.topology_features),
+            ("dynamics_available", self.dynamics_available),
+            ("node_mask", self.node_mask),
+            ("parent_index", self.parent_index),
+            ("tree_distance", self.tree_distance),
+            ("joint_mask", self.joint_mask),
+            ("joint_lower", self.joint_lower),
+            ("joint_upper", self.joint_upper),
+            ("root_mask", self.root_mask),
+        )
+        for name, tensor in tensors:
+            array = tensor.detach().cpu().contiguous().numpy()
+            header = json.dumps(
+                {"name": name, "dtype": array.dtype.str, "shape": list(array.shape)},
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+            raw = memoryview(array).cast("B")
+            digest.update(len(header).to_bytes(8, "big") + header)
+            digest.update(len(raw).to_bytes(8, "big") + raw)
+        for label, names in (
+            ("feature_names", self.feature_names),
+            ("topology_feature_names", self.topology_feature_names),
+            ("availability_names", self.availability_names),
+        ):
+            encoded = json.dumps(
+                {"name": label, "values": list(names)},
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+            digest.update(len(encoded).to_bytes(8, "big") + encoded)
+        return digest.hexdigest()
+
+    def audit_manifest(self) -> dict[str, object]:
+        """Return a hash-bound separation of model buffers and non-model provenance."""
+
+        payload: dict[str, object] = {
+            "schema_version": self.schema_version,
+            "model_buffer_sha256": self.model_buffer_sha256(),
+            "source_spec_hashes": list(self.source_spec_hashes),
+            "source_kinematic_hashes": list(self.source_kinematic_hashes),
+            "node_names_audit_only": [list(names) for names in self.node_names],
+            "batch_size": int(self.node_features.shape[0]),
+            "max_nodes": int(self.node_features.shape[1]),
+        }
+        encoded = json.dumps(
+            payload, sort_keys=True, separators=(",", ":"), allow_nan=False
+        ).encode("utf-8")
+        payload["manifest_sha256"] = hashlib.sha256(encoded).hexdigest()
+        return payload
 
     def attention_bias(self, gamma: float) -> torch.Tensor:
         """Return ``-gamma * tree_distance`` with padding masked to ``-inf``."""
@@ -217,6 +287,8 @@ class RobotGraphTokenizer(nn.Module):
             feature_names=feature_names,
             topology_feature_names=TOPOLOGY_FEATURE_NAMES,
             availability_names=bundles[0].dynamics_available_names,
+            source_spec_hashes=tuple(spec.spec_hash for spec in specs),
+            source_kinematic_hashes=tuple(spec.kinematic_hash for spec in specs),
         )
 
     def _feature_names(self, bundle: RobotFeatureBundle) -> tuple[str, ...]:
@@ -314,7 +386,12 @@ def _topology_features(spec: RobotSpec, parent_index: np.ndarray) -> np.ndarray:
     child_count = np.bincount(parents[parents >= 0], minlength=len(parents)).astype(np.float32)
     max_children = max(float(child_count.max()), 1.0)
     link_length = np.asarray(
-        [np.linalg.norm(link.local_position) / spec.standing_height for link in spec.links],
+        [
+            0.0
+            if link.parent is None
+            else np.linalg.norm(link.local_position) / spec.standing_height
+            for link in spec.links
+        ],
         dtype=np.float32,
     )
     link_index = {link.name: i for i, link in enumerate(spec.links)}

@@ -792,8 +792,17 @@ class RobotSpec:
                 {
                     "name": link.name,
                     "parent": link.parent,
-                    "local_position": link.local_position,
-                    "local_rotation_wxyz": link.local_rotation_wxyz,
+                    # A free-root body's MJCF pose is an asset spawn/default-world
+                    # transform, not morphology.  Canonicalize it out of the
+                    # kinematic identity just as model_features() does below.
+                    "local_position": (
+                        (0.0, 0.0, 0.0) if link.parent is None else link.local_position
+                    ),
+                    "local_rotation_wxyz": (
+                        (1.0, 0.0, 0.0, 0.0)
+                        if link.parent is None
+                        else link.local_rotation_wxyz
+                    ),
                     "collision_proxies": [asdict(proxy) for proxy in link.collision_proxies],
                 }
                 for link in self.links
@@ -963,7 +972,14 @@ class RobotSpec:
         )
         for link in self.links:
             joint = joint_by_child.get(link.name)
-            joint_position, joint_rotation = _parent_to_joint_transform(link, joint)
+            if link.parent is None:
+                # The canonical RobotSpec frame is pelvis-origin.  MJCF commonly stores
+                # a standing spawn height/orientation on the free-root body; exposing it
+                # here would leak authoring/default-state identity into the model.
+                joint_position = (0.0, 0.0, 0.0)
+                joint_rotation = (1.0, 0.0, 0.0, 0.0)
+            else:
+                joint_position, joint_rotation = _parent_to_joint_transform(link, joint)
             collision_radius = max(
                 (math.sqrt(sum(value * value for value in proxy.size))
                  for proxy in link.collision_proxies),

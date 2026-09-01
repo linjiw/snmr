@@ -154,6 +154,36 @@ def test_joint_permutation_equivariance_of_graph_contract():
     torch.testing.assert_close(original.joint_mask[0], changed.joint_mask[0, inverse])
 
 
+def test_free_root_spawn_pose_is_not_a_kinematic_model_feature_or_hash():
+    spec = _spec()
+    spawned = replace(
+        spec,
+        links=(
+            replace(
+                spec.links[0],
+                local_position=(4.0, -3.0, 0.793),
+                local_rotation_wxyz=(2**-0.5, 0.0, 0.0, 2**-0.5),
+            ),
+            *spec.links[1:],
+        ),
+    )
+    spawned.validate()
+
+    original = RobotGraphTokenizer("kinematic")([spec])
+    changed = RobotGraphTokenizer("kinematic")([spawned])
+
+    torch.testing.assert_close(
+        original.node_features, changed.node_features, rtol=0.0, atol=0.0
+    )
+    torch.testing.assert_close(
+        original.topology_features, changed.topology_features, rtol=0.0, atol=0.0
+    )
+    root_index = original.node_names[0].index("pelvis")
+    assert original.topology_features[0, root_index, 0] == 0.0
+    assert spec.kinematic_hash == spawned.kinematic_hash
+    assert spec.spec_hash != spawned.spec_hash
+
+
 def test_variable_dof_shapes_and_padding_are_explicit():
     full = _spec()
     short = replace(
@@ -184,6 +214,26 @@ def test_no_identity_or_serialization_features():
     forbidden = ("name", "path", "hash", "asset", "robot_id", "parent_index")
     assert not any(any(token in field for token in forbidden) for field in batch.feature_names)
     assert batch.dynamics_available.shape[-1] == 4
+    manifest = batch.audit_manifest()
+    assert len(manifest["model_buffer_sha256"]) == 64
+    assert len(manifest["manifest_sha256"]) == 64
+    assert manifest["source_spec_hashes"] == [_spec().spec_hash]
+
+
+def test_token_audit_hash_detects_model_buffer_tampering_but_names_are_non_model_metadata():
+    batch = RobotGraphTokenizer("kinematic")([_spec()])
+    tampered_features = batch.node_features.clone()
+    tampered_features[0, 1, 0] += 0.125
+    tampered = replace(batch, node_features=tampered_features)
+    renamed_metadata = replace(
+        batch,
+        node_names=tuple(tuple(f"opaque_{index}" for index, _ in enumerate(names)) for names in batch.node_names),
+    )
+    assert tampered.model_buffer_sha256() != batch.model_buffer_sha256()
+    assert renamed_metadata.model_buffer_sha256() == batch.model_buffer_sha256()
+    assert renamed_metadata.audit_manifest()["manifest_sha256"] != batch.audit_manifest()[
+        "manifest_sha256"
+    ]
 
 
 def test_link_and_joint_renaming_is_not_a_model_feature():
