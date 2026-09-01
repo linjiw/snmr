@@ -1211,6 +1211,18 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
     parser.add_argument(
+        "--newton-root",
+        type=Path,
+        default=None,
+        help="Newton checkout whose exact revision is recorded (required for registered runs).",
+    )
+    parser.add_argument(
+        "--isaac-lab-root",
+        type=Path,
+        default=None,
+        help="Isaac Lab checkout whose exact revision is recorded (required for registered runs).",
+    )
+    parser.add_argument(
         "--smoke",
         action="store_true",
         help="Run 8 frames/2 steps; the report is never eligible for the registered gate.",
@@ -1238,13 +1250,26 @@ def main(argv: Sequence[str] | None = None) -> int:
     source_code = source_fingerprint(
         ROOT, "scripts/experiment_morpho_fixed_g1_overfit.py"
     )
-    revisions = source_revision_manifest(snmr_path=ROOT)
+    revisions = source_revision_manifest(
+        snmr_path=ROOT,
+        newton_path=args.newton_root,
+        isaac_lab_path=args.isaac_lab_root,
+    )
     repository = git_state(ROOT)
     if not protocol.smoke and repository.get("dirty") is not False:
         raise RuntimeError(
             "registered fixed-G1 run requires a clean SNMR checkout; use --smoke for wiring"
         )
     if not protocol.smoke:
+        for dependency in ("newton", "isaac_lab"):
+            if (
+                revisions.get(f"{dependency}_repo_status") != "available"
+                or not isinstance(revisions.get(f"{dependency}_commit"), str)
+                or not isinstance(revisions.get(f"{dependency}_dirty"), bool)
+            ):
+                raise RuntimeError(
+                    f"registered run requires an exact {dependency} Git revision and dirty flag"
+                )
         declared_identity = {
             "source_dataset": args.source_dataset,
             "source_sequence_id": args.source_sequence_id,
