@@ -2,11 +2,13 @@
 
 **Date:** 2026-09-01
 **Latest program:** MorphoRetarget
-**Overall status:** pre-training foundation; core contracts implemented; program Gate G0 fails closed
+**Overall status:** pre-training integration; FK subgate passed; controller/standing G0 fails closed
 **Evidence basis:** frozen source, clean-checkout artifacts, and bounded iteration
 `autoresearch/iterate-260901-0111/`
 **Frozen source:**
 `feat/morpho-retarget-foundation@078d3116aa233ca09c5c68134d9fd5dd5eb55944`
+**Current implementation:**
+`feat/morpho-retarget-kinematic@f6e5ff04df8eaa82c7680888174fb9b69252b9c8`
 **Archive:** `autoresearch/iterate-260901-0111/foundation_freeze_078d311/`; annotated tag
 `morpho-retarget-foundation-2026-09-01`
 
@@ -18,25 +20,26 @@ specification rather than its identity, produces semantically faithful motion wi
 robot-specific head, prompt, or fine-tuning, and improves robust closed-loop trackability under
 independent physics verification.
 
-The current work has now established the prerequisite RobotSpec, canonical `HumanMotionSpec`,
-graph-token, provenance, FK-parity, and verification-report contracts. It has also diagnosed one
+The current work has established the prerequisite RobotSpec, canonical `HumanMotionSpec`, safe
+pair adapter, graph-token, learned kinematic decoder skeleton, teacher-independent semantic
+metric, provenance, FK-parity, and verification-report contracts. It has also diagnosed one
 important property of the legacy PM01 failure: trained SNMR uses its embodiment conditioning, but
 the surviving artifacts cannot determine whether the exact LORO failure was coverage,
-extrapolation, or semantic misalignment. It has **not** trained a RobotSpec-conditioned model,
-demonstrated a learned response to kinematics or dynamics, run the held-out T1 experiment,
-established strong-tracker PhysX/MJWarp ranking parity, repaired failures, or shown downstream data
-utility. The honest maturity label remains **pre-training foundation; G0 not passed**, not "six
-gates passed." The earlier six passing checks are local checks for one torque-twin pilot, not the
+extrapolation, or semantic misalignment. It has **not** trained the new RobotSpec-conditioned
+decoder, demonstrated learned fixed-G1 amortization or held-out-T1 generalization, established
+strong-tracker PhysX/MJWarp ranking parity, repaired failures, or shown downstream data utility.
+The honest maturity label is **pre-training integration; overall G0 not passed**, not "six gates
+passed." The earlier six passing checks are local checks for one torque-twin pilot, not the
 program's G0--G6 paper gates.
 
-The strongest positive result is now a clean-checkout, reproducible set of fail-closed input
-contracts: exact motion/provenance hashes, a serialization-equivariant variable-node tokenizer,
-and a bit-reproducible deterministic 10,000-pose MuJoCo FK reference. The strongest boundary is
-equally important: a second live PhysX attempt from the clean source did not return comparison
-poses within 240 s, so the FK gate records `g0_evaluated=false` and `g0_pass=false` rather than
-substituting offline URDF FK or relaxing the gate. Separately, open-loop PD replay still fails too
-quickly and responds non-monotonically to torque scale, so it must not be used as a candidate
-ranker, physics preference label, or RL reward.
+The strongest new positive result is the clean 10,000-pose live-PhysX FK subgate: maximum
+MJCF-to-USD key-link error is `3.932e-6 m` and maximum orientation geodesic error is
+`3.759e-6 rad`, both far inside the frozen strict `1e-3` limits. The same clean bundle also exposes
+the strongest boundary: controller/standing-state parity has 14 hard failures and 8 missing live
+checks, including incompatible action scaling, effort/friction/reset contracts, and no identical
+frozen checkpoint across PhysX and MJWarp. Therefore the FK subgate passes while overall G0 remains
+false. Separately, open-loop PD replay still fails too quickly and responds non-monotonically to
+torque scale, so it must not be used as a candidate ranker, physics preference label, or RL reward.
 
 ## The latest research goal
 
@@ -74,7 +77,7 @@ does not establish the new claim.
 | G1 specialist | Public BENCH-v2: 3.66 cm MPJPE, 95% CI [3.46, 3.86]; historical sparse gate: 2.18 cm | Amortized GMR imitation works on a fixed robot; 3.66 cm supersedes 2.18 cm for public comparison |
 | Shared five-robot model | Public BENCH-v2: 2.92--6.04 cm; historical E04 16-window eval: 3.16--6.67 cm; zero joint-limit violations | A shared model can serve trained robots with modest sharing cost |
 | PM01 leave-one-robot-out | Historical matched 16-window eval: 29.59 cm versus 5.72 cm in-training, 5.2x worse | Existing 8D static conditioning fails the only completed unseen-robot holdout; the new diagnosis rules out wholesale conditioning neglect but cannot identify the exact missing-checkpoint LORO mechanism |
-| New graph-token contract | Padded variable-node tensors, exact inverse-permutation agreement, tree distances, per-node limits, and separated dynamics availability | The tensor interface now exists and is adversarially tested; no learned graph encoder, per-joint model, fixed-G1 integration, or held-out result exists |
+| New kinematic graph path | Padded variable-node tokens plus a tree-biased graph encoder, human cross-attention, and one shared bounded per-joint head | Shape/gradient/limit/renaming/permutation/counterfactual tests pass; no fixed-G1 training or held-out result exists |
 
 The LORO failure is not a side note. It is the main reason the project has moved from "shared latent
 across trained robots" to explicit physical conditioning, coherent morphology augmentation, and a
@@ -99,9 +102,9 @@ and simulation timing. It provides:
 - explicit exclusion of names, paths, asset hashes, and trainable robot IDs from numeric model
   features.
 
-This is currently an MJCF-first RobotSpec adapter. URDF/USD bundles are bound by the G0 harness,
-but no URDF/USD RobotSpec adapter or measured cross-asset parity has been demonstrated, and the
-feature bundle is deliberately not connected to old SNMR checkpoints.
+This is currently an MJCF-first RobotSpec adapter. URDF/USD bundles are bound by the G0 harness and
+their live key-link FK parity now passes, but no general URDF/USD-to-RobotSpec adapter exists and
+the feature bundle is deliberately not connected to old SNMR checkpoints.
 The 37D node vector plus four availability fields also does not yet expose every proposed physical
 quantity: latency and simulation timestep are absent as explicit model features, collision geometry
 is compressed to a radius, and only torque scaling has been experimentally exercised.
@@ -127,11 +130,13 @@ is compressed to a radius, and only torque scaling has been experimentally exerc
   samples before interpolation, and rejection of finite float64 values that would overflow or
   underflow the canonical float32 hash representation.
 
-This completes the in-repository motion schema and resampling contract. It does not prove that all
-AMASS, LAFAN1, GMR, and existing SNMR loaders have been migrated to it, nor does it pass cross-asset
-G0 by itself.
+`snmr/motion_adapter.py` now safely binds the current LAFAN1 pair-NPZ path to this contract. It
+loads captured bytes with `allow_pickle=false`, keeps the raw human-source identity separate from
+the robot-specific pair-container hash, and hashes the declared segment landmark mapping. This is
+one concrete migration path, not proof that all AMASS, LAFAN1, GMR, and existing SNMR loaders have
+been migrated.
 
-### 3. Kinematic RobotSpec graph-token contract
+### 3. Kinematic RobotSpec graph path
 
 `snmr/robot_tokens.py` is a parameter-free tensorization layer for heterogeneous RobotSpecs. It
 emits padded variable-node batches, node and joint masks, structural parent metadata, all-pairs
@@ -141,15 +146,51 @@ availability and selects only kinematic fields. The full 37D fields remain avail
 separately gated dynamics experiment.
 
 Adversarial tests permute link and joint serialization, rename links and joints, batch different
-DoF counts, and compare kinematic twins. After inverse permutation, the contract tensors agree
-exactly. A shared limit-by-construction helper maps per-node logits into each active joint's range.
+DoF counts, compare kinematic twins, and remove authored free-root spawn pose from model features.
+After inverse permutation, the contract tensors agree exactly. Each batch records separate hashes
+for exact model-visible buffers and audit-only source identities.
 
-This is **not** a learned RobotSpec model. No graph/topology encoder, cross-attention module,
-temporal integration, trained per-joint head, fixed-G1 amortization result, or held-out T1 result has
-been produced. The current token contract also rejects multiple scalar joints attached to one link;
-true multi-DoF joint types would require separate joint tokens.
+`snmr/morpho_model.py` now implements the bounded kinematic architecture skeleton: shared node
+projection, shortest-path-biased graph self-attention, human-temporal cross-attention, and one
+shared scalar head mapped into each joint's limits. It rejects full/dynamics tokens, malformed tree
+metrics, non-finite limits, empty roots/DoFs, and tampered feature/mask contracts. Learned forward
+tests cover gradients, variable-DoF padding, opaque renaming, serialization permutation, padded
+co-batches, dynamics-twin isolation, and a counterfactual link-transform response.
 
-### 4. Fail-closed worker provenance
+This is model code, but **not a trained result**. It currently accepts pre-encoded human temporal
+tokens, predicts neither free-root motion nor contacts, uses dense attention, and supports one
+scalar revolute joint per child link. There is no fixed-G1 amortization, coherent-asset training,
+generalization staircase, or held-out T1 result.
+
+### 4. Teacher-independent semantic evaluation
+
+`snmr/semantic_metrics.py` evaluates human motion and robot FK directly, with no GMR/teacher target
+argument. A fixed seven-role correspondence binds local semantic point and orientation offsets;
+robot normalization comes from the hash-matched RobotSpec; root motion comes from the declared FK
+root link; and foot contacts are derived from calibrated sole FK rather than candidate-supplied
+labels. Reports include robot-scale meter and normalized keypoint errors, relative end-effector
+pose, root/contact timing, per-anchor two-sided amplitude/energy/jitter gates, and hashes for the
+motion, RobotSpec/asset, exact FK/contact buffers, correspondence, thresholds, and metric schema.
+
+This prevents GMR from being both teacher and ruler and blocks obvious scale, root, contact, and
+motion-collapse attacks. The first protocol is deliberately narrow: seven complete semantic roles,
+flat-ground kinematic sole contact, and preregistered robot-specific frame/point calibration. It is
+not a physics-feasibility metric.
+
+### 5. Morphology variant boundary
+
+`snmr/robot_variants.py` currently emits deterministic same-topology **virtual** RobotSpec probes
+for tokenizer/model counterfactual tests. Their exact canonical JSON bytes are hash-bound and the
+manifest is deeply immutable, but it explicitly records `backend_compatible=false` and refuses
+simulator use. Free-root spawn pose is never perturbed, and nonzero nominal joint poses fail closed
+until nominal-pose FK is qualified.
+
+These probes are not the P4 training set. A real coherent-variant generator must materialize and
+parity-test exact MJCF/URDF/USD bytes, preserve semantic/path meaning, and supply a strong
+training-only-normalized nearest-transfer distance. The earlier lossy marginal descriptor was not
+retained as a purported strong baseline.
+
+### 6. Fail-closed worker provenance
 
 `snmr/provenance.py` snapshots the exact bytes a worker consumes, hashes referenced MJCF bundles
 rather than only entrypoint paths, materializes immutable private copies for path-only simulator
@@ -164,7 +205,7 @@ with `dirty=false`. A second clean run reproduced the invariant hashes, gate boo
 registered metrics (excluding wall time). This satisfies the bounded foundation-freeze exit
 criterion. It does not satisfy program G0 or qualify either rollout backend.
 
-### 5. Backend-neutral verification reports
+### 7. Backend-neutral verification reports
 
 `snmr/verification.py` defines a versioned JSON contract for backend identity, motion/spec/controller
 hashes, metrics, overflow state, pass/fail, and typed frame intervals. Validation fails closed on
@@ -173,16 +214,18 @@ clip, incompatible interval coordinate systems, and overlapping intervals of the
 shared rollout-contract hash now lets paired runners establish that motion, asset bundle,
 controller, and candidate configuration are the same before comparing outcomes.
 
-### 6. Dynamics-twin, cross-solver, and G0 FK runners
+### 8. Dynamics-twin, cross-solver, and G0 FK runners
 
 The new scripts hold motion, robot kinematics, PD gains, timing, and initialization fixed while
 scaling only effort limits. MuJoCo CPU is the first implementation and Newton/MJWarp is the second
 solver. Quaternion conversion and controller hashes are explicit in their reports.
 
-The G0 harness now generates a deterministic 10,000 x 29 in-limit sample buffer and MuJoCo key-link
-FK reference, binds the G1 MJCF/URDF/USD bundles and semantic key frames, and freezes strict
-1.0 mm / 1e-3 rad maximum-error thresholds. Its PhysX side fails closed when Isaac Lab is
-unavailable or fails to return comparison poses; it does not substitute a different FK engine.
+The G0 harness generates a deterministic 10,000 x 29 in-limit sample buffer and MuJoCo key-link FK
+reference, binds the G1 MJCF/URDF/USD bundles and semantic key frames, and freezes strict 1.0 mm /
+1e-3 rad maximum-error thresholds. A parent supervisor promotes a result only after observing
+clean Isaac framework shutdown and deleting the private materialized USD bundle. The latest live
+run passes the FK subgate. A separate controller/standing audit fails closed on source, asset,
+checkpoint, or live-evidence mismatch.
 
 These components are described in the
 [MorphoRetarget foundation report](MORPHORETARGET_FOUNDATION_2026-08-30.md), with machine artifacts
@@ -259,25 +302,39 @@ The exact LORO checkpoint must be restored or the registered LORO run repeated b
 between those mechanisms. This diagnosis supports building and testing the explicit graph contract;
 it is not evidence that the new tokenizer or a future RobotSpec model solves PM01.
 
-### E. G0 10,000-pose FK parity: harness complete, gate fails closed
+### E. G0 qualification: FK passes; controller/standing contract fails
 
-The MuJoCo worker generated and reproduced a deterministic 10,000 x 29 in-limit pose buffer at seed
-0, key-link poses for pelvis, torso, head, hands, and feet, and bound MJCF, URDF, USD, sample, and
-output hashes. The registered pass thresholds remain strict maximum position error below 1.0 mm
-and orientation geodesic error below 1e-3 rad.
+The shutdown stall was localized to Isaac application teardown rather than pose acquisition. The
+worker now releases SimulationContext callbacks, closes the USD stage, journals a fail-closed
+pending result, and lets a parent process observe framework shutdown and delete the private asset
+bundle before promotion. From detached clean SNMR and Newton worktrees plus clean Isaac Lab, the
+live worker evaluated all 10,000 poses and seven registered links:
 
-The ordinary SNMR environment correctly reported Isaac Lab unavailable. An initial capped attempt
-in the Holosoma `hssim` environment initialized Isaac Sim 5.1, loaded the generated G1 USD, and
-observed 29 joints, but returned no articulation body-pose tensor. After the source freeze, the
-exact v0.2-bound asset/reference contract was retried from clean SNMR/Newton/Isaac revisions with a
-240 s cap and again stalled after the 29-joint articulation initialized. There are consequently no
-PhysX error metrics. The attempt record carries `g0_evaluated=false` and `g0_pass=false`.
+| FK measure | Observed maximum | Frozen threshold | Result |
+| --- | ---: | ---: | --- |
+| Link position L2 | 3.9321826e-6 m | < 1.0e-3 m | pass |
+| Quaternion geodesic | 3.7592296e-6 rad | < 1.0e-3 rad | pass |
 
-Assessment: the executable protocol, asset binding, sample buffer, semantic link mapping, and
-MuJoCo reference are useful completed infrastructure. G0 has **not** passed, and the timeout does
-not support any FK-parity conclusion. The next attempt must diagnose the PhysX articulation path
-and return the registered poses; offline URDF FK is not an acceptable substitute for the named
-PhysX gate.
+The pose source is live `Articulation.data.body_link_{pos,quat}_w`; no offline URDF substitute was
+used. The final report records simulation-context release, stage closure, clean framework exit,
+and private-bundle deletion. The FK artifact therefore legitimately carries
+`g0_evaluated=true/g0_pass=true` for this subgate.
+
+The separate controller/standing audit compares the exact saved PhysX and E67 MJWarp recipes,
+checkpoints, G1 URDF/MJCF/USD bundles, and current adapter sources. It records 14 hard failures and
+8 missing checks. The principal failures are:
+
+- PhysX uses action scale 1.0 while E67 uses `0.25 * effort_limit / Kp`;
+- reset/randomization contracts differ;
+- MJCF hip-roll motors clip at 88 Nm versus 139 Nm in the saved config;
+- MJCF joint friction is 0.1 Nm versus zero in the config/Isaac path;
+- the MuJoCo path writes nominal joints before `mj_resetData` with no proven post-reset write;
+- the two backends do not use one identical frozen checkpoint.
+
+Live nominal/controller snapshots, same-motion/same-seed reset evidence, training-time Holosoma/USD
+identity, and explicit MJCF velocity-limit enforcement are also missing. Assessment: **the FK
+subgate passes, but overall G0 remains false**. The exact bundle is
+[`g0_qualification_clean_f6e5ff0_v2`](../autoresearch/iterate-260901-0111/g0_qualification_clean_f6e5ff0_v2/README.md).
 
 ### F. Adjacent latent-command program: close the latent-specific seed-0 branch
 
@@ -324,13 +381,13 @@ are passed. Evidence is in `exports/sim2sim_2026-08-12/*.loopback_safety_handoff
 
 | Program gate | Status on 2026-09-01 | Evidence and missing work |
 | --- | --- | --- |
-| G0 Contract | **Not passed; fails closed** | `HumanMotionSpec`, graph/token contracts, worker byte snapshots, clean revision fields, G1 MJCF/URDF/USD bundle hashes, key-frame mappings, and the bit-reproduced deterministic 10,000-pose MuJoCo reference now exist. The clean PhysX worker returned no poses, so no cross-asset maximum errors exist and both G0 booleans are false. Controller and standing-state parity also remain. |
+| G0 Contract | **Not passed; FK subgate passed** | Live PhysX evaluates 10,000 poses with 3.93e-6 m / 3.76e-6 rad maxima and clean shutdown. The controller/standing audit has 14 hard failures and 8 missing live checks, so overall G0 remains false. |
 | G1 Amortization | **Historical evidence only** | Existing G1 SNMR imitates GMR well. The new RobotSpec-conditioned pipeline has not been integrated or tested on fixed-G1 amortization. |
-| G2 Embodiment | **Not met; token contract only** | PM01 LORO is 5.2x worse. The diagnosis rules out conditioning-insensitivity but leaves exact coverage versus semantic failure unresolved. A serialization-equivariant tokenizer and bounded variable-DoF output utility exist, but no learned RobotSpec graph encoder/conditioned decoder, coherent-variant training, strong nearest-transfer comparison, generalization staircase, or held-out T1 result exists. |
+| G2 Embodiment | **Not met; untrained architecture skeleton** | PM01 LORO is 5.2x worse. A kinematic-only tree-biased encoder/cross-attention/shared bounded head and independent semantic metric now exist and pass adversarial contract tests. No fixed-G1 training, materialized coherent-variant corpus, strong nearest-transfer comparison, generalization staircase, or held-out T1 result exists. |
 | G3 Dynamics | **Not met; torque instrumentation ready** | Torque twins and localized reports work. Broader dynamics feature/intervention coverage is untested; no model is conditioned on the new features and no simulator-derived dynamics labels or learned time-warp response exist. |
 | G4 Repair | **Not started for this pipeline** | Prior contact-projection machinery is useful infrastructure, but failure-type-specific local repair, strong-rollout validation, and repair distillation are not demonstrated. |
 | G5 Utility | **Not started** | No matched tracker-training comparison of GMR, neural, and repaired MorphoRetarget datasets exists. |
-| G6 Cross-sim | **Diagnostic pilot only** | Two endpoints agree that a bad open-loop rollout fails, and shared candidate hashes now establish input identity. Missing a frozen tracker, 20 stratified references, dynamics-twin ranking, robustness metrics, and a disagreement taxonomy. The separate PhysX FK attempt produced no comparison poses. |
+| G6 Cross-sim | **Diagnostic pilot only** | FK asset mapping now passes, but the saved controller/checkpoint contracts do not match. Missing one frozen paired tracker, 20 stratified references, dynamics-twin ranking, robustness metrics, and the disagreement taxonomy. |
 
 No core MorphoRetarget paper claim is currently established. The foundation is useful because it
 makes the next failures interpretable, not because it should be presented as learned retargeting.
@@ -347,16 +404,19 @@ makes the next failures interpretable, not because it should be presented as lea
 - Human motion now has a strict source/provenance, frame, timebase, contact, scale, validity, and
   normalized-buffer hash contract. Invalid samples are rejected before interpolation rather than
   silently entering training tensors.
-- RobotSpec can now be tensorized into padded kinematic or full variable-node batches whose
-  structural outputs are exactly inverse-permutation equivalent under tested serialization and
-  renaming interventions. This is an input/output contract result, not a learned generalization
-  result.
+- RobotSpec can now be tensorized into padded kinematic or full variable-node batches, and an
+  untrained tree-biased/cross-attention decoder preserves tested serialization and opaque-renaming
+  equivalence while responding to a kinematic counterfactual. This is architecture evidence, not a
+  learned generalization result.
+- Human-side semantic evaluation no longer uses GMR as its ruler. Its scale, root, contact,
+  correspondence, thresholds, and exact buffers are hash-bound, with per-anchor anti-collapse and
+  anti-jitter gates.
 - A standardized physical contract can expose causal dynamics interventions without identity
   fields such as names, paths, hashes, or robot IDs in the numeric model features. Resistance of a
   future learned model to family memorization remains untested.
 - Failure reports can retain frame-level evidence across simulator boundaries.
-- A 10,000-pose MuJoCo FK reference can be reproduced and asset/sample identity can be audited, but
-  PhysX parity is unknown because the comparison worker returned no poses.
+- G1 MJCF-to-live-PhysX/Isaac-USD key-link FK passes the registered 10,000-pose maximum-error gate.
+  This does not qualify the tracker because controller, reset, and checkpoint parity fail.
 - GMR is appropriate as a broad kinematic teacher but cannot supervise dynamics adaptation: its
   output does not change when only torque, mass, or latency changes.
 - This open-loop-PD setup is unqualified and non-ranking; the current plan therefore defers
@@ -366,9 +426,9 @@ makes the next failures interpretable, not because it should be presented as lea
 
 1. **Embodiment generalization:** three training robot families plus coherent variants may still be
    too narrow for a genuine T1 holdout.
-2. **Permutation and topology:** the parameter-free token/output contract passes adversarial
-   serialization and renaming tests, but no learned encoder/decoder has demonstrated the same
-   invariance or cross-topology generalization.
+2. **Permutation and topology:** the untrained learned path passes algebraic serialization and
+   renaming tests, but training can still induce family memorization and no cross-topology
+   generalization has been measured.
 3. **Dynamics supervision:** identity-free features can change without a model learning to use
    them. Labels must come from controlled candidates and qualified rollout preferences, not GMR.
 4. **Verifier bias:** tracker weakness can be mistaken for retargeter weakness unless each robot's
@@ -377,9 +437,10 @@ makes the next failures interpretable, not because it should be presented as lea
    agreement on close candidate rankings. The latter is the evidence the learning loop needs.
 6. **Semantic collapse during repair:** optimizing survival can produce conservative standing or
    low-amplitude motion unless semantic non-inferiority and refusal behavior are hard gates.
-7. **Data leakage:** asset names and serialization are excluded from the tested token contract, but
-   coherent variants and family similarity still require split-by-seed/family, renamed-asset
-   inference, and trained-model anti-memorization tests.
+7. **Data leakage and variant validity:** asset names and serialization are excluded from the model
+   path, but the current variants are virtual tokenizer probes, not simulator assets. P4 still
+   needs materialized coherent assets, split-by-seed/family, a strong semantic/path-aware nearest
+   baseline, and trained-model anti-memorization tests.
 
 ## Recommended next execution order
 
@@ -405,20 +466,21 @@ Provenance work now stops unless a later gate exposes a concrete missing identit
 
 ### P1. Complete G0 with paired asset and controller parity
 
-The canonical `HumanMotionSpec`, byte-level asset binding, key-frame mapping, registered random pose
-buffer, and MuJoCo reference are complete. Repair the live PhysX articulation path and then
-mechanically verify the exact G1 MJCF against the generated Isaac Lab URDF/USD asset:
+The canonical motion contract, byte-level asset binding, joint/key-frame mapping, and random-pose
+FK parity are complete. The remaining work is no longer an unspecified PhysX pose-path problem;
+it is a concrete controller/checkpoint contract repair:
 
-- joint names, ordering, types, axes, and limits;
-- root and key-link FK across random in-limit poses;
-- quaternion and world/body frame conventions;
-- standing state and collision geometry;
-- position-action interpretation, PD gains, effort limits, control rate, simulation rate, and
-  latency;
-- identical motion, controller, and mapping hashes in exchanged reports.
+- choose one frozen G1 tracker checkpoint and reproduce its observation normalization in both
+  backends;
+- make action scaling, action/torque clipping, PD gains, effort/velocity limits, friction, timing,
+  latency, and reset/randomization semantics identical;
+- move or prove the MuJoCo nominal-state write after `mj_resetData`;
+- capture live nominal/controller snapshots and same-motion/same-seed reset state from both
+  backends;
+- bind the exact training-time Holosoma revision and USD, or retrain under a newly frozen recipe.
 
-Exit criterion: all schema/order/frame/timing checks pass and key-link FK is within a frozen
-tolerance before any cross-backend rollout comparison.
+Exit criterion: the controller report has zero hard failures and zero missing checks. The already
+passing FK tolerance must remain frozen.
 
 ### P2-A. Parallel infrastructure track: qualify the strong verifier
 
@@ -439,16 +501,16 @@ robustness gate for later physics-label claims.
 
 ### P3-B. Parallel science track: integrate the kinematic RobotSpec model
 
-- Reuse the existing SNMR human temporal encoder and connect only the implemented kinematic token
-  subset first.
-- Add the learned topology encoder, cross-attention, and shared per-joint head on top of the tested
-  serialization-equivariant variable-node contract.
-- Generate coherent same-topology variants with family/seed-disjoint splits.
+- Connect the existing SNMR human temporal encoder and root/contact outputs to the implemented
+  kinematic-only topology encoder, cross-attention, and shared per-joint head.
+- Run the smallest fixed-G1 overfit/amortization test before increasing morphology diversity.
+- Materialize coherent same-topology MJCF/URDF/USD variants, re-hash them in each consumer, and
+  pass asset/FK checks; the current virtual probes are not training assets.
 - Retain explicit robot-ID and a strong nearest-transfer baseline--the nearest training robot's GMR
   output transferred through a declared joint/semantic mapping--so graph conditioning must earn its
   place.
-- Run adversarial renamed/reordered serialization inference on the trained model, not only the
-  tokenizer.
+- Run adversarial renamed/reordered serialization and limb-length counterfactual inference after
+  training, not only on random initialization.
 
 Exit criterion: fixed-G1 amortization is within about 5% of GMR semantic error with no increased
 violations, then the kinematic graph beats ID/strong-nearest-transfer on a held-out robot.
@@ -522,10 +584,24 @@ SNMR_G0_DIR="$(mktemp -d)"
   --num-samples 10000 --seed 0 \
   --out-npz "$SNMR_G0_DIR/reference.npz" \
   --out-json "$SNMR_G0_DIR/reference.json"
+
+/home/robotixx/.holosoma_deps/miniconda3/envs/hssim/bin/python \
+  scripts/g0_fk_parity_physx.py \
+  --reference-npz "$SNMR_G0_DIR/reference.npz" \
+  --reference-json "$SNMR_G0_DIR/reference.json" \
+  --batch-size 256 --headless \
+  --out-json "$SNMR_G0_DIR/physx.json"
+
+# Expected to exit 1 until the registered controller mismatches are repaired.
+/home/robotixx/.holosoma_deps/miniconda3/envs/hssim/bin/python \
+  scripts/g0_controller_parity.py \
+  --physx-fk-report "$SNMR_G0_DIR/physx.json" \
+  --out-json "$SNMR_G0_DIR/controller.json"
 ```
 
-The PhysX worker must be run in the Isaac/Holosoma simulator environment. Its absence or failure to
-return body poses is a recorded false gate, not a reason to run an offline substitute.
+The PhysX worker must be run in the Isaac/Holosoma simulator environment. The supervisor promotes
+the worker journal only after clean framework exit and private-bundle deletion. Its absence or
+failure remains a false gate, never a reason to run an offline substitute.
 
 The stale E80 treatment verdict was rechecked without writing artifacts:
 
@@ -551,17 +627,23 @@ Archival state:
   with `dirty=false`. The user's separate Newton working checkout remains untouched.
 - The pre-freeze torque and FK artifacts remain historical evidence. The
   `foundation_freeze_078d311/` directory supersedes their provenance and bundle-hash contracts.
-- Focused verification is 84 passed / 3 skipped. Full verification is 553 passed / 5 skipped / 27
-  pre-existing warnings under the single-thread archival command.
+- The current clean G0 qualification bundle binds SNMR `f6e5ff0...`, Newton `7bb6d02...`, and
+  Isaac Lab `3c6e67b...` with `dirty=false`; the exact Holosoma inputs are byte-hashed and its
+  checkout is honestly recorded `dirty=true` because the USD is generated/untracked.
+- The current branch adds the safe pair adapter, learned kinematic skeleton, independent semantic
+  benchmark, and virtual counterfactual probes. None has produced a trained retargeting result.
+- Full single-thread verification passes: 617 passed, 5 skipped, and 27 pre-existing warnings in
+  163.08 s.
 - No generated experiment directory was overwritten during this work.
 
 ## Bottom line
 
 The program has moved from an underspecified idea about "RL retargeting" to a sharper, falsifiable
-research program. The foundation can now represent and audit controlled physical changes and
-exchange localized evidence between solvers, canonicalize human motion, and tensorize variable
-robot graphs without serialization identity. That is real progress. The learned zero-shot
-retargeter itself, however, has not been built or evaluated under the new contract. The next
-engineering milestone is the fail-closed G0/qualified-tracker path; in parallel, the next scientific
-milestone is fixed-G1 integration followed by the small kinematic-only held-out-T1 experiment.
-Dynamics conditioning, physics preferences, and repair remain downstream of both relevant gates.
+research program. Motion, robot, provenance, semantic-evaluation, variable-DoF decoding, and live
+FK contracts now exist; the 10,000-pose cross-asset FK subgate passes. The learned zero-shot
+retargeter still has not been trained or evaluated, and the saved tracking stacks demonstrably do
+not share one controller/checkpoint contract. The next engineering milestone is repairing that
+specific G0 controller contract and qualifying the frozen tracker. In parallel, the next
+scientific milestone is fixed-G1 training of the kinematic skeleton followed by the registered
+generalization staircase and held-out T1 experiment. Dynamics conditioning, physics preferences,
+and repair remain downstream of both relevant gates.

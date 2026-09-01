@@ -1,0 +1,51 @@
+{
+  "schema_version": "snmr.g0-qualification-evidence.v0.2",
+  "overall_g0_pass": false,
+  "revisions": {
+    "snmr_commit": "f6e5ff04df8eaa82c7680888174fb9b69252b9c8",
+    "snmr_dirty": false,
+    "newton_commit": "7bb6d02d8eeab2cffc3adfa453ddd63799a2ac6a",
+    "newton_dirty": false,
+    "isaac_lab_commit": "3c6e67bb5c7ada942a6d1884ab69338f57596f77",
+    "isaac_lab_dirty": false,
+    "holosoma_commit": "20699ffa20f494b9563aa68601940c53397bf088",
+    "holosoma_dirty": true
+  },
+  "fk_subgate": {
+    "evaluated": true,
+    "passed": true,
+    "num_samples": 10000,
+    "num_joints": 29,
+    "num_links": 7,
+    "max_position_error_m": 3.932182638741046e-06,
+    "position_threshold_m": 0.001,
+    "max_orientation_geodesic_rad": 3.7592295534926906e-06,
+    "orientation_threshold_rad": 0.001,
+    "threshold_semantics": "strict_less_than",
+    "pose_source": "isaaclab.assets.Articulation.data.body_link_{pos,quat}_w",
+    "framework_shutdown_observed": true,
+    "private_bundle_cleanup_completed": true
+  },
+  "controller_standing_subgate": {
+    "evaluated": true,
+    "passed": false,
+    "hard_failure_count": 14,
+    "missing_check_count": 8,
+    "normalized_contract_sha256": "0ea995dacd96eedcace7efb2631c83054623f0e585cef91984ca5298e46f00cb"
+  },
+  "contracts": {
+    "sample_buffer_sha256": "d4bfcd88331ae33c48b3c6dbfa898ae8f062281d5c211163da05ccdb7e2162f6",
+    "sample_payload_sha256": "f5d8f88cf5a5fa493d81e11b339c75df5c0956012f91ffac4fe54f6c816d2e81",
+    "mjcf_bundle_sha256": "83f29874c0c5a2c579cd581f262c700c21f0576f33295710d216a00ade6d6ae0",
+    "urdf_bundle_sha256": "891f6f1ddf2bf6457b1c443fc7e8c4c71fd1203fd17f9ba62916f41c290eee06",
+    "usd_bundle_sha256": "c98145ca524f6a8f482d8660797f575b02f79df872f7e55ad656d712dd3944bc",
+    "physx_tracker_checkpoint_sha256": "2a2ed50e6a5ba81c9ba0fc51f0c5f4ca0e1e629e6e5001d0815d3cdee28f57e8",
+    "mujoco_checkpoint_sha256": "ec11cb2fca18bc1e522cad90c12fceb0496932802b2771c04b8209781c282193"
+  },
+  "artifacts": {
+    "g1_mujoco_reference_npz_sha256": "5c4f2448055e71a25377c8b4dafa72b20523bd957651cdc3fec0692d7e014d16",
+    "g1_mujoco_reference_json_sha256": "24e1fd8dec4bbf878acffc2f767994c7e26c500e7436c02599caf4d32c4b0416",
+    "g1_physx_report_json_sha256": "3b0ebd1981438dc11fed1bffa2c5f2ecbde4469e04c20eba56c6724a38bbd7eb",
+    "g0_controller_parity_json_sha256": "70964d80b106d971a0ba7349ca3983d3d2ebf6a84e3e0a18840eef96b6a33706"
+  }
+}
