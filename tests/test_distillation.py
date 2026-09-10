@@ -89,3 +89,90 @@ def test_command_destruction_controls_are_channel_local():
     )
     randomized = destroy_command_code(code, "marginal_random")
     assert randomized.shape == code.shape and torch.isfinite(randomized).all()
+
+
+# ---------------------------------------------------------------------------
+# Identity-channel probes for the same-phase shuffle control.
+#
+# `same_phase_shuffled_latents` maps every clip to `(destination + 1) % n`.
+# That is a derangement, as its docstring says, but it is also a DETERMINISTIC
+# BIJECTION, so the donor's identity determines the destination's identity
+# exactly: destination = (donor - 1) mod n.  The arm is therefore a
+# phase-matched, misaligned-reference control -- NOT an identity-erasing or
+# content-free null.  These tests pin that property so the distinction cannot
+# be lost again.  See docs/E70_SHUFFLE_CONTROL_AUDIT_2026-09-10.md.
+# ---------------------------------------------------------------------------
+
+
+def _identity_coded_pool(num_clips: int, length: int = 8):
+    """One clip per identity, channel 0 = clip ID, channel 1 = normalized phase."""
+    blocks, starts, ends, cursor = [], [], [], 0
+    for clip in range(num_clips):
+        phase = torch.linspace(0.0, 1.0, length).unsqueeze(1)
+        ident = torch.full((length, 1), float(clip))
+        blocks.append(torch.cat((ident, phase), dim=1))
+        starts.append(cursor)
+        ends.append(cursor + length)
+        cursor += length
+    return torch.cat(blocks), torch.tensor(starts), torch.tensor(ends), length
+
+
+@pytest.mark.parametrize("num_clips", [2, 3, 5])
+def test_same_phase_shuffle_leaks_recoverable_clip_identity(num_clips):
+    """The donor ID is a lossless code for the destination ID at every pool size.
+
+    A student that reads the identity channel can invert the fixed map, so a
+    drop in this arm's score cannot be attributed to the removal of clip
+    identity.  This is not special to the two-clip E70 pool -- adding clips does
+    not fix it, because the map stays deterministic.
+    """
+    latents, starts, ends, length = _identity_coded_pool(num_clips)
+    shuffled = same_phase_shuffled_latents(latents, starts, ends)
+
+    recovered = []
+    for destination in range(num_clips):
+        donor_id = int(round(float(shuffled[int(starts[destination]), 0])))
+        recovered.append((donor_id - 1) % num_clips)
+
+    assert recovered == list(range(num_clips)), (
+        "destination clip identity is fully recoverable from the donor channel"
+    )
+
+    # The phase channel is preserved, which is the property the arm is meant to
+    # have; it is the identity channel that also survives.
+    for destination in range(num_clips):
+        block = shuffled[int(starts[destination]) : int(ends[destination]), 1]
+        assert block[0].item() == pytest.approx(0.0)
+        assert block[-1].item() == pytest.approx(1.0)
+
+
+def test_same_phase_shuffle_is_an_involution_for_the_two_clip_e70_pool():
+    """With the E70 pool (walk1_subject1, walk1_subject5) the map is a pure swap."""
+    latents, starts, ends, _ = _identity_coded_pool(2)
+    once = same_phase_shuffled_latents(latents, starts, ends)
+    twice = same_phase_shuffled_latents(once, starts, ends)
+    assert torch.allclose(twice, latents), "n=2 cyclic shift is self-inverse"
+    # And the swap is total: neither clip keeps any of its own frames.
+    assert not torch.equal(once[: len(latents) // 2, 0], latents[: len(latents) // 2, 0])
+
+
+def test_an_identity_independent_donor_must_break_the_donor_to_target_map():
+    """Specification for the replacement control.
+
+    A donor draw that is independent of target identity cannot admit a single
+    lookup table from donor ID to destination ID.  This test states the property
+    the current control fails, so a future implementation has a target to meet.
+    """
+    num_clips = 4
+    latents, starts, ends, _ = _identity_coded_pool(num_clips)
+    fixed = same_phase_shuffled_latents(latents, starts, ends)
+
+    # Current control: exactly one donor ever appears per destination.
+    donors_per_destination = {
+        destination: {int(round(float(fixed[int(starts[destination]), 0])))}
+        for destination in range(num_clips)
+    }
+    assert all(len(d) == 1 for d in donors_per_destination.values())
+    # ...and the donor sets are disjoint, i.e. donor ID identifies destination.
+    seen = [next(iter(d)) for d in donors_per_destination.values()]
+    assert len(set(seen)) == num_clips, "donor ID is a bijective code for destination"

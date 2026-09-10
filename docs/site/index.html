@@ -355,24 +355,26 @@ footer .sha{word-break:break-all}
 <!-- ================= PROBLEM ================= -->
 <section id="problem">
   <div class="wrap rv">
-    <div class="kicker">INTERFACE OPACITY</div>
-    <h2>Everyone designs the command interface. Nobody measures it.</h2>
+    <div class="kicker">WHAT TRACKING SUCCESS DOES NOT TELL YOU</div>
+    <h2>Tracking success alone does not identify which information a learned command
+      interface supplies to the controller.</h2>
     <p class="lede">
-      2025–26 humanoid systems compress human motion into a learned command space, then describe
-      that space in words. The evidence behind the words is a t-SNE plot at best. And there is a
-      confound nobody names: <b>the time index</b>. If your command is a function of frame number
-      and your clip is memorized, a clock is a sufficient explanation of your success — no motion
-      content required.
+      Humanoid systems increasingly compress human motion into a learned command space, and the
+      natural way to validate that choice is downstream task success. But success is compatible with
+      more than one explanation. In particular there is a confound that is easy to leave untested:
+      <b>the time index</b>. If the command is a function of frame number and the clip is familiar,
+      a clock is a sufficient explanation of the score — no motion content required. That is not a
+      hypothetical: it is what happened to us, on our own latent.
     </p>
     <div class="quotes">
       <div class="q"><p>"…leaving the latent to capture mainly ambiguity and multimodality under sparse goals."</p>
-        <div class="who">ULTRA — same robot, same 64-d distilled latent</div><div class="ev">evidence: t-SNE + KMeans coloring</div></div>
+        <div class="who">ULTRA — same robot, same 64-d distilled latent</div><div class="ev">supporting evidence: t-SNE + KMeans coloring</div></div>
       <div class="q"><p>"…captures the inherent ambiguity in the mapping from observations to actions."</p>
-        <div class="who">UniTracker — CVAE command latent (RA-L 2026)</div><div class="ev">evidence: none given</div></div>
+        <div class="who">UniTracker — CVAE command latent (RA-L 2026)</div><div class="ev">no empirical validation reported</div></div>
       <div class="q"><p>"…an objective-centric, explainable, and smooth latent representation."</p>
-        <div class="who">BFM-Zero (ICLR 2026)</div><div class="ev">evidence: asserted</div></div>
-      <div class="q us"><p>We gave our own latent the first controlled measurement — and it failed the first test we built. That is why the second one is believable.</p>
-        <div class="who">SNMR — this work</div><div class="ev">E63 killed it · E70 measured it</div></div>
+        <div class="who">BFM-Zero (ICLR 2026)</div><div class="ev">stated as a design property</div></div>
+      <div class="q us"><p>We put our own latent through a controlled measurement — and it failed the first test we built. That is why we trust the second one.</p>
+        <div class="who">SNMR — this work</div><div class="ev">a clock beat it, then an ambiguity assay measured it</div></div>
     </div>
   </div>
 </section>
@@ -450,7 +452,7 @@ footer .sha{word-break:break-all}
         <div class="track"><div class="fill" data-w="75.4"></div></div><div class="val">0.754</div></div>
       <div class="arm clock"><div class="nm"><b>time index only</b>matched clock null</div>
         <div class="track"><div class="fill" data-w="56.2"></div></div><div class="val">0.562</div></div>
-      <div class="arm"><div class="nm"><b>shuffled latent</b>phase-matched null</div>
+      <div class="arm"><div class="nm"><b>shuffled latent</b>misaligned-reference control</div>
         <div class="track"><div class="fill" data-w="55.2"></div></div><div class="val">0.552</div></div>
       <div class="arm"><div class="nm"><b>proprioception only</b>no goal source</div>
         <div class="track"><div class="fill" data-w="43.7"></div></div><div class="val">0.437</div></div>
@@ -459,6 +461,15 @@ footer .sha{word-break:break-all}
         <span class="mono" style="color:var(--amber)">0.562</span> — anything below it is explained
         by the clock alone. Paired per-cluster, the latent clears it by
         <span class="hi">+0.191</span>.
+      </p>
+      <p style="margin-top:12px;font-size:13px;color:var(--ink3);border-left:2px solid var(--line2);padding-left:14px">
+        <b style="color:var(--ink2)">Which arm is the content-free null:</b> the <b>time index</b>, and only
+        it. Its code is bit-identical at equal frame indices regardless of clip, by construction and by
+        test. The <b>shuffled</b> arm is <i>not</i> identity-erasing — it hands each clip the other clip's
+        real latent at matched phase, and that mapping is invertible, so clip identity survives it. Read
+        it as a <b>misaligned-reference control</b>. Audited 2026-09-10; the measured outcome is that the
+        students did not exploit the surviving identity (0.552, at or below the identity-free clock's
+        0.562). <a href="https://github.com/linjiw/snmr/blob/main/docs/E70_SHUFFLE_CONTROL_AUDIT_2026-09-10.md">Full audit →</a>
       </p>
       <p class="src">reproducibility/reports/e70_seed0-1-2_analysis.json</p>
     </div>
@@ -483,7 +494,7 @@ footer .sha{word-break:break-all}
         <g><text x="310" y="48" text-anchor="end" class="row-label">vs time (primary)</text>
           <line class="ci ci-line" x1="553" y1="43" x2="823" y2="43" stroke="#38e1ff" stroke-width="5"/>
           <circle cx="674" cy="43" r="7" fill="#38e1ff"/><text x="850" y="48" class="row-val">+0.191 [0.124, 0.274]</text></g>
-        <g><text x="310" y="93" text-anchor="end" class="row-label">vs shuffled (primary)</text>
+        <g><text x="310" y="93" text-anchor="end" class="row-label">vs misaligned ref.</text>
           <line class="ci ci-line" x1="559" y1="88" x2="831" y2="88" stroke="#38e1ff" stroke-width="5"/>
           <circle cx="689" cy="88" r="7" fill="#38e1ff"/><text x="850" y="93" class="row-val">+0.199 [0.127, 0.279]</text></g>
         <g><text x="310" y="138" text-anchor="end" class="row-label">vs time · clip 1</text>
@@ -495,7 +506,7 @@ footer .sha{word-break:break-all}
         <g><text x="310" y="228" text-anchor="end" class="row-label">vs time · block bootstrap</text>
           <line class="ci ci-line" x1="520" y1="223" x2="834" y2="223" stroke="#6b7f95" stroke-width="3.5"/>
           <circle cx="674" cy="223" r="5" fill="#6b7f95"/><text x="850" y="228" class="row-val">+0.191 [0.106, 0.280]</text></g>
-        <g><text x="310" y="273" text-anchor="end" class="row-label">vs shuffled · block bootstrap</text>
+        <g><text x="310" y="273" text-anchor="end" class="row-label">vs misaligned · block bootstrap</text>
           <line class="ci ci-line" x1="540" y1="268" x2="837" y2="268" stroke="#6b7f95" stroke-width="3.5"/>
           <circle cx="689" cy="268" r="5" fill="#6b7f95"/><text x="850" y="273" class="row-val">+0.199 [0.116, 0.282]</text></g>
       </svg>
@@ -508,8 +519,11 @@ footer .sha{word-break:break-all}
     <p class="lede" style="margin-top:8px">
       Zero it, shuffle it, or replace it with marginal-random samples: general completion
       collapses from 0.923 to exactly <b>0.000</b> — at all three seeds, in all three destruction
-      modes, on <i>both</i> the explicit and latent arms. The interface is not decorative
-      telemetry; every bit of competence flows through it.
+      modes, on <i>both</i> the explicit and latent arms. The interface is not decorative telemetry:
+      the policy <i>relies</i> on this channel completely. Note what this does and does not show —
+      it establishes channel reliance, not that the channel's content is motion semantics. The
+      encoder also reads proprioception, so destroying its output can disturb state-dependent
+      features alongside goal information.
     </p>
     <div class="destroy-grid" id="destroygrid">
       <div class="dcell alive"><div class="dv">0.923</div><div class="dk">intact channel</div><div class="dbar"><i data-w="92.3"></i></div></div>
