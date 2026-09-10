@@ -2249,14 +2249,21 @@ same seed, evaluated through the same instrument:
   f0.5 / 0.1-0.5 s 0.267 -> 0.780  (+0.514)
   f0.5 / 0.5-1 s   0.106 -> 0.554  (+0.447)
   ambiguity f0.5 / 0.1-0.5 s  0.257 -> 0.812 (+0.556)
-Floor-relative retention flips sign at every degraded cell: the frozen arm reaches R = -0.854
-(far below the goal-blind floor -- actively harmed by its own stale channel), the masked arm stays
-POSITIVE everywhere (+0.158 to +0.982).  The registered hypothesis was R ~ 0 (graceful descent to
-the floor); the result exceeds it.  This is the largest effect in the program and it comes from one
-training-recipe change, not from any change of command representation.  It also confirms E79 from
+**[RETRACTED SAME DAY -- see `docs/E80A_MASKED_TRAINING_2026-08-17.md` Sections 3 and 3a.]** This entry
+originally read: "Floor-relative retention flips sign at every degraded cell: the frozen arm reaches
+R = -0.854 ..., the masked arm stays POSITIVE everywhere (+0.158 to +0.982)."  That retention claim
+used the wrong denominator.  Against the batch's own masked goal-blind floor (mB clean 0.660) the
+masked explicit arm's R at the severest cell is NEGATIVE (-0.218), and the frozen goal-blind arm
+spans 0.249/0.487/0.556 across seeds -- a 0.31 spread, larger than any effect being measured.
+**R is not reportable from a single seed; it needs a pooled multi-seed floor.  Only the paired delta
+column above survives unchanged, because it involves no floor at all.**  With that correction, the
+result still stands as the largest effect in the program, and it comes from one training-recipe
+change, not from any change of command representation.  It also confirms E79 from
 the other side: no deployment-side fill rescued a frozen policy, while training with the dropout
-present fixes it using the naive hold fill.  Single seed; seeds 1-2 and the remaining arms queued.
-Open attribution: masking vs the flag bits, closed by the queued mEnf arm (masked, flag_dim=0).
+present fixes it using the naive hold fill.  Single seed; seeds 1-2 remain unrun and there is no CI on +0.447.
+Open attribution CLOSED: the mEnf arm (masked, flag_dim=0) ran and is equal or better than mE under
+dropout (0.724 vs 0.670 at f0.3/0.5-1 s; 0.606 vs 0.554 at f0.5/0.5-1 s), so the validity flag bits
+are NOT the mechanism -- the masking is.
 Doc: `docs/E80A_MASKED_TRAINING_2026-08-17.md`.
 
 **Superseding update (2026-09-01).** The `mZf` seed-0 treatment subsequently completed. Its maximum

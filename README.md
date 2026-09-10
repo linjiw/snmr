@@ -83,7 +83,8 @@ and hardware boundaries are recorded in `docs/E70_VIDEO_PROTOCOL.md` and
 ### RobotSpec-conditioned physics pilot
 
 The MorphoRetarget foundation is implemented without changing legacy checkpoint inputs. A controlled
-G1 torque-twin experiment passes all six RobotSpec gates, but also falsifies open-loop PD replay as a
+G1 torque-twin experiment passes all six of that pilot's RobotSpec *contract checks* (these are not the
+seven G0--G6 program gates; see the status note below), but also falsifies open-loop PD replay as a
 candidate-ranking/RL reward: MuJoCo CPU and Newton/MJWarp agree that the clip fails, while rollout
 saturation is not monotonic with motor strength. The retained design uses a frozen closed-loop
 tracker in PhysX as the primary strong verifier and Newton/MJWarp as an independent second solver.
@@ -91,6 +92,21 @@ See [`docs/MORPHORETARGET_FOUNDATION_2026-08-30.md`](docs/MORPHORETARGET_FOUNDAT
 for the original pilot and
 [`docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET.md`](docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET.md)
 for the frozen status, PM01 diagnosis, clean provenance bundle, and explicit G0 failure boundary.
+
+> **Program status (iteration 2, 2026-09-01): FAILED — `STOP_A1_AND_A2`.** All seven program gates
+> G0--G6 are **not met**. The fixed-G1 amortization screen stopped after five successive corrective
+> runs, and the held-out-morphology experiment (A2) was blocked before generating any data, so
+> **there is no learned zero-shot retargeting result of any kind** — G2 is not met and not partial.
+> The cross-backend controller audit stands at 42 pass / 14 fail / 8 missing, with PhysX adopted as
+> the sole primary verifier by an explicit scope decision rather than a parity result. The Booster T1
+> tracker **completed** training on 2026-09-02 but is **not qualified**: no rollout has been run
+> against it and no qualification floor was ever registered. Full record:
+> [`docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET_ITERATION2.md`](docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET_ITERATION2.md).
+>
+> One measured finding did come out of that failure: the registered stop threshold is
+> **mis-specified**. Scored on the same 13 validation clips with the same ruler, the GMR teacher
+> accumulates 35 fidelity violations across 11/13 clips and reaches amplitude ratio 1.598 — above the
+> 1.50 bound that stopped its own student at 1.510, which recorded 6 violations across 4/13 clips.
 
 ### Root-pose parametrisation (hard-won lesson)
 
@@ -111,7 +127,7 @@ dataset training.
 
 ```bash
 # create env (torch CPU + mujoco), then:
-python -m pytest -q                       # 28 tests, ~4min on CPU
+python -m pytest -q                       # 875 tests across 106 files
 python scripts/overfit_batch.py --steps 800   # end-to-end demonstration
 ```
 
@@ -153,9 +169,9 @@ implementation; the other — silently dropping slide/ball joints instead of rai
 - **The Holosoma latent-command instrument is implemented and validated on MuJoCo/Warp.** On the
   single cyclic clip, the explicit 64-d interface matches its evaluated teacher, while an absolute
   time-index control outperforms the frozen SNMR latent; see `paper/main.tex`. In the frozen E70
-  two-walk assay, the seed-0 explicit control passes and SNMR exceeds time by +0.154 completion
-  (69-cluster 95% CI [0.093, 0.215]) and matched-phase shuffled SNMR by +0.187
-  ([0.137, 0.236]); seeds 1 and 2 are the predeclared confirmation runs. Shared multi-robot control
+  two-walk assay, the frozen three-seed result is SNMR over time by +0.191 completion
+  (69-cluster 95% CI [0.124, 0.274]) and over matched-phase shuffled SNMR by +0.199
+  ([0.127, 0.279]), positive on each clip and at each training seed. Shared multi-robot control
   and RL-to-retargeter feedback remain proposed extensions.
 
 ## Conventions (fixed package-wide)
