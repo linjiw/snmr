@@ -163,10 +163,14 @@
     any source effect.</figcaption>
   </figure>
   <div class="note"><strong>Scope, honestly.</strong> Single clip (walk1), single robot (G1),
-  simulation only, both sources trained under the identical stack. The claim this supports:
-  <em>neural retargeting through a shared latent does not degrade downstream trackability
-  relative to its IK teacher</em> — not that it improves it. Multi-clip trackability is
-  running now (E53).</div>
+  simulation only, both sources trained under the identical stack. And this is a <em>power</em>
+  result, not an equivalence one: the registered verdict was
+  <code>noninferiority_not_established</code>, missing by 0.83&nbsp;pp of CI width. More rollouts
+  will not close it, because the dominant variance term is between-policy. So the honest reading is
+  <em>no measured difference was detected</em> — not that neural retargeting matches, and certainly
+  not that it improves, downstream trackability. <strong>Update 2026-09-10:</strong> the multi-clip
+  trackability follow-up (E53) is <em>not</em> running — it was attempted three times and failed its
+  registered gate each time (0.378 / 0.465 / 0.478 against a 0.6 floor).</div>
 </section>
 
 <!-- ================= method notes ================= -->

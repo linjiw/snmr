@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SNMR — Measuring the Humanoid Command Interface</title>
-<meta name="description" content="An exclusive retarget-to-track interface makes latent content measurable. Preregistered two-walk ambiguity assay on Unitree G1: +0.191 [0.124, 0.274] beyond a matched clock.">
+<meta name="description" content="A preregistered instrument for measuring what a learned humanoid command channel carries, and a RobotSpec-conditioned retargeter designed to be measured the same way. Positive, negative, and unfinished results — each one labeled.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
 <style>
 :root{
@@ -17,10 +17,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{
-  background:var(--bg);color:var(--ink);font-family:var(--sans);
-  font-size:16px;line-height:1.65;overflow-x:hidden;
-}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65;overflow-x:hidden}
 body::before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:linear-gradient(rgba(56,225,255,.028) 1px,transparent 1px),
@@ -31,103 +28,107 @@ a{color:var(--cyan);text-decoration:none}
 a:hover{text-decoration:underline}
 .wrap{max-width:1180px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
 .mono{font-family:var(--mono)}
+img{max-width:100%}
 
 /* ---------- nav ---------- */
-nav{
-  position:sticky;top:0;z-index:50;background:rgba(6,8,12,.82);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--line);
-}
+nav{position:sticky;top:0;z-index:50;background:rgba(6,8,12,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 nav .wrap{display:flex;align-items:center;gap:22px;height:54px}
 nav .logo{font-family:var(--mono);font-weight:700;color:var(--ink);letter-spacing:.08em}
 nav .logo b{color:var(--cyan)}
-nav .links{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}
-nav .links a{color:var(--ink2);font-size:13px;font-family:var(--mono);letter-spacing:.04em}
+nav .links{display:flex;gap:16px;margin-left:auto;flex-wrap:wrap}
+nav .links a{color:var(--ink2);font-size:12.5px;font-family:var(--mono);letter-spacing:.04em}
 nav .links a:hover{color:var(--cyan);text-decoration:none}
+nav .logo .full{display:inline}
+@media(max-width:900px){
+  nav .wrap{height:auto;min-height:54px;padding-top:9px;padding-bottom:9px;gap:12px}
+  nav .logo .full{display:none}
+  nav .links{gap:12px}
+  nav .links a{font-size:11.5px}
+}
+
+/* ---------- claim-class badges ---------- */
+.cl{
+  display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.09em;padding:3px 9px;border-radius:3px;border:1px solid;white-space:nowrap;
+  vertical-align:middle;text-transform:uppercase;font-weight:600;
+}
+.cl::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.cl.a{color:var(--green);border-color:rgba(61,220,151,.45);background:rgba(61,220,151,.07)}
+.cl.a1{color:var(--green);border-color:rgba(61,220,151,.35);background:transparent}
+.cl.a1::before{background:transparent;box-shadow:inset 0 0 0 1.5px currentColor}
+.cl.b{color:var(--red);border-color:rgba(255,93,93,.45);background:rgba(255,93,93,.07)}
+.cl.c{color:#7fb0ff;border-color:rgba(59,130,246,.5);background:rgba(59,130,246,.09)}
+.cl.d{color:var(--amber);border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.07)}
+.cl.big{font-size:12px;padding:5px 13px;letter-spacing:.12em}
+
+/* legend */
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding:16px;border:1px solid var(--line);
+  border-radius:8px;background:var(--panel);align-items:center}
+.legend .lg{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink3)}
 
 /* ---------- hero ---------- */
-header{position:relative;padding:72px 0 40px;overflow:hidden}
-.scanline{
-  position:absolute;left:0;right:0;height:120px;top:-120px;pointer-events:none;z-index:0;
-  background:linear-gradient(180deg,transparent,rgba(56,225,255,.05),transparent);
-  animation:scan 7s linear infinite;
-}
-@keyframes scan{0%{top:-120px}100%{top:110%}}
-.status-chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
-.chip{
-  font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;padding:5px 12px;
-  border:1px solid var(--line2);border-radius:3px;color:var(--ink2);background:var(--panel);
-}
+header{position:relative;padding:66px 0 40px;overflow:hidden}
+.status-chips{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:22px}
+.chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;padding:5px 12px;
+  border:1px solid var(--line2);border-radius:3px;color:var(--ink2);background:var(--panel)}
 .chip.green{color:var(--green);border-color:rgba(61,220,151,.4)}
 .chip.cyan{color:var(--cyan);border-color:rgba(56,225,255,.4)}
 .chip.amber{color:var(--amber);border-color:rgba(251,191,36,.4)}
-h1{
-  font-size:clamp(28px,4.6vw,52px);line-height:1.12;font-weight:800;letter-spacing:-.015em;
-  max-width:940px;
-}
+.chip.red{color:var(--red);border-color:rgba(255,93,93,.4)}
+h1{font-size:clamp(30px,5vw,56px);line-height:1.1;font-weight:800;letter-spacing:-.02em;max-width:940px}
 h1 .hl{color:var(--cyan)}
-.sub{color:var(--ink2);max-width:820px;margin-top:18px;font-size:17.5px}
-.sub .mono{color:var(--cyan);font-size:15.5px}
-.cta{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
-.btn{
-  font-family:var(--mono);font-size:13.5px;letter-spacing:.05em;padding:11px 20px;
+.sub{color:var(--ink2);max-width:840px;margin-top:20px;font-size:17.5px}
+.cta{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-size:13px;letter-spacing:.05em;padding:11px 19px;
   border:1px solid var(--line2);border-radius:4px;color:var(--ink);background:var(--panel);
-  transition:border-color .2s,transform .2s;
-}
+  transition:border-color .2s,transform .2s}
 .btn:hover{border-color:var(--cyan);text-decoration:none;transform:translateY(-1px)}
 .btn.primary{background:linear-gradient(135deg,rgba(56,225,255,.14),rgba(59,130,246,.14));border-color:rgba(56,225,255,.5)}
 
 /* pipeline canvas */
-.pipeline{
-  margin-top:46px;border:1px solid var(--line);border-radius:8px;background:var(--bg2);
-  position:relative;overflow:hidden;
-}
+.pipeline{margin-top:44px;border:1px solid var(--line);border-radius:8px;background:var(--bg2);position:relative;overflow:hidden}
 .pipeline canvas{display:block;width:100%;height:auto}
 .pipeline .corner{position:absolute;width:14px;height:14px;border-color:var(--cyan);border-style:solid;opacity:.7}
 .corner.tl{top:-1px;left:-1px;border-width:2px 0 0 2px}
 .corner.tr{top:-1px;right:-1px;border-width:2px 2px 0 0}
 .corner.bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
 .corner.br{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
-.pipeline .cap{
-  position:absolute;top:10px;left:14px;font-family:var(--mono);font-size:11px;color:var(--ink3);
-}
+.pipeline .cap{position:absolute;top:10px;left:14px;font-family:var(--mono);font-size:11px;color:var(--ink3)}
 
 /* stat strip */
-.strip{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
-  background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;
-  margin:40px 0 0;
-}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:40px 0 0}
 .stat{background:var(--panel);padding:18px 16px}
-.stat .v{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--cyan)}
+.stat .v{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--cyan);line-height:1.2}
 .stat .v.green{color:var(--green)} .stat .v.red{color:var(--red)} .stat .v.amber{color:var(--amber)}
-.stat .k{font-size:12px;color:var(--ink3);margin-top:4px;letter-spacing:.03em}
+.stat .k{font-size:12px;color:var(--ink3);margin-top:6px;letter-spacing:.02em;line-height:1.5}
+.stat .cl{margin-top:9px}
 
 /* ---------- sections ---------- */
-section{padding:76px 0 8px}
+section{padding:74px 0 8px}
 .kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.22em;color:var(--cyan);margin-bottom:12px}
 .kicker::before{content:"// "}
-h2{font-size:clamp(22px,3vw,34px);font-weight:750;letter-spacing:-.01em;max-width:900px}
-.lede{color:var(--ink2);max-width:860px;margin-top:14px;font-size:16.5px}
-.panel{
-  background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:26px;
-  margin-top:26px;position:relative;
-}
+h2{font-size:clamp(22px,3vw,34px);font-weight:750;letter-spacing:-.012em;max-width:900px}
+h3{font-size:18px;font-weight:700;margin-top:6px}
+.lede{color:var(--ink2);max-width:870px;margin-top:14px;font-size:16.5px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:26px;margin-top:26px;position:relative}
 .panel2{background:var(--panel2)}
+.panel.warn{border-color:rgba(255,93,93,.45);background:linear-gradient(180deg,rgba(255,93,93,.05),transparent)}
+.panel.good{border-color:rgba(61,220,151,.4);background:linear-gradient(180deg,rgba(61,220,151,.05),transparent)}
+.panel.note{border-color:rgba(251,191,36,.4);background:linear-gradient(180deg,rgba(251,191,36,.05),transparent)}
+.panel h3{margin-bottom:10px}
+.panel p+p{margin-top:12px}
+.src{font-family:var(--mono);font-size:11.5px;color:var(--ink3);margin-top:12px}
+.src::before{content:"src: "}
 
-/* reveal animation */
-.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+/* reveal */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
 .rv.on{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){
-  .rv{opacity:1;transform:none;transition:none}
-  .scanline{display:none}
-}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
 
 /* quote cards */
 .quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:26px}
-.q{
-  background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
-  border-radius:6px;padding:18px;
-}
+.q{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:6px;padding:18px}
 .q p{font-size:14.5px;color:var(--ink2);font-style:italic}
 .q .who{font-family:var(--mono);font-size:12px;color:var(--ink3);margin-top:10px}
 .q .ev{font-family:var(--mono);font-size:11.5px;color:var(--amber);margin-top:4px}
@@ -135,30 +136,19 @@ h2{font-size:clamp(22px,3vw,34px);font-weight:750;letter-spacing:-.01em;max-widt
 .q.us p{color:var(--ink);font-style:normal;font-weight:600}
 .q.us .ev{color:var(--cyan)}
 
-/* five arm bars */
-.arm{display:grid;grid-template-columns:minmax(170px,240px) 1fr 74px;gap:14px;align-items:center;margin:15px 0}
-.arm .nm{font-size:14px;color:var(--ink2);text-align:right}
+/* arms */
+.arm{display:grid;grid-template-columns:minmax(150px,230px) 1fr 66px;gap:14px;align-items:center;margin:15px 0}
+.arm .nm{font-size:13.5px;color:var(--ink2);text-align:right}
 .arm .nm b{color:var(--ink);display:block;font-size:14.5px}
 .arm .track{height:26px;background:#0a0f16;border:1px solid var(--line);border-radius:4px;overflow:hidden;position:relative}
-.arm .fill{
-  height:100%;width:0;border-radius:3px 0 0 3px;
-  transition:width 1.2s cubic-bezier(.2,.7,.2,1);
-  background:linear-gradient(90deg,#243447,#3a5068);
-}
+.arm .fill{height:100%;width:0;border-radius:3px 0 0 3px;transition:width 1.2s cubic-bezier(.2,.7,.2,1);
+  background:linear-gradient(90deg,#243447,#3a5068)}
 .arm.snmr .fill{background:linear-gradient(90deg,#0e7490,var(--cyan));box-shadow:0 0 18px rgba(56,225,255,.35)}
 .arm.expl .fill{background:linear-gradient(90deg,#334155,#64748b)}
+.arm.clock .fill{background:linear-gradient(90deg,#78500a,var(--amber))}
 .arm .val{font-family:var(--mono);font-size:15px;color:var(--ink);font-weight:700}
-.clockline{position:relative;height:0}
-.clockline .rule{
-  position:absolute;top:-232px;bottom:8px;left:0;border-left:2px dashed rgba(251,191,36,.55);
-  height:246px;
-}
-.clockline .lbl{
-  position:absolute;top:14px;transform:translateX(-50%);font-family:var(--mono);
-  font-size:11px;color:var(--amber);white-space:nowrap;
-}
 
-/* forest plot svg */
+/* forest */
 .forest{width:100%;height:auto;display:block;margin-top:8px}
 .forest .row-label{font-family:var(--mono);font-size:12.5px;fill:var(--ink2)}
 .forest .row-val{font-family:var(--mono);font-size:12.5px;fill:var(--ink)}
@@ -177,105 +167,148 @@ h2{font-size:clamp(22px,3vw,34px);font-weight:750;letter-spacing:-.01em;max-widt
 .dbar i{display:block;height:100%;background:var(--green);width:0;transition:width 1.1s ease .2s}
 .dcell.dead .dbar i{background:var(--red)}
 
-/* videos */
-.vidgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:26px}
+/* video */
+.hero-vid{margin-top:26px;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:#000;position:relative}
+.hero-vid video{width:100%;display:block;background:#000}
+.storyboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-top:none;border-radius:0 0 10px 10px;overflow:hidden}
+.sb{background:var(--panel);padding:12px 14px}
+.sb .t{font-family:var(--mono);font-size:12px;color:var(--cyan);font-weight:700}
+.sb .d{font-size:12px;color:var(--ink3);margin-top:3px;line-height:1.45}
+.vidgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-top:24px}
 .vid{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .vid video{width:100%;display:block;background:#000}
-.vid .vc{padding:13px 16px;font-size:13px;color:var(--ink2)}
-.vid .vc b{color:var(--ink);font-family:var(--mono);font-size:12.5px;display:block;margin-bottom:3px;letter-spacing:.03em}
-.vid .badge{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:3px;margin-left:6px}
+.vid .vc{padding:13px 15px;font-size:12.5px;color:var(--ink2);line-height:1.5}
+.vid .vc b{color:var(--ink);font-family:var(--mono);font-size:12px;display:block;margin-bottom:4px;letter-spacing:.03em}
+.badge{font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:3px;margin-left:6px}
 .badge.pass{color:var(--green);border:1px solid rgba(61,220,151,.4)}
 .badge.warn{color:var(--amber);border:1px solid rgba(251,191,36,.4)}
+.figbox{margin-top:26px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.figbox img{display:block;width:100%}
+.figcap{padding:13px 16px;font-size:12.5px;color:var(--ink3)}
 
-/* comparison table */
-table{width:100%;border-collapse:collapse;margin-top:24px;font-size:14px}
-th{
-  font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink3);
-  text-align:left;padding:10px 12px;border-bottom:1px solid var(--line2);text-transform:uppercase;
-}
-td{padding:12px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+/* tables */
+table{width:100%;border-collapse:collapse;margin:0;font-size:14px}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);text-align:left;
+  padding:10px 12px;border-bottom:1px solid var(--line2);text-transform:uppercase;white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
 td b{color:var(--ink)}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
 tr.us td{background:linear-gradient(90deg,rgba(56,225,255,.07),transparent);color:var(--ink)}
 tr.us td:first-child{border-left:3px solid var(--cyan)}
-.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin-top:26px}
-.tbl-wrap table{margin-top:0}
-.no{color:var(--red);font-family:var(--mono)}
-.yes{color:var(--green);font-family:var(--mono)}
-.meh{color:var(--amber);font-family:var(--mono)}
+tr.bad td{background:linear-gradient(90deg,rgba(255,93,93,.06),transparent)}
+tr.good td{background:linear-gradient(90deg,rgba(61,220,151,.06),transparent)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin-top:24px}
+.hi{color:var(--cyan);font-family:var(--mono)}
+.hi.r{color:var(--red)} .hi.g{color:var(--green)} .hi.a{color:var(--amber)}
+
+/* architecture diagram */
+.arch{margin-top:26px;border:1px solid var(--line);border-radius:8px;background:var(--bg2);padding:22px 18px;overflow-x:auto}
+.arch svg{display:block;min-width:820px;width:100%;height:auto}
+
+/* ladder */
+.ladder{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:24px}
+.rung{background:var(--panel);padding:18px 20px;display:grid;grid-template-columns:74px 1fr auto;gap:16px;align-items:start}
+.rung .lv{font-family:var(--mono);font-size:15px;font-weight:800;color:var(--cyan)}
+.rung .bd h4{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.rung .bd p{font-size:13.5px;color:var(--ink2);line-height:1.55}
+.rung .st{justify-self:end}
+@media(max-width:640px){.rung{grid-template-columns:1fr;gap:8px}.rung .st{justify-self:start}}
+
+/* gates */
+.gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:24px}
+.gate{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:15px;border-top:3px solid var(--red)}
+.gate.amber{border-top-color:var(--amber)}
+.gate.slate{border-top-color:var(--ink3)}
+.gate .gn{font-family:var(--mono);font-size:12px;color:var(--ink);font-weight:700}
+.gate .gs{font-family:var(--mono);font-size:11px;margin-top:6px;color:var(--red);text-transform:uppercase;letter-spacing:.06em}
+.gate.amber .gs{color:var(--amber)} .gate.slate .gs{color:var(--ink3)}
+.gate .gd{font-size:12px;color:var(--ink3);margin-top:8px;line-height:1.5}
 
 /* ledger */
-.ledger .l{
-  display:grid;grid-template-columns:110px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);
-}
-.ledger .tag{font-family:var(--mono);font-size:12px;color:var(--red);letter-spacing:.05em;padding-top:2px}
-.ledger .tag.win{color:var(--green)}
-.ledger .tag.fix{color:var(--amber)}
-.ledger p{font-size:14.5px;color:var(--ink2)}
-.ledger p b{color:var(--ink)}
+.ledger{padding:8px 0}
+.ledger .l{display:grid;grid-template-columns:112px 1fr;gap:16px;padding:15px 18px;border-bottom:1px solid var(--line);align-items:start}
+.ledger .l:last-child{border-bottom:none}
+.ledger .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;color:var(--red);
+  border:1px solid rgba(255,93,93,.4);border-radius:3px;padding:3px 0;text-align:center;background:rgba(255,93,93,.06)}
+.ledger .tag.win{color:var(--green);border-color:rgba(61,220,151,.4);background:rgba(61,220,151,.06)}
+.ledger .tag.fix{color:var(--amber);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.06)}
+.ledger .l p{font-size:13.5px;color:var(--ink2);line-height:1.6}
+.ledger .l p b{color:var(--ink)}
+@media(max-width:640px){.ledger .l{grid-template-columns:1fr;gap:8px}.ledger .tag{justify-self:start;padding:3px 12px}}
 
 /* roadmap */
-.road{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:26px}
-.rd{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px}
-.rd .st{font-family:var(--mono);font-size:11px;letter-spacing:.12em;margin-bottom:10px}
-.rd .st.done{color:var(--green)} .rd .st.live{color:var(--cyan)} .rd .st.next{color:var(--amber)}
-.rd h4{font-size:15.5px;margin-bottom:6px}
-.rd p{font-size:13.5px;color:var(--ink2)}
+.road{display:grid;gap:12px;margin-top:24px}
+.rd{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:17px 20px;
+  display:grid;grid-template-columns:34px 1fr 190px;gap:16px;align-items:start;border-left:3px solid var(--ink3)}
+.rd.next{border-left-color:var(--cyan)} .rd.blocked{border-left-color:var(--red)}
+.rd.done{border-left-color:var(--green)} .rd.crit{border-left-color:var(--amber)}
+.rd .no{font-family:var(--mono);font-size:17px;font-weight:800;color:var(--ink3)}
+.rd.next .no{color:var(--cyan)} .rd.blocked .no{color:var(--red)} .rd.crit .no{color:var(--amber)}
+.rd h4{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.rd p{font-size:13px;color:var(--ink2);line-height:1.55}
+.rd .meta{font-family:var(--mono);font-size:11.5px;color:var(--ink3);text-align:right;line-height:1.7}
+.rd .meta .s{display:block;font-weight:700;letter-spacing:.07em}
+.rd.next .meta .s{color:var(--cyan)} .rd.blocked .meta .s{color:var(--red)}
+.rd.crit .meta .s{color:var(--amber)} .rd.done .meta .s{color:var(--green)}
+@media(max-width:760px){.rd{grid-template-columns:28px 1fr;gap:12px}.rd .meta{grid-column:1/-1;text-align:left;margin-top:6px}}
 
-/* figure */
-.figbox{margin-top:26px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
-.figbox img{width:100%;display:block}
-.figcap{font-size:13px;color:var(--ink3);padding:12px 16px;background:var(--panel)}
+/* not-claiming list */
+.nolist{margin-top:24px;border:1px solid rgba(255,93,93,.35);border-radius:8px;background:linear-gradient(180deg,rgba(255,93,93,.045),transparent);padding:8px 0}
+.nolist li{list-style:none;padding:13px 22px;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink2);line-height:1.6}
+.nolist li:last-child{border-bottom:none}
+.nolist li b{color:var(--ink)}
+.nolist li::before{content:"✕";color:var(--red);font-family:var(--mono);margin-right:11px;font-weight:700}
 
-footer{
-  margin-top:90px;border-top:1px solid var(--line);padding:34px 0 46px;
-  color:var(--ink3);font-size:13px;font-family:var(--mono);
-}
+footer{margin-top:80px;border-top:1px solid var(--line);padding:30px 0 60px;color:var(--ink3);font-size:12.5px;line-height:1.9}
 footer a{color:var(--ink2)}
-.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);
-  animation:pulse 2s ease infinite;margin-right:7px;vertical-align:1px}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+footer .sha{word-break:break-all}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="wrap">
-    <span class="logo"><b>SNMR</b>//E70</span>
-    <div class="links">
-      <a href="#problem">PROBLEM</a>
+    <span class="logo"><b>SNMR</b><span class="full"> · shared neural motion retargeting</span></span>
+    <span class="links">
+      <a href="#demo">DEMO</a>
       <a href="#instrument">INSTRUMENT</a>
-      <a href="#results">RESULTS</a>
-      <a href="#causal">CAUSAL</a>
-      <a href="#deploy">SIM2SIM</a>
-      <a href="#compare">VS&nbsp;FIELD</a>
+      <a href="#method">METHOD</a>
+      <a href="#morpho">RESULTS</a>
       <a href="#ledger">LEDGER</a>
-      <a href="#bench">BENCHMARK</a>
-    </div>
+      <a href="#remains">WHAT REMAINS</a>
+      <a href="https://github.com/linjiw/snmr">GITHUB</a>
+    </span>
   </div>
 </nav>
 
 <header>
-  <div class="scanline"></div>
   <div class="wrap">
     <div class="status-chips">
-      <span class="chip green"><span class="pulse"></span>E70 CLOSED · POSITIVE AT 3 SEEDS</span>
       <span class="chip cyan">PREREGISTERED · FAIL-CLOSED</span>
-      <span class="chip cyan">SIM2SIM DEPLOY-QUALIFIED</span>
+      <span class="chip cyan">74 OF 81 SLOTS EXECUTED</span>
+      <span class="chip red">44 NEGATIVE · ALL KEPT</span>
       <span class="chip amber">ICRA 2027 SUBMISSION TRACK</span>
     </div>
-    <h1>Every humanoid stack routes control through a learned bottleneck.<br>
-    <span class="hl">We built the instrument that measures what crosses it.</span></h1>
+
+    <h1>A clock can track.<br>
+    <span class="hl">So tracking success cannot tell you what a command carries.</span></h1>
+
     <p class="sub">
-      A frozen 64-d retarget-to-track command latent on Unitree&nbsp;G1, measured with an exclusivity
-      contract, matched nulls, a ceiling control, and causal channel destruction. Verdict:
-      <span class="mono">+0.191&nbsp;[0.124,&nbsp;0.274]</span> of ambiguity-resolving completion
-      beyond a matched clock — content no capability score could attribute, erased to
-      <span class="mono">0.000</span> when the channel is destroyed.
+      Every humanoid stack routes control through a learned bottleneck, and the field describes
+      those bottlenecks in words. We built the instrument that measures one — and it began by
+      retiring our own favorite claim. A content-free clock beat our learned latent
+      <span class="mono">0.754</span> to <span class="mono">0.656</span>. Only under genuine
+      reference ambiguity does the latent clear its strongest null, by
+      <span class="mono">+0.191&nbsp;[0.124,&nbsp;0.274]</span>.
     </p>
+
     <div class="cta">
-      <a class="btn primary" href="paper_draft.pdf">READ THE PAPER ▸</a>
-      <a class="btn" href="#deploy">WATCH IT WALK ▸</a>
-      <a class="btn" href="https://github.com/linjiw/snmr">SOURCE + PROVENANCE ▸</a>
+      <a class="btn primary" href="#demo">WATCH THE 70-SECOND VIDEO ▸</a>
+      <a class="btn" href="#method">THE PROPOSED METHOD ▸</a>
+      <a class="btn" href="#remains">WHAT REMAINS ▸</a>
+      <a class="btn" href="paper_draft.pdf">PAPER DRAFT (PDF) ▸</a>
+      <a class="btn" href="https://github.com/linjiw/snmr">SOURCE ▸</a>
     </div>
 
     <div class="pipeline">
@@ -286,12 +319,35 @@ footer a{color:var(--ink2)}
     </div>
 
     <div class="strip">
-      <div class="stat"><div class="v" data-count="0.191" data-dec="3" data-plus="1">+0.000</div><div class="k">content-over-clock margin (95% CI excludes 0)</div></div>
-      <div class="stat"><div class="v" data-count="0.199" data-dec="3" data-plus="1">+0.000</div><div class="k">content-over-shuffle margin (95% CI excludes 0)</div></div>
-      <div class="stat"><div class="v red" data-count="0.000" data-dec="3">0.000</div><div class="k">completion after channel destruction (3 seeds × 3 modes)</div></div>
-      <div class="stat"><div class="v green" data-count="0.923" data-dec="3">0.000</div><div class="k">explicit student ≈ teacher 0.917 — interface costs nothing</div></div>
-      <div class="stat"><div class="v" data-count="69" data-dec="0">0</div><div class="k">paired ambiguous starts × 3 training seeds</div></div>
-      <div class="stat"><div class="v" data-count="70" data-dec="0">0</div><div class="k">experiments logged E01–E70, every negative kept</div></div>
+      <div class="stat">
+        <div class="v" data-count="0.191" data-dec="3" data-plus="1">+0.000</div>
+        <div class="k">content beyond the strongest matched null, 95% CI [0.124, 0.274]</div>
+        <span class="cl a">measured · closed</span>
+      </div>
+      <div class="stat">
+        <div class="v amber" data-count="0.754" data-dec="3">0.000</div>
+        <div class="k">completion a <b>content-free clock</b> reaches — vs 0.656 for the frozen latent</div>
+        <span class="cl b">negative · kept</span>
+      </div>
+      <div class="stat">
+        <div class="v red" data-count="0.000" data-dec="3">0.000</div>
+        <div class="k">completion after causal command destruction, all 9 cells</div>
+        <span class="cl a">measured · closed</span>
+      </div>
+      <div class="stat">
+        <div class="v green" data-count="3.66" data-dec="2" data-suffix=" cm">0.00 cm</div>
+        <div class="k">held-out G1 retargeting MPJPE, CI [3.46, 3.86] · 671 fps CPU</div>
+        <span class="cl a">measured · closed</span>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span style="font-family:var(--mono);font-size:11.5px;color:var(--ink3);letter-spacing:.1em">EVERY NUMBER ON THIS PAGE CARRIES ONE OF THESE:</span>
+      <span class="lg"><span class="cl a">measured · closed</span></span>
+      <span class="lg"><span class="cl a1">measured · single seed</span></span>
+      <span class="lg"><span class="cl b">negative · kept</span></span>
+      <span class="lg"><span class="cl c">proposed · no result</span></span>
+      <span class="lg"><span class="cl d">in progress · not qualified</span></span>
     </div>
   </div>
 </header>
@@ -300,12 +356,13 @@ footer a{color:var(--ink2)}
 <section id="problem">
   <div class="wrap rv">
     <div class="kicker">INTERFACE OPACITY</div>
-    <h2>The field asserts what its command latents carry. Nobody measures it.</h2>
+    <h2>Everyone designs the command interface. Nobody measures it.</h2>
     <p class="lede">
-      2025–26 humanoid systems compress human motion into learned command interfaces — then
-      describe those interfaces in words. The evidence behind the words is a t-SNE plot at best.
-      A tracking score cannot tell you <i>why</i> the robot tracked: because the command carried
-      the motion — or because the command is a legible clock and the clip was memorized.
+      2025–26 humanoid systems compress human motion into a learned command space, then describe
+      that space in words. The evidence behind the words is a t-SNE plot at best. And there is a
+      confound nobody names: <b>the time index</b>. If your command is a function of frame number
+      and your clip is memorized, a clock is a sufficient explanation of your success — no motion
+      content required.
     </p>
     <div class="quotes">
       <div class="q"><p>"…leaving the latent to capture mainly ambiguity and multimodality under sparse goals."</p>
@@ -314,9 +371,62 @@ footer a{color:var(--ink2)}
         <div class="who">UniTracker — CVAE command latent (RA-L 2026)</div><div class="ev">evidence: none given</div></div>
       <div class="q"><p>"…an objective-centric, explainable, and smooth latent representation."</p>
         <div class="who">BFM-Zero (ICLR 2026)</div><div class="ev">evidence: asserted</div></div>
-      <div class="q us"><p>We give these assertions their first controlled measurement — matched nulls, ceiling control, causal destruction, preregistered gates.</p>
-        <div class="who">SNMR / E70 — this work</div><div class="ev">evidence: +0.191 [0.124, 0.274], destroyed to 0.000</div></div>
+      <div class="q us"><p>We gave our own latent the first controlled measurement — and it failed the first test we built. That is why the second one is believable.</p>
+        <div class="who">SNMR — this work</div><div class="ev">E63 killed it · E70 measured it</div></div>
     </div>
+  </div>
+</section>
+
+<!-- ================= DEMO ================= -->
+<section id="demo">
+  <div class="wrap rv">
+    <div class="kicker">THE DEMO</div>
+    <h2>Seventy seconds, one screen &nbsp;<span class="cl a big">measured · closed</span></h2>
+    <p class="lede">
+      The video is the argument, because it shows a <i>control failing</i>, not just a system
+      succeeding. Same policy, same start state, same camera — only the command channel differs.
+      Every rollout shown is the frozen exemplar named in the protocol; none was reselected for
+      looking better.
+    </p>
+
+    <div class="hero-vid">
+      <video controls preload="metadata" playsinline
+             poster="media/e70_video_poster.jpg"
+             src="media/snmr_e70_icra.mp4"></video>
+    </div>
+    <div class="storyboard">
+      <div class="sb"><div class="t">0:00</div><div class="d">The question, and the exclusivity contract</div></div>
+      <div class="sb"><div class="t">0:06</div><div class="d">The two-walk ambiguity assay</div></div>
+      <div class="sb"><div class="t">0:13</div><div class="d">SNMR latent vs absolute time, both clips</div></div>
+      <div class="sb"><div class="t">0:33</div><div class="d">Clean command vs destroyed command</div></div>
+      <div class="sb"><div class="t">0:43</div><div class="d">Three-seed intervals</div></div>
+      <div class="sb"><div class="t">1:02</div><div class="d">The deployment boundary</div></div>
+    </div>
+
+    <h3 style="margin-top:44px">The production runtime, in CPU MuJoCo</h3>
+    <p class="lede" style="margin-top:8px">
+      Frozen students exported to ONNX with a 95%-range safety envelope, driven by the
+      <b>actual</b> Holosoma inference process over the loopback DDS interface. Candidates were
+      picked by a recorded median-completion rule, never visually. Tracking survives the engine
+      hop at 0.17–0.23 rad unassisted joint RMSE. <b>One of the four candidates passes the strict
+      three-repeat safety-handoff gate</b> — the other three are shown anyway, because that is
+      the honest state of the deployment path.
+    </p>
+    <div class="vidgrid">
+      <div class="vid"><video controls preload="none" playsinline src="media/sim2sim/e70_seed2_explicit_walk1_subject1_safe95.mp4"></video>
+        <div class="vc"><b>EXPLICIT · walk1_subject1<span class="badge pass">GATE 3/3</span></b>
+        The only strict pass. Gantry start, upright release, 10 s unassisted walking, clean safety handoff.</div></div>
+      <div class="vid"><video controls preload="none" playsinline src="media/sim2sim/e70_seed1_snmr_walk1_subject1_safe95.mp4"></video>
+        <div class="vc"><b>SNMR LATENT · walk1_subject1<span class="badge warn">2/3</span></b>
+        The research interface walking through the 64-d exclusive channel.</div></div>
+      <div class="vid"><video controls preload="none" playsinline src="media/sim2sim/e70_seed2_explicit_walk1_subject5_safe95.mp4"></video>
+        <div class="vc"><b>EXPLICIT · walk1_subject5<span class="badge warn">1/3</span></b>
+        Motion tracks; the fixed 27-s handoff lands mid-stride. The identified fix is a clip-specific double-support handoff.</div></div>
+      <div class="vid"><video controls preload="none" playsinline src="media/sim2sim/e70_seed1_snmr_walk1_subject5_safe95.mp4"></video>
+        <div class="vc"><b>SNMR LATENT · walk1_subject5<span class="badge warn">1/3</span></b>
+        The harder clip for the research interface — faithful to the measured capability gap.</div></div>
+    </div>
+    <p class="src">docs/E70_VIDEO_PROTOCOL.md · docs/SIM2SIM_VALIDATION_2026-08-12.md — all in simulation; sim-to-real is unvalidated and unclaimed</p>
   </div>
 </section>
 
@@ -327,47 +437,49 @@ footer a{color:var(--ink2)}
     <h2>Five students. One exclusive interface. The differences are the measurement.</h2>
     <p class="lede">
       An exclusivity contract guarantees the reference reaches the actor <b>only</b> through the
-      64-d channel (a causal leak detector caught and repaired the one violation — DEFECT-2).
-      Five students train under an identical frozen recipe; only the channel's content differs.
-      Evaluated on 69 reference-only paired starts where the present matches but the futures
-      diverge — a command encoding only progress-through-clip cannot pick the right future.
+      64-d channel — a causal leak detector caught and repaired the one violation. Five students
+      train under an identical frozen recipe; only the channel's content differs. They are
+      evaluated on 69 reference-only paired starts whose present states are close but whose
+      futures diverge, so a command encoding only progress-through-clip cannot pick the right
+      future.
     </p>
     <div class="panel" id="armpanel">
       <div class="arm expl"><div class="nm"><b>explicit reference</b>assay-validity ceiling</div>
         <div class="track"><div class="fill" data-w="97.3"></div></div><div class="val">0.973</div></div>
       <div class="arm snmr"><div class="nm"><b>SNMR latent</b>the measured interface</div>
         <div class="track"><div class="fill" data-w="75.4"></div></div><div class="val">0.754</div></div>
-      <div class="arm"><div class="nm"><b>time index only</b>matched clock null</div>
+      <div class="arm clock"><div class="nm"><b>time index only</b>matched clock null</div>
         <div class="track"><div class="fill" data-w="56.2"></div></div><div class="val">0.562</div></div>
       <div class="arm"><div class="nm"><b>shuffled latent</b>phase-matched null</div>
         <div class="track"><div class="fill" data-w="55.2"></div></div><div class="val">0.552</div></div>
       <div class="arm"><div class="nm"><b>proprioception only</b>no goal source</div>
         <div class="track"><div class="fill" data-w="43.7"></div></div><div class="val">0.437</div></div>
       <p style="margin-top:18px;font-size:13px;color:var(--ink3)">
-        Ambiguity completion, frozen three-seed aggregate. The dashed amber line in your head sits at
-        <span class="mono" style="color:var(--amber)">0.562</span> — anything below it is explainable
-        by the clock alone. The latent clears it by <span class="mono" style="color:var(--cyan)">+0.192</span>.
+        Ambiguity completion, frozen three-seed aggregate. The bar to clear is the amber one at
+        <span class="mono" style="color:var(--amber)">0.562</span> — anything below it is explained
+        by the clock alone. Paired per-cluster, the latent clears it by
+        <span class="hi">+0.191</span>.
       </p>
+      <p class="src">reproducibility/reports/e70_seed0-1-2_analysis.json</p>
     </div>
   </div>
 </section>
 
-<!-- ================= RESULTS ================= -->
+<!-- ================= MEASUREMENT ================= -->
 <section id="results">
   <div class="wrap rv">
     <div class="kicker">THE MEASUREMENT</div>
-    <h2>Every interval excludes zero. Both clips. Both nulls. Every seed.</h2>
+    <h2>Every interval excludes zero. Both clips. Both nulls. Every seed. &nbsp;<span class="cl a big">measured · closed</span></h2>
     <p class="lede">
       Paired per-cluster effects with hierarchical 95% CIs; the preregistered temporal-block
       bootstrap (12 blocks, 10,000 replicates) closes the autocorrelation door. All displayed
-      numbers are machine-generated from the frozen analyzer
-      — SHA-256 <span class="mono">05ca3176…</span> is stamped into the paper's macros.
+      numbers are machine-generated from the frozen analyzer whose SHA-256 is stamped into the
+      paper's macros.
     </p>
     <div class="panel">
       <svg class="forest" viewBox="0 0 1080 330" role="img" aria-label="Forest plot of paired effects">
         <line x1="330" y1="18" x2="330" y2="290" stroke="#ff5d5d" stroke-width="1.5"/>
-        <text x="330" y="312" text-anchor="middle" class="row-label" fill="#ff5d5d" style="fill:#ff5d5d">0 = nothing beyond time/phase</text>
-        <!-- scale: x = 330 + diff*1800 -->
+        <text x="330" y="312" text-anchor="middle" class="row-label" style="fill:#ff5d5d">0 = nothing beyond time/phase</text>
         <g><text x="310" y="48" text-anchor="end" class="row-label">vs time (primary)</text>
           <line class="ci ci-line" x1="553" y1="43" x2="823" y2="43" stroke="#38e1ff" stroke-width="5"/>
           <circle cx="674" cy="43" r="7" fill="#38e1ff"/><text x="850" y="48" class="row-val">+0.191 [0.124, 0.274]</text></g>
@@ -391,23 +503,13 @@ footer a{color:var(--ink2)}
         Per-seed effects vs time: <span class="mono">+0.154 / +0.278 / +0.140</span> — positive at every training seed, on each clip.
       </p>
     </div>
-    <div class="figbox rv">
-      <a href="media/e70_pitch_figure.png" target="_blank" rel="noopener"><img src="media/e70_pitch_figure.png" alt="E70 headline figure"></a>
-      <div class="figcap">The one-figure case (click to enlarge): instrument · measurement · causal proof. Generated by
-      <span class="mono">scripts/make_pitch_figure.py</span> from the frozen analysis files (<a href="media/e70_pitch_figure.pdf">PDF</a>).</div>
-    </div>
-  </div>
-</section>
 
-<!-- ================= CAUSAL ================= -->
-<section id="causal">
-  <div class="wrap rv">
-    <div class="kicker">CAUSAL PROOF</div>
-    <h2>Destroy the channel. Competence vanishes.</h2>
-    <p class="lede">
-      Zero it, shuffle it, or replace it with marginal-random samples: general completion collapses
-      from 0.923 to exactly <b>0.000</b> — at all three seeds, in all three destruction modes.
-      The interface is not decorative telemetry; every bit of competence flows through it.
+    <h3 style="margin-top:40px">Destroy the channel. Competence vanishes.</h3>
+    <p class="lede" style="margin-top:8px">
+      Zero it, shuffle it, or replace it with marginal-random samples: general completion
+      collapses from 0.923 to exactly <b>0.000</b> — at all three seeds, in all three destruction
+      modes, on <i>both</i> the explicit and latent arms. The interface is not decorative
+      telemetry; every bit of competence flows through it.
     </p>
     <div class="destroy-grid" id="destroygrid">
       <div class="dcell alive"><div class="dv">0.923</div><div class="dk">intact channel</div><div class="dbar"><i data-w="92.3"></i></div></div>
@@ -415,72 +517,442 @@ footer a{color:var(--ink2)}
       <div class="dcell dead"><div class="dv">0.000</div><div class="dk">shuffled</div><div class="dbar"><i data-w="0.5"></i></div></div>
       <div class="dcell dead"><div class="dv">0.000</div><div class="dk">marginal random</div><div class="dbar"><i data-w="0.5"></i></div></div>
     </div>
-  </div>
-</section>
 
-<!-- ================= DEPLOY / SIM2SIM ================= -->
-<section id="deploy">
-  <div class="wrap rv">
-    <div class="kicker">SIM2SIM · TOWARD THE REAL G1</div>
-    <h2>The production runtime walks in CPU MuJoCo — the deploy stack, minus the cable.</h2>
-    <p class="lede">
-      Frozen students → ONNX with a 95%-range safety envelope → driven by the <b>actual</b>
-      Holosoma inference process over the loopback DDS interface into CPU MuJoCo. Candidates
-      picked by a recorded median-completion rule, never visually. Tracking survives the engine
-      hop: <span class="mono">0.17–0.23&nbsp;rad</span> unassisted joint RMSE, matching the frozen
-      GPU-eval values. The deployment configuration passes the three-repeat safety-handoff gate
-      <b>3/3</b>. All in simulation — sim-to-real remains unvalidated and unclaimed.
-    </p>
-    <div class="vidgrid">
-      <div class="vid"><video controls preload="metadata" src="media/sim2sim/e70_seed2_explicit_walk1_subject1_safe95.mp4"></video>
-        <div class="vc"><b>EXPLICIT · walk1_subject1<span class="badge pass">GATE 3/3</span></b>
-        Deployment candidate (seed 2). Gantry start, upright release, 10 s unassisted walking, clean safety handoff.</div></div>
-      <div class="vid"><video controls preload="metadata" src="media/sim2sim/e70_seed1_snmr_walk1_subject1_safe95.mp4"></video>
-        <div class="vc"><b>SNMR LATENT · walk1_subject1<span class="badge warn">2/3</span></b>
-        The research interface walking through the 64-d exclusive channel — the measured 0.754 made physical.</div></div>
-      <div class="vid"><video controls preload="metadata" src="media/sim2sim/e70_seed2_explicit_walk1_subject5_safe95.mp4"></video>
-        <div class="vc"><b>EXPLICIT · walk1_subject5<span class="badge warn">1/3</span></b>
-        Motion tracks; the fixed 27-s safety handoff lands mid-stride on this clip — the identified fix is a clip-specific double-support handoff.</div></div>
-      <div class="vid"><video controls preload="metadata" src="media/sim2sim/e70_seed1_snmr_walk1_subject5_safe95.mp4"></video>
-        <div class="vc"><b>SNMR LATENT · walk1_subject5<span class="badge warn">1/3</span></b>
-        The harder clip for the research interface — faithful to the measured capability gap (0.70 vs 0.92).</div></div>
+    <div class="figbox rv">
+      <a href="media/e70_pitch_figure.png" target="_blank" rel="noopener"><img src="media/e70_pitch_figure.png" alt="E70 headline figure: instrument, measurement, causal proof"></a>
+      <div class="figcap">The one-figure case (click to enlarge): instrument · measurement · causal proof.
+      Generated by <span class="mono">scripts/make_pitch_figure.py</span> from the frozen analysis files (<a href="media/e70_pitch_figure.pdf">PDF</a>).
+      <br><span style="color:var(--ink2)">Note on two nearby numbers: panel A's <span class="mono">+0.192</span> is the
+      <i>unpaired</i> gap between arm means (0.754 − 0.562). The headline <span class="mono">+0.191 [0.124, 0.274]</span>
+      is the <i>paired</i> per-cluster effect, which is the preregistered statistic. Same comparison, different estimator.</span></div>
     </div>
-    <p style="margin-top:16px;font-size:13px;color:var(--ink3)">
-      Full campaign with hashes: <span class="mono">docs/SIM2SIM_VALIDATION_2026-08-12.md</span> ·
-      hard-gated path to hardware in <span class="mono">docs/REAL_WORLD_DEPLOYMENT_PLAN.md</span> — not cleared for hardware; stages 4–7 remain.
-    </p>
   </div>
 </section>
 
-<!-- ================= COMPARISON ================= -->
-<section id="compare">
+<!-- ================= PROPOSED METHOD ================= -->
+<section id="method">
   <div class="wrap rv">
-    <div class="kicker">POSITION IN THE FIELD</div>
-    <h2>They design, scale, or clean the interface. We measure it.</h2>
+    <div class="kicker">THE PROPOSED METHOD</div>
+    <h2>MorphoRetarget: read the robot's specification, not its name
+      &nbsp;<span class="cl c big">proposed · no result</span></h2>
     <p class="lede">
-      Verified against primary sources, August 2026. Capability systems are complementary — this
-      row-by-row contrast is about one question only: <i>what evidence exists for what the
-      command interface actually carries?</i>
+      Retargeting today is an optimization with a hand-written config per robot. The ambition here
+      is one network that reads an <b>unseen</b> humanoid's identity-free physical specification and
+      emits motion that survives independent physics verification — no robot ID, no per-robot output
+      head, no learned prompt, no re-tuned IK weights.
+      <b>This section describes a design and a working implementation. It reports no experimental
+      outcome.</b> Every number below is an architectural or contract fact, never a performance fact.
     </p>
+
+    <div class="panel">
+      <p style="font-size:16px;color:var(--ink);font-weight:600;line-height:1.6">
+        “A single retargeter reads an unseen humanoid's physical specification, rather than its
+        identity, and produces motion that survives independent physics verification.”
+      </p>
+      <p style="margin-top:12px;font-size:14px;color:var(--ink2)">
+        Formally <span class="mono hi">Ŷ<sub>R</sub> = F<sub>θ</sub>(X<sub>H</sub>, R, O)</span>, where
+        <span class="mono">R</span> is a versioned RobotSpec bundling asset, kinematics, geometry,
+        dynamics, actuation, semantics and runtime — and the identity fields are stripped before the
+        network ever sees it.
+      </p>
+      <p class="src">docs/ADVISOR_GUIDANCE_2026-08-29_MORPHORETARGET.md · docs/MORPHORETARGET_PLAN_2026-08-29.md</p>
+    </div>
+
+    <h3 style="margin-top:40px">Architecture</h3>
+    <div class="arch">
+      <svg viewBox="0 0 1040 300" role="img" aria-label="MorphoRetarget architecture: human encoder, RobotSpec graph attention, cross-attention, shared joint head">
+        <defs>
+          <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L7,3 L0,6 z" fill="#38e1ff"/>
+          </marker>
+          <style>
+            .bx{fill:#0e141d;stroke:#2a3a50;stroke-width:1.5;rx:6}
+            .bxc{fill:#0e141d;stroke:#38e1ff;stroke-width:1.8;rx:6}
+            .tl{font-family:ui-monospace,monospace;font-size:12.5px;fill:#e6edf6;font-weight:700}
+            .ts{font-family:ui-monospace,monospace;font-size:10.5px;fill:#5f7288}
+            .tm{font-family:ui-monospace,monospace;font-size:11px;fill:#9fb0c3}
+            .ln{stroke:#38e1ff;stroke-width:1.6;fill:none;marker-end:url(#ah)}
+            .lbl{font-family:ui-monospace,monospace;font-size:10px;fill:#38e1ff}
+          </style>
+        </defs>
+
+        <!-- human input -->
+        <rect class="bx" x="8" y="60" width="150" height="66"/>
+        <text class="tl" x="22" y="86">human motion</text>
+        <text class="ts" x="22" y="104">LAFAN1 · 50 Hz</text>
+        <text class="ts" x="22" y="118">heading-invariant</text>
+
+        <!-- frozen encoder -->
+        <rect class="bx" x="186" y="52" width="176" height="82"/>
+        <text class="tl" x="200" y="78">SNMR temporal</text>
+        <text class="tl" x="200" y="95">encoder <tspan fill="#fbbf24">(frozen)</tspan></text>
+        <text class="ts" x="200" y="113">latent 128 · 4 enc layers</text>
+        <text class="ts" x="200" y="127">2 temporal layers</text>
+
+        <!-- robotspec input -->
+        <rect class="bx" x="8" y="182" width="150" height="80"/>
+        <text class="tl" x="22" y="208">RobotSpec</text>
+        <text class="ts" x="22" y="226">MJCF in, identity out</text>
+        <text class="ts" x="22" y="240">24 kinematic + 5</text>
+        <text class="ts" x="22" y="254">topology features</text>
+
+        <!-- graph attention -->
+        <rect class="bxc" x="186" y="174" width="176" height="96"/>
+        <text class="tl" x="200" y="200">graph self-attention</text>
+        <text class="ts" x="200" y="218">over padded link nodes</text>
+        <text class="ts" x="200" y="232">3 layers · hidden 128</text>
+        <text class="tm" x="200" y="252">bias = −0.5 · tree_dist</text>
+        <text class="ts" x="200" y="264">permutation-equivariant</text>
+
+        <!-- cross attention -->
+        <rect class="bxc" x="404" y="112" width="164" height="86"/>
+        <text class="tl" x="418" y="140">human ↔ robot</text>
+        <text class="tl" x="418" y="158">cross-attention</text>
+        <text class="ts" x="418" y="177">motion meets morphology</text>
+
+        <!-- shared head -->
+        <rect class="bxc" x="610" y="52" width="176" height="88"/>
+        <text class="tl" x="624" y="78">ONE shared</text>
+        <text class="tl" x="624" y="95">scalar head</text>
+        <text class="ts" x="624" y="113">tanh → each joint's own</text>
+        <text class="ts" x="624" y="127">[lower, upper] range</text>
+
+        <!-- root prior -->
+        <rect class="bx" x="610" y="178" width="176" height="88"/>
+        <text class="tl" x="624" y="204">analytic root prior</text>
+        <text class="ts" x="624" y="222">leg-length ratio</text>
+        <text class="ts" x="624" y="236">+ <tspan fill="#9fb0c3">bounded</tspan> residual</text>
+        <text class="ts" x="624" y="252">±[0.30,0.25,0.20] m</text>
+
+        <!-- output -->
+        <rect class="bxc" x="830" y="112" width="196" height="88"/>
+        <text class="tl" x="844" y="140">robot reference</text>
+        <text class="ts" x="844" y="160">root traj + joint angles</text>
+        <text class="ts" x="844" y="176">in-limit by construction</text>
+        <text class="ts" x="844" y="192">no canonical joint index</text>
+
+        <!-- arrows -->
+        <path class="ln" d="M158,93 L182,93"/>
+        <path class="ln" d="M158,222 L182,222"/>
+        <path class="ln" d="M362,105 L400,140"/>
+        <path class="ln" d="M362,212 L400,175"/>
+        <path class="ln" d="M568,140 L606,105"/>
+        <path class="ln" d="M568,172 L606,205"/>
+        <path class="ln" d="M786,105 L826,140"/>
+        <path class="ln" d="M786,215 L826,172"/>
+
+        <text class="lbl" x="404" y="288">1,583,754 parameters · no robot ID · no per-robot head · no learned prompt</text>
+      </svg>
+    </div>
+    <p class="src">snmr/robot_spec.py · snmr/robot_tokens.py · snmr/morpho_root_prior.py · autoresearch/iterate-260901-1222/a1_root_prior_trajectory_prereg.json</p>
+
+    <div class="panel note">
+      <h3>Two things this architecture does <i>not</i> do — stated so nobody misreads the diagram</h3>
+      <p><b>It is not dynamics-conditioned.</b> Mass, inertia, torque and velocity limits, armature,
+      damping, k<sub>p</sub> and k<sub>d</sub> all exist in the 37-feature RobotSpec bundle, but the
+      registered experiment consumes the <span class="mono">kinematic</span> feature set only —
+      <span class="mono">dynamics_available</span> is zero for these batches. Nothing the network has
+      seen could teach it about torque.</p>
+      <p><b>It does not learn the root trajectory outright.</b> The root is an analytic leg-length-ratio
+      prior plus a <i>bounded</i> learned residual. "The network predicts the root" would overstate it.</p>
+      <p><b>And there are no simulator gradients anywhere in the critical path.</b> Newton's MuJoCo-Warp
+      solver is not differentiable and the Isaac Lab integration is beta, so the differentiable-physics
+      stage from the original design was deliberately dropped rather than faked.</p>
+    </div>
+
+    <h3 style="margin-top:40px">The verification ladder</h3>
+    <p class="lede" style="margin-top:8px">
+      Retargeting and tracking are two layers, and conflating them is how a weak tracker gets blamed
+      on a retargeter. So verification is staged, and each rung is reported separately.
+    </p>
+    <div class="ladder">
+      <div class="rung">
+        <div class="lv">L0</div>
+        <div class="bd"><h4>Forward-kinematics contract</h4>
+          <p>10,000 deterministic in-limit poses across 7 links, checked cross-backend against
+          <span class="mono">mujoco.mj_forward</span>. Max link error <span class="hi g">3.93e-6 m</span>,
+          max quaternion geodesic <span class="hi g">3.76e-6 rad</span>. This rung is genuinely done.</p></div>
+        <div class="st"><span class="cl a">measured · closed</span></div>
+      </div>
+      <div class="rung">
+        <div class="lv">L1</div>
+        <div class="bd"><h4>Kinematic feasibility screen</h4>
+          <p>Joint/velocity/acceleration limits, self-collision, ground penetration, foot skate,
+          contact consistency, COM support margin, inverse-dynamics torque margin. Roughly 1 CPU-second
+          per clip, needs no controller — the physics evidence a single-GPU lab can actually afford.
+          <b>Designed and specified; never run on any model output.</b></p></div>
+        <div class="st"><span class="cl c">proposed · no result</span></div>
+      </div>
+      <div class="rung">
+        <div class="lv">L2</div>
+        <div class="bd"><h4>Frozen-tracker rollout</h4>
+          <p>A per-robot tracking policy, frozen, used as a selective oracle over candidate references.
+          <b>This verifier does not exist yet.</b> There is no eval code path, and both trackers that do
+          exist are single-clip specialists — a specialist cannot rank arbitrary retargeted motion.</p></div>
+        <div class="st"><span class="cl c">proposed · no result</span></div>
+      </div>
+      <div class="rung">
+        <div class="lv">L3</div>
+        <div class="bd"><h4>Downstream utility — retrain the tracker</h4>
+          <p>Identical recipe, identical seeds, identical budget; vary only the motion source
+          (GMR vs learned vs learned+repair). <b>This is the only experiment in the program that could
+          support the phrase “improves tracking performance,” and it has not been started.</b>
+          ~138 GPU-hours at the current frozen recipe.</p></div>
+        <div class="st"><span class="cl c">proposed · no result</span></div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:40px">Where this sits</h3>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>System</th><th>Command interface</th><th>Claim about content</th><th>Evidence</th></tr></thead>
+        <thead><tr><th>Method</th><th>Robot conditioning</th><th>Held-out robot?</th><th>Physics verification</th></tr></thead>
         <tbody>
-          <tr><td><b>ULTRA</b> <span class="mono" style="font-size:11px">2603.03279</span></td><td>64-d latent distilled from tracker (G1)</td><td>"captures mainly ambiguity and multimodality"</td><td class="meh">t-SNE + KMeans</td></tr>
-          <tr><td><b>UniTracker</b> <span class="mono" style="font-size:11px">RA-L 2026</span></td><td>CVAE global motion latent</td><td>"captures the inherent ambiguity"</td><td class="no">none</td></tr>
-          <tr><td><b>BFM-Zero</b> <span class="mono" style="font-size:11px">ICLR 2026</span></td><td>Forward-Backward shared latent</td><td>"explainable and smooth"</td><td class="no">asserted</td></tr>
-          <tr><td><b>RoboGhost</b> <span class="mono" style="font-size:11px">ICLR 2026</span></td><td>language-grounded motion latents</td><td>latents as first-class conditioning</td><td class="meh">outcome ablation only</td></tr>
-          <tr><td><b>HANDOFF</b> <span class="mono" style="font-size:11px">2606.06493</span></td><td>compact explicit task-space</td><td>"intuitive, general, modular, expressive"</td><td class="no">designed, not measured</td></tr>
-          <tr><td><b>GMT / SONIC / Humanoid-GPT</b></td><td>explicit references / token space</td><td>scale ⇒ generality</td><td class="meh">tracking scores</td></tr>
-          <tr class="us"><td><b>SNMR / E70</b> (this work)</td><td>exclusive 64-d retarget-to-track latent (G1)</td><td><b>measured:</b> control-usable content beyond time</td><td class="yes">matched nulls + ceiling + destruction + prereg CIs</td></tr>
+          <tr><td><b>GMR / mink</b></td><td>per-robot hand-tuned IK config</td><td>no</td><td>none (contact disabled)</td></tr>
+          <tr><td><b>HoloRetarget / IKMR / NMR</b></td><td>fixed single robot</td><td>no</td><td>post-hoc filtering</td></tr>
+          <tr><td><b>AdaMorph</b></td><td>learned prompt + per-robot adapter</td><td>unseen <i>motions</i>, not unseen robots</td><td>no</td></tr>
+          <tr><td><b>G-DReaM</b></td><td>robot skeleton graph, manual correspondence</td><td>needs per-robot adaptation</td><td>names contact/balance/torque as its own gap</td></tr>
+          <tr><td><b>ReActor</b></td><td>per-pair learned offsets</td><td>no</td><td>output <i>is</i> the rollout</td></tr>
+          <tr class="us"><td><b>MorphoRetarget</b> (proposed)</td><td><b>identity-free RobotSpec</b></td><td><b>the open question — no result yet</b></td><td>L0 done · L1–L3 designed</td></tr>
         </tbody>
       </table>
     </div>
-    <p style="margin-top:16px;font-size:13.5px;color:var(--ink2)">
-      The honest capability line: our explicit student reaches <span class="mono">0.923</span> vs its teacher's
-      <span class="mono">0.917</span> — teacher parity through a production interface, deploy-qualified in sim2sim.
-      No SOTA claim; the contribution is the instrument, and the instrument is what none of the systems above have.
+
+    <div class="panel warn" style="margin-top:26px">
+      <h3 style="color:var(--red)">The bottom line on this section</h3>
+      <p>There is <b>no learned held-out-morphology result</b>. The A2 experiment never materialized a
+      variant, never generated a teacher label, never trained an arm, never computed a confidence
+      interval. Gate G2 is <b>not met and not partial</b>. Anything on this page describing
+      MorphoRetarget's generalization is describing an intention.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MORPHO RESULTS ================= -->
+<section id="morpho">
+  <div class="wrap rv">
+    <div class="kicker">WHAT ACTUALLY HAPPENED</div>
+    <h2>Five preregistered screens, one anchor, and a gate the teacher itself fails
+      &nbsp;<span class="cl b big">negative · kept</span></h2>
+    <p class="lede">
+      The MorphoRetarget iteration that ran through 2026-09-01 returned a terminal negative:
+      <span class="mono">STOP_A1_AND_A2</span>. Five successive from-scratch corrective screens each
+      improved on the last and each stopped. The interesting statement is not "the model is worse
+      than GMR" — it is that <b>the registered stop threshold is measurably mis-specified</b>, and
+      the teacher being distilled fails that same threshold harder than the student it stopped.
     </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Corrective screen</th><th class="num">Teacher-FK MPJPE</th><th class="num">Amplitude-failing clips</th><th class="num">Semantic ratio vs GMR</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr><td>Original registered screen</td><td class="num">0.114 m</td><td class="num">6 / 13</td><td class="num">0.986 *</td><td>stop</td></tr>
+          <tr><td>+ source-basis &amp; LR-schedule fix</td><td class="num">0.075 m</td><td class="num">6 / 13</td><td class="num">1.036</td><td>stop</td></tr>
+          <tr><td>+ 128-frame context, continuous heading</td><td class="num">0.065 m</td><td class="num">4 / 13</td><td class="num">1.005</td><td>stop</td></tr>
+          <tr><td>+ analytic root prior</td><td class="num">0.069 m</td><td class="num">2 / 13</td><td class="num">1.077</td><td>stop</td></tr>
+          <tr class="bad"><td><b>+ semantic-trajectory objective</b> (final)</td><td class="num"><b>0.072 m</b></td><td class="num"><b>1 / 13</b></td><td class="num"><b>1.034</b></td><td><b>terminal stop</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src">docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET_ITERATION2.md — * screen-1 ratios are not comparable: the source-basis bug corrupted the shared GMR reference itself, so the ruler was wrong, not just the model</p>
+
+    <div class="panel note">
+      <h3>The stop, exactly</h3>
+      <p>The final model passed the FK bound (<span class="hi">0.0724 m</span> against a
+      <span class="mono">0.073 m</span> ceiling — by 0.56 mm), recorded <b>zero</b> joint-limit
+      violations, and landed within 3.4% of GMR on the human-side semantic ruler. It was stopped by
+      <b>one anchor on one clip</b>: <span class="mono">ground1_subject5 / right_foot</span> at
+      amplitude ratio <span class="hi a">1.51</span> against a frozen upper bound of
+      <span class="mono">1.50</span>.</p>
+      <p>The report's own machine-written reason label is <span class="mono">model_amplitude_collapse</span>.
+      <b>That label is wrong</b>, and the error has already propagated into the governing status
+      document: 1.51 exceeds an <i>upper</i> bound, so this is high-side <b>amplification</b>, not
+      collapse. It inverts the finding.</p>
+    </div>
+
+    <div class="panel good">
+      <h3 style="color:var(--green)">The finding that came out of the failure &nbsp;<span class="cl a">measured · closed</span></h3>
+      <p>Score the GMR teacher and the student on the <i>same</i> 13 validation clips with the
+      <i>same</i> ruler, and the gate stops being a statement about the model:</p>
+      <div class="tbl-wrap" style="margin-top:18px">
+        <table>
+          <thead><tr><th>Motion-fidelity ruler, 13 held-out clips</th><th class="num">GMR teacher</th><th class="num">The student it stopped</th></tr></thead>
+          <tbody>
+            <tr><td>Total fidelity violations</td><td class="num"><b class="hi r">35</b></td><td class="num"><b class="hi g">6</b></td></tr>
+            <tr><td>Clips with ≥ 1 violation</td><td class="num"><b class="hi r">11 / 13</b></td><td class="num"><b class="hi g">4 / 13</b></td></tr>
+            <tr><td>Amplitude ratio, median</td><td class="num">1.368</td><td class="num">1.264</td></tr>
+            <tr><td>Amplitude ratio, max</td><td class="num"><b class="hi r">1.598</b></td><td class="num">1.510</td></tr>
+            <tr><td>Anchor-clips above ratio 1.0</td><td class="num"><b class="hi r">100%</b></td><td class="num">97.8%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:16px">The ruler is scored robot-against-human with a normalization that
+      carries a systematic high-side bias of roughly +37%. That turns a nominally two-sided
+      [0.5, 1.5] window into a one-sided test with about 0.13 of headroom — and the teacher
+      exceeds the very bound that stopped its own student, while accumulating about six times more
+      violations. Measured <i>teacher-relatively</i>, which is what an amplitude gate should
+      measure, the model is entirely clean: median ratio 0.909, range [0.654, 1.279], <b>0% out of
+      bounds</b>.</p>
+      <p>This is a methods result about <b>how retargeters are evaluated</b>, it is fully evidenced
+      on disk today, and it costs zero GPU-hours.</p>
+      <p class="src">autoresearch/iterate-260901-1222/…/evaluation_endpoint/report.json — recomputed independently 2026-09-10</p>
+    </div>
+
+    <div class="panel warn">
+      <h3 style="color:var(--red)">And a second, independent blocker — fixing the gate is not enough</h3>
+      <p>Replaying the registered qualification statistic on the screen data gives a point estimate
+      of <span class="mono">1.034</span> with a paired clip-bootstrap CI of
+      <span class="mono">[1.015, 1.057]</span> against a rule demanding an upper bound ≤ 1.05 — a
+      miss of 0.007 driven by <b>clip heterogeneity</b> (per-clip ratios span 0.98–1.11), not by
+      seed noise. Thirteen validation clips cannot resolve a 5% non-inferiority margin; roughly 22+
+      are needed at this point estimate, and averaging more seeds shrinks the wrong variance term.
+      <span style="color:var(--ink3)">(Indicative: seed-0, 20k-step data standing in for a 3-seed,
+      50k-step registered statistic — a power diagnosis, not a computed qualification failure.)</span></p>
+    </div>
+
+    <h3 style="margin-top:40px">What did pass — and what it does not prove</h3>
+    <div class="destroy-grid">
+      <div class="dcell alive"><div class="dv" style="font-size:20px">4.8e-7</div><div class="dk">T1 serialization adversary: reverse link order, rename every identifier, JSON round-trip. Bound 1e-5.</div></div>
+      <div class="dcell alive"><div class="dv" style="font-size:20px">0.313</div><div class="dk">T2 conditioning sensitivity: zeroing link-length features moves the output. The model does read the spec.</div></div>
+      <div class="dcell alive"><div class="dv" style="font-size:20px">2.6e-7</div><div class="dk">T4 bilateral thigh counterfactual: scale 1.15 with trajectories held fixed, exact response.</div></div>
+      <div class="dcell dead"><div class="dv" style="font-size:20px">N/A</div><div class="dk">T3 morphology geometry — inapplicable, because this experiment contains exactly one morphology.</div></div>
+    </div>
+    <p class="src">Equivariance and sensitivity are architectural properties, verified. They are <b>not</b> generalization evidence.</p>
+
+    <h3 style="margin-top:40px">The gates, honestly</h3>
+    <div class="gates">
+      <div class="gate amber"><div class="gn">G0 · Contract</div><div class="gs">not met</div>
+        <div class="gd">FK subgate passes at 3.9e-6 m. Cross-backend controller audit: 42 pass, 14 fail, 8 missing.</div></div>
+      <div class="gate"><div class="gn">G1 · Amortization</div><div class="gs">not met</div>
+        <div class="gd">Final screen stopped. No three-seed 50k qualification has ever been run.</div></div>
+      <div class="gate"><div class="gn">G2 · Embodiment</div><div class="gs">not met, not partial</div>
+        <div class="gd">Zero held-out-morphology numbers exist. A2 was blocked before data generation.</div></div>
+      <div class="gate slate"><div class="gn">G3 · Dynamics</div><div class="gs">not run</div>
+        <div class="gd">Explicit non-goal this iteration. Contract and twin machinery exist; the experiment does not.</div></div>
+      <div class="gate slate"><div class="gn">G4 · Repair</div><div class="gs">not run</div>
+        <div class="gd">Failure-localized repair remains a design.</div></div>
+      <div class="gate slate"><div class="gn">G5 · Utility</div><div class="gs">not run</div>
+        <div class="gd">Tracker training started; no tracker and no candidate is qualified.</div></div>
+      <div class="gate"><div class="gn">G6 · Cross-sim</div><div class="gs">not met</div>
+        <div class="gd">MJWarp demoted to a robustness appendix by an explicit early scope decision.</div></div>
+    </div>
+
+    <div class="panel note">
+      <h3>The verifier, stated correctly &nbsp;<span class="cl d">in progress · not qualified</span></h3>
+      <p>The Booster T1 PhysX tracker <b>completed</b> all 40,000 PPO iterations on
+      <b>2026-09-02 at 11:20</b> — 8,192 environments, seed 42. Three project documents still record
+      it as <span class="mono">RUNNING</span>, from a snapshot taken 40 iterations in; that is stale
+      by eight days and is corrected here.</p>
+      <p>Completed is not qualified. <b>No rollout has ever been run against that checkpoint</b>, no
+      eval code path exists, and the teacher-reference qualification floor that four documents cite as
+      gating the next step <b>was never written</b>. The tracker is also a single-clip specialist, so
+      it could not rank arbitrary retargeted candidates even if it were qualified.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRAINING RECIPE ================= -->
+<section id="recipe">
+  <div class="wrap rv">
+    <div class="kicker">THE LARGEST EFFECT IN THE PROGRAM</div>
+    <h2>Robustness is a training recipe, not a representation
+      &nbsp;<span class="cl a1 big">measured · single seed</span></h2>
+    <p class="lede">
+      A frozen student whose reference stream drops out mid-rollout falls apart. The obvious
+      hypothesis — that a better command <i>representation</i> degrades more gracefully — is one we
+      tested and killed: under dropout, the <b>content-free clock</b> is the most robust arm at every
+      severe cell, and a stale explicit reference is <i>worse than no reference at all</i>, falling
+      below the goal-blind floor. Cross-arm dropout rankings measure channel reliance plus an
+      active-harm term, not command quality.
+    </p>
+    <p class="lede">
+      The effect that <i>is</i> real belongs to training. One recipe change — reference-stream
+      dropout during training, with a naive hold fill — buys back almost everything, at no clean cost:
+    </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Dropout severity cell</th><th class="num">Frozen student</th><th class="num">Masked training</th><th class="num">Δ</th></tr></thead>
+        <tbody>
+          <tr><td>Clean (no dropout)</td><td class="num">0.929</td><td class="num">0.925</td><td class="num"><b>−0.004</b></td></tr>
+          <tr class="good"><td>f 0.3 · 0.5–1 s outages</td><td class="num">0.280</td><td class="num">0.670</td><td class="num"><b class="hi g">+0.390</b></td></tr>
+          <tr class="good"><td>f 0.5 · 0.1–0.5 s outages</td><td class="num">0.267</td><td class="num">0.780</td><td class="num"><b class="hi g">+0.514</b></td></tr>
+          <tr class="good"><td>f 0.5 · 0.5–1 s outages</td><td class="num">0.106</td><td class="num">0.554</td><td class="num"><b class="hi g">+0.447</b></td></tr>
+          <tr class="good"><td>Ambiguity starts, f 0.5 · 0.1–0.5 s</td><td class="num">0.257</td><td class="num">0.812</td><td class="num"><b class="hi g">+0.556</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src">docs/E80A_MASKED_TRAINING_2026-08-17.md — paired against the frozen student of the same seed, same instrument</p>
+
+    <div class="panel">
+      <h3>Why this is the punchline, not a footnote</h3>
+      <p>Every masked arm — explicit, flag-free explicit, live clock, frozen clock, goal-window,
+      shuffled — lands within about <b>0.1</b> of every other. The masked-versus-frozen effect is
+      <b>+0.45</b>. <b>The training recipe dominates the choice of command representation by roughly
+      four to one.</b> A whole program of representation contrasts sits inside the noise of one
+      recipe change.</p>
+      <p>Related, and also negative: the validity flag bits are not the mechanism (the flag-free arm
+      is equal or better), and the latent-specific version of this effect was killed by its own
+      preregistered stop rule at +0.016 against a +0.05 threshold — losing to a live clock by 0.066.</p>
+    </div>
+
+    <div class="panel warn">
+      <h3 style="color:var(--red)">Three caveats that travel with these numbers</h3>
+      <p><b>Seed 0 only.</b> There is no confidence interval on +0.447 and it has not been replicated.</p>
+      <p><b>Do not quote floor-relative retention from this experiment.</b> The original
+      "never falls below its floor" claim was retracted the same day it was written — against the
+      correct goal-blind floor the retention at the severest cell is negative. Only the paired Δ
+      column above is safe.</p>
+      <p><b>This is not an SNMR result.</b> The winning arms are the explicit and clock arms. The
+      latent branch is the one that was killed.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RETARGETING MEASURED ================= -->
+<section id="retarget">
+  <div class="wrap rv">
+    <div class="kicker">THE RETARGETER ITSELF</div>
+    <h2>Fidelity and speed are good. Contact is not solved. &nbsp;<span class="cl a big">measured · closed</span></h2>
+    <p class="lede">
+      Separately from the command-interface question, the shared retargeter is a real, benchmarked
+      artifact: one skeleton-agnostic graph autoencoder trained on 2.48 M teacher frames
+      (77 LAFAN1 clips × 5 robots), with joint limits satisfied by construction and differentiable
+      forward kinematics in the loss.
+    </p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Held-out benchmark</th><th class="num">SNMR</th><th class="num">GMR teacher</th><th>Reading</th></tr></thead>
+        <tbody>
+          <tr class="good"><td>G1 specialist MPJPE, 7 held-out clips</td><td class="num"><b>3.66 cm</b> [3.46, 3.86]</td><td class="num">—</td><td>strong fidelity</td></tr>
+          <tr class="good"><td>Throughput, CPU</td><td class="num"><b>671 fps</b></td><td class="num">~160 fps</td><td>~4× faster, feed-forward</td></tr>
+          <tr><td>Joint-limit violations</td><td class="num">0</td><td class="num">—</td><td>by construction</td></tr>
+          <tr class="bad"><td>Foot skate</td><td class="num"><b class="hi r">0.289 m/s</b></td><td class="num">0.052 m/s</td><td><b>unsolved</b> — the program's oldest bottleneck</td></tr>
+          <tr class="bad"><td>Ground penetration</td><td class="num">0.0094</td><td class="num">0.0017</td><td>open</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src">docs/EXPERIMENT_LOG.md (BENCH-v2) · docs/site/bench_data.json · <a href="benchmark.html">full per-robot benchmark →</a></p>
+
+    <div class="panel warn">
+      <h3 style="color:var(--red)">The holdout that failed, kept in view</h3>
+      <p>Leave-one-robot-out on EngineAI PM01, on the legacy 8-D-conditioned pipeline:
+      <b class="hi r">29.59 cm</b> zero-shot against <b>5.72 cm</b> in-training — a 5.2× gap against a
+      ≤2× criterion. This is the failure that motivates the whole RobotSpec design. It belongs to the
+      <i>old</i> architecture, and the exact checkpoint is missing, so the mechanism was never
+      localized. It has not yet been re-run under MorphoRetarget, because MorphoRetarget has never
+      been evaluated on a held-out robot at all.</p>
+    </div>
+
+    <div class="panel note">
+      <h3>The downstream comparison that exists — and what it does and does not say</h3>
+      <p>Training the same tracker on GMR data versus SNMR data gave completion
+      <b>0.867 either way</b>, a delta of <b>+0.0 pp</b> with a 95% CI of <b>[−5.8, +6.2]</b> against
+      a −5.0 pp non-inferiority margin. Verdict: <span class="mono">noninferiority_not_established</span>,
+      failing by 0.83 pp of CI <i>width</i>.</p>
+      <p>This is a <b>power</b> result, not a quality gap — and more rollouts will not shrink it,
+      because the dominant variance term is between-policy. It must not be cited as establishing
+      equivalence, and it is nowhere near enough to support the phrase "improves tracking performance."</p>
+    </div>
   </div>
 </section>
 
@@ -489,44 +961,178 @@ footer a{color:var(--ink2)}
   <div class="wrap rv">
     <div class="kicker">THE NEGATIVE-RESULTS LEDGER</div>
     <h2>An instrument you can trust is one that has ruled against its makers.</h2>
-    <p class="lede">Every closed line is preregistered, logged, and kept. Three of our own favored claims died by our own gates — that is why the one that survived is believable.</p>
+    <p class="lede">
+      <b>74 of 81 numbered experiment slots executed. 44 returned a negative or null primary
+      verdict. All of them are in the log.</b> Several were our own favored claims, killed by gates
+      we wrote before we saw the data. That ratio is the program's actual product.
+    </p>
     <div class="panel ledger">
-      <div class="l"><div class="tag">KILLED</div><p><b>"The latent's 0.656 means deployable goal content."</b> The pre-specified clock control (E63) reached 0.754 with frame-index sinusoids — our third favored result retired by our own controls. The clock became the published null model.</p></div>
-      <div class="l"><div class="tag fix">CAUGHT</div><p><b>DEFECT-2:</b> an observation-ordering leak let the decoder see the reference inside "proprio". Red flag: a 90pp gap between arms with identical goal information. Causal blanking probe confirmed; post-fix rerun moved results in <i>both</i> directions and overturned a logged negative.</p></div>
-      <div class="l"><div class="tag">NULL</div><p><b>"Latent beside explicit helps."</b> E36: −10pp (mechanism independently replicated by UniTracker's ablation). E52 v4 three-seed replication of the additive claim: paired deltas straddle zero. The explicit command saturates the goal channel on these clips.</p></div>
-      <div class="l"><div class="tag">INVALID</div><p><b>"One aperiodic clip can break the time confound."</b> E66: every student including the explicit positive control collapsed to 0.000 — invalid assay by its own gate; forced the two-trajectory ambiguity design that E70 used.</p></div>
-      <div class="l"><div class="tag win">POSITIVE</div><p><b>E70 (closed):</b> the frozen latent carries control-usable content beyond absolute time at ambiguous starts — <span class="mono">+0.191 [0.124, 0.274]</span> vs time, <span class="mono">+0.199 [0.127, 0.279]</span> vs shuffle, positive per clip and per seed, destruction to 0.000. Scope: two LAFAN1 walks, simulated G1, frozen SNMR endpoint, this controller class.</p></div>
+      <div class="l"><div class="tag">KILLED</div><p><b>The A1 gate (2026-09-01).</b> Stopped by one anchor on one clip at 1.51 against a 1.50 bound — a bound the GMR teacher exceeds at 1.598 while failing 11 of 13 clips to the student's 4. Terminal verdict <span class="mono">STOP_A1_AND_A2</span>; A2 never ran.</p></div>
+      <div class="l"><div class="tag fix">CORRECTED</div><p><b>Tracker status.</b> The T1 PhysX tracker was recorded as <span class="mono">RUNNING</span> in three documents for eight days after it had finished. It completed 40,000 iterations on 2026-09-02 and remains <b>unqualified</b>.</p></div>
+      <div class="l"><div class="tag">KILLED</div><p><b>Latent-specific robustness.</b> The masked-latent arm was stopped by its own +0.05 rule at +0.016 over the explicit arm, and loses to a live clock by 0.066. The surviving effect is the training recipe, not the representation.</p></div>
+      <div class="l"><div class="tag win">POSITIVE</div><p><b>Masked/outage training.</b> +0.447 completion at the severest dropout cell for −0.004 clean cost — the largest effect in the program, from one recipe change. Seed 0 only.</p></div>
+      <div class="l"><div class="tag fix">RETRACTED</div><p><b>Our own retention claim.</b> The E80-A floor-relative retention result was retracted the same day it was written — the wrong goal-blind floor was used. Only the paired deltas survive.</p></div>
+      <div class="l"><div class="tag">KILLED</div><p><b>"SNMR degrades gracefully."</b> The registered controls dissolved it: a content-free time code is the most robust arm at every severe cell, and the explicit arm falls <i>below</i> the goal-blind floor. A stale reference actively misleads.</p></div>
+      <div class="l"><div class="tag win">POSITIVE</div><p><b>Causal destruction.</b> Zero, shuffle, or marginal-resample the command and completion goes to exactly 0.000 — all nine cells, both arms.</p></div>
+      <div class="l"><div class="tag win">POSITIVE</div><p><b>The ambiguity assay.</b> +0.191 [0.124, 0.274] over the strongest matched null, positive on each clip and at each of three training seeds.</p></div>
+      <div class="l"><div class="tag">KILLED</div><p><b>The clock result.</b> A fixed random projection of frame-index sinusoids reached 0.754 against the frozen latent's 0.656 — retiring our own central claim and forcing a rewrite of the abstract, the introduction, contribution 1 and the conclusion. The clock became the published null model.</p></div>
+      <div class="l"><div class="tag fix">CAUGHT</div><p><b>DEFECT-2.</b> An observation-ordering leak let the decoder see the reference inside "proprio". Caught by a 90 pp gap between arms with identical goal information; the post-fix rerun moved results in <i>both</i> directions and overturned a logged negative.</p></div>
+      <div class="l"><div class="tag fix">CAUGHT</div><p><b>DEFECT-1.</b> A world-body off-by-one meant every pre-fix policy trained with the body-position reward at exactly 0.0. Whole blocks of results were invalidated and rerun.</p></div>
+      <div class="l"><div class="tag">KILLED</div><p><b>Deployable foot-contact correction.</b> Five corrector families all pass with an oracle contact mask and all fail with any deployable one. Mask precision is binding, not the solver.</p></div>
+      <div class="l"><div class="tag">NULL</div><p><b>"Latent beside explicit helps."</b> −10 pp, with the mechanism independently replicated by UniTracker's own ablation. A three-seed replication of the additive claim straddles zero.</p></div>
+      <div class="l"><div class="tag">INVALID</div><p><b>"One aperiodic clip breaks the time confound."</b> Every student including the explicit positive control collapsed to 0.000 — an invalid assay by its own gate, which forced the two-trajectory design.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ================= BENCHMARK ================= -->
-<section id="bench">
+<!-- ================= WHAT REMAINS ================= -->
+<section id="remains">
   <div class="wrap rv">
-    <div class="kicker">FROM ONE PAPER TO THE STANDARD</div>
-    <h2>The Interface Content Assay: a benchmark you run, not a leaderboard you chase.</h2>
+    <div class="kicker">TOWARD A COMPLETE ICRA PAPER</div>
+    <h2>What remains</h2>
     <p class="lede">
-      Fixed probe, variable subject: any retarget-to-track stack with a command bottleneck plugs
-      in. The reported scalar is the <b>Content-over-Null Margin (CNM)</b> — the paired advantage
-      of the real command over its strongest matched null. This page documents its founding
-      measurement: <span class="mono">CNM = +0.191 [0.124, 0.274]</span>.
+      Ordered by what unblocks the most. Status is stated, not implied. Two framings first, because
+      they are counter-intuitive: <b>compute is not the bottleneck</b> — A1 requalification is about
+      two GPU-hours and the full held-out staircase about twenty. The real constraints are one
+      governance decision, per-robot semantic manifests that must be hand-calibrated, and a verifier
+      that does not exist. And second: <b>the phrase "improves tracking performance" is not yet
+      supported by anything in this repository</b>, and item 9 is the only experiment that could
+      support it.
     </p>
+
     <div class="road">
-      <div class="rd"><div class="st done">■ COMPLETE</div><h4>E70 · founding measurement</h4><p>Exclusivity contract, ambiguity-pair recipe, null battery, destruction battery, fail-closed hierarchical analysis — all built, hash-stamped, and closed positive.</p></div>
-      <div class="rd"><div class="st live">■ PREREGISTERED (DRAFT)</div><h4>E72 · sensitivity curve</h4><p>Calibrated noise titration of the command channel — eval-only, zero frozen-code changes. A graded dose–response is what separates an instrument from a demo.</p></div>
-      <div class="rd"><div class="st next">■ NEXT</div><h4>E73 · known-content calibration</h4><p>Students trained on PCA-k compressions of the explicit reference: channels whose content is known by construction. Assay-vs-k monotonicity = classic instrument validation.</p></div>
-      <div class="rd"><div class="st next">■ NEXT</div><h4>E74 · second subject + assay kit</h4><p>The unchanged assay applied to an external latent, plus the contract spec, prereg template, and one-page assay card — the standalone benchmark release.</p></div>
+      <div class="rd crit"><div class="no">0</div>
+        <div><h4>Re-preregister the A1 gate on evidence</h4>
+          <p>Replace the absolute human-relative stop with a teacher-referenced non-inferiority gate,
+          and report the fidelity ruler as a diagnostic with GMR shown alongside in every table. Must
+          be fit on the 64 <i>training</i> clips only and frozen before any qualification run —
+          calibrating on the validation clips is threshold-shopping and a reviewer will say so.</p></div>
+        <div class="meta"><span class="s">BLOCKED · NEEDS ADVISOR</span>zero GPU · 1–2 days<br>the single hard dependency<br>for all of Track A</div></div>
+
+      <div class="rd crit"><div class="no">1</div>
+        <div><h4>Fix the power problem before re-running anything</h4>
+          <p>Thirteen validation clips cannot resolve a 5% margin; roughly 22+ are needed. Pre-commit
+          the clip count from the power calculation — adding clips until the interval clears is
+          selection on the outcome.</p></div>
+        <div class="meta"><span class="s">BLOCKED BY 0</span>zero GPU</div></div>
+
+      <div class="rd next"><div class="no">2</div>
+        <div><h4>Commit the working tree and correct the stale records</h4>
+          <p>~52 uncommitted paths, including every MorphoRetarget module and the entire iteration-2
+          evidence tree. Every frozen artifact currently records <span class="mono">dirty=true</span>,
+          so "a clean checkout reproduces these hashes" is unverifiable for every iteration-2 result.
+          Widen the ignore rules first — the current pattern misses 94 MB of endpoint checkpoints.</p></div>
+        <div class="meta"><span class="s">NEXT</span>minutes<br>unblocks all provenance</div></div>
+
+      <div class="rd next"><div class="no">3</div>
+        <div><h4>Measure inference speed for MorphoRetarget</h4>
+          <p>ms/clip against GMR on identical clips and hardware, batch-1 and batched, CPU and GPU
+          separately — plus new-robot onboarding cost, which is the number that makes "no
+          robot-specific tuning" concrete rather than rhetorical. GMR needs a hand-written IK config
+          with match tables and per-body weights; this needs a parsed MJCF.</p></div>
+        <div class="meta"><span class="s">NOT STARTED</span>~1 day · CPU<br>cheapest strong number<br>in the program</div></div>
+
+      <div class="rd next"><div class="no">4</div>
+        <div><h4>Run the L1 kinematic feasibility screen on model outputs</h4>
+          <p>Limits, self-collision, penetration, skate, contact mismatch, COM/support margin,
+          inverse-dynamics torque margin. Framed as kinematic feasibility, never as dynamic
+          verification.</p></div>
+        <div class="meta"><span class="s">NOT STARTED</span>~1 CPU-s/clip<br>overnight</div></div>
+
+      <div class="rd"><div class="no">5</div>
+        <div><h4>A1 requalification — 3 seeds × 50k steps under the corrected gate</h4>
+          <p>The tooling exists and is unit-tested; this has simply never been run. Risk: 50k may not
+          close the remaining semantic gap, and the 20k→50k improvement is unmeasured.</p></div>
+        <div class="meta"><span class="s">BLOCKED BY 0, 1</span>~2 GPU-hours</div></div>
+
+      <div class="rd next"><div class="no">6</div>
+        <div><h4>Leave-one-<i>real</i>-robot-out — the recommended headline</h4>
+          <p>Hold out Booster T1 entirely; train on the other four real humanoids plus coherent
+          variants; evaluate zero-shot with no adapter, no prompt, no fine-tune. Score against five
+          baselines: hand-configured GMR, a per-robot supervised upper bound, a robot-ID model, and —
+          the one that kills weak wedges — <b>strong nearest-transfer</b> with leg-length root scaling.
+          Teacher pairs for all five robots already sit on disk. <b>The real cost is not GPU: the
+          seven-anchor semantic manifest exists for G1 only and each new robot needs 1–2 days of hand
+          calibration.</b></p></div>
+        <div class="meta"><span class="s">NOT STARTED</span>~4–6 GPU-h<br>+ 3–5 days calibration<br><b>recommended over the<br>same-topology staircase</b></div></div>
+
+      <div class="rd"><div class="no">7</div>
+        <div><h4>Write the tracker qualification floor — before observing any rollout</h4>
+          <p>Reference set, horizon, completion definition, the floor number, seeds, rollout count.
+          Four documents cite it as gating the next step; it has never been written. Writing it after
+          seeing a rollout makes it outcome-conditioned, which this project's own governance treats as
+          disqualifying.</p></div>
+        <div class="meta"><span class="s">NOT STARTED</span>small<br>cheapest unblock in Track B</div></div>
+
+      <div class="rd"><div class="no">8</div>
+        <div><h4>Build a real verifier — multi-motion trackers</h4>
+          <p>Both existing trackers are single-clip specialists and cannot rank arbitrary candidates.
+          The config already accepts a clip list, so this is a re-freeze rather than new code, but the
+          stratified qualification set and the agreement gates are unrun.</p></div>
+        <div class="meta"><span class="s">BLOCKED BY 7</span>~15 GPU-h per robot</div></div>
+
+      <div class="rd blocked"><div class="no">9</div>
+        <div><h4>Downstream utility — the only experiment that earns the word "improves"</h4>
+          <p>Identical recipe, identical seeds, identical budget; vary only the motion source. Success
+          is full-clip success rate and sample efficiency at three or more seeds. <b>Until this exists,
+          no title or abstract should contain the phrase "improves humanoid motion tracking
+          performance."</b> Pre-register the budget and the seeds before seeing which source wins.</p></div>
+        <div class="meta"><span class="s">BLOCKED BY 6, 8</span>~138 GPU-h<br>at the current recipe</div></div>
+
+      <div class="rd"><div class="no">10</div>
+        <div><h4>Replicate the masked-training result at seeds 1–2</h4>
+          <p>Turns the program's largest effect from a single-seed observation into a citable one.
+          Needs a fresh preregistration — the existing stop rule covers the latent branch, not the
+          recipe.</p></div>
+        <div class="meta"><span class="s">BLOCKED · NEEDS PREREG</span>1 GPU-night per arm-seed</div></div>
     </div>
+
+    <div class="panel">
+      <h3>The minimum viable ICRA method paper</h3>
+      <p>Items <b>0 + 1 + 3 + 4 + 5 + 6</b>, with ablations at three seeds: roughly
+      <b>35–45 GPU-hours plus 3–5 days of semantic calibration</b>. The claim that set supports, and
+      the only one it supports:</p>
+      <p style="color:var(--ink);font-weight:600;border-left:3px solid var(--cyan);padding-left:16px;margin-top:14px">
+        On a held-out humanoid, RobotSpec conditioning achieves semantic non-inferiority to a
+        manually-configured optimizer and beats both robot-ID and strong nearest-transfer, at
+        N ms/clip with no robot-specific tuning, verified by a kinematic feasibility screen.
+      </p>
+      <p style="margin-top:14px;color:var(--ink3)">Note what that sentence does not say.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCOPE ================= -->
+<section id="scope">
+  <div class="wrap rv">
+    <div class="kicker">EVIDENCE BOUNDARY</div>
+    <h2>What this page does not claim</h2>
+    <p class="lede">This list is the point, not the fine print.</p>
+    <ul class="nolist">
+      <li><b>No learned zero-shot retargeting result exists.</b> Gate G2 is not met and not partial.</li>
+      <li><b>No physics verification result exists.</b> No rollout has been run against any retargeted candidate; no tracker is qualified.</li>
+      <li><b>No cross-simulator agreement.</b> 42 pass, 14 fail, 8 missing — and PhysX-only is a scope decision, not a parity claim.</li>
+      <li><b>No sim-to-real or hardware claim.</b> Everything shown is simulation, over a CPU MuJoCo loopback.</li>
+      <li><b>No inference-speed number for the proposed method.</b> The 671 fps figure belongs to the legacy SNMR retargeter, not to MorphoRetarget, which has no timing instrumentation at all.</li>
+      <li><b>The ambiguity result does not generalize.</b> Two known walks, both in training, one robot, one controller class, 69 selected start pairs. Time-aligned is not semantic.</li>
+      <li><b>The masked-training result is not replicated.</b> Seed 0, no confidence interval.</li>
+      <li><b>Foot skate is not solved.</b> 0.289 m/s against a teacher's 0.052.</li>
+      <li><b>The model is not dynamics-conditioned.</b> Mass, inertia, torque, damping and gains never reach the trained network.</li>
+      <li><b>The morphology augmentation is not "thousands of procedurally generated humanoids."</b> Both generators are strictly same-topology, and the blocked experiment planned exactly eight held-out variants.</li>
+    </ul>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    SNMR research · single-GPU workstation · 2026-07/08 ·
-    <a href="https://github.com/linjiw/snmr">github.com/linjiw/snmr</a> ·
-    full provenance in <span class="mono">docs/EXPERIMENT_LOG.md</span> (E01–E70) ·
-    analyzer SHA-256 <span class="mono">05ca3176…</span> ·
-    all displayed E70 numbers machine-generated · sim-to-real unvalidated and unclaimed
+    SNMR research · single-GPU workstation · 2026-07 → 2026-09 ·
+    <a href="https://github.com/linjiw/snmr">github.com/linjiw/snmr</a><br>
+    Full provenance in <span class="mono">docs/EXPERIMENT_LOG.md</span> (E01–E81 + MorphoRetarget A1/A2/B1/B2) ·
+    E70 numbers machine-generated from <span class="mono">reproducibility/reports/e70_seed0-1-2_analysis.json</span><br>
+    Analyzer SHA-256 <span class="mono sha">05ca3176c0a78eebc6ca49665ce092ddfe0ea423be51e7d61a0192d428ea9b5f</span><br>
+    Test suite: 875 tests collected across 106 files · <span class="mono">snmr/</span> 23,105 lines ·
+    <span class="mono">tests/</span> 21,926 lines<br>
+    Sim-to-real is unvalidated and unclaimed. Page last updated <b>2026-09-10</b>.
   </div>
 </footer>
 
@@ -540,20 +1146,27 @@ var io = new IntersectionObserver(function(entries){
   entries.forEach(function(e){
     if(e.isIntersecting){ e.target.classList.add("on"); io.unobserve(e.target); }
   });
-},{threshold:0.15});
+},{threshold:0.08});
 document.querySelectorAll(".rv").forEach(function(el){ io.observe(el); });
 
 /* ---------- count-up stats ---------- */
 function animateCount(el){
   var target = parseFloat(el.dataset.count), dec = parseInt(el.dataset.dec||"0",10);
-  var plus = el.dataset.plus === "1", t0 = null, dur = 1400;
-  function fmt(v){ return (plus? "+":"") + v.toFixed(dec); }
-  if(reduced){ el.textContent = fmt(target); return; }
+  var plus = el.dataset.plus === "1", suffix = el.dataset.suffix || "";
+  var t0 = null, dur = 1400, done = false;
+  function fmt(v){ return (plus? "+":"") + v.toFixed(dec) + suffix; }
+  function settle(){ if(!done){ done = true; el.textContent = fmt(target); } }
+  if(reduced){ settle(); return; }
+  /* Safety: the final value is authoritative. If rAF is throttled, backgrounded,
+     or never fires, this guarantees the true number is what the reader sees. */
+  setTimeout(settle, dur + 250);
   function step(ts){
+    if(done) return;
     if(!t0) t0 = ts;
     var p = Math.min((ts-t0)/dur, 1), ease = 1-Math.pow(1-p,3);
+    if(p >= 1){ settle(); return; }
     el.textContent = fmt(target*ease);
-    if(p<1) requestAnimationFrame(step);
+    requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
 }
@@ -583,7 +1196,6 @@ if(cv && cv.getContext){
   var ctx = cv.getContext("2d");
   var W = cv.width, H = cv.height;
 
-  // shared parametric gait (walking in place), returns joint map
   function gait(t, cx, cy, s){
     var hip = 0.62*Math.sin(t), hip2 = 0.62*Math.sin(t+Math.PI);
     var knee = Math.max(0, 0.9*Math.sin(t+0.6)), knee2 = Math.max(0, 0.9*Math.sin(t+Math.PI+0.6));
@@ -620,7 +1232,7 @@ if(cv && cv.getContext){
   }
 
   var packets = [];
-  for(var i=0;i<26;i++) packets.push({p:Math.random(), lane:Math.random()*2-1, sp:0.004+0.004*Math.random()});
+  for(var i=0;i<26;i++) packets.push({p:i/26, lane:((i*7)%13)/6-1, sp:0.004+0.004*(((i*11)%17)/17)});
 
   function draw(now){
     var t = now*0.0032;
@@ -631,7 +1243,6 @@ if(cv && cv.getContext){
 
     var hx = 190, rx = W-190, midL = 400, midR = W-400, cyn = groundY;
 
-    // human: point-light walker (mocap style)
     var hj = gait(t, hx, cyn, 92);
     ctx.strokeStyle = "rgba(230,237,246,.22)"; ctx.lineWidth = 2;
     bones(hj).forEach(function(b){ ctx.beginPath(); ctx.moveTo(b[0].x,b[0].y); ctx.lineTo(b[1].x,b[1].y); ctx.stroke(); });
@@ -641,13 +1252,11 @@ if(cv && cv.getContext){
     ctx.fillStyle = "rgba(159,176,195,.9)"; ctx.font = "11px ui-monospace,monospace"; ctx.textAlign="center";
     ctx.fillText("HUMAN MOTION (LAFAN1)", hx, groundY+24);
 
-    // robot: angular skeleton, tracked slightly behind in phase
     var rj = gait(t-0.35, rx, cyn, 92);
     ctx.strokeStyle = "rgba(56,225,255,.9)"; ctx.lineWidth = 3; ctx.lineJoin="round";
     bones(rj).forEach(function(b){ ctx.beginPath(); ctx.moveTo(b[0].x,b[0].y); ctx.lineTo(b[1].x,b[1].y); ctx.stroke(); });
     ctx.fillStyle = "#0a0e14"; ctx.strokeStyle = "rgba(56,225,255,.9)"; ctx.lineWidth=2;
     dots(rj).forEach(function(d){ ctx.beginPath(); ctx.rect(d.x-3.5,d.y-3.5,7,7); ctx.fill(); ctx.stroke(); });
-    // square head
     ctx.beginPath(); ctx.rect(rj.head.x-9, rj.head.y-11, 18, 18);
     ctx.fillStyle="#0a0e14"; ctx.fill(); ctx.stroke();
     ctx.fillStyle="rgba(56,225,255,.9)";
@@ -655,7 +1264,6 @@ if(cv && cv.getContext){
     ctx.fillStyle = "rgba(159,176,195,.9)"; ctx.font = "11px ui-monospace,monospace";
     ctx.fillText("UNITREE G1 · TRACKING POLICY", rx, groundY+24);
 
-    // bottleneck: funnel walls
     var midY = H*0.42;
     ctx.strokeStyle = "rgba(56,225,255,.35)"; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(midL-60, midY-74); ctx.lineTo((W/2)-46, midY-17); ctx.lineTo(midR+60, midY-74); ctx.stroke();
@@ -663,7 +1271,6 @@ if(cv && cv.getContext){
     ctx.beginPath(); ctx.moveTo((W/2)+46, midY-17); ctx.lineTo(midR+60, midY-74); ctx.stroke();
     ctx.beginPath(); ctx.moveTo((W/2)+46, midY+17); ctx.lineTo(midR+60, midY+74); ctx.stroke();
 
-    // z_cmd gate
     var gx = W/2;
     ctx.strokeStyle = "rgba(56,225,255,.85)"; ctx.lineWidth = 2;
     ctx.strokeRect(gx-46, midY-17, 92, 34);
@@ -672,7 +1279,6 @@ if(cv && cv.getContext){
     ctx.fillStyle = "rgba(159,176,195,.85)"; ctx.font = "10.5px ui-monospace,monospace";
     ctx.fillText("THE ONLY CHANNEL — EXCLUSIVITY CONTRACT", gx, midY+40);
 
-    // packets flowing through funnel
     packets.forEach(function(pk){
       pk.p += pk.sp; if(pk.p>1) pk.p = 0;
       var x, y, a;

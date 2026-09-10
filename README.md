@@ -65,6 +65,10 @@ and hardware boundaries are recorded in `docs/E70_VIDEO_PROTOCOL.md` and
 |---|---|---|
 | `snmr/rotation.py` | wxyz quaternion ops, 6D rotation rep (Zhou et al.), geodesic metrics | `tests/test_rotation.py` — cross-checked against scipy |
 | `snmr/robot_model.py` | MJCF → embodiment graph + **differentiable batched FK** | `tests/test_fk.py` — **matches `mujoco.mj_forward` to <1e-4 m / <1e-4 rad** |
+| `snmr/robot_spec.py` | versioned, identity-free kinematics/dynamics/actuation/control contract + coherent dynamics twins | `tests/test_robot_spec.py` — parse/round-trip, hashes, masks, dimensionless features, twin invariants |
+| `snmr/motion_spec.py` | canonical 50 Hz human-motion schema with provenance, SLERP/cubic resampling, scale descriptors, contacts, and normalized-buffer hashes | `tests/test_motion_spec.py` — strict validation, derivation, immutable buffers, JSON/hash round-trip |
+| `snmr/robot_tokens.py` | padded variable-node RobotSpec tensors with tree-distance bias and per-node joint-limit contract | `tests/test_robot_tokens.py` — variable DoF, renaming and permutation equivariance, identity exclusion |
+| `snmr/provenance.py` | worker-side immutable input snapshots, referenced MJCF-bundle hashing, and exact Git states | `tests/test_provenance.py` — mutation detection, materialization, clean/dirty/unavailable revisions |
 | `snmr/skeleton.py` | shared skeleton graph (human + robot), SMPL-X body-22 topology | `tests/test_data.py` |
 | `snmr/data.py` | canonical motion, real-NPZ loader, heading-invariant graph pose features | `tests/test_data.py` — incl. translation/yaw invariance |
 | `snmr/model.py` | GAT encoder → shared latent → embodiment-conditioned (AdaLN) decoder → qpos | `tests/test_model.py` — shapes, unit quats, in-limit dof, grad flow, variable topology |
@@ -74,6 +78,35 @@ and hardware boundaries are recorded in `docs/E70_VIDEO_PROTOCOL.md` and
 | `scripts/make_pairs_lafan1.py` | data engine: LAFAN1 BVH + GMR teacher → paired NPZs per robot | generated the full dataset: 77 clips × 5 robots = **2.48M teacher frames (~23 h), 1.6 GB** in `data/pairs/` |
 | `scripts/train_phase1.py` | Phase-1 trainer: human→z→robot, clip-split train/val, held-out MPJPE eval, resumable | smoke-validated; root predicted in the **scaled-human-heading frame** (see below) |
 | `scripts/export_wbt_npz.py` | SNMR output → holosoma WBT training NPZ (50 fps resample + MuJoCo FK replay) | schema-validated against the real holosoma sample NPZ |
+| `snmr/verification.py` | backend-neutral physics reports with provenance and localized failures | `tests/test_verification.py`; matched MuJoCo CPU/Newton-MJWarp pilot |
+
+### RobotSpec-conditioned physics pilot
+
+The MorphoRetarget foundation is implemented without changing legacy checkpoint inputs. A controlled
+G1 torque-twin experiment passes all six of that pilot's RobotSpec *contract checks* (these are not the
+seven G0--G6 program gates; see the status note below), but also falsifies open-loop PD replay as a
+candidate-ranking/RL reward: MuJoCo CPU and Newton/MJWarp agree that the clip fails, while rollout
+saturation is not monotonic with motor strength. The retained design uses a frozen closed-loop
+tracker in PhysX as the primary strong verifier and Newton/MJWarp as an independent second solver.
+See [`docs/MORPHORETARGET_FOUNDATION_2026-08-30.md`](docs/MORPHORETARGET_FOUNDATION_2026-08-30.md)
+for the original pilot and
+[`docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET.md`](docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET.md)
+for the frozen status, PM01 diagnosis, clean provenance bundle, and explicit G0 failure boundary.
+
+> **Program status (iteration 2, 2026-09-01): FAILED — `STOP_A1_AND_A2`.** All seven program gates
+> G0--G6 are **not met**. The fixed-G1 amortization screen stopped after five successive corrective
+> runs, and the held-out-morphology experiment (A2) was blocked before generating any data, so
+> **there is no learned zero-shot retargeting result of any kind** — G2 is not met and not partial.
+> The cross-backend controller audit stands at 42 pass / 14 fail / 8 missing, with PhysX adopted as
+> the sole primary verifier by an explicit scope decision rather than a parity result. The Booster T1
+> tracker **completed** training on 2026-09-02 but is **not qualified**: no rollout has been run
+> against it and no qualification floor was ever registered. Full record:
+> [`docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET_ITERATION2.md`](docs/RESEARCH_STATUS_2026-09-01_MORPHORETARGET_ITERATION2.md).
+>
+> One measured finding did come out of that failure: the registered stop threshold is
+> **mis-specified**. Scored on the same 13 validation clips with the same ruler, the GMR teacher
+> accumulates 35 fidelity violations across 11/13 clips and reaches amplitude ratio 1.598 — above the
+> 1.50 bound that stopped its own student at 1.510, which recorded 6 violations across 4/13 clips.
 
 ### Root-pose parametrisation (hard-won lesson)
 
@@ -94,7 +127,7 @@ dataset training.
 
 ```bash
 # create env (torch CPU + mujoco), then:
-python -m pytest -q                       # 28 tests, ~4min on CPU
+python -m pytest -q                       # 875 tests across 106 files
 python scripts/overfit_batch.py --steps 800   # end-to-end demonstration
 ```
 
@@ -136,9 +169,9 @@ implementation; the other — silently dropping slide/ball joints instead of rai
 - **The Holosoma latent-command instrument is implemented and validated on MuJoCo/Warp.** On the
   single cyclic clip, the explicit 64-d interface matches its evaluated teacher, while an absolute
   time-index control outperforms the frozen SNMR latent; see `paper/main.tex`. In the frozen E70
-  two-walk assay, the seed-0 explicit control passes and SNMR exceeds time by +0.154 completion
-  (69-cluster 95% CI [0.093, 0.215]) and matched-phase shuffled SNMR by +0.187
-  ([0.137, 0.236]); seeds 1 and 2 are the predeclared confirmation runs. Shared multi-robot control
+  two-walk assay, the frozen three-seed result is SNMR over time by +0.191 completion
+  (69-cluster 95% CI [0.124, 0.274]) and over matched-phase shuffled SNMR by +0.199
+  ([0.127, 0.279]), positive on each clip and at each training seed. Shared multi-robot control
   and RL-to-retargeter feedback remain proposed extensions.
 
 ## Conventions (fixed package-wide)
