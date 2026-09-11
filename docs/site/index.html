@@ -519,11 +519,16 @@ footer .sha{word-break:break-all}
     <p class="lede" style="margin-top:8px">
       Zero it, shuffle it, or replace it with marginal-random samples: general completion
       collapses from 0.923 to exactly <b>0.000</b> — at all three seeds, in all three destruction
-      modes, on <i>both</i> the explicit and latent arms. The interface is not decorative telemetry:
-      the policy <i>relies</i> on this channel completely. Note what this does and does not show —
-      it establishes channel reliance, not that the channel's content is motion semantics. The
-      encoder also reads proprioception, so destroying its output can disturb state-dependent
-      features alongside goal information.
+      modes, on <i>both</i> the explicit and latent arms.
+      <br><br>Two claims live here and they have different standing. <b>Every bit of <i>goal</i>
+      information flows through this channel</b> — that is architecture, provable from the decoder's
+      input width, and it needs no experiment. What the experiment adds is that <b>the decoder has no
+      proprioception-only fallback</b>: raw proprioception still reaches it, and it still cannot act.
+      What the experiment does <i>not</i> show is that the channel's content is motion
+      <i>semantics</i> — it cannot separate goal content from state-coupled content. A related
+      measurement suggests the latter is substantial: merely <i>holding</i> the command for 0.1 s
+      drops the explicit student from 0.926 to 0.223, where a channel carrying only slow motion
+      semantics should barely notice.
     </p>
     <div class="destroy-grid" id="destroygrid">
       <div class="dcell alive"><div class="dv">0.923</div><div class="dk">intact channel</div><div class="dbar"><i data-w="92.3"></i></div></div>
@@ -938,7 +943,7 @@ footer .sha{word-break:break-all}
         <thead><tr><th>Held-out benchmark</th><th class="num">SNMR</th><th class="num">GMR teacher</th><th>Reading</th></tr></thead>
         <tbody>
           <tr class="good"><td>G1 specialist MPJPE, 7 held-out clips</td><td class="num"><b>3.66 cm</b> [3.46, 3.86]</td><td class="num">—</td><td>strong fidelity</td></tr>
-          <tr class="good"><td>Throughput, CPU</td><td class="num"><b>671 fps</b></td><td class="num">~160 fps</td><td>~4× faster, feed-forward</td></tr>
+          <tr><td>Throughput, CPU</td><td class="num"><b>671 fps</b></td><td class="num">~160 fps <span style="color:var(--ink3)">(est.)</span></td><td>feed-forward, no per-frame optimization — but the teacher side was <b>not measured by this evaluator</b>, so treat the ratio as indicative</td></tr>
           <tr><td>Joint-limit violations</td><td class="num">0</td><td class="num">—</td><td>by construction</td></tr>
           <tr class="bad"><td>Foot skate</td><td class="num"><b class="hi r">0.289 m/s</b></td><td class="num">0.052 m/s</td><td><b>unsolved</b> — the program's oldest bottleneck</td></tr>
           <tr class="bad"><td>Ground penetration</td><td class="num">0.0094</td><td class="num">0.0017</td><td>open</td></tr>

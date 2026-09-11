@@ -76,6 +76,17 @@
   bootstrap CIs over 7 held-out LAFAN1 clips.</p>
 </header>
 
+<div class="note" style="border-left-width:4px">
+  <strong>Which architecture these numbers describe.</strong> Everything on this page measures the
+  <strong>legacy 8-D-conditioned SNMR autoencoder</strong>. It is <em>not</em> MorphoRetarget, the
+  RobotSpec-conditioned model described on the project page &mdash; that model has no benchmark
+  result of any kind, and no timing instrumentation. Two further scoping notes, because the words
+  collide: &ldquo;held-out&rdquo; here means <strong>held-out clips on a robot that was in
+  training</strong>, never a held-out robot; and the five robots in the per-robot table were
+  <strong>all in the training set</strong>. The one leave-one-<em>robot</em>-out result this project
+  has is a failure, and it is reported below.
+</div>
+
 <!-- ================= kinematic quality table ================= -->
 <section id="kinematic">
   <h2>Kinematic quality — G1 specialist checkpoint</h2>
@@ -91,9 +102,9 @@
       <tr><td>Foot skate (m/s) ↓</td><td>0.289</td><td class="best">0.052</td><td>the known gap; dof-caused (E24)</td></tr>
       <tr><td>Penetration fraction ↓</td><td>0.0094</td><td class="best">0.0017</td><td>frames with any foot &gt; 1 cm below ground</td></tr>
       <tr><td>Joint-limit violations ↓</td><td class="best">0.000</td><td class="best">0.000</td><td>SNMR: by construction (tanh); GMR: hard QP constraint</td></tr>
-      <tr><td>Joint jumps ↓</td><td class="best">0.0050</td><td>0.0067</td><td>the GMR paper's own failure mode ("Dance 5")</td></tr>
+      <tr><td>Joint jumps ↓</td><td class="best">0.0156</td><td>0.0182</td><td>the GMR paper's own failure mode ("Dance 5")</td></tr>
       <tr><td>DoF jerk (rad/s³) ↓</td><td>693</td><td class="best">618</td><td>smoothness proxy for RL-consumability</td></tr>
-      <tr><td>Throughput (frames/s) ↑</td><td class="best">671 (CPU)</td><td>~160 (CPU)</td><td>one net, no per-frame optimization</td></tr>
+      <tr><td>Throughput (frames/s) ↑</td><td class="best">671 (CPU)</td><td>~160 (CPU) <em>&mdash; not measured here</em></td><td>one net, no per-frame optimization. The SNMR figure is measured; the teacher figure is an external estimate &mdash; this evaluator records <code>teacher_timing: "not measured"</code>, so the ratio is indicative, not a controlled comparison.</td></tr>
     </tbody>
   </table>
   </div>
@@ -128,10 +139,12 @@
 <!-- ================= per-robot ================= -->
 <section id="robots">
   <h2>One network, five embodiments (shared checkpoint)</h2>
-  <p class="lede">The multi-embodiment claim, quantified. A single shared-latent network
-  (z=128, AdaLN embodiment conditioning) serves all five robots; the sharing cost vs the G1
-  specialist is ~2.4 cm (6.04 vs 3.66). No per-robot IK configs, no per-robot tuning —
-  and inference stays real-time on CPU for every embodiment.</p>
+  <p class="lede">A single shared-latent network (z=128, AdaLN embodiment conditioning) serves
+  all five robots; the sharing cost vs the G1 specialist is ~2.4 cm (6.04 vs 3.66), and inference
+  stays real-time on CPU for every embodiment. One shared checkpoint replaces five separately
+  trained networks &mdash; but note carefully what this is <em>not</em> a claim about:
+  <strong>all five of these robots were in the training set</strong>, so this measures multi-robot
+  <em>capacity</em>, not generalization to a new embodiment.</p>
   <figure>
     <svg id="robotChart" viewBox="0 0 900 340" role="img" aria-label="Per-robot MPJPE" style="width:100%;height:auto"></svg>
     <figcaption>Held-out MPJPE per robot for the one shared network. ToddlerBot (the scale
@@ -145,6 +158,15 @@
     <tbody></tbody>
   </table>
   </div>
+  <div class="note"><strong>The counterweight: take one robot out of training and it fails.</strong>
+  The table above is the in-training case. The one leave-one-<em>robot</em>-out experiment this
+  project has run &mdash; holding out EngineAI PM01 entirely &mdash; gives
+  <strong>29.59&nbsp;cm</strong> zero-shot against <strong>5.72&nbsp;cm</strong> for the same robot
+  when it is in training: a 5.2&times; gap against a &le;2&times; criterion, so it fails.
+  (<code>runs/phase2_loro_pm01/final_eval.json</code>; the exact checkpoint is missing, so the
+  mechanism was never localized.) That failure is the reason the RobotSpec-conditioned line exists
+  at all &mdash; and that line has not yet been evaluated on a held-out robot, so nothing here
+  supersedes this result.</div>
 </section>
 
 <!-- ================= downstream ================= -->
