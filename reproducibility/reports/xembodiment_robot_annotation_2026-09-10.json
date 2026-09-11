@@ -1,0 +1,118 @@
+{
+  "schema_version": "snmr.xembodiment-annotation.v1",
+  "frozen_utc": "2026-09-10",
+  "disclosure": "These semantic manifests and the 19-role joint correspondence are MANUAL annotation. They are inputs to the human-side ruler and to the strong nearest-embodiment transfer baseline. They are NOT model parameters and carry no motion-derived or outcome-derived information.",
+  "robots": {
+    "unitree_g1": {
+      "mjcf": "/data/robotixx/snmr-externals/GMR/assets/unitree_g1/g1_mocap_29dof.xml",
+      "mjcf_sha256": "85a25128d42ad3cc8dd071c089806a2773a59ee0689edcc646aeb0201ae8f4c8",
+      "semantic_manifest": {
+        "root_link": "pelvis",
+        "torso_link": "torso_link",
+        "head_link": "head_link",
+        "left_hand_link": "left_rubber_hand",
+        "right_hand_link": "right_rubber_hand",
+        "left_foot_link": "left_ankle_roll_link",
+        "right_foot_link": "right_ankle_roll_link"
+      },
+      "n_links": 38,
+      "n_joints": 29
+    },
+    "booster_t1_29dof": {
+      "mjcf": "/data/robotixx/snmr-externals/GMR/assets/booster_t1_29dof/t1_mocap.xml",
+      "mjcf_sha256": "813027d701c167d3b64b6df94a8f517bd9939bf0196d384acb738faf163db5d6",
+      "semantic_manifest": {
+        "root_link": "Trunk",
+        "torso_link": "Waist",
+        "head_link": "H2",
+        "left_hand_link": "left_hand_link",
+        "right_hand_link": "right_hand_link",
+        "left_foot_link": "left_foot_link",
+        "right_foot_link": "right_foot_link"
+      },
+      "n_links": 32,
+      "n_joints": 27
+    },
+    "engineai_pm01": {
+      "mjcf": "/data/robotixx/snmr-externals/GMR/assets/engineai_pm01/pm_v2.xml",
+      "mjcf_sha256": "a6ba73d3afe744e7a4e4adf43a171a28f1e4e24588e8828b4503cb9747a3e83b",
+      "semantic_manifest": {
+        "root_link": "LINK_BASE",
+        "torso_link": "LINK_TORSO_YAW",
+        "head_link": "LINK_HEAD_YAW",
+        "left_hand_link": "LINK_ELBOW_END_L",
+        "right_hand_link": "LINK_ELBOW_END_R",
+        "left_foot_link": "LINK_ANKLE_ROLL_L",
+        "right_foot_link": "LINK_ANKLE_ROLL_R"
+      },
+      "n_links": 29,
+      "n_joints": 24
+    },
+    "fourier_n1": {
+      "mjcf": "/data/robotixx/snmr-externals/GMR/assets/fourier_n1/n1_mocap.xml",
+      "mjcf_sha256": "d2bbf71eec5921a407db2ae86d9a01d01c7b2bea3846707f56bfd58818a719cc",
+      "semantic_manifest": {
+        "root_link": "base_link",
+        "torso_link": "torso_link",
+        "head_link": "camera_link",
+        "left_hand_link": "left_end_effector_link",
+        "right_hand_link": "right_end_effector_link",
+        "left_foot_link": "left_foot_pitch_link",
+        "right_foot_link": "right_foot_pitch_link"
+      },
+      "n_links": 29,
+      "n_joints": 23
+    },
+    "stanford_toddy": {
+      "mjcf": "/data/robotixx/snmr-externals/GMR/assets/stanford_toddy/toddy_mocap.xml",
+      "mjcf_sha256": "b4c7c27f39d3c1bf85bcc4814d57bdd6919b32578f4d32773b644b72a7a4885d",
+      "semantic_manifest": {
+        "root_link": "torso",
+        "torso_link": "waist_link",
+        "head_link": "head",
+        "left_hand_link": "hand",
+        "right_hand_link": "hand_2",
+        "left_foot_link": "ank_roll_link",
+        "right_foot_link": "ank_roll_link_2"
+      },
+      "n_links": 33,
+      "n_joints": 22
+    }
+  },
+  "batched_token_shape": [
+    5,
+    38,
+    24
+  ],
+  "joints_per_robot": [
+    29,
+    27,
+    24,
+    23,
+    22
+  ],
+  "common_joint_roles": [
+    "L_hip_pitch",
+    "L_hip_roll",
+    "L_hip_yaw",
+    "L_knee",
+    "L_ank_pitch",
+    "L_ank_roll",
+    "R_hip_pitch",
+    "R_hip_roll",
+    "R_hip_yaw",
+    "R_knee",
+    "R_ank_pitch",
+    "R_ank_roll",
+    "waist_yaw",
+    "L_sho_pitch",
+    "L_sho_roll",
+    "L_elbow",
+    "R_sho_pitch",
+    "R_sho_roll",
+    "R_elbow"
+  ],
+  "role_map_source": "reproducibility/reports/xembodiment_morphology_distance_2026-09-10.json",
+  "uncorresponded_joints_note": "Joints outside the 19 common roles (G1 waist roll/pitch + 6 wrist, T1 4 wrist/hand-roll + 2 elbow-yaw, PM01 2 elbow-yaw + head yaw, N1 2 wrist-yaw, Toddy waist roll) are held at their nominal pose by the nearest-transfer baseline and are reported as an uncovered-DoF fraction per robot.",
+  "annotation_sha256": "9cb0c73b29c2be10d02612779a2f844ba995f6494c74cdebe4b19cf10392097d"
+}

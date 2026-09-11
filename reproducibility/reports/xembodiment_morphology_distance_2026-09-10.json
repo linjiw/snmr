@@ -1,0 +1,259 @@
+{
+  "distance": {
+    "booster_t1_29dof": {
+      "booster_t1_29dof": 0.0,
+      "engineai_pm01": 1.6100221124532719,
+      "fourier_n1": 1.60943381569476,
+      "stanford_toddy": 1.6670287879163737,
+      "unitree_g1": 1.1326460459678365
+    },
+    "engineai_pm01": {
+      "booster_t1_29dof": 1.6100221124532719,
+      "engineai_pm01": 0.0,
+      "fourier_n1": 0.9406571039101433,
+      "stanford_toddy": 2.151796370779757,
+      "unitree_g1": 1.3539062624187743
+    },
+    "fourier_n1": {
+      "booster_t1_29dof": 1.60943381569476,
+      "engineai_pm01": 0.9406571039101433,
+      "fourier_n1": 0.0,
+      "stanford_toddy": 1.8104556854564358,
+      "unitree_g1": 1.3510090877935244
+    },
+    "stanford_toddy": {
+      "booster_t1_29dof": 1.6670287879163737,
+      "engineai_pm01": 2.151796370779757,
+      "fourier_n1": 1.8104556854564358,
+      "stanford_toddy": 0.0,
+      "unitree_g1": 1.8178500006779026
+    },
+    "unitree_g1": {
+      "booster_t1_29dof": 1.1326460459678365,
+      "engineai_pm01": 1.3539062624187743,
+      "fourier_n1": 1.3510090877935244,
+      "stanford_toddy": 1.8178500006779026,
+      "unitree_g1": 0.0
+    }
+  },
+  "geometry": {
+    "booster_t1_29dof": {
+      "arm": 0.4716297515000513,
+      "dof": 27,
+      "leg": 0.6538697743557199,
+      "mass": 34.512468999999996,
+      "rom": {
+        "L_ank_pitch": 1.22,
+        "L_ank_roll": 0.88,
+        "L_elbow": 4.54,
+        "L_hip_pitch": 3.37,
+        "L_hip_roll": 1.87,
+        "L_hip_yaw": 2.0,
+        "L_knee": 2.34,
+        "L_sho_pitch": 4.53,
+        "L_sho_roll": 3.31,
+        "R_ank_pitch": 1.22,
+        "R_ank_roll": 0.88,
+        "R_elbow": 4.54,
+        "R_hip_pitch": 3.37,
+        "R_hip_roll": 1.87,
+        "R_hip_yaw": 2.0,
+        "R_knee": 2.34,
+        "R_sho_pitch": 4.53,
+        "R_sho_roll": 3.31,
+        "waist_yaw": 3.14
+      },
+      "shank": 0.29200010702052837,
+      "shape": [
+        0.7212900335770439,
+        0.382543824445687,
+        0.5661468023613505,
+        0.4465722663327663,
+        0.32514119529302604
+      ],
+      "shoulder_w": 0.2126,
+      "thigh": 0.37018628191222863,
+      "torso": 0.2501338441714755
+    },
+    "engineai_pm01": {
+      "arm": 0.3650502133656274,
+      "dof": 24,
+      "leg": 0.7852279145358264,
+      "mass": 40.92281135,
+      "rom": {
+        "L_ank_pitch": 1.405,
+        "L_ank_roll": 0.5236,
+        "L_elbow": 2.9322,
+        "L_hip_pitch": 5.584,
+        "L_hip_roll": 2.53,
+        "L_hip_yaw": 5.5840000000000005,
+        "L_knee": 2.7401999999999997,
+        "L_sho_pitch": 5.7596,
+        "L_sho_roll": 2.9669999999999996,
+        "R_ank_pitch": 1.405,
+        "R_ank_roll": 0.5236,
+        "R_elbow": 2.9322,
+        "R_hip_pitch": 5.584,
+        "R_hip_roll": 2.53,
+        "R_hip_yaw": 5.5840000000000005,
+        "R_knee": 2.7401999999999997,
+        "R_sho_pitch": 5.7596,
+        "R_sho_roll": 2.9669999999999996,
+        "waist_yaw": 5.5840000000000005
+      },
+      "shank": 0.37899586064441865,
+      "shape": [
+        0.4648971421009916,
+        0.41217995115296474,
+        0.5296819864752721,
+        0.4826571414854187,
+        0.3289745502141264
+      ],
+      "shoulder_w": 0.25832,
+      "thigh": 0.4159210816071717,
+      "torso": 0.3236552034573213
+    },
+    "fourier_n1": {
+      "arm": 0.3036587471298852,
+      "dof": 23,
+      "leg": 0.6659015275975494,
+      "mass": 39.727,
+      "rom": {
+        "L_ank_pitch": 1.57,
+        "L_ank_roll": 0.872,
+        "L_elbow": 2.0069999999999997,
+        "L_hip_pitch": 5.234,
+        "L_hip_roll": 1.831,
+        "L_hip_yaw": 5.234,
+        "L_knee": 2.4432,
+        "L_sho_pitch": 5.932,
+        "L_sho_roll": 2.9659999999999997,
+        "R_ank_pitch": 1.57,
+        "R_ank_roll": 0.872,
+        "R_elbow": 2.0069999999999997,
+        "R_hip_pitch": 5.234,
+        "R_hip_roll": 1.831,
+        "R_hip_yaw": 5.234,
+        "R_knee": 2.4432,
+        "R_sho_pitch": 5.932,
+        "R_sho_roll": 2.9659999999999997,
+        "waist_yaw": 5.234
+      },
+      "shank": 0.27999999999999997,
+      "shape": [
+        0.45601148900413296,
+        0.45298484974403497,
+        0.5912765922558634,
+        0.42048259148794664,
+        0.2932866075628428
+      ],
+      "shoulder_w": 0.1953,
+      "thigh": 0.3937319860158528,
+      "torso": 0.30164330342309925
+    },
+    "stanford_toddy": {
+      "arm": 0.17196025751276506,
+      "dof": 22,
+      "leg": 0.3002118957043674,
+      "mass": 3.39653108,
+      "rom": {
+        "L_ank_pitch": 2.530728,
+        "L_ank_roll": 3.1416,
+        "L_elbow": 4.36332,
+        "L_hip_pitch": 3.92699,
+        "L_hip_roll": 1.570796,
+        "L_hip_yaw": 3.1416,
+        "L_knee": 2.0944,
+        "L_sho_pitch": 4.71239,
+        "L_sho_roll": 1.9198659999999999,
+        "R_ank_pitch": 2.530728,
+        "R_ank_roll": 3.1416,
+        "R_elbow": 4.36332,
+        "R_hip_pitch": 3.92699,
+        "R_hip_roll": 1.570796,
+        "R_hip_yaw": 3.1416,
+        "R_knee": 2.0944,
+        "R_sho_pitch": 4.71239,
+        "R_sho_roll": 1.9198659999999999,
+        "waist_yaw": 3.1416
+      },
+      "shank": 0.10292776593320188,
+      "shape": [
+        0.5727962814708125,
+        0.41291534913118033,
+        0.6738283684933577,
+        0.34285039136010664,
+        0.44635140018554104
+      ],
+      "shoulder_w": 0.134,
+      "thigh": 0.20229129188477196,
+      "torso": 0.12396209972810236
+    },
+    "unitree_g1": {
+      "arm": 0.31542680574484167,
+      "dof": 29,
+      "leg": 0.7660851908323741,
+      "mass": 34.377142000000006,
+      "rom": {
+        "L_ank_pitch": 1.39627,
+        "L_ank_roll": 0.5236,
+        "L_elbow": 2.7472,
+        "L_hip_pitch": 3.14,
+        "L_hip_roll": 2.0936,
+        "L_hip_yaw": 3.14,
+        "L_knee": 2.967067,
+        "L_sho_pitch": 4.2382,
+        "L_sho_roll": 2.8515,
+        "R_ank_pitch": 1.39627,
+        "R_ank_roll": 0.5236,
+        "R_elbow": 2.7472,
+        "R_hip_pitch": 3.14,
+        "R_hip_roll": 2.0936,
+        "R_hip_yaw": 3.14,
+        "R_knee": 2.967067,
+        "R_sho_pitch": 4.2382,
+        "R_sho_roll": 2.8515,
+        "waist_yaw": 3.14
+      },
+      "shank": 0.31756801404401236,
+      "shape": [
+        0.41173855012406796,
+        0.4027123135300862,
+        0.5939601828190395,
+        0.4145335503731189,
+        0.26164191972202994
+      ],
+      "shoulder_w": 0.20044,
+      "thigh": 0.45502410000175575,
+      "torso": 0.30851193956124295
+    }
+  },
+  "nearest": {
+    "booster_t1_29dof": "unitree_g1",
+    "engineai_pm01": "fourier_n1",
+    "fourier_n1": "engineai_pm01",
+    "stanford_toddy": "booster_t1_29dof",
+    "unitree_g1": "booster_t1_29dof"
+  },
+  "roles": [
+    "L_hip_pitch",
+    "L_hip_roll",
+    "L_hip_yaw",
+    "L_knee",
+    "L_ank_pitch",
+    "L_ank_roll",
+    "R_hip_pitch",
+    "R_hip_roll",
+    "R_hip_yaw",
+    "R_knee",
+    "R_ank_pitch",
+    "R_ank_roll",
+    "waist_yaw",
+    "L_sho_pitch",
+    "L_sho_roll",
+    "L_elbow",
+    "R_sho_pitch",
+    "R_sho_roll",
+    "R_elbow"
+  ]
+}

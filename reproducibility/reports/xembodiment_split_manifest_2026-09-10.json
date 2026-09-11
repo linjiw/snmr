@@ -1,0 +1,171 @@
+{
+  "schema_version": "snmr.xembodiment-split.v1",
+  "frozen_utc": "2026-09-10",
+  "source_corpus": "/data/robotixx/pairs",
+  "robots": [
+    "unitree_g1",
+    "booster_t1_29dof",
+    "engineai_pm01",
+    "fourier_n1",
+    "stanford_toddy"
+  ],
+  "family_map": {
+    "walk": "locomotion",
+    "run": "locomotion",
+    "sprint": "locomotion",
+    "obstacles": "obstacle",
+    "dance": "dance",
+    "fallAndGetUp": "fall_recover",
+    "ground": "fall_recover",
+    "push": "perturb",
+    "pushAndFall": "perturb",
+    "pushAndStumble": "perturb",
+    "fight": "combat",
+    "fightAndSports": "combat",
+    "aiming": "aiming",
+    "jumps": "jump",
+    "multipleActions": "QUARANTINE"
+  },
+  "train_families": [
+    "locomotion",
+    "obstacle",
+    "dance",
+    "fall_recover"
+  ],
+  "heldout_families": [
+    "aiming",
+    "jump",
+    "combat",
+    "perturb"
+  ],
+  "heldout_subject": "subject5",
+  "motion_partition": {
+    "train": {
+      "n": 45,
+      "clips": [
+        "dance1_subject1",
+        "dance1_subject2",
+        "dance1_subject3",
+        "dance2_subject1",
+        "dance2_subject2",
+        "dance2_subject3",
+        "dance2_subject4",
+        "fallAndGetUp1_subject1",
+        "fallAndGetUp1_subject4",
+        "fallAndGetUp2_subject2",
+        "fallAndGetUp2_subject3",
+        "fallAndGetUp3_subject1",
+        "ground1_subject1",
+        "ground1_subject4",
+        "ground2_subject2",
+        "ground2_subject3",
+        "obstacles1_subject1",
+        "obstacles1_subject2",
+        "obstacles2_subject1",
+        "obstacles2_subject2",
+        "obstacles3_subject3",
+        "obstacles3_subject4",
+        "obstacles4_subject2",
+        "obstacles4_subject3",
+        "obstacles4_subject4",
+        "obstacles5_subject2",
+        "obstacles5_subject3",
+        "obstacles5_subject4",
+        "obstacles6_subject1",
+        "obstacles6_subject4",
+        "run1_subject2",
+        "run2_subject1",
+        "run2_subject4",
+        "sprint1_subject2",
+        "sprint1_subject4",
+        "walk1_subject1",
+        "walk1_subject2",
+        "walk2_subject1",
+        "walk2_subject3",
+        "walk2_subject4",
+        "walk3_subject1",
+        "walk3_subject2",
+        "walk3_subject3",
+        "walk3_subject4",
+        "walk4_subject1"
+      ]
+    },
+    "panel_F_familiar_family_unseen_clip": {
+      "n": 9,
+      "clips": [
+        "dance2_subject5",
+        "fallAndGetUp1_subject5",
+        "ground1_subject5",
+        "obstacles1_subject5",
+        "obstacles2_subject5",
+        "obstacles6_subject5",
+        "run1_subject5",
+        "walk1_subject5",
+        "walk3_subject5"
+      ]
+    },
+    "panel_U_unseen_family": {
+      "n": 19,
+      "clips": [
+        "aiming1_subject1",
+        "aiming1_subject4",
+        "aiming2_subject2",
+        "aiming2_subject3",
+        "aiming2_subject5",
+        "fight1_subject2",
+        "fight1_subject3",
+        "fight1_subject5",
+        "fightAndSports1_subject1",
+        "fightAndSports1_subject4",
+        "jumps1_subject1",
+        "jumps1_subject2",
+        "jumps1_subject5",
+        "push1_subject2",
+        "pushAndFall1_subject1",
+        "pushAndFall1_subject4",
+        "pushAndStumble1_subject2",
+        "pushAndStumble1_subject3",
+        "pushAndStumble1_subject5"
+      ],
+      "subject_unseen_stratum": [
+        "aiming2_subject5",
+        "fight1_subject5",
+        "jumps1_subject5",
+        "pushAndStumble1_subject5"
+      ],
+      "subject_seen_stratum": [
+        "aiming1_subject1",
+        "aiming1_subject4",
+        "aiming2_subject2",
+        "aiming2_subject3",
+        "fight1_subject2",
+        "fight1_subject3",
+        "fightAndSports1_subject1",
+        "fightAndSports1_subject4",
+        "jumps1_subject1",
+        "jumps1_subject2",
+        "push1_subject2",
+        "pushAndFall1_subject1",
+        "pushAndFall1_subject4",
+        "pushAndStumble1_subject2",
+        "pushAndStumble1_subject3"
+      ]
+    },
+    "quarantine_unassignable_family": {
+      "n": 4,
+      "clips": [
+        "multipleActions1_subject1",
+        "multipleActions1_subject2",
+        "multipleActions1_subject3",
+        "multipleActions1_subject4"
+      ]
+    }
+  },
+  "leakage_checks_passed": [
+    "train and panel_U share no action family",
+    "train contains no subject5 clip",
+    "train, panel_F, panel_U are pairwise clip-disjoint",
+    "multipleActions quarantined from both train and evaluation"
+  ],
+  "manifest_sha256": "063b6da836a991915eabbf6a43ba616a47b2bdf562a3f02b621be80f221bdd5e"
+}
