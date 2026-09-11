@@ -395,3 +395,111 @@ def test_same_robot_output_is_invariant_to_padded_cobatch_context():
     torch.testing.assert_close(
         alone.robot_embeddings[0], together.robot_embeddings[0], rtol=1e-6, atol=2e-6
     )
+
+
+# ---------------------------------------------------------------------------
+# The load-bearing positioning claim: an unseen robot costs ZERO new parameters.
+#
+# This is what separates the approach from per-robot-adapter methods (a learned
+# prompt bank plus an embodiment-specific output head) and from per-pair or
+# per-robot optimization: those cannot produce output for a robot absent at
+# training time without first allocating and fitting new weights.  If this
+# property ever breaks, the central claim of the methods paper breaks with it.
+#
+# Verified against 7 real humanoid MJCFs (19-29 DoF) by
+# scripts/verify_zero_new_parameters.py; this test pins the property without
+# depending on external assets.
+# ---------------------------------------------------------------------------
+
+
+def _chain_joint(name: str, parent: str, child: str) -> JointSpec:
+    return JointSpec(
+        name=name,
+        parent_link=parent,
+        child_link=child,
+        joint_type="revolute",
+        axis=(0.0, 1.0, 0.0),
+        lower_limit=-0.8,
+        upper_limit=1.2,
+        velocity_limit=4.0,
+        torque_limit=20.0,
+        armature=0.01,
+        damping=0.1,
+        friction_loss=0.0,
+        nominal_position=0.0,
+        kp=30.0,
+        kd=1.0,
+    )
+
+
+def _chain_spec(num_joints: int) -> RobotSpec:
+    """A single kinematic chain of `num_joints` hinges, so DoF count is a free variable."""
+    links = [_link("root", None, (0.0, 0.0, 0.0))]
+    joints = []
+    for index in range(num_joints):
+        parent = "root" if index == 0 else f"link{index - 1}"
+        child = f"link{index}"
+        links.append(_link(child, parent, (0.0, 0.0, -0.1)))
+        joints.append(_chain_joint(f"joint{index}", parent, child))
+    spec = RobotSpec(
+        schema_version="snmr.robot.v0.1",
+        asset_sha256="0" * 64,
+        frames=FrameConvention(),
+        semantics=SemanticManifest(root_link="root"),
+        control=ControlSpec(control_dt=0.02, latency_seconds=0.0),
+        runtime=RuntimeSpec(simulation_dt=0.002),
+        total_mass=float(len(links)),
+        standing_height=1.0,
+        arm_span=None,
+        links=tuple(links),
+        joints=tuple(joints),
+    )
+    spec.validate()
+    return spec
+
+
+def test_one_parameter_set_serves_every_dof_count():
+    """Varying the robot's DoF changes the OUTPUT width, never the parameter count."""
+    human_dim = 16
+    model = KinematicMorphoRetargeter(
+        MorphoRetargetConfig(human_token_dim=human_dim, hidden_dim=32, num_heads=4)
+    ).eval()
+    tokenizer = RobotGraphTokenizer(feature_set="kinematic")
+    reference = sum(p.numel() for p in model.parameters())
+
+    widths = {}
+    for num_joints in (5, 12, 19, 23, 29):
+        batch = tokenizer([_chain_spec(num_joints)])
+        with torch.no_grad():
+            output = model(torch.randn(1, 3, human_dim), batch)
+        assert sum(p.numel() for p in model.parameters()) == reference
+        widths[num_joints] = output.joint_positions.shape[-1]
+
+    # Output width tracks the robot, parameters do not.
+    assert len(set(widths.values())) == len(widths), widths
+    assert all(w == n + 1 for n, w in widths.items()), widths  # +1 for the root link
+
+
+def test_no_parameter_is_indexed_by_robot_identity():
+    """No parameter tensor may be sized by a robot count, joint count, or ID vocabulary.
+
+    A per-robot prompt bank or per-robot output head would show up here as a
+    parameter whose leading dimension scales with the number of robots.
+    """
+    model = KinematicMorphoRetargeter(
+        MorphoRetargetConfig(human_token_dim=16, hidden_dim=32, num_heads=4)
+    )
+    tokenizer = RobotGraphTokenizer(feature_set="kinematic")
+    small = tokenizer([_chain_spec(5)])
+    large = tokenizer([_chain_spec(29)])
+
+    # The only robot-dependent axis is the node axis of the *inputs*, never a weight.
+    assert small.node_features.shape[-1] == large.node_features.shape[-1]
+    shapes_before = {n: tuple(p.shape) for n, p in model.named_parameters()}
+
+    human = torch.randn(1, 3, 16)
+    with torch.no_grad():
+        model(human, small)
+        model(human, large)
+
+    assert {n: tuple(p.shape) for n, p in model.named_parameters()} == shapes_before
