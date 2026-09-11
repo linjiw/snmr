@@ -81,6 +81,19 @@ An arm carrying recoverable clip identity plus matched phase scored **0.5524**, 
 deterministic clips, identity plus phase is in principle sufficient to select the correct
 future at an ambiguous start.
 
+**Quantified.** The between-clip mean separation of each arm's command, after the
+per-dimension standardization the trainer actually applies, is:
+
+| Arm | Between-clip separation |
+| --- | ---: |
+| A — frozen SNMR latent | **8.0415 SD** |
+| S — misaligned reference | **8.0415 SD** |
+| T — time code | **0.0000 SD** |
+
+S carries *exactly* as much linearly decodable clip identity as the arm that wins, because
+the donor map only relabels the two clusters; T carries none, by construction. Reproduce
+with `scripts/measure_arm_identity_separation.py`.
+
 So the students **did not invert the fixed map**. That is unsurprising in hindsight — nothing
 in the objective rewards learning "when I see clip B's latent, produce clip A's action," and
 the donor latent is a 64-d motion code, not a clean identity label — but it is a measurement,

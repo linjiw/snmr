@@ -97,9 +97,12 @@ the entire target, so any channel correlated with progress inherits its score.  
 interface measurable instead: a 64-d code is the decoder's exclusive motion command, and a
 policy-independent screen builds \ESelectedWindows{} start pairs whose present states are
 close but whose futures diverge, breaking the one-to-one link between time and target.
-Under that construction the frozen latent leads an equally trained clock by
-$\EATDifference$ [\EATCILow, \EATCIHigh] and a matched-phase wrong-trajectory control by
-$\EASDifference$ [\EASCILow, \EASCIHigh] in the \EEndpointLabel.  Destroying the exclusive
+Under that construction the frozen latent leads an equally trained clock---an
+identity-free code, bit-identical across clips at equal local frame indices by construction
+and by regression test---by $\EATDifference$ [\EATCILow, \EATCIHigh], and leads a
+phase-matched \emph{misaligned-reference} control by $\EASDifference$ [\EASCILow,
+\EASCIHigh] in the \EEndpointLabel.  That second control supplies the other walk's real
+latent at matched normalized time: it withholds the correct future, not clip identity.  Destroying the exclusive
 command collapses completion to \EDestroyCompletion{} in all \EDestroySeeds{} seeds and all
 \EDestroyModes{} destruction modes, on \emph{both} the explicit and latent arms.  Shifting
 the latent in time---which preserves clip identity exactly---destroys
@@ -254,7 +257,12 @@ representation. We move the actor-visible reference behind a learned code:
 $\zcmd = E_\theta(x_t,u_t)$, where $u_t=g_t$ in the explicit arm and
 $u_t=[z_{\mathrm{ret},t},z_{\mathrm{ret},t+0.1\,\mathrm{s}}]$ in the \snmr{} arm.
 The explicit command is current-frame only; an explicit future-goal window remains
-future work. Under an \emph{exclusivity contract}, the upstream signal is visible to the
+future work.  A, T and S share the two-sample window $[t,\,t{+}0.1\,\mathrm{s}]$ through
+one code path, so the representation arms are matched on lookahead; the asymmetry is between
+them and C, and it runs \emph{against} the capability control.  C receives strictly less
+lookahead than every representation arm and still reaches \EExplicitAmb{} against A's
+\ESnmrAmb{}, so the explicit figure we report is a lower bound on what a window-matched
+explicit arm would reach, and no conclusion here depends on C being a tight ceiling. Under an \emph{exclusivity contract}, the upstream signal is visible to the
 encoder $E_\theta$, but never to the action decoder, whose input is exactly the
 90-d proprioceptive slice plus the 64-d code (structurally regression-tested).  Behavioral
 dependence is established within each trained policy: zeroing, batch-shuffling, or
@@ -310,7 +318,8 @@ motion to a per-frame retargeting latent $z_{\mathrm{ret}}\in\mathbb{R}^{128}$
 decoders (AdaLN on a 32-d embodiment code, $\tanh$ joint-limit heads) emit trajectories
 for the five training humanoids. Trained by distillation from a per-frame IK
 teacher~\cite{gmr} on 77 LAFAN1 clips $\times$ 5 robots (2.48M paired frames), it
-reaches 3.66\,cm held-out MPJPE (CI $[3.46, 3.86]$; G1 specialist; 2.9--6.0\,cm shared
+reaches 3.66\,cm MPJPE on held-out clips of a trained robot (CI $[3.46, 3.86]$; G1
+specialist; 2.9--6.0\,cm shared
 across all five robots) at 671\,fps on CPU, with zero joint-limit violations by
 construction. Foot skate (0.29 vs teacher 0.05\,m/s) remains a measured fidelity gap.
 
@@ -408,7 +417,20 @@ The five student arms share the teacher ensemble, student core, training budget,
 checkpoint rule, and evaluation starts; they differ in the upstream signal available to
 the encoder: explicit robot goal (C), frozen SNMR latent at $t$ and $t{+}0.1$\,s (A),
 absolute within-clip time (T), proprioception alone (B), or the other clip's latent at
-matched normalized time (S).  C runs first and
+matched normalized time (S).
+
+S is a phase-matched \emph{misaligned-reference} control, not an identity-erasing one.  Its
+donor map is the deterministic bijection $(\mathrm{destination}+1)\bmod n$---a pure swap on
+this two-clip pool---so clip identity remains recoverable in principle from S's command at
+every pool size.  The assay's identity-free null is T, whose code is bit-identical across
+clips at equal local frame indices.  Measured on the frozen latents, between-clip mean
+separation after per-arm standardization is 8.04\,SD for \emph{both} A and S, and exactly
+0.000 for T: S carried as much linearly decodable clip identity as the winning arm, and
+still scored \EShuffledAmb{}, indistinguishable from identity-free T at \ETimeAmb{}.  The
+registered primary contrast is A--T, so it is unaffected by S's construction; only the
+secondary A--S contrast is reinterpreted.
+
+C runs first and
 must reach 0.80 general completion or fall no more than 0.05 below the specialist
 macro.  Only then are A/T/B/S licensed.  The primary endpoint is ambiguity-start
 completion; a paired bootstrap clusters by the 69 frame pairs, and the registered
@@ -431,7 +453,7 @@ Encoder input & General & Amb. & Amb. survival \\
 Explicit goal (C) & \EExplicitGeneral & \EExplicitAmb & \EExplicitSurvival\,s \\
 Frozen $z_{\mathrm{ret}}$ (A) & \ESnmrGeneral & \ESnmrAmb & \ESnmrSurvival\,s \\
 Absolute time (T) & \ETimeGeneral & \ETimeAmb & \ETimeSurvival\,s \\
-Matched-phase shuffle (S) & \EShuffledGeneral & \EShuffledAmb & \EShuffledSurvival\,s \\
+Misaligned reference (S) & \EShuffledGeneral & \EShuffledAmb & \EShuffledSurvival\,s \\
 Proprioception only (B) & \EProprioGeneral & \EProprioAmb & \EProprioSurvival\,s \\
 \midrule
 A--T, paired 95\% CI & & $\EATDifference$ & $[\EATCILow,\EATCIHigh]$ \\
@@ -482,7 +504,7 @@ are $\EATFirst$ [\EATFirstLow, \EATFirstHigh] and $\EATSecond$
   two-walk assay, the frozen SNMR code therefore
   provides control-usable trajectory information beyond absolute within-clip time.
   \else The registered content gate does not pass, so this assay demonstrates no
-  advantage for the frozen SNMR code over its time and phase-shuffled controls.  This is
+  advantage for the frozen SNMR code over its time and misaligned-reference controls.  This is
   a scoped null for interface extraction, not evidence that the code lacks information.\fi
 \else
   The explicit student fails the registered capability gate.  The controller assay is
@@ -503,8 +525,9 @@ latent shapes an RL objective---regimes this paper does not test.
 The contrasts above establish that the latent carries clip-disambiguating information, but
 not what that information is.  The sharpest competing account is that \zcmd{} carries a
 single bit---\emph{which clip}---which on two memorized walks would reproduce the entire
-A--T gap.  The shuffled control cannot separate this, because it destroys clip identity and
-future correctness together.
+A--T gap.  The misaligned-reference control cannot separate this either: it withholds the correct
+future while leaving clip identity recoverable, so it isolates neither a label reader nor a
+future reader.
 
 A time shift does separate them.  We replace the source window
 $[z_{\mathrm{ret},t},z_{\mathrm{ret},t+0.1\,\mathrm{s}}]$ with
@@ -526,7 +549,7 @@ $\EPhaseShiftPlusQuarterSeconds$\,s gives \EPhaseShiftPlusQuarterCompletion{}, e
 destroying roughly half of the latent's \EPhaseClockAdvantage{} advantage over the clock;
 $\EPhaseShiftPlusHalfSeconds$\,s gives \EPhaseShiftPlusHalfCompletion{}, destroying
 \EPhaseShiftPlusHalfLostPercent\% of it.  Half a second of phase error leaves the latent
-barely above the matched-phase wrong-trajectory control (\EShuffledAmb{}) and
+barely above the phase-matched misaligned-reference control (\EShuffledAmb{}) and
 indistinguishable from the clock (\ETimeAmb{}).  \textbf{Clip identity and temporal
 alignment are each necessary; neither alone is sufficient}, and a static clip label is
 rejected.
@@ -590,7 +613,8 @@ can use that content.
 \section{Upstream Retargeter Boundary}
 The assay uses a nontrivial upstream representation rather than an arbitrary motion
 embedding.  SNMR amortizes an IK teacher across five humanoids at 671\,fps on CPU, with
-3.66\,cm G1 held-out MPJPE and joint limits enforced by construction.  Adding 1,938
+3.66\,cm G1 MPJPE on held-out clips of a trained robot, and joint limits enforced by
+construction.  Adding 1,938
 interaction-rich OmniRetarget clips~\cite{omniretarget} tests whether the shared model
 can absorb a second teacher and new source skeletons.  Table~\ref{tab:twoteacher}
 evaluates free-standing root prediction on group-held-out sibling splits: the shared
@@ -669,10 +693,18 @@ simulated Unitree~G1, one frozen SNMR endpoint, one specialist ensemble, and one
 distilled controller class.  Both evaluation motions are student-training trajectories:
 the ambiguity starts change the start distribution but do not test held-out-motion
 generalization.  The matched time null rules out absolute progress through
-these clips, not every temporal or phase model; the shuffled control destroys clip
-identity as well as future correctness, so a positive result establishes
-clip-disambiguating information but does not separate static clip identity from finer
-time-varying future semantics.  Nearby starts can also have overlapping 10-s rollout
+these clips, not every temporal or phase model.  The misaligned-reference control S
+withholds the correct future but does not erase clip identity: its donor map is the
+deterministic bijection $(\mathrm{destination}+1)\bmod n$, a pure swap on this two-clip
+pool, so identity remains recoverable in principle from S's command.  We therefore do not
+claim S bounds what an identity-only command can achieve; that role belongs to T.  What we
+can report is that S's code carried between-clip separation equal to A's (8.04\,SD, against
+exactly 0.000 for T) and still scored \EShuffledAmb{}: the identity was present and the
+students did not invert the map.  That bounds \emph{accidental} exploitation; it is not
+evidence that a directly supervised clip-identity-plus-phase reader would fail, and such an
+arm requires a new training arm rather than a re-evaluation and is unrun.  A positive result
+therefore establishes clip-disambiguating information but does not separate static clip
+identity from finer time-varying future semantics.  Nearby starts can also have overlapping 10-s rollout
 horizons; the preregistered interval is conditional on these two trajectories and
 \ESelectedWindows{} reference-defined starts and does not model temporal dependence across
 pair identities.  A preregistered secondary analysis over \ETemporalBlocks{} connected
@@ -697,7 +729,9 @@ The explicit arm C is current-frame only, so any A--C gap confounds representati
 a 100\,ms horizon and is not a registered contrast; a window-matched explicit arm remains
 future work.  The upstream SNMR encoder is frozen, so no tracking
 gradient improves what it exposes.  Zero-shot decoding to an unseen robot fails
-($5.2\times$ error), contact is weak without explicit supervision, object and terrain
+(29.6\,cm, against 5.7\,cm for that robot when it is in training---a comparison across two
+training runs, not a within-run contrast), contact is weak without explicit supervision,
+object and terrain
 interaction are absent from the tracking loop, and no hardware or sim-to-real result is
 reported.
 
@@ -739,7 +773,7 @@ negative diagnosis is the paper's starting point, not an aside.
 The repair is to make the command exclusive and to construct starts whose presents match
 while their futures diverge.  Under that construction the boundary becomes measurable, and
 \ifeexplicitvalid\ifepositivecontent the frozen latent shows a registered advantage over
-both an equally trained clock and a matched-phase wrong-trajectory control\else the
+both an equally trained clock and a phase-matched misaligned-reference control\else the
 registered content gate does not pass\fi\else the explicit capability control fails and no
 representation comparison is supported\fi.  Within-policy destruction shows both arms
 depend on the exclusive channel, and a time-shift battery---which preserves clip identity
