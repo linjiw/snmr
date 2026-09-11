@@ -1,0 +1,12 @@
+Test record for the 2026-09-10 sprint (commit 8f04234 on feat/morpho-retarget-kinematic; pre-existing dirty tree untouched)
+Environment: .venv python 3.10.12, torch 2.13.0+cu130, pytest 9.1.1; ROS PYTHONPATH cleared.
+
+New tests (this sprint): tests/test_contact_audit.py 13 passed; tests/test_correction_basis.py 14 passed; tests/test_repair_intent.py 15 passed.
+
+Pass 1: pytest tests -q -x --ignore=tests/test_eval_morpho_g1_contract.py
+  603 passed, 2 skipped, 1 warning, 1 error in 1698 s.
+  The error is pre-existing untracked tests/test_morphoret_t1_tracker.py -> snmr/integration/morphoret_t1_tracker.py:160 importing yaml (not installed in .venv). -x stopped the run there.
+
+Pass 2: the 33 test files sorting after tests/test_morphoret_t1_tracker.py (list: remaining_tests.txt in the job tmp dir), no -x.
+  First attempt killed by a 1700 s limit (exit 143, no summary). Second attempt with a 3500 s limit: 33 tests passed, 0 failed/errored before the limit killed it (exit 124); no summary line.
+  These are pre-existing heavy tests (train_morpho_g1 schedule, motion adapters, morphoret tracker, etc.), not this sprint's code. The suite as a whole was not confirmed green end to end within the sprint; no failure was observed in any test that completed.

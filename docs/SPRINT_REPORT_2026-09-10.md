@@ -162,9 +162,11 @@ New tests: 13 + 14 + 15 = 42, all passing. Full suite (`pytest tests -q -x`, ROS
 cleared, `tests/test_eval_morpho_g1_contract.py` excluded): **603 passed, 2 skipped, 1 error**
 in 28 min; the error is the pre-existing untracked `tests/test_morphoret_t1_tracker.py`
 importing `yaml`, which is not installed in `.venv` (environment, not this sprint's code), and
-`-x` stopped the run there. The files after it in sort order were rerun separately; the result
-is recorded in the job's final message and in `reproducibility/reports/sprint_2026-09-10/`
-if it completed before the commit.
+`-x` stopped the run there. The 33 files after it in sort order were rerun separately without
+`-x`: 33 tests passed and none failed before a 58-minute limit killed the run without a
+summary (pre-existing heavy tests, not this sprint's code). The suite was therefore **not
+confirmed green end to end**; no completed test failed. Record:
+`reproducibility/reports/sprint_2026-09-10/pytest_record.txt`.
 
 ## Not done, and why
 
