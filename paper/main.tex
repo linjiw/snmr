@@ -261,8 +261,9 @@ future work.  A, T and S share the two-sample window $[t,\,t{+}0.1\,\mathrm{s}]$
 one code path, so the representation arms are matched on lookahead; the asymmetry is between
 them and C, and it runs \emph{against} the capability control.  C receives strictly less
 lookahead than every representation arm and still reaches \EExplicitAmb{} against A's
-\ESnmrAmb{}, so the explicit figure we report is a lower bound on what a window-matched
-explicit arm would reach, and no conclusion here depends on C being a tight ceiling. Under an \emph{exclusivity contract}, the upstream signal is visible to the
+\ESnmrAmb{}; we report it as a strong positive control under the implemented recipe, not as
+a bound on a window-matched explicit arm (more input or capacity need not help a finite
+training run), and no conclusion here depends on C being a tight ceiling. Under an \emph{exclusivity contract}, the upstream signal is visible to the
 encoder $E_\theta$, but never to the action decoder, whose input is exactly the
 90-d proprioceptive slice plus the 64-d code (structurally regression-tested).  Behavioral
 dependence is established within each trained policy: zeroing, batch-shuffling, or
@@ -272,8 +273,12 @@ independently resampling each observed marginal of \zcmd{} collapses completion 
 \EDestroyBaselineCompletion{} and the latent student from
 \EDestroySnmrBaselineCompletion{}.  Destruction drives the latent arm \emph{below} the
 goal-blind proprioception control (\EProprioGeneral{}), so a destroyed channel is not a
-stand-in for a controller that never had one; the intervention places the input far
-outside the training distribution.  We use ``interface,'' not ``bottleneck'': the code is
+stand-in for a controller that never had one: the intervention removes the encoder's summary
+of goal and proprioception together and places the input far outside the training
+distribution, so it measures reliance on this channel under these interventions, not the
+impossibility of a proprioceptive fallback.  Channel exclusivity is a statement about the
+explicit exogenous reference inputs; raw proprioception and history still reach the decoder
+and can correlate with the reference.  We use ``interface,'' not ``bottleneck'': the code is
 not dimensionally narrower than the goal (64-d each), and no rate term constrains the
 goal-to-code path. Linear diagnostics find effective rank 14 of 64 and lower goal
 decodability from the deployed code than from proprioception (held-out $R^2$ 0.48 vs

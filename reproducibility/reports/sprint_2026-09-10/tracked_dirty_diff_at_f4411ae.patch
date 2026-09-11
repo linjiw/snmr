@@ -1,0 +1,944 @@
+diff --git a/snmr/human.py b/snmr/human.py
+index 0b58872..5dca6af 100644
+--- a/snmr/human.py
++++ b/snmr/human.py
+@@ -68,6 +68,7 @@ def human_pose_features(
+     body_quat: torch.Tensor,
+     root_index: int = 0,
+     include_velocity: bool = True,
++    heading_quaternions_wxyz: torch.Tensor | None = None,
+ ) -> torch.Tensor:
+     """Per-body features for a human motion in the root heading frame — mirror of
+     ``robot_pose_features`` but computed from observed world kinematics instead of FK.
+@@ -76,6 +77,11 @@ def human_pose_features(
+         body_pos:  (T, J, 3) world positions.
+         body_quat: (T, J, 4) wxyz world orientations.
+         root_index: index of the root body (Hips for LAFAN1).
++        heading_quaternions_wxyz: optional explicit unit ``(T, 4)`` heading
++            trajectory.  When supplied, it defines only the heading-local reference
++            frame; the raw world-space ``body_quat`` values remain the orientation
++            inputs.  When omitted, heading is derived from the root orientation as
++            before.
+ 
+     Returns:
+         (T, J, F) with F = 3 + 6 [+ 3 velocity].
+@@ -84,7 +90,44 @@ def human_pose_features(
+     root_quat = body_quat[:, root_index, :]
+     root_pos = body_pos[:, root_index, :]
+ 
+-    inv_head = heading_quat_inverse(root_quat)             # (T, 4)
++    if heading_quaternions_wxyz is None:
++        inv_head = heading_quat_inverse(root_quat)  # (T, 4)
++    else:
++        if not isinstance(heading_quaternions_wxyz, torch.Tensor):
++            raise TypeError("heading_quaternions_wxyz must be a torch tensor")
++        if heading_quaternions_wxyz.shape != (T, 4):
++            raise ValueError("heading_quaternions_wxyz must have shape (T, 4)")
++        if not heading_quaternions_wxyz.is_floating_point():
++            raise TypeError("heading_quaternions_wxyz must be floating point")
++        if (
++            heading_quaternions_wxyz.dtype != body_quat.dtype
++            or heading_quaternions_wxyz.dtype != body_pos.dtype
++            or heading_quaternions_wxyz.device != body_quat.device
++            or heading_quaternions_wxyz.device != body_pos.device
++        ):
++            raise ValueError(
++                "heading_quaternions_wxyz must share body tensor dtype and device"
++            )
++        if not torch.isfinite(heading_quaternions_wxyz).all():
++            raise ValueError("heading_quaternions_wxyz must contain only finite values")
++        heading_norm = torch.linalg.vector_norm(heading_quaternions_wxyz, dim=-1)
++        if not torch.allclose(
++            heading_norm,
++            torch.ones_like(heading_norm),
++            rtol=0.0,
++            atol=1.0e-5,
++        ):
++            raise ValueError(
++                "heading_quaternions_wxyz must contain unit wxyz quaternions"
++            )
++        if not torch.allclose(
++            heading_quaternions_wxyz[..., 1:3],
++            torch.zeros_like(heading_quaternions_wxyz[..., 1:3]),
++            rtol=0.0,
++            atol=1.0e-6,
++        ):
++            raise ValueError("heading_quaternions_wxyz must be yaw-only about world +Z")
++        inv_head = rot.quat_conjugate(heading_quaternions_wxyz)
+     root_xy = root_pos.clone()
+     root_xy[..., 2] = 0.0
+ 
+@@ -103,7 +146,9 @@ def human_pose_features(
+ 
+ 
+ def human_static_features(
+-    skel: SkeletonGraph, body_pos_sample: torch.Tensor | None = None, static_dim: int = 8
++    skel: SkeletonGraph,
++    body_pos_sample: torch.Tensor | None = None,
++    static_dim: int = 8,
+ ) -> torch.Tensor:
+     """Static per-node features for a human skeleton, matching the robot static feature layout
+     (offset(3) + axis(3) + has_dof(1) + ee(1) = 8) so the shared encoder sees one schema.
+diff --git a/snmr/morpho_integration.py b/snmr/morpho_integration.py
+index 32a317f..b59c7a3 100644
+--- a/snmr/morpho_integration.py
++++ b/snmr/morpho_integration.py
+@@ -24,9 +24,10 @@ registered sole/contact protocol.
+ from __future__ import annotations
+ 
+ import copy
+-from dataclasses import asdict, dataclass, replace
+ import json
+-from typing import Any, Mapping
++from collections.abc import Mapping
++from dataclasses import asdict, dataclass, replace
++from typing import Any
+ 
+ import numpy as np
+ import torch
+@@ -49,7 +50,6 @@ from .robot_tokens import (
+ )
+ from .skeleton import SkeletonGraph
+ 
+-
+ INTEGRATION_SCHEMA_VERSION = "snmr.morpho-fixed-target.v0.1"
+ 
+ 
+@@ -346,6 +346,7 @@ class FixedTargetMorphoRetargeter(nn.Module):
+         human_time_mask: torch.Tensor,
+         human_node_mask: torch.Tensor,
+         human_static: torch.Tensor | None = None,
++        heading_quaternions_wxyz: torch.Tensor | None = None,
+         require_contacts: bool = False,
+     ) -> MorphoIntegrationOutput:
+         """Run a masked current-tensor human→joint-node forward pass.
+@@ -354,7 +355,9 @@ class FixedTargetMorphoRetargeter(nn.Module):
+         tensors are accepted only when their explicit masks are also unbatched.  Time
+         masks must be valid prefixes because the reused temporal encoder has no elapsed-
+         time representation for gaps.  Inactive/padded tensor values may be nonfinite;
+-        active values must be finite and quaternions must be unit ``wxyz``.
++        active values must be finite and quaternions must be unit ``wxyz``.  An
++        optional explicit heading trajectory has shape ``(B,T,4)`` (or ``(T,4)``
++        for unbatched inputs) and changes only the heading-local feature frame.
+         """
+ 
+         if require_contacts:
+@@ -362,13 +365,16 @@ class FixedTargetMorphoRetargeter(nn.Module):
+                 "contacts are not a learned/teacher-forced output; derive them from "
+                 "predicted robot FK under the registered sole/contact protocol"
+             )
+-        positions, orientations, time_mask, node_mask, static = self._validate_human_inputs(
+-            human_positions_w,
+-            human_orientations_wxyz,
+-            human_skeleton,
+-            human_time_mask,
+-            human_node_mask,
+-            human_static,
++        positions, orientations, time_mask, node_mask, static, heading = (
++            self._validate_human_inputs(
++                human_positions_w,
++                human_orientations_wxyz,
++                human_skeleton,
++                human_time_mask,
++                human_node_mask,
++                human_static,
++                heading_quaternions_wxyz,
++            )
+         )
+         batch, padded_time, _, _ = positions.shape
+         skeleton = human_skeleton.to(positions.device)
+@@ -394,7 +400,13 @@ class FixedTargetMorphoRetargeter(nn.Module):
+             local_root_index = int(active_root.item())
+             pos = positions[batch_index, :length, active_nodes]
+             quat = orientations[batch_index, :length, active_nodes]
+-            features = human_pose_features(pos, quat, root_index=local_root_index)
++            active_heading = None if heading is None else heading[batch_index, :length]
++            features = human_pose_features(
++                pos,
++                quat,
++                root_index=local_root_index,
++                heading_quaternions_wxyz=active_heading,
++            )
+             encoded = self.human_encoder(
+                 features,
+                 static[batch_index, active_nodes],
+@@ -428,15 +440,23 @@ class FixedTargetMorphoRetargeter(nn.Module):
+         motion: HumanMotionSpec,
+         *,
+         human_skeleton: SkeletonGraph,
++        heading_quaternions_wxyz: torch.Tensor | None = None,
+         require_contacts: bool = False,
+     ) -> MorphoIntegrationOutput:
+-        """Run one canonical HumanMotionSpec and retain its exact hashes in output."""
++        """Run one canonical HumanMotionSpec and retain its exact hashes in output.
++
++        ``heading_quaternions_wxyz``, when supplied, is an unbatched ``(T, 4)``
++        tensor already converted to the bound model's dtype and device.  This keeps
++        the explicit preprocessing boundary auditable rather than silently casting it.
++        """
+ 
+         if not isinstance(motion, HumanMotionSpec):
+             raise TypeError("motion must be a HumanMotionSpec")
+         motion.validate()
+         if tuple(human_skeleton.names) != tuple(motion.body_names):
+-            raise ValueError("HumanMotionSpec body_names must exactly match human_skeleton.names")
++            raise ValueError(
++                "HumanMotionSpec body_names must exactly match human_skeleton.names"
++            )
+         roots = torch.nonzero(
+             human_skeleton.parent_index == -1, as_tuple=False
+         ).flatten()
+@@ -449,7 +469,9 @@ class FixedTargetMorphoRetargeter(nn.Module):
+             rtol=0.0,
+             atol=1.0e-7,
+         ):
+-            raise ValueError("HumanMotionSpec root_position disagrees with its root body")
++            raise ValueError(
++                "HumanMotionSpec root_position disagrees with its root body"
++            )
+         root_dot = np.abs(
+             np.sum(
+                 motion.root_orientation_wxyz
+@@ -458,7 +480,9 @@ class FixedTargetMorphoRetargeter(nn.Module):
+             )
+         )
+         if not np.allclose(root_dot, 1.0, rtol=0.0, atol=1.0e-7):
+-            raise ValueError("HumanMotionSpec root orientation disagrees with its root body")
++            raise ValueError(
++                "HumanMotionSpec root orientation disagrees with its root body"
++            )
+ 
+         target = self.target_binding.node_features
+         device = target.device
+@@ -478,6 +502,7 @@ class FixedTargetMorphoRetargeter(nn.Module):
+             human_skeleton=human_skeleton,
+             human_time_mask=validity.all(dim=1),
+             human_node_mask=validity.all(dim=0),
++            heading_quaternions_wxyz=heading_quaternions_wxyz,
+             require_contacts=require_contacts,
+         )
+         return replace(
+@@ -494,31 +519,67 @@ class FixedTargetMorphoRetargeter(nn.Module):
+         time_mask: torch.Tensor,
+         node_mask: torch.Tensor,
+         static: torch.Tensor | None,
+-    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
++        heading: torch.Tensor | None,
++    ) -> tuple[
++        torch.Tensor,
++        torch.Tensor,
++        torch.Tensor,
++        torch.Tensor,
++        torch.Tensor,
++        torch.Tensor | None,
++    ]:
+         if not isinstance(positions, torch.Tensor) or not isinstance(
+             orientations, torch.Tensor
+         ):
+             raise TypeError("human positions and orientations must be torch tensors")
++        if heading is not None and not isinstance(heading, torch.Tensor):
++            raise TypeError("heading_quaternions_wxyz must be a torch tensor")
+         unbatched = positions.ndim == 3
+         if unbatched:
+             positions = positions.unsqueeze(0)
+             orientations = orientations.unsqueeze(0)
+             if time_mask.ndim != 1 or node_mask.ndim != 1:
+-                raise ValueError("unbatched human tensors require one-dimensional masks")
++                raise ValueError(
++                    "unbatched human tensors require one-dimensional masks"
++                )
+             time_mask = time_mask.unsqueeze(0)
+             node_mask = node_mask.unsqueeze(0)
++            if heading is not None:
++                if heading.ndim != 2:
++                    raise ValueError(
++                        "unbatched human tensors require heading shape (T,4)"
++                    )
++                heading = heading.unsqueeze(0)
+             if static is not None and static.ndim == 2:
+                 static = static.unsqueeze(0)
+         if positions.ndim != 4 or positions.shape[-1] != 3:
+             raise ValueError("human_positions_w must have shape (B,T,J,3) or (T,J,3)")
+         if orientations.shape != positions.shape[:-1] + (4,):
+-            raise ValueError("human_orientations_wxyz must match positions with width four")
++            raise ValueError(
++                "human_orientations_wxyz must match positions with width four"
++            )
+         if not positions.is_floating_point() or not orientations.is_floating_point():
+             raise TypeError("human positions and orientations must be floating point")
+-        if positions.dtype != orientations.dtype or positions.device != orientations.device:
+-            raise ValueError("human positions and orientations must share dtype and device")
++        if (
++            positions.dtype != orientations.dtype
++            or positions.device != orientations.device
++        ):
++            raise ValueError(
++                "human positions and orientations must share dtype and device"
++            )
+ 
+         batch, time, nodes, _ = positions.shape
++        if heading is not None:
++            if heading.shape != (batch, time, 4):
++                raise ValueError(
++                    "heading_quaternions_wxyz must have shape (B,T,4) or (T,4)"
++                )
++            if not heading.is_floating_point():
++                raise TypeError("heading_quaternions_wxyz must be floating point")
++            if heading.dtype != positions.dtype or heading.device != positions.device:
++                raise ValueError(
++                    "heading_quaternions_wxyz must share human tensor dtype/device"
++                )
+         if time == 0 or nodes == 0:
+             raise ValueError("human tensors must contain at least one time and node")
+         if not isinstance(skeleton, SkeletonGraph) or skeleton.num_nodes != nodes:
+@@ -546,9 +607,9 @@ class FixedTargetMorphoRetargeter(nn.Module):
+         for batch_index in range(batch):
+             if not bool(node_mask[batch_index, root_index]):
+                 raise ValueError("human_node_mask must retain the skeleton root")
+-            for child in torch.nonzero(
+-                node_mask[batch_index], as_tuple=False
+-            ).flatten().tolist():
++            for child in (
++                torch.nonzero(node_mask[batch_index], as_tuple=False).flatten().tolist()
++            ):
+                 parent_index = int(parent[child])
+                 if parent_index >= 0 and not bool(node_mask[batch_index, parent_index]):
+                     raise ValueError(
+@@ -556,9 +617,10 @@ class FixedTargetMorphoRetargeter(nn.Module):
+                     )
+ 
+         active = time_mask[:, :, None] & node_mask[:, None, :]
+-        if not torch.isfinite(positions[active]).all() or not torch.isfinite(
+-            orientations[active]
+-        ).all():
++        if (
++            not torch.isfinite(positions[active]).all()
++            or not torch.isfinite(orientations[active]).all()
++        ):
+             raise ValueError("active human position/orientation values must be finite")
+         quaternion_norm = torch.linalg.vector_norm(orientations[active], dim=-1)
+         if not torch.allclose(
+@@ -568,6 +630,31 @@ class FixedTargetMorphoRetargeter(nn.Module):
+             atol=1.0e-4,
+         ):
+             raise ValueError("active human orientations must be unit wxyz quaternions")
++        if heading is not None:
++            active_heading = heading[time_mask]
++            if not torch.isfinite(active_heading).all():
++                raise ValueError(
++                    "active heading_quaternions_wxyz values must be finite"
++                )
++            heading_norm = torch.linalg.vector_norm(active_heading, dim=-1)
++            if not torch.allclose(
++                heading_norm,
++                torch.ones_like(heading_norm),
++                rtol=0.0,
++                atol=1.0e-5,
++            ):
++                raise ValueError(
++                    "active heading_quaternions_wxyz values must be unit wxyz quaternions"
++                )
++            if not torch.allclose(
++                active_heading[..., 1:3],
++                torch.zeros_like(active_heading[..., 1:3]),
++                rtol=0.0,
++                atol=1.0e-6,
++            ):
++                raise ValueError(
++                    "active heading_quaternions_wxyz values must be yaw-only about world +Z"
++                )
+ 
+         target = self.target_binding.node_features
+         if positions.device != target.device or positions.dtype != target.dtype:
+@@ -604,11 +691,11 @@ class FixedTargetMorphoRetargeter(nn.Module):
+             parsed_static = static
+         if not torch.isfinite(parsed_static[node_mask]).all():
+             raise ValueError("active human static features must be finite")
+-        return positions, orientations, time_mask, node_mask, parsed_static
++        return positions, orientations, time_mask, node_mask, parsed_static, heading
+ 
+ 
+ __all__ = [
+-    "FixedTargetMorphoRetargeter",
+     "INTEGRATION_SCHEMA_VERSION",
++    "FixedTargetMorphoRetargeter",
+     "MorphoIntegrationOutput",
+ ]
+diff --git a/snmr/motion_adapter.py b/snmr/motion_adapter.py
+index b1239a3..626ab0c 100644
+--- a/snmr/motion_adapter.py
++++ b/snmr/motion_adapter.py
+@@ -5,26 +5,30 @@ This module integrates exactly one existing training path: files written by
+ It deliberately does not infer dataset identity, clip identity, split membership,
+ transformations, landmark semantics, contacts, or validity from filenames.
+ 
+-The pair's human tensors are already world-space positions and scalar-first ``wxyz``
+-orientations.  The adapter preserves those tensors and uses the declared ``Hips`` body as
+-both root position and root orientation.  Heading-local encoder features are downstream
+-derived inputs and are not substituted for the canonical world-space motion.
++The pair's human positions are already in the canonical world basis.  Its scalar-first
++``wxyz`` orientations retain LAFAN1's local body basis, however, where pair-local ``+Y``
++is the forward direction represented by canonical local ``+X``.  The adapter therefore
++right-multiplies every body orientation by one frozen source-basis quaternion before
++constructing :class:`HumanMotionSpec`.  Body origins, segment measurements, and contact
++derivation remain unchanged.
+ """
+ 
+ from __future__ import annotations
+ 
+-from dataclasses import dataclass
+ import hashlib
+ import hmac
+ import json
+-from pathlib import Path
+ import re
+ import tempfile
+-from typing import Any, Sequence
++from collections.abc import Sequence
++from dataclasses import dataclass
++from pathlib import Path
++from typing import Any
+ 
+ import numpy as np
+ import torch
+ 
++from . import rotation as rot
+ from .human import LAFAN1_BODY_NAMES, load_pair_npz
+ from .motion_spec import (
+     BilateralSegmentLandmarks,
+@@ -37,10 +41,11 @@ from .motion_spec import (
+ )
+ from .provenance import ArtifactMismatchError, ArtifactSnapshot
+ 
+-
+ LAFAN1_ROOT_BODY = "Hips"
+-MOTION_ADAPTER_SCHEMA_VERSION = "snmr.motion-adapter.v0.1"
++LAFAN1_PAIR_TO_CANONICAL_BASIS_WXYZ = (0.5, 0.5, 0.5, 0.5)
++MOTION_ADAPTER_SCHEMA_VERSION = "snmr.motion-adapter.v0.2"
+ _SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
++_QUATERNION_NORM_ATOL = 1e-5
+ 
+ 
+ @dataclass(frozen=True)
+@@ -103,6 +108,13 @@ class HumanMotionAdaptation:
+             "motion_buffer_sha256": self.motion_spec.buffer_sha256,
+             "motion_spec_sha256": self.motion_spec.spec_sha256,
+             "scale_landmarks": self.scale_landmarks.to_dict(),
++            "source_basis_calibration": {
++                "operation": "right_multiply_wxyz",
++                "pair_to_canonical_local_basis_wxyz": list(
++                    LAFAN1_PAIR_TO_CANONICAL_BASIS_WXYZ
++                ),
++                "positions": "unchanged_world_m",
++            },
+         }
+         encoded = json.dumps(
+             manifest, sort_keys=True, separators=(",", ":"), allow_nan=False
+@@ -138,6 +150,36 @@ def _validity_array(value: Any, expected_shape: tuple[int, int]) -> np.ndarray:
+     return np.asarray(array, dtype=np.bool_, order="C")
+ 
+ 
++def _canonical_lafan1_orientations(human_quat: torch.Tensor) -> torch.Tensor:
++    """Convert pair-local LAFAN1 body frames to the canonical local basis.
++
++    The GMR LAFAN1 loader has already applied the world-coordinate conversion to
++    both positions and orientations.  This remaining operation is a local-basis
++    relabelling, hence the Hamilton product is on the right and positions must not
++    be rotated again.
++    """
++
++    if not human_quat.is_floating_point() or not torch.isfinite(human_quat).all():
++        raise ValueError("human_quat must contain finite floating-point values")
++    input_norms = torch.linalg.vector_norm(human_quat, dim=-1)
++    if not torch.allclose(
++        input_norms,
++        torch.ones_like(input_norms),
++        rtol=0.0,
++        atol=_QUATERNION_NORM_ATOL,
++    ):
++        raise ValueError("human_quat must contain unit quaternions")
++
++    basis = human_quat.new_tensor(LAFAN1_PAIR_TO_CANONICAL_BASIS_WXYZ)
++    calibrated = rot.quat_mul(human_quat, basis)
++    output_norms = torch.linalg.vector_norm(calibrated, dim=-1, keepdim=True)
++    if not torch.isfinite(output_norms).all() or torch.any(
++        output_norms <= torch.finfo(calibrated.dtype).tiny
++    ):
++        raise ValueError("LAFAN1 source-basis calibration produced invalid quaternions")
++    return calibrated / output_norms
++
++
+ def adapt_lafan1_pair_npz(
+     path: str | Path,
+     *,
+@@ -236,7 +278,9 @@ def adapt_lafan1_pair_npz(
+     validity = _validity_array(validity_mask, (selected_frames, len(declared_names)))
+ 
+     selected_pos = human_pos[start:stop].detach().numpy()
+-    selected_quat = human_quat[start:stop].detach().numpy()
++    selected_quat = (
++        _canonical_lafan1_orientations(human_quat[start:stop]).detach().numpy()
++    )
+     normalization_length_m = float(pair["human_height"])
+     if not np.isfinite(normalization_length_m) or normalization_length_m <= 0.0:
+         raise ValueError("pair human_height must be finite and positive")
+@@ -273,8 +317,9 @@ def adapt_lafan1_pair_npz(
+ 
+ 
+ __all__ = [
+-    "adapt_lafan1_pair_npz",
+-    "HumanMotionAdaptation",
++    "LAFAN1_PAIR_TO_CANONICAL_BASIS_WXYZ",
+     "LAFAN1_ROOT_BODY",
+     "MOTION_ADAPTER_SCHEMA_VERSION",
++    "HumanMotionAdaptation",
++    "adapt_lafan1_pair_npz",
+ ]
+diff --git a/snmr/motion_spec.py b/snmr/motion_spec.py
+index 0dac8a7..e44e810 100644
+--- a/snmr/motion_spec.py
++++ b/snmr/motion_spec.py
+@@ -582,7 +582,14 @@ def derive_foot_contact_probabilities(
+         (parsed_protocol.height_clearance_m - height)
+         / parsed_protocol.height_softness_m
+     )
+-    return np.clip(speed_score * height_score, 0.0, 1.0)
++    contacts = np.clip(speed_score * height_score, 0.0, 1.0)
++    # Each sigmoid is representable as float32 after the guarded exponent clip,
++    # but their product can fall below the smallest normal float32 value.  Those
++    # probabilities are many orders of magnitude below any registered contact
++    # threshold and would otherwise make the canonical float32 buffer hash fail.
++    # Canonicalize them to exact zero at derivation time, before interpolation.
++    contacts[contacts < np.finfo(np.float32).tiny] = 0.0
++    return contacts
+ 
+ 
+ @dataclass(frozen=True, eq=False)
+diff --git a/tests/test_human.py b/tests/test_human.py
+index c573e7f..adb75c4 100644
+--- a/tests/test_human.py
++++ b/tests/test_human.py
+@@ -3,7 +3,6 @@
+ import pathlib
+ 
+ import numpy as np
+-
+ import pytest
+ import torch
+ 
+@@ -92,10 +91,103 @@ def test_human_features_heading_invariance():
+     assert torch.allclose(feats_a, feats_b, atol=1e-4), (feats_a - feats_b).abs().max().item()
+ 
+ 
++def test_explicit_heading_changes_only_the_reference_frame() -> None:
++    positions = torch.tensor(
++        [
++            [[2.0, 3.0, 1.0], [3.0, 3.0, 1.0]],
++            [[2.0, 3.0, 1.0], [3.0, 3.0, 1.0]],
++        ]
++    )
++    orientations = torch.zeros(2, 2, 4)
++    orientations[..., 0] = 1.0
++    half_sqrt = 2.0**-0.5
++    heading = torch.tensor([[half_sqrt, 0.0, 0.0, half_sqrt]]).expand(2, -1)
++
++    features = human_pose_features(
++        positions,
++        orientations,
++        heading_quaternions_wxyz=heading,
++    )
++    torch.testing.assert_close(
++        features[:, 1, :3],
++        torch.tensor([[0.0, -1.0, 1.0]]).expand(2, -1),
++        rtol=0.0,
++        atol=2.0e-6,
++    )
++
++    changed_orientations = orientations.clone()
++    angle = torch.full((2,), 0.4)
++    z_axis = torch.tensor([[0.0, 0.0, 1.0]]).expand(2, -1)
++    changed_orientations[:, 1] = rot.axis_angle_to_quat(z_axis, angle)
++    changed = human_pose_features(
++        positions,
++        changed_orientations,
++        heading_quaternions_wxyz=heading,
++    )
++    torch.testing.assert_close(changed[..., :3], features[..., :3])
++    assert not torch.equal(changed[:, 1, 3:9], features[:, 1, 3:9])
++
++
++@pytest.mark.parametrize(
++    ("heading", "error", "message"),
++    [
++        (np.ones((2, 4), dtype=np.float32), TypeError, "torch tensor"),
++        (torch.ones(2, 3), ValueError, r"shape \(T, 4\)"),
++        (torch.ones(2, 4, dtype=torch.float64), ValueError, "dtype and device"),
++        (
++            torch.tensor([[1.0, 0.0, 0.0, 0.0], [float("nan"), 0.0, 0.0, 0.0]]),
++            ValueError,
++            "finite",
++        ),
++        (
++            torch.tensor([[1.0, 0.0, 0.0, 0.0], [2.0, 0.0, 0.0, 0.0]]),
++            ValueError,
++            "unit wxyz",
++        ),
++        (
++            torch.tensor([[1.0, 0.0, 0.0, 0.0], [2.0**-0.5, 2.0**-0.5, 0.0, 0.0]]),
++            ValueError,
++            "yaw-only",
++        ),
++    ],
++)
++def test_explicit_heading_validation(
++    heading: object, error: type[Exception], message: str
++) -> None:
++    positions = torch.zeros(2, 1, 3)
++    orientations = torch.zeros(2, 1, 4)
++    orientations[..., 0] = 1.0
++
++    with pytest.raises(error, match=message):
++        human_pose_features(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=heading,  # type: ignore[arg-type]
++        )
++
++
++def test_explicit_heading_requires_the_body_tensor_device() -> None:
++    positions = torch.zeros(2, 1, 3)
++    orientations = torch.zeros(2, 1, 4)
++    orientations[..., 0] = 1.0
++    heading = torch.empty(2, 4, device="meta")
++
++    with pytest.raises(ValueError, match="dtype and device"):
++        human_pose_features(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=heading,
++        )
++
++
+ def test_human_feature_dim_matches_robot_side():
+     pair = _real_pair()
+     feats = human_pose_features(pair["human_pos"][:5], pair["human_quat"][:5])
+-    assert feats.shape == (5, 24, 12)  # 3 pos + 6 rot6d + 3 vel — same as robot_pose_features
++    assert feats.shape == (
++        5,
++        24,
++        12,
++    )  # 3 pos + 6 rot6d + 3 vel — same as robot_pose_features
+ 
+ 
+ def test_static_features_schema():
+diff --git a/tests/test_morpho_integration.py b/tests/test_morpho_integration.py
+index 4017746..6dd4fc7 100644
+--- a/tests/test_morpho_integration.py
++++ b/tests/test_morpho_integration.py
+@@ -264,6 +264,107 @@ def test_masked_shapes_root_contract_and_gradients() -> None:
+         )
+ 
+ 
++def test_explicit_heading_is_masked_and_parameter_free() -> None:
++    torch.manual_seed(41)
++    tokens = RobotGraphTokenizer("kinematic")([_robot_spec()])
++    model = _model(tokens).eval()
++    positions, orientations = _human_tensors(batch=2, time=4)
++    time_mask = torch.tensor([[True, True, True, True], [True, True, False, False]])
++    node_mask = torch.ones(2, 3, dtype=torch.bool)
++    heading = torch.zeros(2, 4, 4)
++    heading[..., 0] = 1.0
++    heading[1, 2:] = float("nan")
++    kwargs = {
++        "human_skeleton": _human_skeleton(),
++        "human_time_mask": time_mask,
++        "human_node_mask": node_mask,
++    }
++    parameter_count = sum(parameter.numel() for parameter in model.parameters())
++    parameter_names = tuple(name for name, _ in model.named_parameters())
++
++    with torch.no_grad():
++        omitted = model(positions, orientations, **kwargs)
++        explicit = model(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=heading,
++            **kwargs,
++        )
++    torch.testing.assert_close(
++        explicit.human_tokens, omitted.human_tokens, rtol=0.0, atol=0.0
++    )
++    assert sum(parameter.numel() for parameter in model.parameters()) == parameter_count
++    assert tuple(name for name, _ in model.named_parameters()) == parameter_names
++
++    yaw_heading = heading.clone()
++    angle = torch.full((2, 4), 0.4)
++    yaw_heading[..., 0] = torch.cos(angle / 2.0)
++    yaw_heading[..., 3] = torch.sin(angle / 2.0)
++    yaw_heading[1, 2:] = float("nan")
++    with torch.no_grad():
++        changed = model(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=yaw_heading,
++            **kwargs,
++        )
++    assert not torch.equal(
++        changed.human_tokens[time_mask], explicit.human_tokens[time_mask]
++    )
++
++    active_nonfinite = heading.clone()
++    active_nonfinite[1, 1] = float("nan")
++    with pytest.raises(ValueError, match="active heading.*finite"):
++        model(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=active_nonfinite,
++            **kwargs,
++        )
++
++    active_pitch = heading.clone()
++    active_pitch[0, 1] = torch.tensor([2.0**-0.5, 2.0**-0.5, 0.0, 0.0])
++    with pytest.raises(ValueError, match="active heading.*yaw-only"):
++        model(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=active_pitch,
++            **kwargs,
++        )
++
++    active_nonunit = heading.clone()
++    active_nonunit[0, 1, 0] = 2.0
++    with pytest.raises(ValueError, match="active heading.*unit wxyz"):
++        model(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=active_nonunit,
++            **kwargs,
++        )
++
++    with pytest.raises(ValueError, match=r"shape \(B,T,4\)"):
++        model(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=heading[..., :3],
++            **kwargs,
++        )
++    with pytest.raises(ValueError, match="dtype/device"):
++        model(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=heading.to(torch.float64),
++            **kwargs,
++        )
++    with pytest.raises(ValueError, match="dtype/device"):
++        model(
++            positions,
++            orientations,
++            heading_quaternions_wxyz=torch.empty(2, 4, 4, device="meta"),
++            **kwargs,
++        )
++
++
+ def test_canonical_motion_spec_path_is_hash_bound_and_matches_tensor_path() -> None:
+     skeleton = _human_skeleton()
+     positions, orientations = _human_tensors(time=4)
+@@ -301,14 +402,21 @@ def test_canonical_motion_spec_path_is_hash_bound_and_matches_tensor_path() -> N
+     )
+     tokens = RobotGraphTokenizer("kinematic")([_robot_spec()])
+     model = _model(tokens).eval()
++    heading = torch.zeros(4, 4)
++    heading[:, 0] = 1.0
+     with torch.no_grad():
+-        canonical = model.forward_motion_spec(motion, human_skeleton=skeleton)
++        canonical = model.forward_motion_spec(
++            motion,
++            human_skeleton=skeleton,
++            heading_quaternions_wxyz=heading,
++        )
+         direct = model(
+             positions,
+             orientations,
+             human_skeleton=skeleton,
+             human_time_mask=torch.ones(1, 4, dtype=torch.bool),
+             human_node_mask=torch.ones(1, 3, dtype=torch.bool),
++            heading_quaternions_wxyz=heading.unsqueeze(0),
+         )
+     assert canonical.human_motion_spec_sha256 == motion.spec_sha256
+     assert canonical.human_motion_buffer_sha256 == motion.buffer_sha256
+diff --git a/tests/test_motion_adapter.py b/tests/test_motion_adapter.py
+index 8bbd27c..eb2f1df 100644
+--- a/tests/test_motion_adapter.py
++++ b/tests/test_motion_adapter.py
+@@ -1,11 +1,18 @@
+ import hashlib
++from dataclasses import replace
+ from pathlib import Path
+ 
+ import numpy as np
+ import pytest
++import torch
+ 
++from snmr import rotation as rot
+ from snmr.human import LAFAN1_BODY_NAMES
+-from snmr.motion_adapter import adapt_lafan1_pair_npz
++from snmr.motion_adapter import (
++    LAFAN1_PAIR_TO_CANONICAL_BASIS_WXYZ,
++    MOTION_ADAPTER_SCHEMA_VERSION,
++    adapt_lafan1_pair_npz,
++)
+ from snmr.motion_spec import (
+     BilateralSegmentLandmarks,
+     FootContactProtocol,
+@@ -154,6 +161,22 @@ def _adapt(
+     )
+ 
+ 
++def _hamilton_product(left: np.ndarray, right: np.ndarray) -> np.ndarray:
++    """Independent NumPy wxyz product used to test multiplication direction."""
++
++    lw, lx, ly, lz = np.moveaxis(np.asarray(left), -1, 0)
++    rw, rx, ry, rz = np.moveaxis(np.asarray(right), -1, 0)
++    return np.stack(
++        (
++            lw * rw - lx * rx - ly * ry - lz * rz,
++            lw * rx + lx * rw + ly * rz - lz * ry,
++            lw * ry - lx * rz + ly * rw + lz * rx,
++            lw * rz + lx * ry - ly * rx + lz * rw,
++        ),
++        axis=-1,
++    )
++
++
+ def test_pair_adapter_preserves_world_hips_samples_and_explicit_metadata(tmp_path):
+     path, digest, arrays = _write_pair(tmp_path)
+     adaptation = _adapt(path, digest)
+@@ -191,9 +214,11 @@ def test_pair_adapter_preserves_world_hips_samples_and_explicit_metadata(tmp_pat
+     )
+     selected_positions = arrays["human_pos"][1:4]
+     selected_orientations = arrays["human_quat"][1:4]
++    basis = np.asarray(LAFAN1_PAIR_TO_CANONICAL_BASIS_WXYZ)
++    expected_orientations = _hamilton_product(selected_orientations, basis)
+     np.testing.assert_allclose(spec.body_positions[::2], selected_positions, atol=1e-7)
+     np.testing.assert_allclose(
+-        spec.body_orientations_wxyz[::2], selected_orientations, atol=1e-7
++        spec.body_orientations_wxyz[::2], expected_orientations, atol=1e-7
+     )
+     np.testing.assert_array_equal(spec.root_position, spec.body_positions[:, 0])
+     np.testing.assert_array_equal(
+@@ -211,6 +236,81 @@ def test_pair_adapter_preserves_world_hips_samples_and_explicit_metadata(tmp_pat
+     assert np.all(spec.validity_mask)
+ 
+ 
++def test_pair_adapter_right_multiplies_every_body_and_preserves_position_products(
++    tmp_path,
++):
++    arrays = _pair_arrays()
++    body_count = len(LAFAN1_BODY_NAMES)
++    angles = np.linspace(0.05, 0.45, body_count, dtype=np.float64)
++    axes = np.eye(3, dtype=np.float64)[np.arange(body_count) % 3]
++    body_quaternions = np.concatenate(
++        (
++            np.cos(0.5 * angles)[:, None],
++            axes * np.sin(0.5 * angles)[:, None],
++        ),
++        axis=-1,
++    )
++    arrays["human_quat"] = np.broadcast_to(
++        body_quaternions[None], arrays["human_quat"].shape
++    ).astype(np.float32, copy=True)
++    path, digest, _ = _write_pair(tmp_path, arrays=arrays)
++    adaptation = _adapt(path, digest)
++    spec = adaptation.motion_spec
++
++    selected = arrays["human_quat"][1:4]
++    basis = np.asarray(LAFAN1_PAIR_TO_CANONICAL_BASIS_WXYZ)
++    expected = _hamilton_product(selected, basis)
++    wrong_direction = _hamilton_product(basis, selected)
++    np.testing.assert_allclose(spec.body_orientations_wxyz[::2], expected, atol=1e-7)
++    assert np.max(np.abs(expected - wrong_direction)) > 0.1
++    assert np.isfinite(spec.body_orientations_wxyz).all()
++    np.testing.assert_allclose(
++        np.linalg.norm(spec.body_orientations_wxyz, axis=-1), 1.0, atol=1e-12
++    )
++
++    hips = LAFAN1_BODY_NAMES.index("Hips")
++    np.testing.assert_array_equal(
++        spec.root_orientation_wxyz, spec.body_orientations_wxyz[:, hips]
++    )
++    np.testing.assert_allclose(spec.body_positions[::2], arrays["human_pos"][1:4])
++    np.testing.assert_array_equal(spec.root_position, spec.body_positions[:, hips])
++
++    identity_arrays = _pair_arrays()
++    identity_path, identity_digest, _ = _write_pair(
++        tmp_path, filename="identity_orientations.npz", arrays=identity_arrays
++    )
++    identity = _adapt(identity_path, identity_digest)
++    np.testing.assert_array_equal(
++        spec.body_positions, identity.motion_spec.body_positions
++    )
++    assert spec.segment_scales == identity.motion_spec.segment_scales
++    np.testing.assert_array_equal(spec.contacts, identity.motion_spec.contacts)
++
++
++def test_lafan1_basis_maps_canonical_x_to_pair_local_y_and_is_manifest_bound(
++    tmp_path,
++):
++    basis = torch.tensor(LAFAN1_PAIR_TO_CANONICAL_BASIS_WXYZ, dtype=torch.float64)
++    canonical_x = torch.tensor((1.0, 0.0, 0.0), dtype=torch.float64)
++    pair_local_y = torch.tensor((0.0, 1.0, 0.0), dtype=torch.float64)
++    torch.testing.assert_close(
++        rot.quat_rotate(basis, canonical_x), pair_local_y, rtol=0.0, atol=1e-12
++    )
++
++    path, digest, _ = _write_pair(tmp_path)
++    adaptation = _adapt(path, digest)
++    manifest = adaptation.to_manifest()
++    assert adaptation.schema_version == MOTION_ADAPTER_SCHEMA_VERSION
++    assert MOTION_ADAPTER_SCHEMA_VERSION == "snmr.motion-adapter.v0.2"
++    assert manifest["source_basis_calibration"] == {
++        "operation": "right_multiply_wxyz",
++        "pair_to_canonical_local_basis_wxyz": [0.5, 0.5, 0.5, 0.5],
++        "positions": "unchanged_world_m",
++    }
++    with pytest.raises(ValueError, match="unsupported motion-adapter schema"):
++        replace(adaptation, schema_version="snmr.motion-adapter.v0.1")
++
++
+ def test_pair_adapter_rejects_artifact_hash_or_declared_layout_drift(tmp_path):
+     path, digest, arrays = _write_pair(tmp_path)
+     with pytest.raises(ArtifactMismatchError, match="exact LAFAN1 pair NPZ bytes"):
+diff --git a/tests/test_motion_spec.py b/tests/test_motion_spec.py
+index 56a2f32..30084ce 100644
+--- a/tests/test_motion_spec.py
++++ b/tests/test_motion_spec.py
+@@ -407,6 +407,29 @@ def test_probabilistic_foot_contacts_use_declared_speed_and_height_protocol():
+         )
+ 
+ 
++def test_contact_product_underflow_is_canonicalized_before_float32_hashing():
++    timestamps = np.arange(4, dtype=np.float64) / 50.0
++    positions = np.zeros((4, 3, 3), dtype=np.float64)
++    positions[:, 0, 2] = 1.0
++    # Both feet are far above the ground and move fast enough that the product
++    # of the two clipped sigmoid tails is below the normal float32 range.
++    positions[:, 1, 0] = np.arange(4) * 2.0
++    positions[:, 2, 0] = np.arange(4) * 2.0
++    positions[:, 1:, 2] = 10.0
++    contacts = derive_foot_contact_probabilities(
++        body_positions=positions,
++        body_names=("pelvis", "left_foot", "right_foot"),
++        timestamps=timestamps,
++        protocol=FootContactProtocol(
++            speed_threshold_m_s=0.2,
++            height_clearance_m=0.05,
++            speed_softness_m_s=0.05,
++            height_softness_m=0.01,
++        ),
++    )
++    assert np.array_equal(contacts, np.zeros_like(contacts))
++
++
+ def test_from_source_derives_contacts_when_none_and_records_protocol():
+     arrays = _source_motion(frames=5)
+     supplied_contacts = arrays.pop("contacts")

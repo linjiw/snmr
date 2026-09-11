@@ -1,3 +1,10 @@
+> **Amended 2026-09-10 — read [`EXPERIMENT_PROGRAM_AMENDMENT_2026-09-10.md`](EXPERIMENT_PROGRAM_AMENDMENT_2026-09-10.md) first.**
+> The row-minus-column reading of the crossed matrix is withdrawn; Panel-F tracker-training
+> clips are tracker-seen, not held out; the 500-step horizon is a 10-s window; the two-arm
+> development comparison replaces the 6 × 6 matrix as the next step; the three-seed E70
+> variance is a pilot estimate, not a universal constant; scaling in N is secondary. The text
+> below is preserved as written for the record.
+
 Everything is verified against the machine. Here is the program.
 
 ---

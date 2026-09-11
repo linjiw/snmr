@@ -1,0 +1,987 @@
+{
+  "created_at": "2026-09-11T03:46:54.696662+00:00",
+  "command": [
+    "/home/robotixx/snmr/.venv/bin/python",
+    "scripts/audit_contact_oracle_labels.py"
+  ],
+  "git": {
+    "available": true,
+    "sha": "f4411ae3247e49b454c8b978c2c5aaf210f8d7db",
+    "dirty": true,
+    "tracked_dirty": true,
+    "tracked_diff_sha256": "ecf3e618bf5215b55cd0bc3a3dbc759907c8286acc13a05baec535d828b1d0ad",
+    "untracked_paths": 46
+  },
+  "runtime": {
+    "python": "3.10.12",
+    "torch": "2.13.0+cu130",
+    "device": "cpu",
+    "cuda_available": true,
+    "cuda_device": null
+  },
+  "auditor": {
+    "path": "/home/robotixx/snmr/scripts/audit_contact_oracle_labels.py",
+    "sha256": "b16b54a6c470a645fe1458ad88012837aa28081a1c9847c3e0052c33795eb720"
+  },
+  "oracle_definition": {
+    "signal": "ankle body origin height from differentiable FK of the GMR teacher qpos",
+    "ground": "per-foot clip-wide minimum of that height",
+    "enter_m": 0.03,
+    "exit_m": 0.05,
+    "status": "proxy for stance; not force-verified"
+  },
+  "clips": [
+    {
+      "clip": "walk1_subject5",
+      "input": {
+        "path": "/home/robotixx/data/pairs/unitree_g1/walk1_subject5.npz",
+        "sha256": "e8e10aebc35774ebc1a56498be4b2fd7b10922c9c147fece2a59d7f2784d86ae"
+      },
+      "frames": 7840,
+      "fps": 30.0,
+      "duration_s": 261.3333333333333,
+      "human_frames": 7840,
+      "frame_convention": {
+        "robot_pelvis_z_mean_m": 0.7651293873786926,
+        "robot_pelvis_z_min_m": 0.6128249764442444,
+        "human_hips_z_mean_m": 0.8593305349349976,
+        "human_toe_z_mean_m": 0.03043844737112522,
+        "robot_foot_origin_z_mean_m": 0.0945543423295021,
+        "up_axis": "z (positive up) assumed by detect_contact_height_hysteresis"
+      },
+      "sampled_windows": {
+        "starts": [
+          0,
+          1529,
+          3059,
+          4588,
+          6118,
+          7648
+        ],
+        "window": 192,
+        "coverage_fraction": 0.1469387755102041
+      },
+      "oracle_clip_summary": {
+        "prevalence_any_foot": 0.789030612244898,
+        "prevalence_both_feet": 0.1110969387755102,
+        "prevalence_left": 0.5258928571428572,
+        "prevalence_right": 0.37423469387755104,
+        "double_support_share_of_stance": 0.14080181053992888
+      },
+      "per_foot": [
+        {
+          "body": "left_ankle_roll_link",
+          "z_min_m": 0.03787076473236084,
+          "z_min_frame": 3650,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.051324062049388885,
+            "2": 0.052724070847034454,
+            "5": 0.055109698325395584,
+            "25": 0.0618726946413517,
+            "50": 0.07405909150838852,
+            "75": 0.11001477390527725
+          },
+          "plateau_m": 0.06037076473236083,
+          "plateau_minus_min_m": 0.022499999999999992,
+          "frames_within_enter_of_min": 3219,
+          "frames_within_enter_of_plateau": 5109,
+          "tilt_deg_at_min_frame": 5.072422027587891,
+          "tilt_deg_median": 9.065216064453125,
+          "tilt_deg_p95": 65.13983917236328,
+          "oracle_prevalence": 0.5258928571428572,
+          "oracle_prevalence_in_sampled_windows": 0.578125,
+          "oracle_runs": 221,
+          "oracle_run_len_frames": {
+            "median": 14.0,
+            "max": 150.0,
+            "min": 3.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.5258928537368774,
+            "shared_clip_min": 0.30752551555633545,
+            "lower_tail_plateau": 0.7071428298950195,
+            "percentile_2": 0.6581632494926453
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.26556122303009033,
+            "enter0.03_exit0.05": 0.5258928537368774,
+            "enter0.05_exit0.07": 0.6915816068649292,
+            "enter0.08_exit0.1": 0.8090561032295227
+          },
+          "human_toe": {
+            "body": "LeftToe",
+            "z_min_m": -0.002484787255525589,
+            "z_p50_m": 0.016471747308969498,
+            "source_contact_prevalence": 0.5918367346938775,
+            "height_only_hysteresis_prevalence": 0.6821428571428572
+          }
+        },
+        {
+          "body": "right_ankle_roll_link",
+          "z_min_m": 0.02902393229305744,
+          "z_min_frame": 5191,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.04662228748202324,
+            "2": 0.04922812432050705,
+            "5": 0.052258964627981186,
+            "25": 0.06007343530654907,
+            "50": 0.07382145524024963,
+            "75": 0.1112922877073288
+          },
+          "plateau_m": 0.056523932293057425,
+          "plateau_minus_min_m": 0.027499999999999983,
+          "frames_within_enter_of_min": 1744,
+          "frames_within_enter_of_plateau": 4871,
+          "tilt_deg_at_min_frame": 13.657692909240723,
+          "tilt_deg_median": 9.399910926818848,
+          "tilt_deg_p95": 68.49459075927734,
+          "oracle_prevalence": 0.37423469387755104,
+          "oracle_prevalence_in_sampled_windows": 0.3854166666666667,
+          "oracle_runs": 204,
+          "oracle_run_len_frames": {
+            "median": 12.0,
+            "max": 75.0,
+            "min": 4.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.37423470616340637,
+            "shared_clip_min": 0.37423470616340637,
+            "lower_tail_plateau": 0.6868622303009033,
+            "percentile_2": 0.6381377577781677
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.04987245053052902,
+            "enter0.03_exit0.05": 0.37423470616340637,
+            "enter0.05_exit0.07": 0.6373724341392517,
+            "enter0.08_exit0.1": 0.777933657169342
+          },
+          "human_toe": {
+            "body": "RightToe",
+            "z_min_m": -0.0022289277985692024,
+            "z_p50_m": 0.015520945191383362,
+            "source_contact_prevalence": 0.5821428571428572,
+            "height_only_hysteresis_prevalence": 0.6859693877551021
+          }
+        }
+      ]
+    },
+    {
+      "clip": "dance2_subject4",
+      "input": {
+        "path": "/home/robotixx/data/pairs/unitree_g1/dance2_subject4.npz",
+        "sha256": "7ecc8183626ead6aa5923d43290ebe5a2e466f4ad86570c7a30d169342fbb7e1"
+      },
+      "frames": 6771,
+      "fps": 30.0,
+      "duration_s": 225.7,
+      "human_frames": 6771,
+      "frame_convention": {
+        "robot_pelvis_z_mean_m": 0.7885374426841736,
+        "robot_pelvis_z_min_m": 0.08357471972703934,
+        "human_hips_z_mean_m": 0.8870227336883545,
+        "human_toe_z_mean_m": 0.05001861974596977,
+        "robot_foot_origin_z_mean_m": 0.1112600788474083,
+        "up_axis": "z (positive up) assumed by detect_contact_height_hysteresis"
+      },
+      "sampled_windows": {
+        "starts": [
+          0,
+          1315,
+          2631,
+          3947,
+          5263,
+          6579
+        ],
+        "window": 192,
+        "coverage_fraction": 0.17013735046521933
+      },
+      "oracle_clip_summary": {
+        "prevalence_any_foot": 0.004430660168365086,
+        "prevalence_both_feet": 0.0,
+        "prevalence_left": 0.0008861320336730173,
+        "prevalence_right": 0.003544528134692069,
+        "double_support_share_of_stance": 0.0
+      },
+      "per_foot": [
+        {
+          "body": "left_ankle_roll_link",
+          "z_min_m": -0.041132211685180664,
+          "z_min_frame": 1755,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.04386112093925476,
+            "2": 0.04809181019663811,
+            "5": 0.051936790347099304,
+            "25": 0.06369315832853317,
+            "50": 0.0832868367433548,
+            "75": 0.13184639811515808
+          },
+          "plateau_m": 0.006367788314819312,
+          "plateau_minus_min_m": 0.04749999999999997,
+          "frames_within_enter_of_min": 5,
+          "frames_within_enter_of_plateau": 32,
+          "tilt_deg_at_min_frame": 11.87618637084961,
+          "tilt_deg_median": 9.565792083740234,
+          "tilt_deg_p95": 47.25859069824219,
+          "oracle_prevalence": 0.0008861320336730173,
+          "oracle_prevalence_in_sampled_windows": 0.0,
+          "oracle_runs": 1,
+          "oracle_run_len_frames": {
+            "median": 6.0,
+            "max": 6.0,
+            "min": 6.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.0008861320093274117,
+            "shared_clip_min": 0.0008861320093274117,
+            "lower_tail_plateau": 0.009156697429716587,
+            "percentile_2": 0.5341899394989014
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.0007384433411061764,
+            "enter0.03_exit0.05": 0.0008861320093274117,
+            "enter0.05_exit0.07": 0.0028060846962034702,
+            "enter0.08_exit0.1": 0.01462117861956358
+          },
+          "human_toe": {
+            "body": "LeftToe",
+            "z_min_m": 0.004214423708617687,
+            "z_p50_m": 0.024746455252170563,
+            "source_contact_prevalence": 0.5669768128784523,
+            "height_only_hysteresis_prevalence": 0.7397725594446906
+          }
+        },
+        {
+          "body": "right_ankle_roll_link",
+          "z_min_m": 0.004420153796672821,
+          "z_min_frame": 2602,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.04470497742295265,
+            "2": 0.04791072756052017,
+            "5": 0.05216307193040848,
+            "25": 0.06225356459617615,
+            "50": 0.0794224739074707,
+            "75": 0.12648874521255493
+          },
+          "plateau_m": 0.051920153796672835,
+          "plateau_minus_min_m": 0.047500000000000014,
+          "frames_within_enter_of_min": 11,
+          "frames_within_enter_of_plateau": 3506,
+          "tilt_deg_at_min_frame": 1.628467082977295,
+          "tilt_deg_median": 9.218316078186035,
+          "tilt_deg_p95": 49.132057189941406,
+          "oracle_prevalence": 0.003544528134692069,
+          "oracle_prevalence_in_sampled_windows": 0.006076388888888889,
+          "oracle_runs": 6,
+          "oracle_run_len_frames": {
+            "median": 4.0,
+            "max": 7.0,
+            "min": 2.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.0035445280373096466,
+            "shared_clip_min": 0.0,
+            "lower_tail_plateau": 0.5926746129989624,
+            "percentile_2": 0.5622507929801941
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.0007384433411061764,
+            "enter0.03_exit0.05": 0.0035445280373096466,
+            "enter0.05_exit0.07": 0.19051839411258698,
+            "enter0.08_exit0.1": 0.6055235266685486
+          },
+          "human_toe": {
+            "body": "RightToe",
+            "z_min_m": 0.004482134245336056,
+            "z_p50_m": 0.02294132485985756,
+            "source_contact_prevalence": 0.5935607738886427,
+            "height_only_hysteresis_prevalence": 0.7737409540688229
+          }
+        }
+      ]
+    },
+    {
+      "clip": "fight1_subject3",
+      "input": {
+        "path": "/home/robotixx/data/pairs/unitree_g1/fight1_subject3.npz",
+        "sha256": "0898213dfa77d67d5255fe25bb470f4de337510f7c8148efc2e696739b499b2b"
+      },
+      "frames": 7347,
+      "fps": 30.0,
+      "duration_s": 244.9,
+      "human_frames": 7347,
+      "frame_convention": {
+        "robot_pelvis_z_mean_m": 0.7333455085754395,
+        "robot_pelvis_z_min_m": 0.12089541554450989,
+        "human_hips_z_mean_m": 0.8223602175712585,
+        "human_toe_z_mean_m": 0.05577259510755539,
+        "robot_foot_origin_z_mean_m": 0.10817689448595047,
+        "up_axis": "z (positive up) assumed by detect_contact_height_hysteresis"
+      },
+      "sampled_windows": {
+        "starts": [
+          0,
+          1431,
+          2862,
+          4293,
+          5724,
+          7155
+        ],
+        "window": 192,
+        "coverage_fraction": 0.15679869334422214
+      },
+      "oracle_clip_summary": {
+        "prevalence_any_foot": 0.002449979583503471,
+        "prevalence_both_feet": 0.0,
+        "prevalence_left": 0.001905539676058255,
+        "prevalence_right": 0.0005444399074452157,
+        "double_support_share_of_stance": 0.0
+      },
+      "per_foot": [
+        {
+          "body": "left_ankle_roll_link",
+          "z_min_m": -0.029949579387903214,
+          "z_min_frame": 6522,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.029007451608777046,
+            "2": 0.03658287599682808,
+            "5": 0.04520740732550621,
+            "25": 0.06255410611629486,
+            "50": 0.07808186113834381,
+            "75": 0.11736995726823807
+          },
+          "plateau_m": 0.022550420612096795,
+          "plateau_minus_min_m": 0.052500000000000005,
+          "frames_within_enter_of_min": 8,
+          "frames_within_enter_of_plateau": 677,
+          "tilt_deg_at_min_frame": 17.201505661010742,
+          "tilt_deg_median": 11.99930191040039,
+          "tilt_deg_p95": 60.628604888916016,
+          "oracle_prevalence": 0.001905539676058255,
+          "oracle_prevalence_in_sampled_windows": 0.0,
+          "oracle_runs": 1,
+          "oracle_run_len_frames": {
+            "median": 14.0,
+            "max": 14.0,
+            "min": 14.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.0019055396551266313,
+            "shared_clip_min": 0.00027221994241699576,
+            "lower_tail_plateau": 0.154076486825943,
+            "percentile_2": 0.45324623584747314
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.001769429654814303,
+            "enter0.03_exit0.05": 0.0019055396551266313,
+            "enter0.05_exit0.07": 0.006397169083356857,
+            "enter0.08_exit0.1": 0.1261739432811737
+          },
+          "human_toe": {
+            "body": "LeftToe",
+            "z_min_m": 0.0036446594167500734,
+            "z_p50_m": 0.026011135429143906,
+            "source_contact_prevalence": 0.5965700285830952,
+            "height_only_hysteresis_prevalence": 0.72546617667075
+          }
+        },
+        {
+          "body": "right_ankle_roll_link",
+          "z_min_m": -0.05014970153570175,
+          "z_min_frame": 6500,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.029269713908433914,
+            "2": 0.035614073276519775,
+            "5": 0.046177610754966736,
+            "25": 0.06250014901161194,
+            "50": 0.0789751261472702,
+            "75": 0.1238991990685463
+          },
+          "plateau_m": -0.04764970153570175,
+          "plateau_minus_min_m": 0.0025000000000000022,
+          "frames_within_enter_of_min": 3,
+          "frames_within_enter_of_plateau": 3,
+          "tilt_deg_at_min_frame": 49.87421798706055,
+          "tilt_deg_median": 13.096159934997559,
+          "tilt_deg_p95": 64.35955047607422,
+          "oracle_prevalence": 0.0005444399074452157,
+          "oracle_prevalence_in_sampled_windows": 0.0,
+          "oracle_runs": 1,
+          "oracle_run_len_frames": {
+            "median": 4.0,
+            "max": 4.0,
+            "min": 4.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.0005444398848339915,
+            "shared_clip_min": 0.0005444398848339915,
+            "lower_tail_plateau": 0.0005444398848339915,
+            "percentile_2": 0.4347352683544159
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.0004083299427293241,
+            "enter0.03_exit0.05": 0.0005444398848339915,
+            "enter0.05_exit0.07": 0.0009527698275633156,
+            "enter0.08_exit0.1": 0.020008167251944542
+          },
+          "human_toe": {
+            "body": "RightToe",
+            "z_min_m": 0.006000516004860401,
+            "z_p50_m": 0.026242392137646675,
+            "source_contact_prevalence": 0.5889478698788622,
+            "height_only_hysteresis_prevalence": 0.7302300258608956
+          }
+        }
+      ]
+    },
+    {
+      "clip": "run2_subject1",
+      "input": {
+        "path": "/home/robotixx/data/pairs/unitree_g1/run2_subject1.npz",
+        "sha256": "acfd85e3c7010886093258558f0ac901b5e4dc09a539d2deecfdcaa12d288b48"
+      },
+      "frames": 7345,
+      "fps": 30.0,
+      "duration_s": 244.83333333333334,
+      "human_frames": 7345,
+      "frame_convention": {
+        "robot_pelvis_z_mean_m": 0.7352315783500671,
+        "robot_pelvis_z_min_m": 0.4880277216434479,
+        "human_hips_z_mean_m": 0.825584352016449,
+        "human_toe_z_mean_m": 0.05210614576935768,
+        "robot_foot_origin_z_mean_m": 0.1256592869758606,
+        "up_axis": "z (positive up) assumed by detect_contact_height_hysteresis"
+      },
+      "sampled_windows": {
+        "starts": [
+          0,
+          1430,
+          2861,
+          4291,
+          5722,
+          7153
+        ],
+        "window": 192,
+        "coverage_fraction": 0.15684138869979578
+      },
+      "oracle_clip_summary": {
+        "prevalence_any_foot": 0.043294758339006124,
+        "prevalence_both_feet": 0.0068073519400953025,
+        "prevalence_left": 0.011300204220558203,
+        "prevalence_right": 0.03880190605854323,
+        "double_support_share_of_stance": 0.15723270440251572
+      },
+      "per_foot": [
+        {
+          "body": "left_ankle_roll_link",
+          "z_min_m": 0.00321291945874691,
+          "z_min_frame": 1740,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.03879210725426674,
+            "2": 0.042718928307294846,
+            "5": 0.04803183674812317,
+            "25": 0.060702696442604065,
+            "50": 0.08538147807121277,
+            "75": 0.1543758064508438
+          },
+          "plateau_m": 0.050712919458746925,
+          "plateau_minus_min_m": 0.047500000000000014,
+          "frames_within_enter_of_min": 27,
+          "frames_within_enter_of_plateau": 3441,
+          "tilt_deg_at_min_frame": 4.9430012702941895,
+          "tilt_deg_median": 17.301551818847656,
+          "tilt_deg_p95": 85.84820556640625,
+          "oracle_prevalence": 0.011300204220558203,
+          "oracle_prevalence_in_sampled_windows": 0.006076388888888889,
+          "oracle_runs": 11,
+          "oracle_run_len_frames": {
+            "median": 7.0,
+            "max": 13.0,
+            "min": 2.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.011300204321742058,
+            "shared_clip_min": 0.011300204321742058,
+            "lower_tail_plateau": 0.5308372974395752,
+            "percentile_2": 0.4831858277320862
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.0008168822387233377,
+            "enter0.03_exit0.05": 0.011300204321742058,
+            "enter0.05_exit0.07": 0.18502382934093475,
+            "enter0.08_exit0.1": 0.5445881485939026
+          },
+          "human_toe": {
+            "body": "LeftToe",
+            "z_min_m": -0.029759736731648445,
+            "z_p50_m": 0.00828645471483469,
+            "source_contact_prevalence": 0.4758339006126617,
+            "height_only_hysteresis_prevalence": 0.4368958475153165
+          }
+        },
+        {
+          "body": "right_ankle_roll_link",
+          "z_min_m": 0.012895137071609497,
+          "z_min_frame": 2933,
+          "z_min_frame_in_sampled_windows": true,
+          "z_percentiles_m": {
+            "1": 0.040081530809402466,
+            "2": 0.04314088821411133,
+            "5": 0.04748157039284706,
+            "25": 0.059585362672805786,
+            "50": 0.0882687047123909,
+            "75": 0.17177414894104004
+          },
+          "plateau_m": 0.06039513707160951,
+          "plateau_minus_min_m": 0.047500000000000014,
+          "frames_within_enter_of_min": 135,
+          "frames_within_enter_of_plateau": 3741,
+          "tilt_deg_at_min_frame": 8.9452486038208,
+          "tilt_deg_median": 17.485061645507812,
+          "tilt_deg_p95": 87.1165542602539,
+          "oracle_prevalence": 0.03880190605854323,
+          "oracle_prevalence_in_sampled_windows": 0.043402777777777776,
+          "oracle_runs": 48,
+          "oracle_run_len_frames": {
+            "median": 5.0,
+            "max": 20.0,
+            "min": 2.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.038801904767751694,
+            "shared_clip_min": 0.00871341023594141,
+            "lower_tail_plateau": 0.5552076101303101,
+            "percentile_2": 0.4725663661956787
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.00871341023594141,
+            "enter0.03_exit0.05": 0.038801904767751694,
+            "enter0.05_exit0.07": 0.4076242446899414,
+            "enter0.08_exit0.1": 0.5663716793060303
+          },
+          "human_toe": {
+            "body": "RightToe",
+            "z_min_m": -0.019440418109297752,
+            "z_p50_m": 0.014455420896410942,
+            "source_contact_prevalence": 0.4732471068754255,
+            "height_only_hysteresis_prevalence": 0.5023825731790333
+          }
+        }
+      ]
+    },
+    {
+      "clip": "jumps1_subject2",
+      "input": {
+        "path": "/home/robotixx/data/pairs/unitree_g1/jumps1_subject2.npz",
+        "sha256": "079c4c2ab781575b7e02b1a1a60a6ba3761b3253badd0a259bcc1c11b59ee590"
+      },
+      "frames": 7334,
+      "fps": 30.0,
+      "duration_s": 244.46666666666667,
+      "human_frames": 7334,
+      "frame_convention": {
+        "robot_pelvis_z_mean_m": 0.64747554063797,
+        "robot_pelvis_z_min_m": 0.038240619003772736,
+        "human_hips_z_mean_m": 0.7263326644897461,
+        "human_toe_z_mean_m": 0.10934965312480927,
+        "robot_foot_origin_z_mean_m": 0.1463490128517151,
+        "up_axis": "z (positive up) assumed by detect_contact_height_hysteresis"
+      },
+      "sampled_windows": {
+        "starts": [
+          0,
+          1428,
+          2856,
+          4285,
+          5713,
+          7142
+        ],
+        "window": 192,
+        "coverage_fraction": 0.15707662939732753
+      },
+      "oracle_clip_summary": {
+        "prevalence_any_foot": 0.031224434142350696,
+        "prevalence_both_feet": 0.0036814835014998635,
+        "prevalence_left": 0.027679301881647123,
+        "prevalence_right": 0.007226615762203436,
+        "double_support_share_of_stance": 0.11790393013100436
+      },
+      "per_foot": [
+        {
+          "body": "left_ankle_roll_link",
+          "z_min_m": -0.0003382749855518341,
+          "z_min_frame": 7215,
+          "z_min_frame_in_sampled_windows": true,
+          "z_percentiles_m": {
+            "1": 0.019139401614665985,
+            "2": 0.02523897774517536,
+            "5": 0.05118929594755173,
+            "25": 0.06779671460390091,
+            "50": 0.11756612360477448,
+            "75": 0.21252118051052094
+          },
+          "plateau_m": 0.047161725014448166,
+          "plateau_minus_min_m": 0.0475,
+          "frames_within_enter_of_min": 178,
+          "frames_within_enter_of_plateau": 2517,
+          "tilt_deg_at_min_frame": 26.923002243041992,
+          "tilt_deg_median": 29.68695831298828,
+          "tilt_deg_p95": 111.34698486328125,
+          "oracle_prevalence": 0.027679301881647123,
+          "oracle_prevalence_in_sampled_windows": 0.025173611111111112,
+          "oracle_runs": 9,
+          "oracle_run_len_frames": {
+            "median": 20.0,
+            "max": 53.0,
+            "min": 3.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.02767930179834366,
+            "shared_clip_min": 0.0072266156785190105,
+            "lower_tail_plateau": 0.4042814373970032,
+            "percentile_2": 0.1022634282708168
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.02113444171845913,
+            "enter0.03_exit0.05": 0.02767930179834366,
+            "enter0.05_exit0.07": 0.061494410037994385,
+            "enter0.08_exit0.1": 0.41368967294692993
+          },
+          "human_toe": {
+            "body": "LeftToe",
+            "z_min_m": -0.008998320437967777,
+            "z_p50_m": 0.052010029554367065,
+            "source_contact_prevalence": 0.4445050449959095,
+            "height_only_hysteresis_prevalence": 0.3318789200981729
+          }
+        },
+        {
+          "body": "right_ankle_roll_link",
+          "z_min_m": -0.018689418211579323,
+          "z_min_frame": 7234,
+          "z_min_frame_in_sampled_windows": true,
+          "z_percentiles_m": {
+            "1": 0.017341982573270798,
+            "2": 0.03160346299409866,
+            "5": 0.04514336958527565,
+            "25": 0.061368562281131744,
+            "50": 0.07700666785240173,
+            "75": 0.14201559126377106
+          },
+          "plateau_m": 0.018810581788420683,
+          "plateau_minus_min_m": 0.037500000000000006,
+          "frames_within_enter_of_min": 41,
+          "frames_within_enter_of_plateau": 532,
+          "tilt_deg_at_min_frame": 3.423482894897461,
+          "tilt_deg_median": 12.797714233398438,
+          "tilt_deg_p95": 108.11720275878906,
+          "oracle_prevalence": 0.007226615762203436,
+          "oracle_prevalence_in_sampled_windows": 0.04600694444444445,
+          "oracle_runs": 1,
+          "oracle_run_len_frames": {
+            "median": 53.0,
+            "max": 53.0,
+            "min": 53.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.0072266156785190105,
+            "shared_clip_min": 0.0072266156785190105,
+            "lower_tail_plateau": 0.10144532471895218,
+            "percentile_2": 0.3794654905796051
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.0049086445942521095,
+            "enter0.03_exit0.05": 0.0072266156785190105,
+            "enter0.05_exit0.07": 0.027270248159766197,
+            "enter0.08_exit0.1": 0.3616034984588623
+          },
+          "human_toe": {
+            "body": "RightToe",
+            "z_min_m": -0.00046531885163858533,
+            "z_p50_m": 0.035653457045555115,
+            "source_contact_prevalence": 0.5700845377692937,
+            "height_only_hysteresis_prevalence": 0.4206435778565585
+          }
+        }
+      ]
+    },
+    {
+      "clip": "sprint1_subject4",
+      "input": {
+        "path": "/home/robotixx/data/pairs/unitree_g1/sprint1_subject4.npz",
+        "sha256": "cc153fa35e577198bfcc4830fcf5fcc67cb2001a5eea6223489f467f435e366a"
+      },
+      "frames": 8194,
+      "fps": 30.0,
+      "duration_s": 273.1333333333333,
+      "human_frames": 8194,
+      "frame_convention": {
+        "robot_pelvis_z_mean_m": 0.7547376155853271,
+        "robot_pelvis_z_min_m": 0.47197601199150085,
+        "human_hips_z_mean_m": 0.8557459712028503,
+        "human_toe_z_mean_m": 0.049346923828125,
+        "robot_foot_origin_z_mean_m": 0.1075892373919487,
+        "up_axis": "z (positive up) assumed by detect_contact_height_hysteresis"
+      },
+      "sampled_windows": {
+        "starts": [
+          0,
+          1600,
+          3200,
+          4801,
+          6401,
+          8002
+        ],
+        "window": 192,
+        "coverage_fraction": 0.14059067610446668
+      },
+      "oracle_clip_summary": {
+        "prevalence_any_foot": 0.06468147424945082,
+        "prevalence_both_feet": 0.000366121552355382,
+        "prevalence_left": 0.012936294849890163,
+        "prevalence_right": 0.05211130095191604,
+        "double_support_share_of_stance": 0.005660377358490566
+      },
+      "per_foot": [
+        {
+          "body": "left_ankle_roll_link",
+          "z_min_m": 0.015015672892332077,
+          "z_min_frame": 1495,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.04667931795120239,
+            "2": 0.05031861737370491,
+            "5": 0.053716372698545456,
+            "25": 0.06492749601602554,
+            "50": 0.08299815654754639,
+            "75": 0.10263437032699585
+          },
+          "plateau_m": 0.06251567289233209,
+          "plateau_minus_min_m": 0.047500000000000014,
+          "frames_within_enter_of_min": 61,
+          "frames_within_enter_of_plateau": 5266,
+          "tilt_deg_at_min_frame": 37.860897064208984,
+          "tilt_deg_median": 6.959972381591797,
+          "tilt_deg_p95": 68.82035064697266,
+          "oracle_prevalence": 0.012936294849890163,
+          "oracle_prevalence_in_sampled_windows": 0.001736111111111111,
+          "oracle_runs": 27,
+          "oracle_run_len_frames": {
+            "median": 3.0,
+            "max": 16.0,
+            "min": 2.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.012936295010149479,
+            "shared_clip_min": 0.012936295010149479,
+            "lower_tail_plateau": 0.7533560991287231,
+            "percentile_2": 0.6774469017982483
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.003783256048336625,
+            "enter0.03_exit0.05": 0.012936295010149479,
+            "enter0.05_exit0.07": 0.3650231957435608,
+            "enter0.08_exit0.1": 0.7648279070854187
+          },
+          "human_toe": {
+            "body": "LeftToe",
+            "z_min_m": 0.0017514260252937675,
+            "z_p50_m": 0.023685555905103683,
+            "source_contact_prevalence": 0.7062484744935319,
+            "height_only_hysteresis_prevalence": 0.7627532340737124
+          }
+        },
+        {
+          "body": "right_ankle_roll_link",
+          "z_min_m": 0.022327739745378494,
+          "z_min_frame": 5605,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.0470423623919487,
+            "2": 0.051953256130218506,
+            "5": 0.05625752732157707,
+            "25": 0.06661113351583481,
+            "50": 0.08430824428796768,
+            "75": 0.10156463086605072
+          },
+          "plateau_m": 0.0648277397453785,
+          "plateau_minus_min_m": 0.04250000000000001,
+          "frames_within_enter_of_min": 180,
+          "frames_within_enter_of_plateau": 5443,
+          "tilt_deg_at_min_frame": 31.326641082763672,
+          "tilt_deg_median": 7.881945610046387,
+          "tilt_deg_p95": 69.49195098876953,
+          "oracle_prevalence": 0.05211130095191604,
+          "oracle_prevalence_in_sampled_windows": 0.10069444444444445,
+          "oracle_runs": 58,
+          "oracle_run_len_frames": {
+            "median": 3.5,
+            "max": 96.0,
+            "min": 1.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.05211130157113075,
+            "shared_clip_min": 0.012082011438906193,
+            "lower_tail_plateau": 0.7816694974899292,
+            "percentile_2": 0.6628020405769348
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.010617525316774845,
+            "enter0.03_exit0.05": 0.05211130157113075,
+            "enter0.05_exit0.07": 0.4770563840866089,
+            "enter0.08_exit0.1": 0.7985110878944397
+          },
+          "human_toe": {
+            "body": "RightToe",
+            "z_min_m": -0.0015088790096342564,
+            "z_p50_m": 0.022508133202791214,
+            "source_contact_prevalence": 0.7024652184525262,
+            "height_only_hysteresis_prevalence": 0.7090554063949231
+          }
+        }
+      ]
+    },
+    {
+      "clip": "aiming2_subject3",
+      "input": {
+        "path": "/home/robotixx/data/pairs/unitree_g1/aiming2_subject3.npz",
+        "sha256": "c66f6e4926c4a629bc1ef76e0a66dd624b4414151d141e4e9a8691571cf00711"
+      },
+      "frames": 9172,
+      "fps": 30.0,
+      "duration_s": 305.73333333333335,
+      "human_frames": 9172,
+      "frame_convention": {
+        "robot_pelvis_z_mean_m": 0.6902201771736145,
+        "robot_pelvis_z_min_m": 0.2945829927921295,
+        "human_hips_z_mean_m": 0.7717733383178711,
+        "human_toe_z_mean_m": 0.03768138587474823,
+        "robot_foot_origin_z_mean_m": 0.08248463273048401,
+        "up_axis": "z (positive up) assumed by detect_contact_height_hysteresis"
+      },
+      "sampled_windows": {
+        "starts": [
+          0,
+          1796,
+          3592,
+          5388,
+          7184,
+          8980
+        ],
+        "window": 192,
+        "coverage_fraction": 0.12559965111208024
+      },
+      "oracle_clip_summary": {
+        "prevalence_any_foot": 0.05941997383340602,
+        "prevalence_both_feet": 0.0,
+        "prevalence_left": 0.02311382468382032,
+        "prevalence_right": 0.036306149149585694,
+        "double_support_share_of_stance": 0.0
+      },
+      "per_foot": [
+        {
+          "body": "left_ankle_roll_link",
+          "z_min_m": -0.01228967122733593,
+          "z_min_frame": 8719,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.00802631676197052,
+            "2": 0.018426084890961647,
+            "5": 0.03874967247247696,
+            "25": 0.056246884167194366,
+            "50": 0.06521504372358322,
+            "75": 0.09047125279903412
+          },
+          "plateau_m": 0.03521032877266407,
+          "plateau_minus_min_m": 0.0475,
+          "frames_within_enter_of_min": 178,
+          "frames_within_enter_of_plateau": 4503,
+          "tilt_deg_at_min_frame": 8.604414939880371,
+          "tilt_deg_median": 8.757158279418945,
+          "tilt_deg_p95": 50.36532211303711,
+          "oracle_prevalence": 0.02311382468382032,
+          "oracle_prevalence_in_sampled_windows": 0.043402777777777776,
+          "oracle_runs": 3,
+          "oracle_run_len_frames": {
+            "median": 60.0,
+            "max": 102.0,
+            "min": 50.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.023113824427127838,
+            "shared_clip_min": 0.023113824427127838,
+            "lower_tail_plateau": 0.6373746395111084,
+            "percentile_2": 0.19494111835956573
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.014936763793230057,
+            "enter0.03_exit0.05": 0.023113824427127838,
+            "enter0.05_exit0.07": 0.0811164379119873,
+            "enter0.08_exit0.1": 0.6667029857635498
+          },
+          "human_toe": {
+            "body": "LeftToe",
+            "z_min_m": 0.002043388085439801,
+            "z_p50_m": 0.024792520329356194,
+            "source_contact_prevalence": 0.7056258177060619,
+            "height_only_hysteresis_prevalence": 0.734627126035761
+          }
+        },
+        {
+          "body": "right_ankle_roll_link",
+          "z_min_m": 0.005130846984684467,
+          "z_min_frame": 2431,
+          "z_min_frame_in_sampled_windows": false,
+          "z_percentiles_m": {
+            "1": 0.027676597237586975,
+            "2": 0.03228909522294998,
+            "5": 0.04254927113652229,
+            "25": 0.05761623755097389,
+            "50": 0.06806479394435883,
+            "75": 0.10029389709234238
+          },
+          "plateau_m": 0.05263084698468448,
+          "plateau_minus_min_m": 0.047500000000000014,
+          "frames_within_enter_of_min": 236,
+          "frames_within_enter_of_plateau": 5896,
+          "tilt_deg_at_min_frame": 15.644923210144043,
+          "tilt_deg_median": 9.97741413116455,
+          "tilt_deg_p95": 69.49114990234375,
+          "oracle_prevalence": 0.036306149149585694,
+          "oracle_prevalence_in_sampled_windows": 0.006076388888888889,
+          "oracle_runs": 12,
+          "oracle_run_len_frames": {
+            "median": 21.0,
+            "max": 79.0,
+            "min": 7.0
+          },
+          "prevalence_by_ground": {
+            "per_foot_clip_min (oracle)": 0.03630615025758743,
+            "shared_clip_min": 0.009376362897455692,
+            "lower_tail_plateau": 0.7037723660469055,
+            "percentile_2": 0.4993458390235901
+          },
+          "prevalence_by_threshold_per_foot_min": {
+            "enter0.02_exit0.04": 0.011447885073721409,
+            "enter0.03_exit0.05": 0.03630615025758743,
+            "enter0.05_exit0.07": 0.33525949716567993,
+            "enter0.08_exit0.1": 0.7146750688552856
+          },
+          "human_toe": {
+            "body": "RightToe",
+            "z_min_m": 0.0043570841662585735,
+            "z_p50_m": 0.024815287441015244,
+            "source_contact_prevalence": 0.7162014827736589,
+            "height_only_hysteresis_prevalence": 0.7462930658525948
+          }
+        }
+      ]
+    }
+  ]
+}

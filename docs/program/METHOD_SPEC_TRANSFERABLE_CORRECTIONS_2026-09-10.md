@@ -1,5 +1,12 @@
 # MINIMAL METHOD: Bounded Correction → Intent Filter → Distillation (CVD)
 
+> **Amended 2026-09-10 — read [`METHOD_SPEC_AMENDMENT_2026-09-10.md`](METHOD_SPEC_AMENDMENT_2026-09-10.md) first.**
+> The "cannot slow down" and "cannot shrink" guarantees in §1 are withdrawn (tested
+> counterexamples in `tests/test_correction_basis.py`); "first two/last two control points
+> pinned → C²" is corrected to three per end; §2's jitter non-regression rule and global-lag
+> audit are replaced by `snmr/repair_intent.py`; §3's open-loop PD stage is not a ranker.
+> The text below is preserved as written for the record.
+
 **Hypothesis under test:** RobotSpec-conditioned, intent-preserving retargeting corrections learned from closed-loop tracking experience transfer to an unseen humanoid.
 
 **One-line method:** freeze the existing proposal, search a bounded C² spline correction on training robots against a frozen per-robot tracker, reject any candidate that fails a human-side intent filter *before* it is ever scored for execution, then distill only accepted corrections into a token-conditioned residual head that adds zero parameters for a new robot.

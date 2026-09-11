@@ -53,6 +53,20 @@
 
 ---
 
+> **Amendment 2026-09-10 (interpretation, no number changes).** The last sentence of the R1
+> text above ("Identity was maximally available and bought nothing") is **not** adopted in the
+> manuscript and must not be: equal separation under one statistic does not establish maximal
+> identity information, and S's score does not show a supervised identity-plus-phase controller
+> would fail. The manuscript's wording (lines 425–430, 696–705: "carried as much linearly
+> decodable clip identity … still scored …; not evidence that a directly supervised
+> clip-identity-plus-phase reader would fail … unrun") is the correct one. The identity
+> measurement now has a hash-bound artifact:
+> `reproducibility/reports/e70_arm_identity_separation_2026-09-10.json`. Likewise the R2 text's
+> "lower bound on what a window-matched explicit arm would reach" was replaced in the manuscript
+> (line ~264) by "a strong positive control under the implemented recipe, not a bound"; R4's
+> channel-reliance scoping was applied in one sentence (lines ~274–279). Rebuilt with tectonic
+> 0.17.0 in a scratch copy: 8 pages, 0 overfull boxes.
+
 ### R2. Disclose the lookahead asymmetry's *direction*
 
 **This item is 80% already done and nobody has noticed.** Lines 255–257 and 694–698 already state that C is current-frame-only while A/T/S share `Z_OFFSETS = (0, 5)` (`scripts/train_e52_dagger.py:78`, routed through the shared `z_window()` at 252–254). What is missing is the one sentence that says which way the bias runs.

@@ -1,0 +1,47 @@
+{
+  "created_at": "2026-09-11T04:01:02.962371+00:00",
+  "command": [
+    "/home/robotixx/snmr/.venv/bin/python",
+    "scripts/measure_arm_identity_separation.py",
+    "--out",
+    "reproducibility/reports/e70_arm_identity_separation_2026-09-10.json"
+  ],
+  "git": {
+    "available": true,
+    "sha": "f4411ae3247e49b454c8b978c2c5aaf210f8d7db",
+    "dirty": true,
+    "tracked_dirty": true,
+    "tracked_diff_sha256": "f6aa1394ffa6c745ff67eb9277c0469b7a121a84acb3fabe9c4e2b44817665a4",
+    "untracked_paths": 55
+  },
+  "generator": {
+    "path": "/home/robotixx/snmr/scripts/measure_arm_identity_separation.py",
+    "sha256": "d5a767b13ce6478aa3a56ff8f827cd9180296c81dc15f77b690e0051fc745c18"
+  },
+  "inputs": [
+    {
+      "path": "/data/robotixx/snmr-research/e69/motions/walk1_subject1_mj_z.npz",
+      "sha256": "b78f294395a5c74f37edc1c09dd6de0909d966a9b7fd948291c8dd803f7106aa",
+      "frames": 13066,
+      "latent_dim": 128
+    },
+    {
+      "path": "/data/robotixx/snmr-research/e67/motions/walk1_subject5_mj_z.npz",
+      "sha256": "d8de93425c14e90dce2930450d722d3eb2b6fcbb09e9c4ff3d59725025424f51",
+      "frames": 13066,
+      "latent_dim": 128
+    }
+  ],
+  "statistic": "For each arm, standardize the concatenated per-frame codes of both clips per dimension (pool mean, pool std + 1e-6), take the per-clip mean of the standardized codes, and report the L2 norm of the difference of the two clip means, in pooled-SD units. A large value means clip identity is linearly decodable from the arm's command; exactly zero means the two clips receive identical code distributions in the mean.",
+  "arm_constructions": {
+    "A": "latent_z as stored in the frozen motion files (frozen SNMR latent)",
+    "S": "snmr.integration.distillation.same_phase_shuffled_latents: donor = (destination + 1) mod n at matched normalized time",
+    "T": "snmr.integration.distillation.shared_time_index_latents: identical code at equal local frame index"
+  },
+  "between_clip_separation_sd": {
+    "A": 8.041524887084961,
+    "S": 8.041524887084961,
+    "T": 0.0
+  },
+  "interpretation_limits": "Equal separation in A and S shows S carries as much linearly decodable clip identity as A under this statistic. It does not show identity was maximally available in any information-theoretic sense, and S's score does not bound what a directly supervised clip-identity-plus-phase controller could reach; that arm is unrun."
+}

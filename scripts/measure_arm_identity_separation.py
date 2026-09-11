@@ -45,15 +45,34 @@ def _separation(codes: torch.Tensor, boundary: int) -> float:
     return float(torch.linalg.norm(first - second))
 
 
+STATISTIC = (
+    "For each arm, standardize the concatenated per-frame codes of both clips per dimension "
+    "(pool mean, pool std + 1e-6), take the per-clip mean of the standardized codes, and "
+    "report the L2 norm of the difference of the two clip means, in pooled-SD units. "
+    "A large value means clip identity is linearly decodable from the arm's command; "
+    "exactly zero means the two clips receive identical code distributions in the mean."
+)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--clips", type=Path, nargs=2, default=list(DEFAULT_CLIPS))
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="write a JSON artifact (input sha256, statistic, command, values) to this path",
+    )
+    parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
 
     missing = [p for p in args.clips if not p.is_file()]
     if missing:
         print(f"missing frozen motion files: {missing}")
         return 2
+    if args.out is not None and args.out.exists() and not args.overwrite:
+        print(f"refusing to overwrite existing artifact: {args.out}")
+        return 3
 
     first, second = (np.load(p)["latent_z"] for p in args.clips)
     latents = torch.tensor(np.concatenate([first, second]), dtype=torch.float32)
@@ -71,14 +90,57 @@ def main() -> int:
             starts, ends, output_dim=latents.shape[1]
         ),
     }
+    values = {}
     for name, codes in arms.items():
-        print(f"  {name:<26} between-clip separation = {_separation(codes, boundary):8.4f} SD")
+        values[name.split()[0]] = _separation(codes, boundary)
+        print(f"  {name:<26} between-clip separation = {values[name.split()[0]]:8.4f} SD")
 
     print(
         "\nS carries the same linearly decodable clip identity as A, because the donor\n"
         "map only relabels the two clusters. T is identity-free by construction: it is\n"
         "the assay's content-free null, and S is not."
     )
+
+    if args.out is not None:
+        import hashlib
+        import json
+        import sys
+
+        from snmr.experiment import git_state, utc_now
+
+        def sha256(path: Path) -> str:
+            h = hashlib.sha256()
+            with open(path, "rb") as fh:
+                for chunk in iter(lambda: fh.read(1 << 20), b""):
+                    h.update(chunk)
+            return h.hexdigest()
+
+        artifact = {
+            "created_at": utc_now(),
+            "command": [sys.executable, *sys.argv],
+            "git": git_state(Path(__file__).resolve().parents[1]),
+            "generator": {"path": __file__, "sha256": sha256(Path(__file__))},
+            "inputs": [
+                {"path": str(p), "sha256": sha256(p), "frames": int(n), "latent_dim": int(d)}
+                for p, (n, d) in zip(args.clips, (first.shape, second.shape))
+            ],
+            "statistic": STATISTIC,
+            "arm_constructions": {
+                "A": "latent_z as stored in the frozen motion files (frozen SNMR latent)",
+                "S": "snmr.integration.distillation.same_phase_shuffled_latents: donor = (destination + 1) mod n at matched normalized time",
+                "T": "snmr.integration.distillation.shared_time_index_latents: identical code at equal local frame index",
+            },
+            "between_clip_separation_sd": values,
+            "interpretation_limits": (
+                "Equal separation in A and S shows S carries as much linearly decodable clip identity "
+                "as A under this statistic. It does not show identity was maximally available in any "
+                "information-theoretic sense, and S's score does not bound what a directly supervised "
+                "clip-identity-plus-phase controller could reach; that arm is unrun."
+            ),
+        }
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(json.dumps(artifact, indent=2))
+        print(f"\nwrote {args.out}")
     return 0
 
 

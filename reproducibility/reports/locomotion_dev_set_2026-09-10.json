@@ -1,0 +1,767 @@
+{
+  "created_at": "2026-09-11T03:55:30.660112+00:00",
+  "command": [
+    "/home/robotixx/snmr/.venv/bin/python",
+    "scripts/build_locomotion_dev_set.py"
+  ],
+  "git": {
+    "available": true,
+    "sha": "f4411ae3247e49b454c8b978c2c5aaf210f8d7db",
+    "dirty": true,
+    "tracked_dirty": true,
+    "tracked_diff_sha256": "ecf3e618bf5215b55cd0bc3a3dbc759907c8286acc13a05baec535d828b1d0ad",
+    "untracked_paths": 51
+  },
+  "generator": {
+    "path": "/home/robotixx/snmr/scripts/build_locomotion_dev_set.py",
+    "sha256": "c8a7d816d2d872635a398dd9391a8b927efbfc063c497d4b8bb27572640d82fe"
+  },
+  "status": "DEVELOPMENT SET. Every clip here has been inspected; none may be reported as held-out evaluation.",
+  "rule": {
+    "plateau_minus_min_max_m": 0.03,
+    "prevalence_band": [
+      0.3,
+      0.8
+    ],
+    "min_stance_runs": 50,
+    "applies_to": "both feet"
+  },
+  "oracle_definition": "teacher-height hysteresis on the ankle body origin, per-foot clip-minimum ground, enter 0.03 / exit 0.05 m (a stance proxy, not force-verified)",
+  "valid_walk_clips": [
+    "walk1_subject1",
+    "walk1_subject2",
+    "walk1_subject5",
+    "walk2_subject4"
+  ],
+  "n_valid_walk": 4,
+  "n_walk_family_inspected": 12,
+  "n_run_family_inspected": 6,
+  "clips": [
+    {
+      "clip": "aiming2_subject3",
+      "family": "other",
+      "subject": "subject3",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 8.6 deg)",
+        "left: oracle stance prevalence 0.023 outside [0.3, 0.8]",
+        "left: only 3 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 15.6 deg)",
+        "right: oracle stance prevalence 0.036 outside [0.3, 0.8]",
+        "right: only 12 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.02311382468382032,
+        0.036306149149585694
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.0475,
+        0.047500000000000014
+      ],
+      "oracle_runs_per_foot": [
+        3,
+        12
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.7056258177060619,
+        0.7162014827736589
+      ],
+      "tracker_seen": null,
+      "frames": 9172,
+      "fps": 30.0,
+      "input_sha256": "c66f6e4926c4a629bc1ef76e0a66dd624b4414151d141e4e9a8691571cf00711"
+    },
+    {
+      "clip": "dance2_subject4",
+      "family": "other",
+      "subject": "subject4",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.047 m below the stance plateau, > 0.030; tilt at that frame 11.9 deg)",
+        "left: oracle stance prevalence 0.001 outside [0.3, 0.8]",
+        "left: only 1 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 1.6 deg)",
+        "right: oracle stance prevalence 0.004 outside [0.3, 0.8]",
+        "right: only 6 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.0008861320336730173,
+        0.003544528134692069
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.04749999999999997,
+        0.047500000000000014
+      ],
+      "oracle_runs_per_foot": [
+        1,
+        6
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.5669768128784523,
+        0.5935607738886427
+      ],
+      "tracker_seen": null,
+      "frames": 6771,
+      "fps": 30.0,
+      "input_sha256": "7ecc8183626ead6aa5923d43290ebe5a2e466f4ad86570c7a30d169342fbb7e1"
+    },
+    {
+      "clip": "fight1_subject3",
+      "family": "other",
+      "subject": "subject3",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.053 m below the stance plateau, > 0.030; tilt at that frame 17.2 deg)",
+        "left: oracle stance prevalence 0.002 outside [0.3, 0.8]",
+        "left: only 1 oracle stance runs (< 50)",
+        "right: oracle stance prevalence 0.001 outside [0.3, 0.8]",
+        "right: only 1 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.001905539676058255,
+        0.0005444399074452157
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.052500000000000005,
+        0.0025000000000000022
+      ],
+      "oracle_runs_per_foot": [
+        1,
+        1
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.5965700285830952,
+        0.5889478698788622
+      ],
+      "tracker_seen": null,
+      "frames": 7347,
+      "fps": 30.0,
+      "input_sha256": "0898213dfa77d67d5255fe25bb470f4de337510f7c8148efc2e696739b499b2b"
+    },
+    {
+      "clip": "jumps1_subject2",
+      "family": "other",
+      "subject": "subject2",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 26.9 deg)",
+        "left: oracle stance prevalence 0.028 outside [0.3, 0.8]",
+        "left: only 9 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.038 m below the stance plateau, > 0.030; tilt at that frame 3.4 deg)",
+        "right: oracle stance prevalence 0.007 outside [0.3, 0.8]",
+        "right: only 1 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.027679301881647123,
+        0.007226615762203436
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.0475,
+        0.037500000000000006
+      ],
+      "oracle_runs_per_foot": [
+        9,
+        1
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.4445050449959095,
+        0.5700845377692937
+      ],
+      "tracker_seen": null,
+      "frames": 7334,
+      "fps": 30.0,
+      "input_sha256": "079c4c2ab781575b7e02b1a1a60a6ba3761b3253badd0a259bcc1c11b59ee590"
+    },
+    {
+      "clip": "run1_subject2",
+      "family": "run",
+      "subject": "subject2",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.038 m below the stance plateau, > 0.030; tilt at that frame 27.3 deg)",
+        "left: oracle stance prevalence 0.070 outside [0.3, 0.8]",
+        "right: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 22.6 deg)",
+        "right: oracle stance prevalence 0.018 outside [0.3, 0.8]",
+        "right: only 21 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.07021723896285914,
+        0.01807988787666433
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.037500000000000006,
+        0.047500000000000014
+      ],
+      "oracle_runs_per_foot": [
+        90,
+        21
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.4846531184302733,
+        0.48072880168185006
+      ],
+      "tracker_seen": null,
+      "frames": 7135,
+      "fps": 30.0,
+      "input_sha256": "ff5adee5cd41ee1db2e181e59e7f91684c575ae27112b16d22646b1d8009d00b"
+    },
+    {
+      "clip": "run1_subject5",
+      "family": "run",
+      "subject": "subject5",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.037 m below the stance plateau, > 0.030; tilt at that frame 12.7 deg)",
+        "left: oracle stance prevalence 0.132 outside [0.3, 0.8]",
+        "right: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 18.3 deg)",
+        "right: oracle stance prevalence 0.039 outside [0.3, 0.8]"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.13216538192011212,
+        0.039243167484232656
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.03749999999999998,
+        0.047500000000000014
+      ],
+      "oracle_runs_per_foot": [
+        150,
+        51
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.4468114926419061,
+        0.43027330063069374
+      ],
+      "tracker_seen": null,
+      "frames": 7135,
+      "fps": 30.0,
+      "input_sha256": "b7aca94dfb7465177bff486afb42c60f632540435bf4225adbf4bb03846fb409"
+    },
+    {
+      "clip": "run2_subject1",
+      "family": "run",
+      "subject": "subject1",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 4.9 deg)",
+        "left: oracle stance prevalence 0.011 outside [0.3, 0.8]",
+        "left: only 11 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 8.9 deg)",
+        "right: oracle stance prevalence 0.039 outside [0.3, 0.8]",
+        "right: only 48 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.011300204220558203,
+        0.03880190605854323
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.047500000000000014,
+        0.047500000000000014
+      ],
+      "oracle_runs_per_foot": [
+        11,
+        48
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.4758339006126617,
+        0.4732471068754255
+      ],
+      "tracker_seen": null,
+      "frames": 7345,
+      "fps": 30.0,
+      "input_sha256": "acfd85e3c7010886093258558f0ac901b5e4dc09a539d2deecfdcaa12d288b48"
+    },
+    {
+      "clip": "run2_subject4",
+      "family": "run",
+      "subject": "subject4",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.037 m below the stance plateau, > 0.030; tilt at that frame 26.3 deg)",
+        "left: oracle stance prevalence 0.120 outside [0.3, 0.8]",
+        "right: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 36.4 deg)",
+        "right: oracle stance prevalence 0.042 outside [0.3, 0.8]"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.11980939414567733,
+        0.04247787610619469
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.03749999999999998,
+        0.047500000000000014
+      ],
+      "oracle_runs_per_foot": [
+        148,
+        71
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.43703199455411845,
+        0.4404356705241661
+      ],
+      "tracker_seen": null,
+      "frames": 7345,
+      "fps": 30.0,
+      "input_sha256": "5c83bc077a883f0ab68c60dc9082f1780a2b3aea8992c99940f81975e5643ddb"
+    },
+    {
+      "clip": "sprint1_subject2",
+      "family": "run",
+      "subject": "subject2",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 26.0 deg)",
+        "left: oracle stance prevalence 0.009 outside [0.3, 0.8]",
+        "left: only 21 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.037 m below the stance plateau, > 0.030; tilt at that frame 11.8 deg)",
+        "right: oracle stance prevalence 0.001 outside [0.3, 0.8]",
+        "right: only 1 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.009397119843788137,
+        0.000732243104710764
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.047500000000000014,
+        0.03749999999999998
+      ],
+      "oracle_runs_per_foot": [
+        21,
+        1
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.6443739321454723,
+        0.650475958018062
+      ],
+      "tracker_seen": null,
+      "frames": 8194,
+      "fps": 30.0,
+      "input_sha256": "fdbf05516fd295c7f0f071d3ed671a6fab1e3f5e75f547877f67a292bc8c39ca"
+    },
+    {
+      "clip": "sprint1_subject4",
+      "family": "run",
+      "subject": "subject4",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 37.9 deg)",
+        "left: oracle stance prevalence 0.013 outside [0.3, 0.8]",
+        "left: only 27 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.043 m below the stance plateau, > 0.030; tilt at that frame 31.3 deg)",
+        "right: oracle stance prevalence 0.052 outside [0.3, 0.8]"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.012936294849890163,
+        0.05211130095191604
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.047500000000000014,
+        0.04250000000000001
+      ],
+      "oracle_runs_per_foot": [
+        27,
+        58
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.7062484744935319,
+        0.7024652184525262
+      ],
+      "tracker_seen": null,
+      "frames": 8194,
+      "fps": 30.0,
+      "input_sha256": "cc153fa35e577198bfcc4830fcf5fcc67cb2001a5eea6223489f467f435e366a"
+    },
+    {
+      "clip": "walk1_subject1",
+      "family": "walk",
+      "subject": "subject1",
+      "role": "development",
+      "oracle_valid": true,
+      "rejection_reasons": [],
+      "oracle_prevalence_per_foot": [
+        0.6686224489795919,
+        0.5464285714285714
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.017499999999999988,
+        0.027499999999999983
+      ],
+      "oracle_runs_per_foot": [
+        154,
+        142
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.685204081632653,
+        0.6716836734693877
+      ],
+      "tracker_seen": "E70 two-walk explicit student (seed0-2) training clip",
+      "frames": 7840,
+      "fps": 30.0,
+      "input_sha256": "79565402a381d54122c28b9f1f88bc43a46dfdca9f5aeee0ff0afbaee6c8c845"
+    },
+    {
+      "clip": "walk1_subject2",
+      "family": "walk",
+      "subject": "subject2",
+      "role": "development",
+      "oracle_valid": true,
+      "rejection_reasons": [],
+      "oracle_prevalence_per_foot": [
+        0.6215561224489796,
+        0.5514030612244898
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.012499999999999997,
+        0.022499999999999992
+      ],
+      "oracle_runs_per_foot": [
+        209,
+        212
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.6225765306122449,
+        0.6191326530612244
+      ],
+      "tracker_seen": null,
+      "frames": 7840,
+      "fps": 30.0,
+      "input_sha256": "ec81d9a3c5a216aa8905a7bcde0fa1f21eb4fd21071f95efddb32ecddca9184c"
+    },
+    {
+      "clip": "walk1_subject5",
+      "family": "walk",
+      "subject": "subject5",
+      "role": "development",
+      "oracle_valid": true,
+      "rejection_reasons": [],
+      "oracle_prevalence_per_foot": [
+        0.5258928571428572,
+        0.37423469387755104
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.022499999999999992,
+        0.027499999999999983
+      ],
+      "oracle_runs_per_foot": [
+        221,
+        204
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.5918367346938775,
+        0.5821428571428572
+      ],
+      "tracker_seen": "E70 two-walk explicit student (seed0-2) training clip",
+      "frames": 7840,
+      "fps": 30.0,
+      "input_sha256": "e8e10aebc35774ebc1a56498be4b2fd7b10922c9c147fece2a59d7f2784d86ae"
+    },
+    {
+      "clip": "walk2_subject1",
+      "family": "walk",
+      "subject": "subject1",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.043 m below the stance plateau, > 0.030; tilt at that frame 7.0 deg)",
+        "left: oracle stance prevalence 0.007 outside [0.3, 0.8]",
+        "left: only 4 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.043 m below the stance plateau, > 0.030; tilt at that frame 2.7 deg)",
+        "right: oracle stance prevalence 0.075 outside [0.3, 0.8]",
+        "right: only 40 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.007416736635880212,
+        0.07472712006717044
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.04250000000000001,
+        0.04250000000000001
+      ],
+      "oracle_runs_per_foot": [
+        4,
+        40
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.6724041421774419,
+        0.6516932549678142
+      ],
+      "tracker_seen": null,
+      "frames": 7146,
+      "fps": 30.0,
+      "input_sha256": "45537c609cb4d90cba10f27edd457faf325e005ea6f64e5f930aace8d519318c"
+    },
+    {
+      "clip": "walk2_subject3",
+      "family": "walk",
+      "subject": "subject3",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.053 m below the stance plateau, > 0.030; tilt at that frame 6.6 deg)",
+        "left: oracle stance prevalence 0.030 outside [0.3, 0.8]",
+        "left: only 8 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.053 m below the stance plateau, > 0.030; tilt at that frame 21.0 deg)",
+        "right: oracle stance prevalence 0.020 outside [0.3, 0.8]",
+        "right: only 4 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.02966694654352085,
+        0.020151133501259445
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.052500000000000005,
+        0.052500000000000005
+      ],
+      "oracle_runs_per_foot": [
+        8,
+        4
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.7110271480548559,
+        0.7204030226700252
+      ],
+      "tracker_seen": null,
+      "frames": 7146,
+      "fps": 30.0,
+      "input_sha256": "a5b454552cb4950cd9ae4bc47d57a37964da52caac1b739fbc682fd3ff7eb8eb"
+    },
+    {
+      "clip": "walk2_subject4",
+      "family": "walk",
+      "subject": "subject4",
+      "role": "development",
+      "oracle_valid": true,
+      "rejection_reasons": [],
+      "oracle_prevalence_per_foot": [
+        0.5695493982647635,
+        0.5442205429610971
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.022499999999999992,
+        0.027499999999999997
+      ],
+      "oracle_runs_per_foot": [
+        144,
+        142
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.6523929471032746,
+        0.6585502378953261
+      ],
+      "tracker_seen": null,
+      "frames": 7146,
+      "fps": 30.0,
+      "input_sha256": "0f44fb790ef3af88b0f24b47638670d6c31bfbc01e46715fe0b7e3eaaff85c01"
+    },
+    {
+      "clip": "walk3_subject1",
+      "family": "walk",
+      "subject": "subject1",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.048 m below the stance plateau, > 0.030; tilt at that frame 9.2 deg)",
+        "left: oracle stance prevalence 0.008 outside [0.3, 0.8]",
+        "left: only 8 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.052 m below the stance plateau, > 0.030; tilt at that frame 2.0 deg)",
+        "right: oracle stance prevalence 0.008 outside [0.3, 0.8]",
+        "right: only 4 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.007568590350047304,
+        0.008109203946479253
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.047500000000000014,
+        0.05249999999999998
+      ],
+      "oracle_runs_per_foot": [
+        8,
+        4
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.705635896742803,
+        0.6742803081497499
+      ],
+      "tracker_seen": "E67 specialist trained, failed its gate",
+      "frames": 7399,
+      "fps": 30.0,
+      "input_sha256": "8eecd3335f401f66308a5e12cf4845101197b44fa635c13e02cb77bb56dbfabd"
+    },
+    {
+      "clip": "walk3_subject2",
+      "family": "walk",
+      "subject": "subject2",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "right: oracle ground reference unsound (clip minimum 0.033 m below the stance plateau, > 0.030; tilt at that frame 14.1 deg)",
+        "right: oracle stance prevalence 0.216 outside [0.3, 0.8]"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.597648330855521,
+        0.21638059197188808
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.022499999999999992,
+        0.0325
+      ],
+      "oracle_runs_per_foot": [
+        182,
+        93
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.6457629409379646,
+        0.6425192593593729
+      ],
+      "tracker_seen": null,
+      "frames": 7399,
+      "fps": 30.0,
+      "input_sha256": "ce73732dd876d0911a74e50749fb3e133e909da1f3a42d3207f696a491b3ecfa"
+    },
+    {
+      "clip": "walk3_subject3",
+      "family": "walk",
+      "subject": "subject3",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "right: oracle ground reference unsound (clip minimum 0.043 m below the stance plateau, > 0.030; tilt at that frame 3.7 deg)",
+        "right: oracle stance prevalence 0.009 outside [0.3, 0.8]",
+        "right: only 4 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.3685633193674821,
+        0.008514664143803218
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.027499999999999983,
+        0.04250000000000001
+      ],
+      "oracle_runs_per_foot": [
+        72,
+        4
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.8055142586836059,
+        0.7241519124205974
+      ],
+      "tracker_seen": null,
+      "frames": 7399,
+      "fps": 30.0,
+      "input_sha256": "b10f82cb5f8b22f8cdb24808d25814bdb0d7938020861d435937406c3c401520"
+    },
+    {
+      "clip": "walk3_subject4",
+      "family": "walk",
+      "subject": "subject4",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle stance prevalence 0.070 outside [0.3, 0.8]",
+        "left: only 3 oracle stance runs (< 50)",
+        "right: oracle ground reference unsound (clip minimum 0.038 m below the stance plateau, > 0.030; tilt at that frame 112.4 deg)",
+        "right: oracle stance prevalence 0.002 outside [0.3, 0.8]",
+        "right: only 1 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.06973915393972159,
+        0.0024327611839437763
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.0275,
+        0.037500000000000006
+      ],
+      "oracle_runs_per_foot": [
+        3,
+        1
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.6363022030004054,
+        0.6463035545343966
+      ],
+      "tracker_seen": null,
+      "frames": 7399,
+      "fps": 30.0,
+      "input_sha256": "b363ab4150ae0d6fa9a6a34ceafe94707f92291d054b820fc8cf5d534b499639"
+    },
+    {
+      "clip": "walk3_subject5",
+      "family": "walk",
+      "subject": "subject5",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.032 m below the stance plateau, > 0.030; tilt at that frame 4.2 deg)",
+        "right: oracle ground reference unsound (clip minimum 0.037 m below the stance plateau, > 0.030; tilt at that frame 12.4 deg)",
+        "right: oracle stance prevalence 0.230 outside [0.3, 0.8]"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.30842005676442763,
+        0.22962562508447087
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.03249999999999997,
+        0.03749999999999998
+      ],
+      "oracle_runs_per_foot": [
+        129,
+        97
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.6403568049736451,
+        0.6564400594674956
+      ],
+      "tracker_seen": null,
+      "frames": 7399,
+      "fps": 30.0,
+      "input_sha256": "27021dc0ea81f6d456299a6d3a98b01f41d1748854dd78152c0ef47c99d1583a"
+    },
+    {
+      "clip": "walk4_subject1",
+      "family": "walk",
+      "subject": "subject1",
+      "role": "development",
+      "oracle_valid": false,
+      "rejection_reasons": [
+        "left: oracle ground reference unsound (clip minimum 0.053 m below the stance plateau, > 0.030; tilt at that frame 1.1 deg)",
+        "left: oracle stance prevalence 0.004 outside [0.3, 0.8]",
+        "left: only 1 oracle stance runs (< 50)"
+      ],
+      "oracle_prevalence_per_foot": [
+        0.004066693777958519,
+        0.728141520943473
+      ],
+      "plateau_minus_min_m_per_foot": [
+        0.05250000000000002,
+        0.022499999999999992
+      ],
+      "oracle_runs_per_foot": [
+        1,
+        119
+      ],
+      "source_contact_prevalence_per_foot": [
+        0.7568117120780805,
+        0.7541683611224075
+      ],
+      "tracker_seen": null,
+      "frames": 4918,
+      "fps": 30.0,
+      "input_sha256": "81e8da8e20318f72d7be151016f285f1fc48d8791f1ccf0a72db9b4f4b52bca7"
+    }
+  ],
+  "caveats": [
+    "Validity is validity of the ORACLE's ground reference on the clip, not evidence that the deployable mask or any corrector works there.",
+    "run/sprint clips fail the walking prevalence band by construction (flight phases); a run-family development set needs its own band and is not declared here.",
+    "walk1_subject1 and walk1_subject5 are tracker-seen for the E70 verifier; walk1_subject2 and walk2_subject4 are tracker-unseen but retargeter-seen (train partition of the frozen split)."
+  ]
+}
